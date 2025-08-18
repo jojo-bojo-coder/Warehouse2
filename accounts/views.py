@@ -10,8 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages  # Import Django messages framework
 from .forms import StudentProfileForm, DirectorSignupForm , ReceptionistSignupForm,AdministratorSignupForm,ForgotPasswordForm,ResetPasswordForm,VendorRegistrationForm,VendorApprovalForm
-from .models import UserProfile, DirectorProfile, ClubsModel,ReceptionistProfile, CoachProfile
-from .models import UserProfile, StudentProfile, OTP,PasswordResetToken
+from .models import UserProfile, DirectorProfile, ClubsModel,ReceptionistProfile, CoachProfile,StudentProfile,OTP,PasswordResetToken,Subscription
 from django.utils import translation
 import string
 from django.core.exceptions import ValidationError
@@ -28,7 +27,6 @@ import pywhatkit as kit
 import random
 import string
 from datetime import datetime, timedelta
-from .models import OTP, UserProfile
 import time
 import threading
 
@@ -1027,7 +1025,6 @@ def director_verify_otp(request):
         'mobile': request.session.get('payment_mobile', '')
     })
 
-from .models import Subscription
 def complete_director_signup_after_payment(request, payment_result):
     """
     Complete director account creation after successful payment
@@ -1219,7 +1216,6 @@ def reset_password(request, token):
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import CoachProfile
 from django.contrib import messages
 from club_dashboard.models import SubCategory
 
