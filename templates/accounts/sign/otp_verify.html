@@ -1,0 +1,266 @@
+{% extends "base_landing.html" %}
+
+{% block content %}
+
+<div class="flex min-h-screen items-center justify-center bg-indigo-50 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md space-y-8">
+      <div>
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-black">
+          {% if LANGUAGE_CODE == 'ar' %}
+          تحقق من الرمز المرسل
+          {% else %}
+          Verify the Code Sent
+          {% endif %}
+        </h2>
+        <p class="mt-2 text-center text-sm text-indigo-400">
+          {% if LANGUAGE_CODE == 'ar' %}
+          أدخل رمز التحقق المرسل إليك
+          {% else %}
+          Enter the verification code sent to you
+          {% endif %}
+        </p>
+      </div>
+
+      <form class="mt-8 space-y-6" method="post">
+        {% csrf_token %}
+        <div class="-space-y-px rounded-md shadow-sm">
+          <div>
+            <label for="otp" class="sr-only">
+              {% if LANGUAGE_CODE == 'ar' %}
+              رمز التحقق
+              {% else %}
+              Verification Code
+              {% endif %}
+            </label>
+            <input
+              id="otp"
+              name="otp"
+              type="text"
+              required
+              maxlength="6"
+              class="relative block w-full appearance-none rounded-md border border-indigo-200 px-3 py-2 text-black placeholder-indigo-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm text-center text-2xl font-mono tracking-widest"
+              placeholder="{% if LANGUAGE_CODE == 'ar' %}000000{% else %}000000{% endif %}"
+            />
+          </div>
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+          >
+            {% if LANGUAGE_CODE == 'ar' %}
+            تحقق
+            {% else %}
+            Verify
+            {% endif %}
+          </button>
+        </div>
+
+        <!-- Resend OTP Section -->
+        <div class="text-center">
+          <p class="text-sm text-gray-600 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}
+            لم تستلم الرمز؟
+            {% else %}
+            Didn't receive the code?
+            {% endif %}
+          </p>
+          <button
+            type="button"
+            id="resend-btn"
+            class="font-medium text-indigo-600 hover:text-indigo-500 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+            onclick="resendOTP()"
+          >
+            {% if LANGUAGE_CODE == 'ar' %}
+            إعادة إرسال
+            {% else %}
+            Resend Code
+            {% endif %}
+          </button>
+          <span id="countdown" class="text-sm text-gray-500"></span>
+        </div>
+
+        <!-- Error Messages -->
+        <div id="error-message" class="text-center text-sm text-red-500">
+          {% if error %}
+            {{ error }}
+          {% endif %}
+        </div>
+
+        <!-- Success Messages -->
+        <div id="success-message" class="text-center text-sm text-green-600"></div>
+
+        <!-- Back to signin -->
+        <div class="text-center">
+          <a
+            href="{% url 'signin' %}"
+            class="font-medium text-indigo-400 hover:text-indigo-300 text-sm"
+          >
+            {% if LANGUAGE_CODE == 'ar' %}
+            العودة لتسجيل الدخول
+            {% else %}
+            Back to Sign In
+            {% endif %}
+          </a>
+        </div>
+      </form>
+    </div>
+</div>
+
+<script>
+let countdownTimer;
+let resendDisabled = false;
+
+function resendOTP() {
+    if (resendDisabled) return;
+
+    const resendBtn = document.getElementById('resend-btn');
+    const countdownEl = document.getElementById('countdown');
+    const errorEl = document.getElementById('error-message');
+    const successEl = document.getElementById('success-message');
+
+    // Clear previous messages
+    errorEl.textContent = '';
+    successEl.textContent = '';
+
+    // Disable button and start countdown
+    resendBtn.disabled = true;
+    resendDisabled = true;
+
+    // Show loading state
+    resendBtn.textContent = '{% if LANGUAGE_CODE == "ar" %}جاري الإرسال...{% else %}Sending...{% endif %}';
+
+    // Make AJAX request
+    fetch('{% url "resend_otp" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            successEl.textContent = data.message;
+            startCountdown();
+        } else {
+            errorEl.textContent = data.message;
+            // Re-enable button on error
+            resendBtn.disabled = false;
+            resendDisabled = false;
+            resendBtn.textContent = '{% if LANGUAGE_CODE == "ar" %}إعادة إرسال{% else %}Resend Code{% endif %}';
+        }
+    })
+    .catch(error => {
+        errorEl.textContent = '{% if LANGUAGE_CODE == "ar" %}خطأ في الاتصال{% else %}Connection error{% endif %}';
+        resendBtn.disabled = false;
+        resendDisabled = false;
+        resendBtn.textContent = '{% if LANGUAGE_CODE == "ar" %}إعادة إرسال{% else %}Resend Code{% endif %}';
+    });
+}
+
+function startCountdown() {
+    const resendBtn = document.getElementById('resend-btn');
+    const countdownEl = document.getElementById('countdown');
+    let seconds = 60;
+
+    countdownEl.textContent = `(${seconds}s)`;
+
+    countdownTimer = setInterval(() => {
+        seconds--;
+        countdownEl.textContent = `(${seconds}s)`;
+
+        if (seconds <= 0) {
+            clearInterval(countdownTimer);
+            resendBtn.disabled = false;
+            resendDisabled = false;
+            resendBtn.textContent = '{% if LANGUAGE_CODE == "ar" %}إعادة إرسال{% else %}Resend Code{% endif %}';
+            countdownEl.textContent = '';
+        }
+    }, 1000);
+}
+
+// Auto-focus on OTP input
+document.getElementById('otp').focus();
+
+// Auto-submit when 6 digits are entered
+document.getElementById('otp').addEventListener('input', function(e) {
+    // Remove any non-digit characters
+    this.value = this.value.replace(/\D/g, '');
+
+    // Auto-submit when 6 digits are entered
+    if (this.value.length === 6) {
+        // Small delay to show the complete code
+        setTimeout(() => {
+            document.querySelector('form').submit();
+        }, 500);
+    }
+});
+
+// Prevent non-numeric input
+document.getElementById('otp').addEventListener('keypress', function(e) {
+    if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
+        e.preventDefault();
+    }
+});
+
+// Handle paste event
+document.getElementById('otp').addEventListener('paste', function(e) {
+    setTimeout(() => {
+        this.value = this.value.replace(/\D/g, '').slice(0, 6);
+        if (this.value.length === 6) {
+            setTimeout(() => {
+                document.querySelector('form').submit();
+            }, 500);
+        }
+    }, 10);
+});
+</script>
+
+<style>
+/* Custom styling for OTP input */
+#otp {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5em;
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 1rem;
+}
+
+/* Hover effects for buttons */
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading animation */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Message animations */
+#error-message, #success-message {
+    transition: all 0.3s ease-in-out;
+}
+
+#error-message:not(:empty), #success-message:not(:empty) {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    margin-top: 1rem;
+}
+
+#error-message:not(:empty) {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+#success-message:not(:empty) {
+    background-color: #f0f9ff;
+    color: #059669;
+}
+</style>
+
+{% endblock content %}

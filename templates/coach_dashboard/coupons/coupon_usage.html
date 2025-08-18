@@ -1,0 +1,205 @@
+{% extends 'base_coach_dashboard.html' %}
+{% load coach_filters %}
+{% load static %}
+{% block content %}
+<style>
+    /* Animation Classes */
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Keyframes */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Gradient Card Styles */
+    .gradient-card-blue {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        color: white;
+    }
+
+    .gradient-card-indigo {
+        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+        color: white;
+    }
+
+    .gradient-card-purple {
+        background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+        color: white;
+    }
+
+    .gradient-card-green {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+    }
+
+    .gradient-card-amber {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        color: white;
+    }
+</style>
+
+<div class="bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
+    <section class="container mx-auto px-4 pt-8 pb-16">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-8 animate-fadeIn">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+                    <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    {% if LANGUAGE_CODE == 'ar' %}سجل استخدام القسيمة{% else %}Coupon Usage History{% endif %}
+                </h1>
+                <div class="mt-2 text-gray-600 dark:text-gray-400">
+                    <span class="font-medium">{{ coupon.code }}</span> -
+                    {% if coupon.discount_type == 'percentage' %}
+                        {{ coupon.discount_value }}% {% if LANGUAGE_CODE == 'ar' %}خصم{% else %}discount{% endif %}
+                    {% else %}
+                        {{ coupon.discount_value }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }} {% if LANGUAGE_CODE == 'ar' %}خصم{% else %}discount{% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{% url 'coach_coupons' %}" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white">
+                <i class="fas fa-arrow-left mr-2"></i>
+                {% if LANGUAGE_CODE == 'ar' %}العودة إلى القسائم{% else %}Back to Coupons{% endif %}
+            </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="gradient-card-blue p-6 rounded-xl shadow-lg stat-card animate-fadeInUp">
+                <div class="text-sm text-white text-opacity-80 font-medium mb-1">
+                    {% if LANGUAGE_CODE == 'ar' %}إجمالي الاستخدامات{% else %}Total Uses{% endif %}
+                </div>
+                <div class="text-2xl font-bold text-white">{{ usages.count }}</div>
+            </div>
+            <div class="gradient-card-green p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
+                <div class="text-sm text-white text-opacity-80 font-medium mb-1">
+                    {% if LANGUAGE_CODE == 'ar' %}إجمالي الخصم{% else %}Total Discount{% endif %}
+                </div>
+                <div class="text-2xl font-bold text-white">{{ total_discount }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</div>
+            </div>
+            <div class="gradient-card-amber p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
+                <div class="text-sm text-white text-opacity-80 font-medium mb-1">
+                    {% if LANGUAGE_CODE == 'ar' %}المتبقي{% else %}Remaining Uses{% endif %}
+                </div>
+                <div class="text-2xl font-bold text-white">
+                    {% if coupon.max_uses == 0 %}
+                        {% if LANGUAGE_CODE == 'ar' %}غير محدود{% else %}Unlimited{% endif %}
+                    {% else %}
+                        {{ coupon.max_uses|subtract:coupon.times_used }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage History -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 animate-fadeInUp">
+            {% if usages %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الطالب{% else %}Student{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الطلب{% else %}Order{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}مبلغ الخصم{% else %}Discount Amount{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}تاريخ الاستخدام{% else %}Used At{% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for usage in usages %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                        <i class="fas fa-user text-blue-600 dark:text-blue-400"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                            {{ usage.student.full_name }}
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            {{ usage.student.user.username }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <a href="{% url 'viewOrderDetails' usage.order.id %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                    #{{ usage.order.id }}
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">
+                                -{{ usage.discount_amount }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ usage.used_at|date:"Y-m-d H:i" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="px-6 py-12 text-center">
+                <i class="fas fa-history text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    {% if LANGUAGE_CODE == 'ar' %}لا توجد سجلات استخدام{% else %}No usage records found{% endif %}
+                </h3>
+                <p class="text-gray-500 dark:text-gray-400">
+                    {% if LANGUAGE_CODE == 'ar' %}هذه القسيمة لم تستخدم بعد{% else %}This coupon hasn't been used yet{% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Make table rows clickable to view order details
+        document.querySelectorAll('tbody tr').forEach(row => {
+            const orderLink = row.querySelector('a[href*="viewOrderDetails"]');
+            if (orderLink) {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', function(e) {
+                    // Don't navigate if the click was on the order link itself
+                    if (!e.target.closest('a')) {
+                        window.location.href = orderLink.href;
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

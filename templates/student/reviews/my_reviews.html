@@ -1,0 +1,60 @@
+{% extends "base_student_dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<div class="bg-gradient-to-br from-rose-50 to-amber-50 min-h-screen py-8">
+    <div class="max-w-5xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-rose-800 mb-8">
+            {% if LANGUAGE_CODE == 'ar' %}تقييماتي{% else %}My Reviews{% endif %}
+        </h1>
+
+        {% if reviews %}
+        <div class="space-y-6 mb-24">
+            {% for review in reviews %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold">
+                            {% if review.product %}
+                                {{ review.product.title }}
+                            {% else %}
+                                {{ review.service.title }}
+                            {% endif %}
+                        </h3>
+                        <p class="text-gray-500 text-sm">
+                            {% if LANGUAGE_CODE == 'ar' %}بتاريخ{% else %}on{% endif %} {{ review.created_at|date:"d M Y" }}
+                        </p>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-amber-500 text-xl">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                </div>
+
+                {% if review.comment %}
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-gray-700">{{ review.comment }}</p>
+                </div>
+                {% endif %}
+
+                <div class="mt-4 flex justify-end">
+                    <a href="{% url 'create_review' order_item_id=review.order_item.id %}" class="text-rose-600 hover:text-rose-800">
+                        {% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <p class="text-gray-600">
+                {% if LANGUAGE_CODE == 'ar' %}ليس لديك أي تقييمات بعد.{% else %}You haven't submitted any reviews yet.{% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

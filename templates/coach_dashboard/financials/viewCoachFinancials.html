@@ -1,0 +1,421 @@
+{% extends 'base_coach_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+{% csrf_token %}
+<style>
+    .animate-fadeIn {
+        animation: fadeIn 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-gradient {
+        background-size: 200% auto;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .btn-gradient:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #EFF6FF;
+    }
+
+    .dark ::-webkit-scrollbar-track {
+        background: #1F2937;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #3B82F6;
+        border-radius: 4px;
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+        background: #2563EB;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #2563EB;
+    }
+
+    .revenue-chart {
+        height: 300px;
+    }
+
+    .transaction-status {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-paid {
+        background-color: #DCFCE7;
+        color: #166534;
+    }
+    .dark .status-paid {
+        background-color: #14532D;
+        color: #BBF7D0;
+    }
+
+    .status-delivered {
+        background-color: #E0E7FF;
+        color: #4338CA;
+    }
+    .dark .status-delivered {
+        background-color: #3730A3;
+        color: #C7D2FE;
+    }
+
+    .status-confirmed {
+        background-color: #EDE9FE;
+        color: #5B21B6;
+    }
+    .dark .status-confirmed {
+        background-color: #4C1D95;
+        color: #DDD6FE;
+    }
+
+    .status-completed {
+        background-color: #F0FDF4;
+        color: #15803D;
+    }
+    .dark .status-completed {
+        background-color: #166534;
+        color: #BBF7D0;
+    }
+</style>
+
+<div class="min-h-screen {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animate-fadeIn bg-white dark:bg-gray-900">
+    <section class="container mx-auto px-4 pt-8 pb-16">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-8 animate-fadeIn">
+            <h1 class="text-3xl font-bold text-blue-800 dark:text-blue-400 mb-2">
+                <span class="relative z-10 flex items-center gap-2">
+                    <i class="fas fa-chart-line text-blue-600 dark:text-blue-500"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}الإيرادات المالية{% else %}Financial Dashboard{% endif %}
+                </span>
+            </h1>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white stat-card animate-fadeInUp">
+                <h3 class="text-blue-100 text-sm mb-2 flex items-center">
+                    <i class="fas fa-credit-card ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إيرادات البطاقات{% else %}Credit Card Revenue{% endif %}
+                </h3>
+                <div class="text-4xl font-bold">{{ credit_card_revenue }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</div>
+            </div>
+            <div class="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
+                <h3 class="text-green-100 text-sm mb-2 flex items-center">
+                    <i class="fas fa-money-bill-wave ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إيرادات التحويل البنكي{% else %}Bank transfer Revenue{% endif %}
+                </h3>
+                <div class="text-4xl font-bold">{{ cash_revenue }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</div>
+            </div>
+            <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
+                <h3 class="text-purple-100 text-sm mb-2 flex items-center">
+                    <i class="fas fa-coins ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي الإيرادات{% else %}Total Revenue{% endif %}
+                </h3>
+                <div class="text-4xl font-bold">{{ total_revenue }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</div>
+            </div>
+            <div class="bg-gradient-to-r from-yellow-500 to-amber-500 rounded-xl p-6 text-white stat-card animate-fadeInUp" style="animation-delay: 0.3s;">
+                <h3 class="text-yellow-100 text-sm mb-2 flex items-center">
+                    <i class="fas fa-clock ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إيرادات معلقة{% else %}Pending Revenue{% endif %}
+                </h3>
+                <div class="text-4xl font-bold">{{ pending_revenue }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</div>
+            </div>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-fadeInUp border border-blue-100 dark:border-gray-700 mb-8">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+                    {% if LANGUAGE_CODE == 'ar' %}الإيرادات الشهرية (آخر 6 أشهر){% else %}Monthly Revenue (Last 6 Months){% endif %}
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="revenue-chart">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-fadeInUp border border-blue-100 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+                    {% if LANGUAGE_CODE == 'ar' %}أحدث المعاملات{% else %}Recent Transactions{% endif %}
+                </h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-blue-50 dark:bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order #{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}العنصر{% else %}Item{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الضريبة{% else %}Tax{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}عمولة المنصة{% else %}Platform Fee{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}صافي الربح{% else %}Net Profit{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الإجمالي{% else %}Total{% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for transaction in detailed_transactions %}
+                        <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                #{{ transaction.order.id }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ transaction.title }} ({{ transaction.type }})
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ transaction.quantity }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ transaction.price }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ transaction.tax }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ transaction.platform_fee }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ transaction.net_profit }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                {{ transaction.total_net_profit }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                <div class="flex flex-col items-center justify-center py-8">
+                                    <i class="fas fa-exchange-alt text-4xl text-blue-400 dark:text-blue-500 mb-4"></i>
+                                    <p class="text-blue-600 dark:text-blue-400 font-medium">
+                                        {% if LANGUAGE_CODE == 'ar' %}لا توجد معاملات متاحة حالياً{% else %}No transactions available at the moment{% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if detailed_transactions %}
+                        <tr class="bg-gray-50 dark:bg-gray-700 font-bold">
+                            <td colspan="6" class="px-6 py-4 text-right text-sm text-gray-900 dark:text-white">
+                                {% if LANGUAGE_CODE == 'ar' %}الإجمالي{% else %}Total{% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                {{ total_revenue }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                            </td>
+                            <td></td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Include Chart.js -->
+<!-- Safe JSON data passing -->
+{{ monthly_revenue|json_script:"monthly-revenue-data" }}
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Chart script loading...');
+
+    // Safely get data from Django
+    const monthlyRevenueData = JSON.parse(document.getElementById('monthly-revenue-data').textContent);
+    console.log('Monthly revenue data:', monthlyRevenueData);
+
+    // Revenue Chart
+    const ctx = document.getElementById('revenueChart');
+
+    if (!ctx) {
+        console.error('Chart canvas not found!');
+        return;
+    }
+
+    try {
+        // Get current theme
+        const isDarkMode = document.documentElement.classList.contains('dark');
+
+        // Chart colors based on theme
+        const barColor = isDarkMode ? 'rgba(96, 165, 250, 0.7)' : 'rgba(59, 130, 246, 0.7)';
+        const borderColor = isDarkMode ? 'rgba(96, 165, 250, 1)' : 'rgba(59, 130, 246, 1)';
+        const textColor = isDarkMode ? '#E5E7EB' : '#374151';
+        const gridColor = isDarkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(209, 213, 219, 0.5)';
+
+        const revenueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: monthlyRevenueData.map(function(item) { return item.month; }),
+                datasets: [{
+                    label: '{% if LANGUAGE_CODE == "ar" %}الإيرادات{% else %}Revenue{% endif %}',
+                    data: monthlyRevenueData.map(function(item) {
+                        return parseFloat(item.revenue);
+                    }),
+                    backgroundColor: barColor,
+                    borderColor: borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor
+                        },
+                        ticks: {
+                            color: textColor,
+                            callback: function(value) {
+                                return value.toFixed(2) + ' {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: gridColor
+                        },
+                        ticks: {
+                            color: textColor
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: textColor
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return parseFloat(context.parsed.y).toFixed(2) + ' {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Update chart colors when theme changes
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    const isNowDark = document.documentElement.classList.contains('dark');
+                    revenueChart.data.datasets[0].backgroundColor = isNowDark ? 'rgba(96, 165, 250, 0.7)' : 'rgba(59, 130, 246, 0.7)';
+                    revenueChart.data.datasets[0].borderColor = isNowDark ? 'rgba(96, 165, 250, 1)' : 'rgba(59, 130, 246, 1)';
+
+                    const newTextColor = isNowDark ? '#E5E7EB' : '#374151';
+                    const newGridColor = isNowDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(209, 213, 219, 0.5)';
+
+                    revenueChart.options.scales.y.ticks.color = newTextColor;
+                    revenueChart.options.scales.x.ticks.color = newTextColor;
+                    revenueChart.options.scales.y.grid.color = newGridColor;
+                    revenueChart.options.scales.x.grid.color = newGridColor;
+                    revenueChart.options.plugins.legend.labels.color = newTextColor;
+
+                    revenueChart.update();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        console.log('Chart created successfully');
+    } catch (error) {
+        console.error('Error creating chart:', error);
+    }
+});
+</script>
+
+<script>
+  // Toggle dark mode
+  function toggleDarkMode() {
+      const html = document.documentElement;
+      const toggle = document.getElementById('toggle');
+
+      if (html.classList.contains('dark')) {
+          html.classList.remove('dark');
+          toggle.checked = false;
+          document.cookie = "darkMode=false; path=/; max-age=31536000"; // 1 year
+      } else {
+          html.classList.add('dark');
+          toggle.checked = true;
+          document.cookie = "darkMode=true; path=/; max-age=31536000"; // 1 year
+      }
+  }
+
+  // Check for saved dark mode preference on page load
+  document.addEventListener('DOMContentLoaded', function() {
+      const darkModeCookie = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('darkMode='));
+
+      const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+          document.documentElement.classList.add('dark');
+          document.getElementById('toggle').checked = true;
+      }
+  });
+</script>
+{% endblock %}

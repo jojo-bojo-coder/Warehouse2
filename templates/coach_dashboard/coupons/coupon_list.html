@@ -1,0 +1,372 @@
+{% extends 'base_coach_dashboard.html' %}
+{% load static %}
+{% load coach_filters %}
+{% block content %}
+<style>
+    /* Animation Classes - Same as coach_reviews.html */
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Keyframes */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Gradient Card Styles - Same as coach_reviews.html */
+    .gradient-card-blue {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        color: white;
+    }
+
+    .gradient-card-indigo {
+        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+        color: white;
+    }
+
+    .gradient-card-purple {
+        background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+        color: white;
+    }
+
+    .gradient-card-pink {
+        background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+        color: white;
+    }
+
+    .gradient-card-amber {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        color: white;
+    }
+
+    .gradient-card-green {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+    }
+
+    .gradient-card-red {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        color: white;
+    }
+
+    /* Status badges for coupons */
+    .status-active {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    .dark .status-active {
+        background-color: #064e3b;
+        color: #d1fae5;
+    }
+
+    .status-upcoming {
+        background-color: #e0e7ff;
+        color: #3730a3;
+    }
+    .dark .status-upcoming {
+        background-color: #3730a3;
+        color: #e0e7ff;
+    }
+
+    .status-expired {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    .dark .status-expired {
+        background-color: #991b1b;
+        color: #fee2e2;
+    }
+
+    .status-inactive {
+        background-color: #f3f4f6;
+        color: #4b5563;
+    }
+    .dark .status-inactive {
+        background-color: #4b5563;
+        color: #f3f4f6;
+    }
+
+    /* Dark mode styles for the table */
+    .dark .coupon-table {
+        background-color: #1f2937;
+        border-color: #374151;
+    }
+
+    .dark .coupon-table thead {
+        background-color: #111827;
+    }
+
+    .dark .coupon-table th {
+        color: #d1d5db;
+    }
+
+    .dark .coupon-table td {
+        color: #e5e7eb;
+        border-color: #374151;
+    }
+
+    .dark .coupon-table tr:hover {
+        background-color: #1e3a8a;
+    }
+</style>
+
+<div class="bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
+    <section class="container mx-auto px-4 pt-8 pb-16">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-8 animate-fadeIn">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
+                    <i class="fas fa-tag"></i>
+                </div>
+                {% if LANGUAGE_CODE == 'ar' %}إدارة القسائم{% else %}Coupons Management{% endif %}
+            </h1>
+            <a href="{% url 'add_coupon' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
+                <i class="fas fa-plus ml-2"></i>
+                {% if LANGUAGE_CODE == 'ar' %}إضافة قسيمة جديدة{% else %}Add New Coupon{% endif %}
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="gradient-card-blue p-6 rounded-xl shadow-lg stat-card animate-fadeInUp">
+                <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
+                    <i class="fas fa-tag ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي القسائم{% else %}Total Coupons{% endif %}
+                </h3>
+                <div class="text-4xl font-bold text-white">{{ coupons.count }}</div>
+            </div>
+            <div class="gradient-card-green p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
+                <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
+                    <i class="fas fa-check-circle ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}نشطة{% else %}Active{% endif %}
+                </h3>
+                <div class="text-4xl font-bold text-white">{{ active_coupons }}</div>
+            </div>
+            <div class="gradient-card-amber p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
+                <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
+                    <i class="fas fa-clock ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}قادمة{% else %}Upcoming{% endif %}
+                </h3>
+                <div class="text-4xl font-bold text-white">{{ upcoming_coupons }}</div>
+            </div>
+            <div class="gradient-card-red p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.4s;">
+                <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
+                    <i class="fas fa-times-circle ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}  منتهية/غير نشطة {% else %} Expired/Inactive {% endif %}
+                </h3>
+                <div class="text-4xl font-bold text-white">{{ expired_coupons|add:inactive_coupons }}</div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex overflow-x-auto mb-6 border-b border-gray-200 dark:border-gray-700 animate-fadeInUp">
+            <a href="?status=all" class="px-4 py-2 text-sm font-medium {% if not status_filter or status_filter == 'all' %}text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400{% else %}text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300{% endif %}">
+                {% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}
+            </a>
+            <a href="?status=active" class="px-4 py-2 text-sm font-medium {% if status_filter == 'active' %}text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400{% else %}text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300{% endif %}">
+                {% if LANGUAGE_CODE == 'ar' %}نشطة{% else %}Active{% endif %}
+            </a>
+            <a href="?status=upcoming" class="px-4 py-2 text-sm font-medium {% if status_filter == 'upcoming' %}text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400{% else %}text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300{% endif %}">
+                {% if LANGUAGE_CODE == 'ar' %}قادمة{% else %}Upcoming{% endif %}
+            </a>
+            <a href="?status=expired" class="px-4 py-2 text-sm font-medium {% if status_filter == 'expired' %}text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400{% else %}text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300{% endif %}">
+                {% if LANGUAGE_CODE == 'ar' %}منتهية{% else %}Expired{% endif %}
+            </a>
+            <a href="?status=inactive" class="px-4 py-2 text-sm font-medium {% if status_filter == 'inactive' %}text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400{% else %}text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300{% endif %}">
+                {% if LANGUAGE_CODE == 'ar' %}غير نشطة{% else %}Inactive{% endif %}
+            </a>
+        </div>
+
+        <!-- Coupons List -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-fadeInUp border border-gray-200 dark:border-gray-700 coupon-table">
+            {% if coupons %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الكود{% else %}Code{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الخصم{% else %}Discount{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}المستفيدون{% else %}Eligible Clients{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}المنتجات/الخدمات{% else %}Products/Services{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الفعالية{% else %}Validity{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for coupon in coupons %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-blue-600 dark:text-blue-400">{{ coupon.code }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ coupon.description|truncatechars:30 }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                    {% if coupon.discount_type == 'percentage' %}
+                                        {{ coupon.discount_value }}%
+                                        {% if coupon.max_discount %}
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">(max {{ coupon.max_discount }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }})</span>
+                                        {% endif %}
+                                    {% else %}
+                                        {{ coupon.discount_value }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                                    {% endif %}
+                                </div>
+                                {% if coupon.min_order_value %}
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Min order: {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }} {{ coupon.min_order_value }} </div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if coupon.all_students %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+                                    {% if LANGUAGE_CODE == 'ar' %}جميع العملاء{% else %}All Clients{% endif %}
+                                </span>
+                                {% else %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                                    {{ coupon.selected_students.count }} {% if LANGUAGE_CODE == 'ar' %}عميل{% else %}Clients{% endif %}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if coupon.apply_to_all_products and coupon.apply_to_all_services %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200">
+                                    {% if LANGUAGE_CODE == 'ar' %}جميع المنتجات والخدمات{% else %}All Products & Services{% endif %}
+                                </span>
+                                {% elif coupon.apply_to_all_products %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
+                                    {% if LANGUAGE_CODE == 'ar' %}جميع المنتجات{% else %}All Products{% endif %}
+                                </span>
+                                {% elif coupon.apply_to_all_services %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200">
+                                    {% if LANGUAGE_CODE == 'ar' %}جميع الخدمات{% else %}All Services{% endif %}
+                                </span>
+                                {% else %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                                    {{ coupon.products.count|add:coupon.services.count }} {% if LANGUAGE_CODE == 'ar' %}عنصر{% else %}Items{% endif %}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 dark:text-white">{{ coupon.start_date|date:"Y-m-d" }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">to {{ coupon.end_date|date:"Y-m-d" }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if coupon.is_active %}
+                                    {% if coupon.start_date > timezone.now %}
+                                    <span class="px-2 py-1 text-xs rounded-full status-upcoming">
+                                        {% if LANGUAGE_CODE == 'ar' %}قريباً{% else %}Upcoming{% endif %}
+                                    </span>
+                                    {% elif coupon.end_date < timezone.now %}
+                                    <span class="px-2 py-1 text-xs rounded-full status-expired">
+                                        {% if LANGUAGE_CODE == 'ar' %}منتهية{% else %}Expired{% endif %}
+                                    </span>
+                                    {% else %}
+                                    <span class="px-2 py-1 text-xs rounded-full status-active">
+                                        {% if LANGUAGE_CODE == 'ar' %}نشطة{% else %}Active{% endif %}
+                                    </span>
+                                    {% endif %}
+                                {% else %}
+                                <span class="px-2 py-1 text-xs rounded-full status-inactive">
+                                    {% if LANGUAGE_CODE == 'ar' %}غير نشطة{% else %}Inactive{% endif %}
+                                </span>
+                                {% endif %}
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}المستخدم{% else %}Used{% endif %} {{ coupon.times_used }}/{{ coupon.max_uses }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'edit_coupon' coupon.id %}" class="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" title="{% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'coupon_usage' coupon.id %}" class="text-purple-600 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-300" title="{% if LANGUAGE_CODE == 'ar' %}سجل الاستخدام{% else %}Usage History{% endif %}">
+                                        <i class="fas fa-history"></i>
+                                    </a>
+                                    <form method="post" action="{% url 'toggle_coupon_status' coupon.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="{% if coupon.is_active %}text-yellow-600 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-300{% else %}text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300{% endif %}" title="{% if coupon.is_active %}{% if LANGUAGE_CODE == 'ar' %}تعطيل{% else %}Deactivate{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}تفعيل{% else %}Activate{% endif %}{% endif %}">
+                                            <i class="fas {% if coupon.is_active %}fa-toggle-on{% else %}fa-toggle-off{% endif %}"></i>
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'delete_coupon' coupon.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" title="{% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}" onclick="return confirm('{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد أنك تريد حذف هذه القسيمة؟{% else %}Are you sure you want to delete this coupon?{% endif %}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="px-6 py-12 text-center">
+                <i class="fas fa-tag text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    {% if LANGUAGE_CODE == 'ar' %}لا توجد قسائم{% else %}No coupons found{% endif %}
+                </h3>
+                <p class="text-gray-500 dark:text-gray-400 mb-4">
+                    {% if LANGUAGE_CODE == 'ar' %}يمكنك إنشاء قسائم خصم لعملائك{% else %}You can create discount coupons for your clients{% endif %}
+                </p>
+                <a href="{% url 'add_coupon' %}" class="btn bg-blue-600 hover:bg-blue-700 text-white">
+                    <i class="fas fa-plus mr-2"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}إنشاء قسيمة جديدة{% else %}Create New Coupon{% endif %}
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<script>
+    // Make table rows clickable for better UX
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            // Skip rows that contain action buttons
+            if (!row.querySelector('form')) {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', function(e) {
+                    // Don't trigger if clicking on a link or button
+                    if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON' && !e.target.closest('a') && !e.target.closest('button')) {
+                        const couponId = this.querySelector('a[href*="edit_coupon"]').getAttribute('href').split('/').filter(Boolean).pop();
+                        window.location.href = `/coach_dashboard/coupons/${couponId}/edit/`;
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

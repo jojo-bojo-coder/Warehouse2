@@ -1,0 +1,115 @@
+{% extends 'base_coach_dashboard.html' %}
+{% block content %}
+<style>
+    /* Form Input Styles */
+    #id_title {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      transition: all 0.3s;
+      background-color: #f8fafc;
+    }
+
+    #id_title:focus {
+      outline: none;
+      border-color: #3B82F6; /* blue-500 */
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      background-color: white;
+    }
+
+    #id_title:hover {
+      border-color: #93C5FD; /* blue-300 */
+      background-color: white;
+    }
+
+    /* Dark mode styles */
+    .dark #id_title {
+      border-color: #4B5563;
+      background-color: #1F2937;
+      color: #F3F4F6;
+    }
+
+    .dark #id_title:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+      background-color: #111827;
+    }
+
+    .dark #id_title:hover {
+      border-color: #60A5FA;
+      background-color: #111827;
+    }
+
+    /* Animation Classes */
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Keyframes */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="bg-white dark:bg-gray-900 min-h-screen {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
+    <section class="container mx-auto px-4 pt-8">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-8 flex items-center gap-3 animate-fadeIn">
+            <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
+                <i class="fas fa-edit"></i>
+            </div>
+            {% if LANGUAGE_CODE == 'ar' %}تعديل التصنيف{% else %}Edit Classification{% endif %}
+        </h1>
+        <form method="post" enctype="multipart/form-data" class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 animate-fadeInUp">
+            {% csrf_token %}
+            <div class="mb-6">
+                <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {% if LANGUAGE_CODE == 'ar' %}عنوان التصنيف{% else %}Classification Title{% endif %}
+                </label>
+                {{ form.title }}
+            </div>
+            <div class="flex items-center justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                <a
+                        href="{% url 'coachviewServicesClassification' %}"
+                        class="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 font-medium mr-4"
+                >
+                    {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                </a>
+                <button
+                        type="submit"
+                        class="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+                >
+                    {% if LANGUAGE_CODE == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any necessary JavaScript here
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends "accountant_dashboard/base_accountant_dashboard.html" %}
+{% load static %}
+{% load permission_tags %}
+
+{% block content %}
+<style>
+  /* Reuse styles from index.html */
+  .animate-float {
+      animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-fadeInUp {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-stagger > * {
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+  }
+
+  /* Button Effects */
+  .btn-gradient {
+      background-size: 200% auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .btn-gradient:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Card Effects */
+  .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Dark mode specific styles */
+  .dark .bg-white {
+      background-color: #1f2937 !important;
+  }
+
+  .dark .text-gray-800 {
+      color: #e5e7eb !important;
+  }
+
+  .dark .border-gray-200 {
+      border-color: #374151 !important;
+  }
+
+  .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+      border-color: #374151 !important;
+  }
+
+  .dark .text-gray-500 {
+      color: #9ca3af !important;
+  }
+
+  .dark .bg-gray-50 {
+      background-color: #111827 !important;
+  }
+
+  /* Custom styles for this page */
+  .report-filter-card {
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .filter-label {
+      font-weight: 500;
+      color: #4b5563;
+  }
+
+  .dark .filter-label {
+      color: #9ca3af;
+  }
+
+  .export-btn {
+      transition: all 0.2s ease-in-out;
+  }
+
+  .export-btn:hover {
+      transform: translateY(-1px);
+  }
+</style>
+
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[13%]{% else %}xl:pl-[13%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full min-h-screen pb-12 dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
+  <div class="px-4 md:px-8 pt-6">
+    <!-- Header Section -->
+    <div class="py-6 text-center ">
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+        {% if LANGUAGE_CODE == 'ar' %}
+        تحليل التسويق والتقارير
+        {% else %}
+        Marketing Analysis & Reports
+        {% endif %}
+      </h1>
+      <p class="text-gray-600 dark:text-gray-300 mt-2">
+        {% if LANGUAGE_CODE == 'ar' %}
+        تصدير تقارير تحليل التسويق بتنسيق CSV
+        {% else %}
+        Export marketing analysis reports in CSV format
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="bg-white dark:bg-gray-800 report-filter-card p-6 mb-8 border border-gray-200 dark:border-gray-700 ">
+      <form method="get" action="{% url 'accountant_marketing_reports' %}">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <!-- Report Type -->
+          <div>
+            <label class="filter-label block text-sm font-medium mb-2 dark:text-gray-300">
+              {% if LANGUAGE_CODE == 'ar' %}نوع التقرير{% else %}Report Type{% endif %}
+            </label>
+            <select name="report_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="clicks" {% if report_type == 'clicks' %}selected{% endif %}>
+                {% if LANGUAGE_CODE == 'ar' %}نقرات المنتجات/الخدمات{% else %}Product/Service Clicks{% endif %}
+              </option>
+            </select>
+          </div>
+
+          <!-- Time Period -->
+          <div>
+            <label class="filter-label block text-sm font-medium mb-2 dark:text-gray-300">
+              {% if LANGUAGE_CODE == 'ar' %}الفترة الزمنية{% else %}Time Period{% endif %}
+            </label>
+            <select name="period" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="7d" {% if period == '7d' %}selected{% endif %}>
+                {% if LANGUAGE_CODE == 'ar' %}آخر 7 أيام{% else %}Last 7 Days{% endif %}
+              </option>
+              <option value="30d" {% if period == '30d' %}selected{% endif %}>
+                {% if LANGUAGE_CODE == 'ar' %}آخر 30 يوم{% else %}Last 30 Days{% endif %}
+              </option>
+              <option value="90d" {% if period == '90d' %}selected{% endif %}>
+                {% if LANGUAGE_CODE == 'ar' %}آخر 90 يوم{% else %}Last 90 Days{% endif %}
+              </option>
+              <option value="q" {% if period == 'q' %}selected{% endif %}>
+                {% if LANGUAGE_CODE == 'ar' %}آخر ربع سنة{% else %}Last Quarter{% endif %}
+              </option>
+              <option value="y" {% if period == 'y' %}selected{% endif %}>
+                {% if LANGUAGE_CODE == 'ar' %}آخر سنة{% else %}Last Year{% endif %}
+              </option>
+            </select>
+          </div>
+
+          <!-- Coach Filter -->
+          <div>
+            <label class="filter-label block text-sm font-medium mb-2 dark:text-gray-300">
+              {% if LANGUAGE_CODE == 'ar' %}التاجر{% else %}Vendor{% endif %}
+            </label>
+            <select name="coach" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="">{% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}</option>
+              {% for coach in coaches %}
+              <option value="{{ coach.id }}" {% if coach_id == coach.id|stringformat:"s" %}selected{% endif %}>
+                {{ coach.full_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Category Filter -->
+          <div>
+            <label class="filter-label block text-sm font-medium mb-2 dark:text-gray-300">
+              {% if LANGUAGE_CODE == 'ar' %}الفئة{% else %}Category{% endif %}
+            </label>
+            <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="">{% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}</option>
+              {% for category in categories %}
+              <option value="{{ category.id }}" {% if category_id == category.id|stringformat:"s" %}selected{% endif %}>
+                {{ category.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end space-x-4 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors">
+            {% if LANGUAGE_CODE == 'ar' %}تطبيق الفلاتر{% else %}Apply Filters{% endif %}
+          </button>
+          <a href="{% url 'accountant_marketing_reports' %}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800 transition-colors">
+            {% if LANGUAGE_CODE == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
+          </a>
+          <a href="{% url 'accountant_marketing_reports' %}?{{ request.GET.urlencode }}&format=csv" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors export-btn">
+            {% if LANGUAGE_CODE == 'ar' %}تصدير CSV{% else %}Export CSV{% endif %}
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Report Summary -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-200 dark:border-gray-700 ">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
+          {% if LANGUAGE_CODE == 'ar' %}ملخص التقرير{% else %}Report Summary{% endif %}
+        </h2>
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+          {% if LANGUAGE_CODE == 'ar' %}
+          من {{ start_date|date:"Y-m-d" }} إلى {{ end_date|date:"Y-m-d" }}
+          {% else %}
+          From {{ start_date|date:"Y-m-d" }} to {{ end_date|date:"Y-m-d" }}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total Clicks Card -->
+        <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-blue-800 dark:text-blue-200">
+              {% if LANGUAGE_CODE == 'ar' %}إجمالي النقرات{% else %}Total Clicks{% endif %}
+            </h3>
+            <div class="p-2 rounded-full bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-300">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-blue-600 dark:text-blue-300 mt-2">
+            {{ total_clicks|default:"0" }}
+          </p>
+        </div>
+
+        <!-- Total Orders Card -->
+        <div class="bg-green-50 dark:bg-green-900 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-green-800 dark:text-green-200">
+              {% if LANGUAGE_CODE == 'ar' %}إجمالي الطلبات{% else %}Total Orders{% endif %}
+            </h3>
+            <div class="p-2 rounded-full bg-green-100 dark:bg-green-800 text-green-600 dark:text-green-300">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-green-600 dark:text-green-300 mt-2">
+            {{ total_orders|default:"0" }}
+          </p>
+        </div>
+
+        <!-- Conversion Rate Card -->
+        <div class="bg-purple-50 dark:bg-purple-900 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-purple-800 dark:text-purple-200">
+              {% if LANGUAGE_CODE == 'ar' %}معدل التحويل{% else %}Conversion Rate{% endif %}
+            </h3>
+            <div class="p-2 rounded-full bg-purple-100 dark:bg-purple-800 text-purple-600 dark:text-purple-300">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-purple-600 dark:text-purple-300 mt-2">
+            {{ conversion_rate|default:"0" }}%
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+        <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
+          {% if LANGUAGE_CODE == 'ar' %}ملاحظات{% else %}Notes{% endif %}
+        </h3>
+        <ul class="list-disc pl-5 space-y-2 text-gray-600 dark:text-gray-300">
+          <li>
+            {% if LANGUAGE_CODE == 'ar' %}
+            تقرير النقرات يعرض عدد مرات مشاهدة المنتجات والخدمات من قبل العملاء
+            {% else %}
+            Clicks report shows how many times products/services were viewed by customers
+            {% endif %}
+          </li>
+          <li>
+            {% if LANGUAGE_CODE == 'ar' %}
+            يمكن تصدير البيانات بتنسيق CSV للتحليل المتقدم
+            {% else %}
+            Data can be exported in CSV format for advanced analysis
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,388 @@
+{% extends "base_club_dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* Animation Classes */
+  .animate-float {
+      animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-fadeInUp {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-stagger > * {
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-stagger > *:nth-child(1) { animation-delay: 0.1s; }
+  .animate-stagger > *:nth-child(2) { animation-delay: 0.2s; }
+  .animate-stagger > *:nth-child(3) { animation-delay: 0.3s; }
+  .animate-stagger > *:nth-child(4) { animation-delay: 0.4s; }
+  .animate-stagger > *:nth-child(5) { animation-delay: 0.5s; }
+
+  /* Button Effects */
+  .btn-gradient {
+      background-size: 200% auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .btn-gradient:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Form Styles */
+  .form-input {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 15px;
+      transition: all 0.3s;
+      background-color: white;
+  }
+
+  .form-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      outline: none;
+  }
+
+  /* Input Effects */
+  input, select, textarea {
+      transition: all 0.3s ease;
+  }
+
+  input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
+
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Background Animation */
+  .animated-bg {
+      animation: gradientBG 15s ease infinite;
+      background-size: 300% 300%;
+  }
+
+  @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+  }
+
+  /* Hide elements with x-show="false" */
+  [x-cloak] { display: none !important; }
+
+  /* Dark mode styles */
+  .dark .animated-bg {
+      background: linear-gradient(to bottom right, #1e293b, #0f172a);
+  }
+
+  .dark .bg-white {
+      background-color: #1e293b;
+      border-color: #334155;
+  }
+
+  .dark .text-gray-800 {
+      color: #f8fafc;
+  }
+
+  .dark .text-gray-600 {
+      color: #94a3b8;
+  }
+
+  .dark .text-gray-700 {
+      color: #e2e8f0;
+  }
+
+  .dark .bg-blue-100 {
+      background-color: #1e3a8a;
+  }
+
+  .dark .text-blue-600 {
+      color: #93c5fd;
+  }
+
+  .dark .form-input {
+      background-color: #334155;
+      border-color: #475569;
+      color: #f8fafc;
+  }
+
+  .dark .form-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+  }
+
+  .dark .bg-gray-200 {
+      background-color: #334155;
+      color: #e2e8f0;
+  }
+
+  .dark .bg-gray-200:hover {
+      background-color: #475569;
+  }
+</style>
+
+<section class="animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full min-h-screen p-4 md:p-8 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900">
+  <div class="max-w-6xl mx-auto {% if LANGUAGE_CODE == 'ar' %}md:pr-[20%]{% else %}md:pl-[20%]{% endif %}">
+    <div class="flex items-center space-x-4 space-x-reverse mb-8 animate-fadeIn">
+      <div class="p-3 rounded-full bg-blue-100 text-blue-600 animate-float dark:bg-blue-900 dark:text-blue-300">
+        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+          {% if LANGUAGE_CODE == 'ar' %}إضافة موظف جديد{% else %}Add New Staff Member{% endif %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          {% if LANGUAGE_CODE == 'ar' %}
+          إضافة موظف جديد إلى النظام
+          {% else %}
+          Add a new staff member to the system
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 p-6 md:p-8 animate-fadeInUp dark:bg-gray-800 dark:border-gray-700">
+      <div x-data="staffForm()">
+        <form method="post" class="space-y-6">
+          {% csrf_token %}
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-stagger">
+            <!-- Role Selection -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                {% if LANGUAGE_CODE == 'ar' %}منصب الموظف{% else %}Staff Role{% endif %}
+              </label>
+              <select name="role" x-model="selectedRole" required
+                      class="form-input w-full focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                {% for role_code, role_name_ar, role_name_en in role_choices %}
+                <option value="{{ role_code }}">
+                  {% if LANGUAGE_CODE == 'ar' %}{{ role_name_ar }}{% else %}{{ role_name_en }}{% endif %}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Custom Role Selection - Only shown when 'custom' role is selected -->
+            <div x-show="selectedRole === 'custom'" x-cloak class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                {% if LANGUAGE_CODE == 'ar' %}اختر الدور المخصص{% else %}Select Custom Role{% endif %}
+              </label>
+              <select name="custom_role"
+                      class="form-input w-full focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <option value="">{% if LANGUAGE_CODE == 'ar' %}اختر الدور{% else %}Select Role{% endif %}</option>
+                {% for role in custom_roles %}
+                <option value="{{ role.id }}">{{ role.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                {% if LANGUAGE_CODE == 'ar' %}اسم المستخدم{% else %}Username{% endif %}
+              </label>
+              <input type="text" name="username" required
+                     class="form-input w-full focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                {% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %}
+                <span x-show="isEmailRequired()" class="text-red-500">*</span>
+              </label>
+              <input type="email" name="email"
+                     x-bind:required="isEmailRequired()"
+                     class="form-input w-full focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                {% if LANGUAGE_CODE == 'ar' %}الاسم الكامل{% else %}Full Name{% endif %}
+              </label>
+              <input type="text" name="full_name" required
+                     class="form-input w-full focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                {% if LANGUAGE_CODE == 'ar' %}رقم الهاتف{% else %}Phone Number{% endif %}
+              </label>
+              <input type="tel" name="phone" required
+                     class="form-input w-full focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                {% if LANGUAGE_CODE == 'ar' %}كلمة المرور{% else %}Password{% endif %}
+              </label>
+              <input type="password" name="password" required
+                     class="form-input w-full focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"/>
+            </div>
+
+            <!-- Region Field - Only for Vendor Manager (role 8) -->
+            <div x-show="selectedRole === '8'" x-cloak>
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                {% if LANGUAGE_CODE == 'ar' %}المنطقة المسؤولة{% else %}Responsible Region{% endif %}
+                <span class="text-red-500">*</span>
+              </label>
+              <select name="region" x-ref="regionSelect" @change="updateCities()"
+                      x-bind:required="selectedRole === '8'"
+                      class="form-input w-full focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <option value="">{% if LANGUAGE_CODE == 'ar' %}اختر المنطقة{% else %}Select Region{% endif %}</option>
+                {% for region in regions %}
+                <option value="{{ region }}">{{ region }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- About field - for all roles except coaches (role 4) -->
+            <div x-show="selectedRole !== '4'" x-cloak class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                {% if LANGUAGE_CODE == 'ar' %}نبذة{% else %}About{% endif %}
+              </label>
+              <textarea name="about" rows="3"
+                        class="form-input w-full focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="{% if LANGUAGE_CODE == 'ar' %}اكتب نبذة مختصرة عن الموظف...{% else %}Write a brief description about the staff member...{% endif %}"></textarea>
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-4 rtl:space-x-reverse pt-4">
+            <a href="{% url 'viewDirectors' %}"
+               class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 flex items-center gap-2 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+            </a>
+            <button type="submit"
+                    class="btn-gradient px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              {% if LANGUAGE_CODE == 'ar' %}إضافة الموظف{% else %}Add Staff Member{% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script>
+  function staffForm() {
+    return {
+      selectedRole: '6',
+      regions: {{ regions_json|safe }},
+      cities: [],
+      updateCities() {
+        if (this.selectedRole === '8') {
+          const selectedRegion = this.$refs.regionSelect?.value;
+          this.cities = this.regions[selectedRegion] || [];
+        }
+      },
+      isEmailRequired() {
+        return ['5', '6', '7', '8'].includes(this.selectedRole);
+      }
+    }
+  }
+
+  // Client-side form validation
+  document.querySelector('form')?.addEventListener('submit', function(e) {
+      let isValid = true;
+      const form = e.target;
+
+      // Validate required fields
+      const requiredFields = form.querySelectorAll('[required]');
+      requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+              isValid = false;
+              field.classList.add('border-red-500');
+              if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('text-red-500')) {
+                  const errorDiv = document.createElement('div');
+                  errorDiv.className = 'text-red-500 text-sm mt-1';
+                  errorDiv.textContent = '{% if LANGUAGE_CODE == "ar" %}هذا الحقل مطلوب{% else %}This field is required{% endif %}';
+                  field.parentNode.insertBefore(errorDiv, field.nextSibling);
+              }
+          }
+      });
+
+      // Validate email format if required
+      const emailField = form.querySelector('input[type="email"]');
+      if (emailField && emailField.required && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField.value)) {
+          isValid = false;
+          emailField.classList.add('border-red-500');
+          if (!emailField.nextElementSibling || !emailField.nextElementSibling.classList.contains('text-red-500')) {
+              const errorDiv = document.createElement('div');
+              errorDiv.className = 'text-red-500 text-sm mt-1';
+              errorDiv.textContent = '{% if LANGUAGE_CODE == "ar" %}يرجى إدخال بريد إلكتروني صحيح{% else %}Please enter a valid email{% endif %}';
+              emailField.parentNode.insertBefore(errorDiv, emailField.nextSibling);
+          }
+      }
+
+      // Validate phone number format
+      const phoneField = form.querySelector('input[name="phone"]');
+      if (phoneField && !/^\+?[0-9]{8,15}$/.test(phoneField.value)) {
+          isValid = false;
+          phoneField.classList.add('border-red-500');
+          if (!phoneField.nextElementSibling || !phoneField.nextElementSibling.classList.contains('text-red-500')) {
+              const errorDiv = document.createElement('div');
+              errorDiv.className = 'text-red-500 text-sm mt-1';
+              errorDiv.textContent = '{% if LANGUAGE_CODE == "ar" %}يرجى إدخال رقم هاتف صحيح (8-15 رقم){% else %}Please enter a valid phone number (8-15 digits){% endif %}';
+              phoneField.parentNode.insertBefore(errorDiv, phoneField.nextSibling);
+          }
+      }
+
+      if (!isValid) {
+          e.preventDefault();
+          // Scroll to first error
+          const firstError = form.querySelector('.border-red-500');
+          if (firstError) {
+              firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+      }
+  });
+
+  // Clear error when user starts typing
+  document.querySelectorAll('input, select, textarea').forEach(field => {
+      field.addEventListener('input', function() {
+          if (this.classList.contains('border-red-500')) {
+              this.classList.remove('border-red-500');
+              const errorDiv = this.nextElementSibling;
+              if (errorDiv && errorDiv.classList.contains('text-red-500')) {
+                  errorDiv.remove();
+              }
+          }
+      });
+  });
+</script>
+{% endblock content %}

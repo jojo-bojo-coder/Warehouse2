@@ -1,0 +1,342 @@
+{% extends 'base_coach_dashboard.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .gradient-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    .dark .gradient-section {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    }
+
+    /* Animation Classes */
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Keyframes */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Status badges */
+    .status-approved {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    .dark .status-approved {
+        background-color: #064e3b;
+        color: #d1fae5;
+    }
+
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    .dark .status-pending {
+        background-color: #92400e;
+        color: #fef3c7;
+    }
+
+    .status-rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    .dark .status-rejected {
+        background-color: #991b1b;
+        color: #fee2e2;
+    }
+</style>
+
+<div class="bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
+    <div class="container mx-auto py-12 px-4 sm:px-6 lg:px-8 animate-fadeIn">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Header Section -->
+                <div class="px-6 py-8 sm:px-8 gradient-section dark:bg-gray-700/50">
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center animate-fadeInUp">
+                        {% if LANGUAGE_CODE == 'ar' %}تعديل الملف الشخصي للتاجر{% else %}Edit Vendor Profile{% endif %}
+                    </h2>
+
+                    <!-- Profile Image and Basic Info -->
+                    <div class="flex flex-col lg:flex-row items-start space-y-6 lg:space-y-0 lg:space-x-6 lg:rtl:space-x-reverse">
+                        <!-- Profile Image -->
+                        <div class="flex-shrink-0 w-full lg:w-auto animate-fadeInUp" style="animation-delay: 0.1s;">
+                            <label for="profile_image_base64" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                {% if LANGUAGE_CODE == 'ar' %}صورة الملف الشخصي{% else %}Profile Picture{% endif %}
+                            </label>
+                            <div class="relative">
+                                <img
+                                    class="h-40 w-40 rounded-full border-4 border-white dark:border-gray-800 shadow-md mx-auto lg:mx-0 object-cover"
+                                    src="data:image/jpeg;base64,{{ coach.profile_image_base64|default:'https://via.placeholder.com/160' }}"
+                                    alt="{% if LANGUAGE_CODE == 'ar' %}صورة الملف الشخصي للتاجر{% else %}Vendor Profile Picture{% endif %}"
+                                    id="profile-preview"
+                                />
+                                <input
+                                    type="file"
+                                    id="profile_image_base64"
+                                    name="profile_image_base64"
+                                    accept="image/*"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    onchange="previewImage(this)"
+                                />
+                                <div class="absolute bottom-0 right-0 bg-blue-600 dark:bg-blue-700 rounded-full p-2 text-white shadow-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Basic Information -->
+                        <div class="flex-grow space-y-6 w-full animate-fadeInUp" style="animation-delay: 0.2s;">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="full_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        {% if LANGUAGE_CODE == 'ar' %}الاسم الكامل{% else %}Full Name{% endif %}
+                                    </label>
+                                    {{form.full_name}}
+                                </div>
+                                <div>
+                                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        {% if LANGUAGE_CODE == 'ar' %}رقم الهاتف{% else %}Phone Number{% endif %}
+                                    </label>
+                                    {{form.phone}}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %}
+                                </label>
+                                {{form.email}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Information Section -->
+                <div class="px-6 py-6 sm:px-8 gradient-section dark:bg-gray-700/50 animate-fadeInUp" style="animation-delay: 0.3s;">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6">
+                        {% if LANGUAGE_CODE == 'ar' %}معلومات النشاط التجاري{% else %}Business Information{% endif %}
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="business_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}اسم النشاط التجاري{% else %}Business Name{% endif %}
+                            </label>
+                            {{form.business_name}}
+                        </div>
+
+                        <div>
+                            <label for="activity_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}نوع النشاط{% else %}Activity Type{% endif %}
+                            </label>
+                            {{form.activity_type}}
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            {% if LANGUAGE_CODE == 'ar' %}وصف الخدمة{% else %}Service Description{% endif %}
+                        </label>
+                        {{form.description}}
+                    </div>
+                </div>
+
+                <!-- Location Information Section -->
+                <div class="px-6 py-6 sm:px-8 gradient-section dark:bg-gray-700/50 animate-fadeInUp" style="animation-delay: 0.4s;">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6">
+                        {% if LANGUAGE_CODE == 'ar' %}معلومات الموقع{% else %}Location Information{% endif %}
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="city" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}المدينة{% else %}City{% endif %}
+                            </label>
+                            {{form.city}}
+                        </div>
+
+                        <div>
+                            <label for="district" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}الحي{% else %}District{% endif %}
+                            </label>
+                            {{form.district}}
+                        </div>
+
+                        <div>
+                            <label for="street" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}الشارع{% else %}Street{% endif %}
+                            </label>
+                            {{form.street}}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Documents Section -->
+                <div class="px-6 py-6 sm:px-8 gradient-section dark:bg-gray-700/50 animate-fadeInUp" style="animation-delay: 0.5s;">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6">
+                        {% if LANGUAGE_CODE == 'ar' %}الوثائق التجارية{% else %}Business Documents{% endif %}
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="business_document_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}نوع وثيقة النشاط التجاري{% else %}Business Document Type{% endif %}
+                            </label>
+                            {{form.business_document_type}}
+                        </div>
+
+                        <div>
+                            <label for="business_document_file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}ملف الوثيقة التجارية{% else %}Business Document File{% endif %}
+                            </label>
+                            <input
+                                type="file"
+                                id="business_document_file"
+                                name="business_document_file"
+                                accept=".pdf,.jpg,.jpeg,.png,.gif"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                            />
+                            {% if coach.business_document_file %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {% if LANGUAGE_CODE == 'ar' %}ملف موجود - سيتم استبداله عند رفع ملف جديد{% else %}File exists - will be replaced if new file uploaded{% endif %}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Status (Read-only) -->
+                <div class="px-6 py-6 sm:px-8 gradient-section dark:bg-gray-700/50 animate-fadeInUp" style="animation-delay: 0.6s;">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6">
+                        {% if LANGUAGE_CODE == 'ar' %}حالة الحساب{% else %}Account Status{% endif %}
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                {% if LANGUAGE_CODE == 'ar' %}حالة الموافقة{% else %}Approval Status{% endif %}
+                            </label>
+                            <div class="flex items-center">
+                                {% if coach.approval_status == 'approved' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-approved">
+                                    {% if LANGUAGE_CODE == 'ar' %}مقبول{% else %}Approved{% endif %}
+                                </span>
+                                {% elif coach.approval_status == 'pending' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-pending">
+                                    {% if LANGUAGE_CODE == 'ar' %}قيد الانتظار{% else %}Pending{% endif %}
+                                </span>
+                                {% elif coach.approval_status == 'rejected' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium status-rejected">
+                                    {% if LANGUAGE_CODE == 'ar' %}مرفوض{% else %}Rejected{% endif %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                {% if LANGUAGE_CODE == 'ar' %}تصنيف التاجر{% else %}Vendor Classification{% endif %}
+                            </label>
+                            <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200">
+                                {{coach.vendor_classification|title}}
+                            </span>
+                        </div>
+                    </div>
+
+                    {% if coach.approval_notes %}
+                    <div class="mt-4 bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {% if LANGUAGE_CODE == 'ar' %}ملاحظات المدير{% else %}Admin Notes{% endif %}
+                        </label>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">{{coach.approval_notes}}</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Button -->
+                <div class="px-6 py-6 sm:px-8 bg-gray-50 dark:bg-gray-700 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 animate-fadeInUp" style="animation-delay: 0.7s;">
+                    <a href="{% url 'coachVendorProfile' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                        {% if LANGUAGE_CODE == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('profile-preview').src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputFields = document.querySelectorAll('input, textarea, select');
+        inputFields.forEach(field => {
+            if (!field.classList.contains('opacity-0')) {
+                field.classList.add(
+                    'w-full', 'px-3', 'py-2', 'border', 'border-gray-300',
+                    'dark:border-gray-600', 'rounded-lg', 'focus:outline-none',
+                    'focus:ring-2', 'focus:ring-blue-500', 'focus:border-blue-500',
+                    'bg-white', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300'
+                );
+            }
+        });
+
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.classList.add('min-h-[100px]');
+        });
+
+        // Add dark mode classes to form fields
+        const formFields = document.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+            if (!field.classList.contains('opacity-0')) {
+                field.classList.add('dark:bg-gray-700', 'dark:text-gray-300', 'dark:border-gray-600');
+            }
+        });
+    });
+</script>
+
+{% endblock %}

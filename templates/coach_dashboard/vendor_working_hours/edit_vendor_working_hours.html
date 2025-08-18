@@ -1,0 +1,148 @@
+{% extends 'base_coach_dashboard.html' %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
+    <section class="container mx-auto px-4 pt-8 pb-16">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-8 animate-fadeIn">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
+                    <i class="fas fa-clock"></i>
+                </div>
+                {% if LANGUAGE_CODE == 'ar' %}تعديل جدول ساعات العمل{% else %}Edit Working Hours Schedule{% endif %}
+            </h1>
+            <a href="{% url 'vendor_working_hours_list' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
+                <i class="fas fa-arrow-left ml-2"></i>
+                {% if LANGUAGE_CODE == 'ar' %}رجوع{% else %}Back{% endif %}
+            </a>
+        </div>
+
+        <!-- Form Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-fadeInUp border border-gray-200 dark:border-gray-700 p-6">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Basic Info -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}عنوان الجدول{% else %}Schedule Title{% endif %}
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}تاريخ البدء{% else %}Start Date{% endif %}
+                                </label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.start_date.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}تاريخ الانتهاء{% else %}End Date{% endif %}
+                                </label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.end_date.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}" class="mr-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {% if LANGUAGE_CODE == 'ar' %}تفعيل الجدول{% else %}Activate Schedule{% endif %}
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Current Schedule Info -->
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                        <h3 class="text-lg font-medium text-blue-800 dark:text-blue-200 mb-3">
+                            <i class="fas fa-info-circle ml-2"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}ملاحظات{% else %}Notes{% endif %}
+                        </h3>
+                        <ul class="space-y-2 text-sm text-blue-700 dark:text-blue-300">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 ml-2 text-blue-500 dark:text-blue-400"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}يمكنك فقط تفعيل جدول واحد في كل مرة{% else %}You can only have one active schedule at a time{% endif %}
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 ml-2 text-blue-500 dark:text-blue-400"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}اترك حقل الوقت فارغًا ليوم معين لتعيينه كيوم إجازة{% else %}Leave time fields blank for a day to mark it as closed{% endif %}
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 ml-2 text-blue-500 dark:text-blue-400"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}يجب أن يكون وقت الإغلاق بعد وقت الفتح{% else %}Closing time must be after opening time{% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Working Hours -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-clock mr-2"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}ساعات العمل{% else %}Working Hours{% endif %}
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for day in form.get_days_fields %}
+                        <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                            <h4 class="font-medium text-gray-800 dark:text-gray-200 mb-3">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                    {% if day.name == 'monday' %}الاثنين{% endif %}
+                                    {% if day.name == 'tuesday' %}الثلاثاء{% endif %}
+                                    {% if day.name == 'wednesday' %}الأربعاء{% endif %}
+                                    {% if day.name == 'thursday' %}الخميس{% endif %}
+                                    {% if day.name == 'friday' %}الجمعة{% endif %}
+                                    {% if day.name == 'saturday' %}السبت{% endif %}
+                                    {% if day.name == 'sunday' %}الأحد{% endif %}
+                                {% else %}
+                                    {{ day.name|title }}
+                                {% endif %}
+                            </h4>
+
+                            <div class="space-y-3">
+                                <div>
+                                    <label for="{{ day.open_field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        {% if LANGUAGE_CODE == 'ar' %}وقت الفتح{% else %}Opening Time{% endif %}
+                                    </label>
+                                    {{ day.open_field }}
+                                </div>
+
+                                <div>
+                                    <label for="{{ day.close_field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        {% if LANGUAGE_CODE == 'ar' %}وقت الإغلاق{% else %}Closing Time{% endif %}
+                                    </label>
+                                    {{ day.close_field }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <a href="{% url 'vendor_working_hours_list' %}" class="ml-2 inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
+                        {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
+                        {% if LANGUAGE_CODE == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

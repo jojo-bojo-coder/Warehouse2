@@ -1,0 +1,365 @@
+{% extends "base_coach_dashboard.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    /* Animation Classes */
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Keyframes */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Status Badges */
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    .dark .status-pending {
+        background-color: #92400e;
+        color: #fef3c7;
+    }
+
+    .status-approved {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    .dark .status-approved {
+        background-color: #064e3b;
+        color: #d1fae5;
+    }
+
+    .status-escalated {
+        background-color: #e0e7ff;
+        color: #3730a3;
+    }
+    .dark .status-escalated {
+        background-color: #3730a3;
+        color: #e0e7ff;
+    }
+
+    .status-rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    .dark .status-rejected {
+        background-color: #991b1b;
+        color: #fee2e2;
+    }
+
+    /* Chat bubbles */
+    .chat-bubble-user {
+        background-color: #3B82F6;
+        color: white;
+    }
+    .dark .chat-bubble-user {
+        background-color: #1E40AF;
+    }
+
+    .chat-bubble-other {
+        background-color: #f3f4f6;
+        color: #111827;
+    }
+    .dark .chat-bubble-other {
+        background-color: #374151;
+        color: #f3f4f6;
+    }
+
+    /* Notice box */
+    .notice-box {
+        background-color: #fffbeb;
+        border-color: #fcd34d;
+    }
+    .dark .notice-box {
+        background-color: #78350f;
+        border-color: #f59e0b;
+    }
+
+    .notice-icon {
+        color: #d97706;
+    }
+    .dark .notice-icon {
+        color: #f59e0b;
+    }
+
+    .notice-title {
+        color: #92400e;
+    }
+    .dark .notice-title {
+        color: #fcd34d;
+    }
+
+    .notice-text {
+        color: #92400e;
+    }
+    .dark .notice-text {
+        color: #fef3c7;
+    }
+</style>
+
+<div class="bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
+    <div class="container mx-auto px-4 py-8 animate-fadeIn">
+        <!-- Header with back button -->
+        <div class="mb-6 animate-fadeInUp">
+            <a href="{% url 'coach_refund_requests' %}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center">
+                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                {% if LANGUAGE_CODE == 'ar' %}رجوع إلى قائمة الطلبات{% else %}Back to refund requests{% endif %}
+            </a>
+        </div>
+
+        <!-- Dispute information -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-6 border border-gray-200 dark:border-gray-700 animate-fadeInUp" style="animation-delay: 0.1s;">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white">{{ dispute.title }}</h2>
+                    <span class="px-3 py-1 rounded-full text-sm font-medium
+                        {% if dispute.status == 'pending' %}status-pending
+                        {% elif dispute.status == 'approved' %}status-approved
+                        {% elif dispute.status == 'escalated' %}status-escalated
+                        {% else %}bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300{% endif %}">
+                        {{ dispute.get_status_display }}
+                    </span>
+                </div>
+                <div class="mt-2">
+                    <span class="px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                        {% if dispute.current_stage == 'student_coach' %}
+                            {% if LANGUAGE_CODE == 'ar' %}مناقشة مع العميل{% else %}Discussion with Student{% endif %}
+                        {% elif dispute.current_stage == 'receptionist' %}
+                            {% if LANGUAGE_CODE == 'ar' %}مراجعة موظف الاستقبال{% else %}Receptionist Review{% endif %}
+                        {% elif dispute.current_stage == 'director' %}
+                            {% if LANGUAGE_CODE == 'ar' %}مراجعة المدير{% else %}Director Review{% endif %}
+                        {% else %}
+                            {% if LANGUAGE_CODE == 'ar' %}تم الحل{% else %}Resolved{% endif %}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Time remaining -->
+            {% if dispute.next_escalation_time %}
+            <div class="px-6 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        الوقت المتبقي للتصعيد:
+                        {% else %}
+                        Time until escalation:
+                        {% endif %}
+                        {{ dispute.next_escalation_time|timeuntil }}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Chat conversation -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-6 border border-gray-200 dark:border-gray-700 animate-fadeInUp" style="animation-delay: 0.2s;">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                    {% if LANGUAGE_CODE == 'ar' %}المحادثة{% else %}Conversation{% endif %}
+                </h3>
+            </div>
+
+            <div class="p-4 space-y-4" style="max-height: 500px; overflow-y: auto;">
+                {% for message in conversation %}
+                <div class="flex {% if message.sender.user == request.user %}justify-end{% else %}justify-start{% endif %}">
+                    <div class="max-w-xs md:max-w-md lg:max-w-lg rounded-lg px-4 py-2
+                        {% if message.sender.user == request.user %}chat-bubble-user{% else %}chat-bubble-other{% endif %}">
+                        <div class="flex items-center mb-1">
+                            <span class="font-medium">
+                                {{ message.sender.user.username }}
+                            </span>
+                            <span class="text-xs opacity-80 ml-2">
+                                {{ message.created_at|timesince }} {% if LANGUAGE_CODE == 'ar' %}منذ{% else %}ago{% endif %}
+                            </span>
+                        </div>
+                        <p>{{ message.message }}</p>
+
+                        {% if message.attachments %}
+                        <div class="mt-2">
+                            {% for attachment in message.attachments %}
+                            <a href="{{ attachment.url }}" target="_blank" class="text-sm text-blue-400 hover:underline flex items-center">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                                {{ attachment.name|truncatechars:20 }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if can_message %}
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea name="message" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200" placeholder="{% if LANGUAGE_CODE == 'ar' %}اكتب رسالتك هنا...{% else %}Type your message here...{% endif %}" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <input type="file" name="attachments" multiple class="text-sm text-gray-500 dark:text-gray-400">
+                    </div>
+                    <div class="flex justify-between">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+                            {% if LANGUAGE_CODE == 'ar' %}إرسال{% else %}Send{% endif %}
+                        </button>
+
+                        {% if can_approve %}
+                        <button type="submit" name="action" value="approve" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200">
+                            {% if LANGUAGE_CODE == 'ar' %}الموافقة على الاسترداد{% else %}Approve Refund{% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Item and refund details -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700 animate-fadeInUp" style="animation-delay: 0.3s;">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                    {% if LANGUAGE_CODE == 'ar' %}تفاصيل الاسترداد{% else %}Refund Details{% endif %}
+                </h3>
+            </div>
+            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Client{% endif %}
+                    </h4>
+                    <p class="font-medium text-gray-900 dark:text-white">
+                        {{ dispute.client.userprofile.student_profile.full_name|default:dispute.client.username }}
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {% if LANGUAGE_CODE == 'ar' %}البائع{% else %}Vendor{% endif %}
+                    </h4>
+                    <p class="font-medium text-gray-900 dark:text-white">
+                        {{ dispute.vendor.userprofile.Coach_profile.full_name|default:dispute.vendor.username }}
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {% if LANGUAGE_CODE == 'ar' %}نوع العنصر{% else %}Item Type{% endif %}
+                    </h4>
+                    <p class="font-medium text-gray-900 dark:text-white">
+                        {% if dispute.order_item.product %}
+                            {% if LANGUAGE_CODE == 'ar' %}منتج{% else %}Product{% endif %}
+                        {% elif dispute.order_item.service %}
+                            {% if LANGUAGE_CODE == 'ar' %}خدمة{% else %}Service{% endif %}
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {% if LANGUAGE_CODE == 'ar' %}اسم العنصر{% else %}Item Name{% endif %}
+                    </h4>
+                    <p class="font-medium text-gray-900 dark:text-white">
+                        {% if dispute.order_item.product %}
+                            {{ dispute.order_item.product.title }}
+                        {% elif dispute.order_item.service %}
+                            {{ dispute.order_item.service.title }}
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Quantity{% endif %}
+                    </h4>
+                    <p class="font-medium text-gray-900 dark:text-white">
+                        {{ dispute.order_item.quantity }}
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
+                    </h4>
+                    <p class="font-medium text-gray-900 dark:text-white">
+                        {{ dispute.order_item.price|floatformat:2 }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {% if LANGUAGE_CODE == 'ar' %}المبلغ المطلوب{% else %}Requested Amount{% endif %}
+                    </h4>
+                    <p class="font-medium text-gray-900 dark:text-white">
+                        {{ dispute.requested_refund_amount|floatformat:2 }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        {% if LANGUAGE_CODE == 'ar' %}تاريخ الإنشاء{% else %}Created At{% endif %}
+                    </h4>
+                    <p class="font-medium text-gray-900 dark:text-white">
+                        {{ dispute.created_at|date:"Y-m-d H:i" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Notice -->
+        <div class="px-6 py-3 notice-box border border-yellow-200 dark:border-yellow-800 rounded-lg mt-4 animate-fadeInUp" style="animation-delay: 0.4s;">
+            <div class="flex items-start">
+                <svg class="flex-shrink-0 h-5 w-5 notice-icon mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium notice-title">
+                        {% if LANGUAGE_CODE == 'ar' %}ملاحظة هامة{% else %}Important Notice{% endif %}
+                    </h3>
+                    <div class="mt-2 text-sm notice-text">
+                        <p>
+                            {% if dispute.current_stage == 'student_coach' %}
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                إذا لم يتم حل النزاع خلال {{ dispute.next_escalation_time|timeuntil }}، سيدخل فني الدعم المحادثة للمساعدة في حل المشكلة.
+                                {% else %}
+                                If not resolved within {{ dispute.next_escalation_time|timeuntil }}, a support technician will join the chat to help resolve the issue.
+                                {% endif %}
+                            {% elif dispute.current_stage == 'receptionist' %}
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                فني الدعم حالياً في المحادثة. إذا لم يتم الحل خلال {{ dispute.next_escalation_time|timeuntil }}، سيتم تصعيد الأمر إلى المدير.
+                                {% else %}
+                                A support technician is currently in the chat. If not resolved within {{ dispute.next_escalation_time|timeuntil }}, the case will be escalated to management.
+                                {% endif %}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

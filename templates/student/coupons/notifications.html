@@ -1,0 +1,237 @@
+{% extends "base_student_dashboard.html" %}
+{% load static %}
+{% block content %}
+<main class="min-h-screen bg-gradient-to-br from-rose-50 to-amber-50">
+    <div class="relative h-56 bg-gradient-to-r from-rose-600 to-pink-600 overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="absolute bottom-0 left-0 right-0 text-center text-white pb-12 animate-[fadeInUp_0.6s_ease-out]">
+            <h1 class="text-4xl font-extrabold mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                ✨ كوبونات الخصم
+                {% else %}
+                ✨ Discount Coupons
+                {% endif %}
+            </h1>
+            <p class="text-xl max-w-2xl mx-auto">
+                {% if LANGUAGE_CODE == 'ar' %}
+                استفد من العروض الحصرية لك
+                {% else %}
+                Take advantage of your exclusive offers
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-16 pb-36">
+        <div class="space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {% for item in coupons_with_status %}
+            {% with coupon=item.coupon is_activated=item.is_activated %}
+            <div class="animate-[fadeInUp_0.6s_ease-out_{{ forloop.counter|add:0.2 }}s_both] bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-rose-100">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2 text-rose-700/80">
+                                    {{ coupon.code }}
+                                </h3>
+                                <p class="text-gray-600 text-sm mb-2">
+                                    {{ coupon.description|default:"" }}
+                                </p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium
+                                {% if is_activated %}
+                                    bg-green-100 text-green-800
+                                {% else %}
+                                    bg-gray-100 text-gray-800
+                                {% endif %}">
+                                {% if is_activated %}
+                                    {% if LANGUAGE_CODE == 'ar' %}مفعل{% else %}Activated{% endif %}
+                                {% else %}
+                                    {% if LANGUAGE_CODE == 'ar' %}غير مفعل{% else %}Inactive{% endif %}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex items-center mb-2">
+                                <span class="text-gray-700 text-sm mr-2">
+                                    {% if LANGUAGE_CODE == 'ar' %}الخصم:{% else %}Discount:{% endif %}
+                                </span>
+                                <span class="font-bold text-green-600">
+                                    {% if coupon.discount_type == 'percentage' %}
+                                        {{ coupon.discount_value }}%
+                                        {% if coupon.max_discount %}
+                                            ({% if LANGUAGE_CODE == 'ar' %}بحد أقصى{% else %}max{% endif %} {{ coupon.max_discount }} SAR)
+                                        {% endif %}
+                                    {% else %}
+                                        {{ coupon.discount_value }} SAR
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="flex items-center mb-2">
+                                <span class="text-gray-700 text-sm mr-2">
+                                    {% if LANGUAGE_CODE == 'ar' %}الحد الأدنى:{% else %}Min Order:{% endif %}
+                                </span>
+                                <span class="font-medium">
+                                    {% if coupon.min_order_value %}
+                                        {{ coupon.min_order_value }} SAR
+                                    {% else %}
+                                        {% if LANGUAGE_CODE == 'ar' %}لا يوجد{% else %}None{% endif %}
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="flex items-center">
+                                <span class="text-gray-700 text-sm mr-2">
+                                    {% if LANGUAGE_CODE == 'ar' %}صالح حتى:{% else %}Valid until:{% endif %}
+                                </span>
+                                <span class="font-medium">
+                                    {{ coupon.end_date|date:"Y-m-d" }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                تم استخدامها {{ coupon.times_used }} من {{ coupon.max_uses|default:"∞" }} مرات
+                                {% else %}
+                                Used {{ coupon.times_used }} of {{ coupon.max_uses|default:"∞" }} times
+                                {% endif %}
+                            </span>
+
+                            <button onclick="copyToClipboard('{{ coupon.code }}')"
+                                    class="text-rose-600 hover:text-rose-800 text-sm font-medium">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                نسخ الكود
+                                {% else %}
+                                Copy Code
+                                {% endif %}
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-4">
+                            {% if not is_activated %}
+                            <button onclick="activateCoupon({{ coupon.id }})"
+                                    class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                تفعيل الكوبون
+                                {% else %}
+                                Activate Coupon
+                                {% endif %}
+                            </button>
+                            {% else %}
+                            <span class="text-sm text-green-600">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                تم التفعيل
+                                {% else %}
+                                Activated
+                                {% endif %}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endfor %}
+            </div>
+
+            {% if not coupons %}
+            <div class="animate-[fadeIn_0.8s_ease-out_0.3s_both] bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-rose-100 p-12 text-center">
+                <div class="text-2xl font-semibold text-rose-400/80">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    🙁 لا يوجد كوبونات متاحة
+                    {% else %}
+                    🙁 No coupons available
+                    {% endif %}
+                </div>
+                <p class="text-gray-500 mt-2">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    سيتم إضافة كوبونات جديدة قريباً
+                    {% else %}
+                    New coupons will be added soon
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('{% if LANGUAGE_CODE == "ar" %}تم نسخ الكود بنجاح!{% else %}Coupon code copied!{% endif %}');
+        }, function(err) {
+            console.error('Could not copy text: ', err);
+        });
+    }
+    function activateCoupon(couponId) {
+        fetch(`/student/coupons/activate/${couponId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+</style>
+{% endblock %}

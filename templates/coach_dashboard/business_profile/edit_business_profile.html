@@ -1,0 +1,494 @@
+{% extends 'base_coach_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Animation Classes */
+    .animate-gradient-slow {
+        animation: gradientShift 15s ease infinite;
+        background-size: 200% 200%;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Dark mode overrides */
+    .dark .bg-white {
+        background-color: #1f2937 !important;
+    }
+
+    .dark .border-gray-200 {
+        border-color: #374151 !important;
+    }
+
+    .dark .text-gray-700 {
+        color: #d1d5db !important;
+    }
+
+    .dark .text-gray-500 {
+        color: #9ca3af !important;
+    }
+
+    .dark .text-gray-600 {
+        color: #e5e7eb !important;
+    }
+
+    .dark .bg-gray-50 {
+        background-color: #111827 !important;
+    }
+
+    .dark .border-gray-300 {
+        border-color: #4b5563 !important;
+    }
+
+    .dark .text-gray-900 {
+        color: #f3f4f6 !important;
+    }
+
+    .dark .bg-red-50 {
+        background-color: #7f1d1d !important;
+    }
+
+    .dark .border-red-200 {
+        border-color: #991b1b !important;
+    }
+
+    .dark .text-red-700 {
+        color: #fca5a5 !important;
+    }
+
+    .dark .text-blue-600 {
+        color: #93c5fd !important;
+    }
+
+    .dark .border-blue-100 {
+        border-color: #1e40af !important;
+    }
+
+    /* Form input styling */
+    .form-input-dark {
+        background-color: #1f2937 !important;
+        border-color: #4b5563 !important;
+        color: #f3f4f6 !important;
+    }
+
+    .form-input-dark:focus {
+        border-color: #3b82f6 !important;
+        ring-color: #3b82f6 !important;
+    }
+
+    /* Document upload area */
+    .dark .border-gray-300 {
+        border-color: #4b5563 !important;
+    }
+
+    .dark .text-gray-400 {
+        color: #6b7280 !important;
+    }
+</style>
+
+<div class="bg-white dark:bg-gray-900 w-full px-4 sm:px-6 lg:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
+    <div class="mx-auto py-8">
+        <div class="bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden border border-blue-100 dark:border-gray-700">
+            <!-- Header Section -->
+            <div class="px-6 py-5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+                <h1 class="text-2xl font-bold">
+                    {% if LANGUAGE_CODE == 'ar' %}تعديل الملف التجاري{% else %}Edit Business Profile{% endif %}
+                </h1>
+                <p class="text-blue-100">
+                    {{ coach.business_name_ar|default:coach.business_name_en }}
+                </p>
+            </div>
+
+            <!-- Form Section -->
+            <div class="px-6 py-8">
+                <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+
+                    <!-- Display Form Errors -->
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+                            <div class="text-sm text-red-700 dark:text-red-300">
+                                {{ form.non_field_errors }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Business Name -->
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                        <label for="id_business_name_ar" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            {% if LANGUAGE_CODE == 'ar' %}اسم النشاط التجاري بالعربي{% else %}Business Name in Arabic{% endif %}
+                        </label>
+                        <input type="text" id="id_business_name_ar" name="business_name_ar" value="{{ form.business_name_ar.value|default:'' }}"
+                            class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                        {% if form.business_name_ar.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.business_name_ar.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                        <label for="id_business_name_en" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            {% if LANGUAGE_CODE == 'ar' %}اسم النشاط التجاري بالإنجليزية{% else %}Business Name in English{% endif %}
+                        </label>
+                        <input type="text" id="id_business_name_en" name="business_name_en" value="{{ form.business_name_en.value|default:'' }}"
+                            class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                        {% if form.business_name_en.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.business_name_en.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Activity Type -->
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                        <label for="id_activity_type" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            {% if LANGUAGE_CODE == 'ar' %}نوع النشاط{% else %}Activity Type{% endif %}
+                        </label>
+                        <select id="id_activity_type" name="activity_type" class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            {% for value, label in form.activity_type.field.choices %}
+                                <option value="{{ value }}" {% if form.activity_type.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.activity_type.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.activity_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Number of Branches -->
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                        <label for="id_number_of_branches" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            {% if LANGUAGE_CODE == 'ar' %}عدد الفروع{% else %}Number of Branches{% endif %}
+                        </label>
+                        <input type="number" id="id_number_of_branches" name="number_of_branches" value="{{ form.number_of_branches.value|default:'1' }}"
+                            class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                        {% if form.number_of_branches.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.number_of_branches.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                        <label for="id_description" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            {% if LANGUAGE_CODE == 'ar' %}وصف الخدمة{% else %}Service Description{% endif %}
+                        </label>
+                        <textarea id="id_description" name="description" rows="3"
+                            class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Business Document Section -->
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                        <h3 class="text-lg font-medium text-blue-600 dark:text-blue-400 mb-3">
+                            {% if LANGUAGE_CODE == 'ar' %}وثيقة العمل{% else %}Business Document{% endif %}
+                        </h3>
+
+                        <!-- Document Type -->
+                        <div class="mb-4">
+                            <label for="id_business_document_type" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}نوع الوثيقة{% else %}Document Type{% endif %}
+                            </label>
+                            <select id="id_business_document_type" name="business_document_type" class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                {% for value, label in form.business_document_type.field.choices %}
+                                    <option value="{{ value }}" {% if form.business_document_type.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.business_document_type.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.business_document_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Document File -->
+                        <div>
+                            <label for="id_business_document_file" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}رفع وثيقة جديدة{% else %}Upload New Document{% endif %}
+                            </label>
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md">
+                                <div class="space-y-1 text-center">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <div class="flex text-sm text-gray-600 dark:text-gray-300">
+                                        <label for="id_business_document_file" class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
+                                            <span>{% if LANGUAGE_CODE == 'ar' %}اختر ملف{% else %}Choose a file{% endif %}</span>
+                                            <input id="id_business_document_file" name="business_document_file" type="file" class="sr-only">
+                                        </label>
+                                        <p class="pl-1">{% if LANGUAGE_CODE == 'ar' %}أو اسحب الملف هنا{% else %}or drag and drop{% endif %}</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        {% if LANGUAGE_CODE == 'ar' %}PDF أو صورة حتى 10MB{% else %}PDF or image up to 10MB{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            {% if coach.business_document_file %}
+                                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <span class="font-medium">{% if LANGUAGE_CODE == 'ar' %}وثيقة حالية:{% else %}Current document:{% endif %}</span>
+                                    <button type="button" onclick="viewDocument()" class="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
+                                        {% if LANGUAGE_CODE == 'ar' %}عرض الوثيقة{% else %}View Document{% endif %}
+                                    </button>
+                                </p>
+                            {% endif %}
+                            {% if form.business_document_file.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.business_document_file.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Business Photo Section -->
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                        <h3 class="text-lg font-medium text-blue-600 dark:text-blue-400 mb-3">
+                            {% if LANGUAGE_CODE == 'ar' %}صورة النشاط التجاري{% else %}Business Photo{% endif %}
+                        </h3>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}صورة النشاط التجاري{% else %}Business Photo{% endif %}
+                            </label>
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md">
+                                <div class="space-y-1 text-center">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <div class="flex text-sm text-gray-600 dark:text-gray-300">
+                                        <label for="id_business_photo" class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
+                                            <span>{% if LANGUAGE_CODE == 'ar' %}اختر ملف{% else %}Choose a file{% endif %}</span>
+                                            <input id="id_business_photo" name="business_photo" type="file" class="sr-only">
+                                        </label>
+                                        <p class="pl-1">{% if LANGUAGE_CODE == 'ar' %}أو اسحب الملف هنا{% else %}or drag and drop{% endif %}</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        {% if LANGUAGE_CODE == 'ar' %}PNG, JPG حتى 10MB{% else %}PNG, JPG up to 10MB{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            {% if form.business_photo.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.business_photo.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Contact Numbers Section -->
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                        <h3 class="text-lg font-medium text-blue-600 dark:text-blue-400 mb-3">
+                            {% if LANGUAGE_CODE == 'ar' %}أرقام التواصل{% else %}Contact Numbers{% endif %}
+                        </h3>
+
+                        <!-- Business Phone Numbers -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}أرقام الهاتف{% else %}Phone Numbers{% endif %}
+                            </label>
+                            <div id="phone-numbers-container">
+                                {% for number in coach.business_phone_numbers %}
+                                    <div class="flex mb-2">
+                                        <input type="text" name="business_phone_numbers" value="{{ number }}"
+                                            class="flex-1 rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        <button type="button" class="ml-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 remove-phone-number">
+                                            {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Remove{% endif %}
+                                        </button>
+                                    </div>
+                                {% empty %}
+                                    <div class="flex mb-2">
+                                        <input type="text" name="business_phone_numbers" value=""
+                                            class="flex-1 rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        <button type="button" class="ml-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 remove-phone-number">
+                                            {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Remove{% endif %}
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" id="add-phone-number" class="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                {% if LANGUAGE_CODE == 'ar' %}إضافة رقم{% else %}Add Number{% endif %}
+                            </button>
+                        </div>
+
+                        <!-- WhatsApp Business Number -->
+                        <div>
+                            <label for="id_whatsapp_business_number" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}رقم الواتساب التجاري{% else %}WhatsApp Business Number{% endif %}
+                            </label>
+                            <input type="text" id="id_whatsapp_business_number" name="whatsapp_business_number" value="{{ form.whatsapp_business_number.value|default:'' }}"
+                                class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            {% if form.whatsapp_business_number.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.whatsapp_business_number.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Location Section -->
+                    <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                        <h3 class="text-lg font-medium text-blue-600 dark:text-blue-400 mb-3">
+                            {% if LANGUAGE_CODE == 'ar' %}الموقع{% else %}Location{% endif %}
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Region -->
+                            <div>
+                                <label for="id_region" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}المنطقة{% else %}Region{% endif %}
+                                </label>
+                                <select id="id_region" name="region" class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                    {% for value, label in form.region.field.choices %}
+                                        <option value="{{ value }}" {% if form.region.value == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.region.errors %}
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.region.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- City -->
+                            <div>
+                                <label for="id_city" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}المدينة{% else %}City{% endif %}
+                                </label>
+                                <select id="id_city" name="city" class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                    <option value="">{% if LANGUAGE_CODE == 'ar' %}اختر المدينة{% else %}Choose City{% endif %}</option>
+                                </select>
+                                {% if form.city.errors %}
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.city.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- District -->
+                            <div>
+                                <label for="id_district" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}الحي{% else %}District{% endif %}
+                                </label>
+                                <input type="text" id="id_district" name="district" value="{{ form.district.value|default:'' }}"
+                                    class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                {% if form.district.errors %}
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.district.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Street -->
+                            <div>
+                                <label for="id_street" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}الشارع{% else %}Street{% endif %}
+                                </label>
+                                <input type="text" id="id_street" name="street" value="{{ form.street.value|default:'' }}"
+                                    class="w-full rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                {% if form.street.errors %}
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.street.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <a href="{% url 'view_business_profile' %}" class="ml-2 inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                        </a>
+                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            {% if LANGUAGE_CODE == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if coach.business_document_file %}
+<script>
+    function viewDocument() {
+        try {
+            const documentUrl = "{{ coach.business_document_file|escapejs }}";
+            const newWindow = window.open(documentUrl, '_blank');
+
+            if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                const link = document.createElement('a');
+                link.href = documentUrl;
+                link.target = '_blank';
+                link.download = 'business_document.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        } catch (error) {
+            console.error('Error opening document:', error);
+            alert('Unable to open document. Please try downloading it instead.');
+        }
+    }
+</script>
+{% endif %}
+
+<script>
+// Regions and cities data
+const REGIONS_AND_CITIES = {
+    "الرياض": ["الرياض", "الزلفي", "المجمعة", "الخرج", "الدوادمي"],
+    "مكة المكرمة": ["جدة", "مكة", "الطائف", "رابغ"],
+    "القصيم": ["بريدة", "عنيزة", "الرس"],
+    "المنطقة الشرقية": ["الخبر", "الدمام", "القطيف", "حفر الباطن", "الأحساء", "الجبيل", "بقيق"],
+    "عسير": ["محايل عسير", "أبها", "بيشة"],
+    "تبوك": ["تبوك"],
+    "حائل": ["حائل"],
+    "الحدود الشمالية": ["عرعر", "شرورة"],
+    "جازان": ["صيبا", "جازان", "أبو عريش", "الدرب"],
+    "نجران": ["نجران"],
+    "الباحة": ["الباحة"],
+    "الجوف": ["سكاكا", "القريات"],
+    "المدينة المنورة": ["المدينة المنورة", "ينبع", "العلا"]
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const regionSelect = document.getElementById('id_region');
+    const citySelect = document.getElementById('id_city');
+    const currentCity = "{{ coach.city|escapejs }}";
+
+    // Function to update cities based on selected region
+    function updateCities() {
+        const selectedRegion = regionSelect.value;
+        citySelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar" %}اختر المدينة{% else %}Choose City{% endif %}</option>';
+
+        if (selectedRegion && REGIONS_AND_CITIES[selectedRegion]) {
+            REGIONS_AND_CITIES[selectedRegion].forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                if (city === currentCity) {
+                    option.selected = true;
+                }
+                citySelect.appendChild(option);
+            });
+        }
+    }
+
+    // Update cities when region changes
+    regionSelect.addEventListener('change', updateCities);
+
+    // Initialize cities on page load
+    updateCities();
+
+    const addButton = document.getElementById('add-phone-number');
+    const container = document.getElementById('phone-numbers-container');
+
+    // Add phone number field
+    addButton.addEventListener('click', function() {
+        const div = document.createElement('div');
+        div.className = 'flex mb-2';
+        div.innerHTML = `
+            <input type="text" name="business_phone_numbers" class="flex-1 rounded-md border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+            <button type="button" class="ml-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 remove-phone-number">
+                {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Remove{% endif %}
+            </button>
+        `;
+        container.appendChild(div);
+    });
+
+    // Remove phone number field
+    container.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-phone-number')) {
+            const phoneFields = container.querySelectorAll('.flex');
+            if (phoneFields.length > 1) {
+                e.target.closest('.flex').remove();
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

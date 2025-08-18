@@ -1,0 +1,334 @@
+{% extends "base_club_dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* Animation Classes */
+  .animate-float {
+      animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-fadeInUp {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-stagger > * {
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+  }
+
+  /* Button Effects */
+  .btn-gradient {
+      background-size: 200% auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .btn-gradient:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Background Animation */
+  .animated-bg {
+      animation: gradientBG 15s ease infinite;
+      background-size: 300% 300%;
+  }
+
+  @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+  }
+
+  /* Ripple Effect */
+  .ripple {
+      position: relative;
+      overflow: hidden;
+  }
+
+  .ripple-effect {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+  }
+
+  @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+  }
+
+  /* Role Card Styles */
+  .role-card {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    border-left: 4px solid #6366f1;
+  }
+
+  .role-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .role-card {
+    background-color: #1f2937;
+    border-color: #818cf8;
+    border-left: 4px solid #818cf8;
+  }
+
+  .dark .role-card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .permission-badge {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+  }
+
+  .dark .permission-badge {
+    background-color: #3730a3;
+    color: #a5b4fc;
+  }
+
+  /* Dark mode toggle */
+  .toggle-checkbox:checked {
+    right: 0;
+    border-color: #68D391;
+  }
+
+  .toggle-checkbox:checked + .toggle-label {
+    background-color: #68D391;
+  }
+</style>
+
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 pt-8  dark:bg-gray-900">
+  <!-- Top Navigation Bar -->
+  <div class="bg-white dark:bg-gray-800 shadow-md py-3 px-6 flex items-center justify-between sticky top-0 z-10 mb-8 hidden">
+    <!-- Club Logo and Name -->
+    <div class="flex items-center">
+      <img class="h-10 w-10 rounded-full mr-3" src="data:image/jpeg;base64,{{ club.club_profile_image_base64|safe }}" alt="Club Logo">
+      <h1 class="text-xl font-bold text-gray-800 dark:text-white">{{ club.name }}</h1>
+    </div>
+
+    <!-- Right Side Controls -->
+    <div class="flex items-center space-x-4 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
+      <!-- Dark Mode Toggle -->
+      <div class="relative inline-block w-10 mr-2 align-middle select-none">
+        <input type="checkbox" name="toggle" id="toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" onclick="toggleDarkMode()"/>
+        <label for="toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+      </div>
+
+      <!-- Language Selector -->
+      <div class="relative">
+        <button onclick="toggleLanguageDropdown()" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+          <span class="mr-1">{{ LANGUAGE_CODE|upper }}</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-24 bg-white dark:bg-gray-700 rounded-md shadow-lg z-20">
+          <a href="{% url 'set_language_redirect' 'en' %}?next={{ request.path }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">English</a>
+          <a href="{% url 'set_language_redirect' 'ar' %}?next={{ request.path }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">العربية</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 animate-fadeIn">
+    <div class="flex items-center space-x-4 space-x-reverse">
+      <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 animate-float">
+        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+          {% if LANGUAGE_CODE == 'ar' %}الأدوار المخصصة{% else %}Custom Roles{% endif %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-300">
+          {% if LANGUAGE_CODE == 'ar' %}
+          إدارة الأدوار المخصصة والصلاحيات
+          {% else %}
+          Manage custom roles and permissions
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <a href="{% url 'add_custom_role' %}"
+       class="ripple btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:gap-3 transition-all duration-300">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      {% if LANGUAGE_CODE == 'ar' %}إضافة دور جديد{% else %}Add New Role{% endif %}
+    </a>
+  </div>
+
+  <!-- Roles List -->
+  <div class="space-y-4 animate-fadeInUp">
+    {% for item in role_user_counts %}
+    <div class="bg-white dark:bg-gray-800 role-card p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800 dark:text-white">{{ item.role.name }}</h3>
+          <div class="mt-2">
+            {% for perm in item.role.get_permissions_display %}
+            <span class="permission-badge">{{ perm }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="text-center">
+            <span class="block text-2xl font-bold text-gray-800 dark:text-white">{{ item.user_count }}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}مستخدم{% else %}Users{% endif %}</span>
+          </div>
+
+          <div class="flex gap-2">
+            <a href="{% url 'edit_custom_role' id=item.role.id %}"
+               class="px-4 py-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors">
+              {% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}
+            </a>
+            <a href="{% url 'delete_custom_role' id=item.role.id %}"
+               onclick="return confirm('{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من حذف هذا الدور؟ سيتم إزالة الصلاحيات من جميع المستخدمين المرتبطين به.{% else %}Are you sure you want to delete this role? All associated users will lose these permissions.{% endif %}')"
+               class="px-4 py-2 bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-800 transition-colors">
+              {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-8 text-center border border-gray-100 dark:border-gray-700">
+      <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">
+        {% if LANGUAGE_CODE == 'ar' %}لا توجد أدوار مخصصة{% else %}No custom roles found{% endif %}
+      </h3>
+      <p class="mt-1 text-gray-500 dark:text-gray-400">
+        {% if LANGUAGE_CODE == 'ar' %}
+        يمكنك إنشاء أدوار جديدة مع صلاحيات محددة
+        {% else %}
+        You can create new roles with specific permissions
+        {% endif %}
+      </p>
+      <div class="mt-6">
+        <a href="{% url 'add_custom_role' %}" class="ripple btn-gradient inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-md">
+          {% if LANGUAGE_CODE == 'ar' %}إضافة دور جديد{% else %}Add New Role{% endif %}
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  // Toggle dark mode
+  function toggleDarkMode() {
+    const html = document.documentElement;
+    const toggle = document.getElementById('toggle');
+
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      toggle.checked = false;
+      document.cookie = "darkMode=false; path=/; max-age=31536000"; // 1 year
+    } else {
+      html.classList.add('dark');
+      toggle.checked = true;
+      document.cookie = "darkMode=true; path=/; max-age=31536000"; // 1 year
+    }
+  }
+
+  // Check for saved dark mode preference on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const darkModeCookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('darkMode='));
+
+    const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+      document.documentElement.classList.add('dark');
+      document.getElementById('toggle').checked = true;
+    }
+  });
+
+  // Toggle language dropdown
+  function toggleLanguageDropdown() {
+    const dropdown = document.getElementById('languageDropdown');
+    dropdown.classList.toggle('hidden');
+  }
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('#languageDropdown') && !event.target.closest('[onclick="toggleLanguageDropdown()"]')) {
+      document.getElementById('languageDropdown').classList.add('hidden');
+    }
+  });
+
+  // Ripple effect for buttons
+  document.querySelectorAll('.ripple').forEach(button => {
+      button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const link = this.getAttribute('href');
+          if (this.hasAttribute('onclick') && !confirm(this.getAttribute('onclick').includes('delete') ? '{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من حذف هذا الدور؟{% else %}Are you sure you want to delete this role?{% endif %}' : '')) {
+              return;
+          }
+
+          // Create ripple effect
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple-effect');
+          this.appendChild(ripple);
+
+          // Get click position
+          const rect = this.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          ripple.style.left = `${x}px`;
+          ripple.style.top = `${y}px`;
+
+          // Remove ripple after animation
+          setTimeout(() => {
+              ripple.remove();
+              if (link) window.location.href = link;
+          }, 600);
+      });
+  });
+</script>
+{% endblock %}

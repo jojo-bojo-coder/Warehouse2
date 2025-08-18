@@ -1,0 +1,182 @@
+{% extends 'base_coach_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-900 w-full px-4 sm:px-6 lg:px-8 min-h-screen pb-12 xl:pr-[20%]">
+    <section class="container mx-auto py-8">
+        <div class="mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6 border border-blue-100 dark:border-gray-700">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-edit text-blue-600 dark:text-blue-400 text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                    {% if LANGUAGE_CODE == 'ar' %}تعديل السياسات{% else %}Edit Policies{% endif %}
+                </h1>
+                <p class="text-gray-600 dark:text-gray-300">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    يمكنك تحديث سياسة الشروط والأحكام وسياسة الاسترجاع هنا
+                    {% else %}
+                    You can update your Terms & Conditions and Refund Policy documents here
+                    {% endif %}
+                </p>
+
+                {% if has_existing_policies %}
+                <div class="mt-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-600 p-4 text-left">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-blue-500 dark:text-blue-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700 dark:text-blue-300">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                سيتم استبدال الملفات الحالية بالملفات الجديدة
+                                {% else %}
+                                Existing files will be replaced with the new ones
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Terms & Conditions -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-blue-600 dark:text-blue-400">
+                        {% if LANGUAGE_CODE == 'ar' %}سياسة الشروط والأحكام{% else %}Terms & Conditions Policy{% endif %}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.terms_conditions }}
+                    {% if form.terms_conditions.errors %}
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.terms_conditions.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        يجب أن يكون الملف بصيغة PDF أو صورة (الحد الأقصى 5MB)
+                        {% else %}
+                        File must be in PDF or image format (Max 5MB)
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Refund Policy -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-blue-600 dark:text-blue-400">
+                        {% if LANGUAGE_CODE == 'ar' %}سياسة الاسترجاع{% else %}Refund Policy{% endif %}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.refund_policy }}
+                    {% if form.refund_policy.errors %}
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.refund_policy.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        يجب أن يكون الملف بصيغة PDF أو صورة (الحد الأقصى 5MB)
+                        {% else %}
+                        File must be in PDF or image format (Max 5MB)
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="pt-4 flex justify-between">
+                    <a href="{% url 'view_policies' %}" class="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 font-medium">
+                        {% if LANGUAGE_CODE == 'ar' %}عودة{% else %}Back{% endif %}
+                    </a>
+                    <button type="submit" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-md hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg">
+                        {% if LANGUAGE_CODE == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+
+<style>
+    .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    input[type="file"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+    }
+
+    input[type="file"]:hover {
+        border-color: #cbd5e0;
+        background-color: #fff;
+    }
+
+    input[type="file"]:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        background-color: white;
+    }
+
+    /* Dark mode styles for file input */
+    .dark input[type="file"] {
+        border-color: #4b5563;
+        background-color: #1f2937;
+        color: #f3f4f6;
+    }
+
+    .dark input[type="file"]:hover {
+        border-color: #6b7280;
+        background-color: #374151;
+    }
+
+    .dark input[type="file"]:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        background-color: #1f2937;
+    }
+</style>
+
+<script>
+  // Toggle dark mode
+  function toggleDarkMode() {
+      const html = document.documentElement;
+      const toggle = document.getElementById('toggle');
+
+      if (html.classList.contains('dark')) {
+          html.classList.remove('dark');
+          toggle.checked = false;
+          document.cookie = "darkMode=false; path=/; max-age=31536000"; // 1 year
+      } else {
+          html.classList.add('dark');
+          toggle.checked = true;
+          document.cookie = "darkMode=true; path=/; max-age=31536000"; // 1 year
+      }
+  }
+
+  // Check for saved dark mode preference on page load
+  document.addEventListener('DOMContentLoaded', function() {
+      const darkModeCookie = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('darkMode='));
+
+      const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+          document.documentElement.classList.add('dark');
+          if (document.getElementById('toggle')) {
+              document.getElementById('toggle').checked = true;
+          }
+      }
+  });
+</script>
+{% endblock %}

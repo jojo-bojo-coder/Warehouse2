@@ -1,0 +1,423 @@
+{% extends "base_club_dashboard.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden">
+    <!-- Title and main button -->
+    <div class="flex justify-between items-center py-8 animate-fade-in">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2 transform transition-all duration-500 opacity-0 animate-title">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                </svg>
+            </div>
+            {% if LANGUAGE_CODE == 'ar' %} إدارة الترويج {% else %} Promotion Management {% endif %}
+        </h1>
+        <div>
+            <a href="{% url 'manage_promotion_features' %}" class="ml-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-2.5 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all duration-300 shadow-md hover:shadow-blue-300/40 dark:hover:shadow-blue-700/40">
+            {% if LANGUAGE_CODE == 'ar' %} إدارة السمات {% else %} Manage Features {% endif %}
+        </a>
+    </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 opacity-0 animate-fade-in" style="animation-delay: 0.2s">
+        <!-- Total Promotions -->
+        <div class="bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 dark:border-blue-600">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %} إجمالي الطلبات {% else %} Total Promotions {% endif %}</h3>
+                <div class="bg-blue-100/50 dark:bg-blue-900/50 p-2 rounded-full">
+                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ total_promotions }}</p>
+        </div>
+
+        <!-- Pending Promotions -->
+        <div class="bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-amber-500 dark:border-amber-600">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %} قيد المراجعة {% else %} Pending {% endif %}</h3>
+                <div class="bg-amber-100/50 dark:bg-amber-900/50 p-2 rounded-full">
+                    <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ pending_promotions }}</p>
+        </div>
+
+        <!-- Active Promotions -->
+        <div class="bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 dark:border-green-600">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %} نشطة {% else %} Active {% endif %}</h3>
+                <div class="bg-green-100/50 dark:bg-green-900/50 p-2 rounded-full">
+                    <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-14 0 9 9 0 0114 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ active_promotions }}</p>
+        </div>
+
+        <!-- Rejected Promotions -->
+        <div class="bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-red-500 dark:border-red-600">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %} مرفوضة {% else %} Rejected {% endif %}</h3>
+                <div class="bg-red-100/50 dark:bg-red-900/50 p-2 rounded-full">
+                    <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ rejected_promotions }}</p>
+        </div>
+    </div>
+
+    <!-- Filter and Search Section -->
+    <div class="mb-6 opacity-0 animate-fade-in" style="animation-delay: 0.4s">
+        <form method="GET" class="flex flex-wrap gap-4 items-end">
+            <!-- Search -->
+            <div class="flex-1 min-w-64">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {% if LANGUAGE_CODE == 'ar' %} البحث {% else %} Search {% endif %}
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0 pl-3{% else %}right-0 pr-3{% endif %} flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <input
+                            type="text"
+                            name="search"
+                            value="{{ search_query }}"
+                            class="bg-white/90 dark:bg-gray-700/90 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full {% if LANGUAGE_CODE == 'ar' %}pl-10 pr-4{% else %}pr-10 pl-4{% endif %} py-2.5"
+                            placeholder="{% if LANGUAGE_CODE == 'ar' %}ابحث بالاسم، النوع، التاجر...{% else %}Search by name, type, coach...{% endif %}"
+                    >
+                </div>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="min-w-48">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {% if LANGUAGE_CODE == 'ar' %} الحالة {% else %} Status {% endif %}
+                </label>
+                <select name="status" class="bg-white/90 dark:bg-gray-700/90 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>
+                        {% if LANGUAGE_CODE == 'ar' %} جميع الطلبات {% else %} All Promotions {% endif %}
+                    </option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>
+                        {% if LANGUAGE_CODE == 'ar' %} قيد المراجعة {% else %} Pending {% endif %}
+                    </option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>
+                        {% if LANGUAGE_CODE == 'ar' %} نشطة {% else %} Active {% endif %}
+                    </option>
+                    <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>
+                        {% if LANGUAGE_CODE == 'ar' %} مرفوضة {% else %} Rejected {% endif %}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Filter Button -->
+            <button type="submit" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2.5 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-blue-300/40 dark:hover:shadow-blue-700/40">
+                {% if LANGUAGE_CODE == 'ar' %} تصفية {% else %} Filter {% endif %}
+            </button>
+        </form>
+    </div>
+
+    <!-- Promotions Table -->
+    <div class="bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden transition-all duration-500 opacity-0 animate-table transform translate-y-5 hover:shadow-xl dark:hover:shadow-gray-700/50">
+        <table class="w-full text-sm text-gray-700 dark:text-gray-300">
+            <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-800">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} العنصر {% else %} Item {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} النوع {% else %} Type {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} المدة {% else %} Duration {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} التاجر {% else %} Coach {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} الحالة {% else %} Status {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} تاريخ البداية {% else %} Start Date {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} تاريخ النهاية {% else %} End Date {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} الإجراءات {% else %} Actions {% endif %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for promotion in promotions %}
+            <tr class="bg-white/80 dark:bg-gray-700/80 border-b border-gray-100 dark:border-gray-600 hover:bg-gray-50/60 dark:hover:bg-gray-600/60 transition-all duration-200 opacity-0 animate-row" style="animation-delay: {{ forloop.counter|add:2 }}00ms">
+                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    <div class="flex items-center space-x-3">
+                        {% if promotion.promotion_type == 'product' and promotion.product.product_images.all %}
+                            <img src="{{ promotion.product.product_images.first.img.url }}" alt="{{ promotion.product.title }}" class="w-12 h-12 rounded-lg object-cover">
+                        {% elif promotion.promotion_type == 'service' and promotion.service.image %}
+                            <img src="{{ promotion.service.image.url }}" alt="{{ promotion.service.title }}" class="w-12 h-12 rounded-lg object-cover">
+                        {% else %}
+                            <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-600 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <div class="font-medium mr-2">
+                                {% if promotion.promotion_type == 'product' %}
+                                    {{ promotion.product.title }}
+                                {% else %}
+                                    {{ promotion.service.title }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    {{ promotion.get_promotion_type_display }}
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    {% if promotion.duration_days %}
+                        <span class="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+                            {{ promotion.duration_days }} {% if LANGUAGE_CODE == 'ar' %}يوم{% else %}days{% endif %}
+                        </span>
+                    {% else %}
+                        <span class="text-gray-400">{% if LANGUAGE_CODE == 'ar' %}غير محدد{% else %}N/A{% endif %}</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    <div>
+                        <div class="font-medium">{{ promotion.coach.full_name }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ promotion.coach.userprofile.user.email }}</div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    {% if promotion.status == 'pending' %}
+                        <span class="px-2 py-1 text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full">
+                            {% if LANGUAGE_CODE == 'ar' %} قيد المراجعة {% else %} Pending {% endif %}
+                        </span>
+                    {% elif promotion.status == 'active' %}
+                        <span class="px-2 py-1 text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full">
+                            {% if LANGUAGE_CODE == 'ar' %} نشط {% else %} Active {% endif %}
+                        </span>
+                    {% elif promotion.status == 'rejected' %}
+                        <span class="px-2 py-1 text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full">
+                            {% if LANGUAGE_CODE == 'ar' %} مرفوض {% else %} Rejected {% endif %}
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    {% if promotion.start_date %}
+                        {{ promotion.start_date|date:"d M Y" }}
+                    {% else %}
+                        <span class="text-gray-400">{% if LANGUAGE_CODE == 'ar' %}غير محدد{% else %}Not set{% endif %}</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    {% if promotion.end_date %}
+                        {{ promotion.end_date|date:"d M Y" }}
+                    {% else %}
+                        <span class="text-gray-400">{% if LANGUAGE_CODE == 'ar' %}غير محدد{% else %}Not set{% endif %}</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    <div class="flex space-x-2">
+                        {% if promotion.status == 'pending' %}
+                            <button onclick="showApprovalModal({{ promotion.id }}, '{{ promotion.get_promotion_item_name|escapejs }}')"
+                                    class="ml-2 font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-all duration-200">
+                                {% if LANGUAGE_CODE == 'ar' %} قبول {% else %} Approve {% endif %}
+                            </button>
+                            <button onclick="showRejectionModal({{ promotion.id }}, '{{ promotion.get_promotion_item_name|escapejs }}')"
+                                    class="font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-all duration-200">
+                                {% if LANGUAGE_CODE == 'ar' %} رفض {% else %} Reject {% endif %}
+                            </button>
+                        {% endif %}
+                        <a href="{% url 'view_pending_promotion' promotion.id  %}" class="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-all duration-200">
+                            {% if LANGUAGE_CODE == 'ar' %} عرض {% else %} View {% endif %}
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr class="bg-white/80 dark:bg-gray-700/80 border-b border-gray-100 dark:border-gray-600 opacity-0 animate-row" style="animation-delay: 300ms">
+                <td colspan="9" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <div class="flex flex-col items-center">
+                        <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                        </svg>
+                        <p class="text-lg font-medium">
+                            {% if LANGUAGE_CODE == 'ar' %} لا توجد طلبات ترويج {% else %} No promotion requests found {% endif %}
+                        </p>
+                        <p class="text-sm">
+                            {% if LANGUAGE_CODE == 'ar' %} لم يتم العثور على أي طلبات ترويج بناءً على المعايير المحددة {% else %} No promotion requests match your current filters {% endif %}
+                        </p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if promotions.has_other_pages %}
+    <div class="flex justify-center mt-8 opacity-0 animate-fade-in" style="animation-delay: 0.8s">
+        <nav class="flex items-center space-x-2">
+            {% if promotions.has_previous %}
+                <a href="?page={{ promotions.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}"
+                   class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-200">
+                    {% if LANGUAGE_CODE == 'ar' %} السابق {% else %} Previous {% endif %}
+                </a>
+            {% endif %}
+
+            {% for num in promotions.paginator.page_range %}
+                {% if promotions.number == num %}
+                    <span class="px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900 border border-blue-300 dark:border-blue-700 rounded-md">
+                        {{ num }}
+                    </span>
+                {% elif num > promotions.number|add:'-3' and num < promotions.number|add:'3' %}
+                    <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}"
+                       class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-200">
+                        {{ num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if promotions.has_next %}
+                <a href="?page={{ promotions.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}"
+                   class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-200">
+                    {% if LANGUAGE_CODE == 'ar' %} التالي {% else %} Next {% endif %}
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    <!-- Approval Modal -->
+<div id="approvalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
+            {% if LANGUAGE_CODE == 'ar' %} الموافقة على الترويج {% else %} Approve Promotion {% endif %}
+        </h3>
+        <p class="mb-4 text-gray-600 dark:text-gray-300">
+            {% if LANGUAGE_CODE == 'ar' %} أنت على وشك الموافقة على الترويج لـ: {% else %} You are about to approve promotion for: {% endif %}
+            <span id="approvalPromotionTitle" class="font-semibold text-gray-800 dark:text-white"></span>
+        </p>
+
+        <form id="approvalForm" method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {% if LANGUAGE_CODE == 'ar' %} تاريخ البدء {% else %} Start Date {% endif %}
+                </label>
+                <input type="date" name="start_date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {% if LANGUAGE_CODE == 'ar' %} ملاحظات {% else %} Notes {% endif %}
+                </label>
+                <textarea name="approval_notes" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+            </div>
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" onclick="hideModal('approvalModal')"
+                        class="ml-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
+                    {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-700 rounded-md hover:bg-green-700 dark:hover:bg-green-800">
+                    {% if LANGUAGE_CODE == 'ar' %} تأكيد الموافقة {% else %} Confirm Approval {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Rejection Modal -->
+<div id="rejectionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
+            {% if LANGUAGE_CODE == 'ar' %} رفض الترويج {% else %} Reject Promotion {% endif %}
+        </h3>
+        <p class="mb-4 text-gray-600 dark:text-gray-300">
+            {% if LANGUAGE_CODE == 'ar' %} أنت على وشك رفض الترويج لـ: {% else %} You are about to reject promotion for: {% endif %}
+            <span id="rejectionPromotionTitle" class="font-semibold text-gray-800 dark:text-white"></span>
+        </p>
+
+        <form id="rejectionForm" method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {% if LANGUAGE_CODE == 'ar' %} سبب الرفض {% else %} Reason for Rejection {% endif %}
+                </label>
+                <textarea name="rejection_reason" rows="3" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+            </div>
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" onclick="hideModal('rejectionModal')"
+                        class="ml-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
+                    {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 dark:bg-red-700 rounded-md hover:bg-red-700 dark:hover:bg-red-800">
+                    {% if LANGUAGE_CODE == 'ar' %} تأكيد الرفض {% else %} Confirm Rejection {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<script>
+    // Show approval modal with date selection
+    function showApprovalModal(promotionId, promotionTitle) {
+        const modal = document.getElementById('approvalModal');
+        const form = document.getElementById('approvalForm');
+        const titleSpan = document.getElementById('approvalPromotionTitle');
+
+        titleSpan.textContent = promotionTitle;
+        form.action = `/club_dashboard/director/approve-promotion/${promotionId}/`;
+        modal.classList.remove('hidden');
+    }
+
+    // Show rejection modal
+    function showRejectionModal(promotionId, promotionTitle) {
+        const modal = document.getElementById('rejectionModal');
+        const form = document.getElementById('rejectionForm');
+        const titleSpan = document.getElementById('rejectionPromotionTitle');
+
+        titleSpan.textContent = promotionTitle;
+        form.action = `/club_dashboard/director/reject-promotion/${promotionId}/`;
+        modal.classList.remove('hidden');
+    }
+
+    // Hide any modal
+    function hideModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // Animation classes
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fade-in {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes title {
+                from { opacity: 0; transform: translateX(-20px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes table {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes row {
+                from { opacity: 0; transform: translateX(-10px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
+            .animate-title { animation: title 0.8s ease-out forwards; }
+            .animate-table { animation: table 0.8s ease-out forwards; }
+            .animate-row { animation: row 0.4s ease-out forwards; }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

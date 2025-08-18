@@ -1,0 +1,221 @@
+{% extends base_template %}
+
+{% load static %}
+{% load coach_filters %}
+
+{% block content %}
+<style>
+    /* Animation Classes */
+    .animate-gradient-slow {
+        animation: gradientShift 15s ease infinite;
+        background-size: 200% 200%;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Keyframes */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Status Badges */
+    .status-open {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    .dark .status-open {
+        background-color: #064e3b;
+        color: #d1fae5;
+    }
+
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    .dark .status-pending {
+        background-color: #92400e;
+        color: #fef3c7;
+    }
+
+    .status-closed {
+        background-color: #e0e7ff;
+        color: #3730a3;
+    }
+    .dark .status-closed {
+        background-color: #3730a3;
+        color: #e0e7ff;
+    }
+
+    .status-resolved {
+        background-color: #ecfdf5;
+        color: #047857;
+    }
+    .dark .status-resolved {
+        background-color: #047857;
+        color: #ecfdf5;
+    }
+
+    /* Message Bubbles */
+    .message-bubble-user {
+        background-color: #3B82F6;
+        color: white;
+    }
+    .dark .message-bubble-user {
+        background-color: #1E40AF;
+    }
+
+    .message-bubble-other {
+        background-color: #E5E7EB;
+        color: #111827;
+    }
+    .dark .message-bubble-other {
+        background-color: #374151;
+        color: #F3F4F6;
+    }
+</style>
+
+<div class="bg-white dark:bg-gray-900 w-full px-4 sm:px-6 lg:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
+    <div class="py-8 animate-fadeIn">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
+                {% if LANGUAGE_CODE == 'ar' %}طلب الدعم #{{ ticket.id }}{% else %}Support Request #{{ ticket.id }}{% endif %}
+            </h1>
+            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-{{ ticket.status }}">
+                {{ ticket.get_status_display }}
+            </span>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-6 animate-fadeInUp">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400">{% if LANGUAGE_CODE == 'ar' %}إلى{% else %}To{% endif %}</p>
+                    <p class="text-gray-900 dark:text-white">{{ ticket.receptionist.full_name }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400">{% if LANGUAGE_CODE == 'ar' %}تاريخ الإنشاء{% else %}Created at{% endif %}</p>
+                    <p class="text-gray-900 dark:text-gray-300">{{ ticket.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400">{% if LANGUAGE_CODE == 'ar' %}آخر تحديث{% else %}Last updated{% endif %}</p>
+                    <p class="text-gray-900 dark:text-gray-300">{{ ticket.updated_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400">{% if LANGUAGE_CODE == 'ar' %}الموضوع{% else %}Subject{% endif %}</p>
+                    <p class="text-gray-900 dark:text-white">{{ ticket.subject }}</p>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p class="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">{% if LANGUAGE_CODE == 'ar' %}الرسالة الأولية{% else %}Initial message{% endif %}</p>
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <p class="text-gray-800 dark:text-gray-200">{{ ticket.message }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-8 animate-fadeInUp" style="animation-delay: 0.2s;">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">{% if LANGUAGE_CODE == 'ar' %}المحادثة{% else %}Conversation{% endif %}</h3>
+
+            <div class="space-y-4">
+                {% for message in messages %}
+                <div class="flex {% if message.sender.user == request.user %}justify-end{% else %}justify-start{% endif %}">
+                    <div class="max-w-3/4 rounded-lg p-4 {% if message.sender.user == request.user %}message-bubble-user{% else %}message-bubble-other{% endif %}">
+                        <div class="flex items-center justify-between mb-1">
+                            <p class="font-medium text-sm">
+                                {{ message.sender.user.username }}
+                            </p>
+                            <p class="text-xs opacity-80">{{ message.created_at|date:"Y-m-d H:i" }}</p>
+                        </div>
+                        <p>{{ message.message }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 dark:text-gray-400 text-center">{% if LANGUAGE_CODE == 'ar' %}لا توجد رسائل بعد{% else %}No messages yet{% endif %}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 animate-fadeInUp" style="animation-delay: 0.3s;">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">{% if LANGUAGE_CODE == 'ar' %}إرسال رد{% else %}Send a reply{% endif %}</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    {{ form.message }}
+                    {% if form.message.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.message.errors }}</p>
+                    {% endif %}
+                </div>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800">
+                   {% if LANGUAGE_CODE == 'ar' %}إرسال{% else %}Send{% endif %}
+                </button>
+            </form>
+        </div>
+
+        {% if user.userprofile.account_type == '5' %}  {# Receptionist #}
+        <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 animate-fadeInUp" style="animation-delay: 0.4s;">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">{% if LANGUAGE_CODE == 'ar' %}تحديث حالة الطلب{% else %}Update request status{% endif %}</h3>
+            <form method="post" action="{% url 'update_ticket_status' ticket.id %}">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            {% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}
+                        </label>
+                        <select name="status" id="status" class="block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-white">
+                            {% for value, display in ticket.STATUS_CHOICES %}
+                            <option value="{{ value }}" {% if ticket.status == value %}selected{% endif %}>{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800">
+                            {% if LANGUAGE_CODE == 'ar' %}تحديث الحالة{% else %}Update status{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any necessary JavaScript here
+        // For example, you might want to add smooth scrolling to the message form
+        const messageForm = document.querySelector('form');
+        if (messageForm && messages.length > 3) {
+            messageForm.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+</script>
+{% endblock %}

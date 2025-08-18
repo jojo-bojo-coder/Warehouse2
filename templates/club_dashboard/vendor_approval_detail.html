@@ -1,0 +1,327 @@
+{% extends "base_club_dashboard.html" %}
+{% block content %}
+<style>
+    /* Animation effects */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes titleIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .animate-title {
+      animation: titleIn 0.8s ease-out 0.3s forwards;
+    }
+
+    .animate-button {
+      animation: fadeIn 0.8s ease-out 0.4s forwards;
+    }
+
+    /* Dark mode styles */
+    .dark .bg-gradient-to-br {
+        background: linear-gradient(to bottom right, #1f2937, #111827);
+    }
+
+    .dark .bg-white {
+        background-color: #1f2937 !important;
+    }
+
+    .dark .text-gray-800 {
+        color: #f3f4f6;
+    }
+
+    .dark .bg-gray-50 {
+        background-color: #374151;
+    }
+
+    .dark .text-gray-700 {
+        color: #d1d5db;
+    }
+
+    .dark .border-gray-200 {
+        border-color: #4b5563;
+    }
+
+    .dark .focus\:ring-blue-500:focus {
+        --tw-ring-color: #3b82f6;
+    }
+
+    .dark .bg-blue-100 {
+        background-color: #1e40af;
+    }
+
+    .dark .text-blue-600 {
+        color: #93c5fd;
+    }
+
+    .dark .bg-amber-100 {
+        background-color: #92400e;
+    }
+
+    .dark .text-amber-800 {
+        color: #fcd34d;
+    }
+
+    .dark .bg-white\/90 {
+        background-color: rgba(31, 41, 55, 0.9);
+    }
+
+    .dark .shadow-lg {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    .dark .border-gray-300 {
+        border-color: #4b5563;
+    }
+
+    .dark .hover\:bg-gray-50:hover {
+        background-color: #374151;
+    }
+
+    /* Button styles */
+    .btn-gradient {
+        background-size: 200% auto;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .btn-gradient:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Ripple Effect */
+    .ripple {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ripple-effect {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(0);
+        animation: ripple 0.6s linear;
+        pointer-events: none;
+    }
+
+    @keyframes ripple {
+        to { transform: scale(4); opacity: 0; }
+    }
+</style>
+
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden">
+    <!-- Title and back button -->
+    <div class="flex justify-between items-center py-8 animate-fade-in">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2 transform transition-all duration-500 opacity-0 animate-title">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+            </div>
+            {% if LANGUAGE_CODE == 'ar' %} تفاصيل طلب التاجر {% else %} Vendor Application Details {% endif %}
+        </h1>
+        <div class="flex space-x-2 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
+            <a href="{% url 'vendor_approval_list' %}" class="ripple btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform opacity-0 animate-button shadow-md hover:shadow-blue-300/40">
+                {% if LANGUAGE_CODE == 'ar' %} العودة إلى القائمة {% else %} Back to List {% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 opacity-0 animate-fade-in" style="animation-delay: 0.3s">
+        <!-- Left column - Vendor info -->
+        <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg p-6 lg:col-span-2">
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-6 mb-6">
+                {% if vendor.profile_image_base64 %}
+                <img src="data:image/png;base64,{{ vendor.profile_image_base64 }}" class="w-24 h-24 rounded-full object-cover" alt="{{ vendor.full_name }}">
+                {% else %}
+                <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    <svg class="w-12 h-12 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                {% endif %}
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">{{ vendor.full_name }}</h2>
+                    <p class="text-blue-600 dark:text-blue-400">{{ vendor.business_name }}</p>
+                    <div class="mt-2">
+                        <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full text-sm">
+                            {% if LANGUAGE_CODE == 'ar' %} قيد الانتظار {% else %} Pending {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h3 class="font-bold text-gray-800 dark:text-white mb-2">{% if LANGUAGE_CODE == 'ar' %} معلومات الاتصال {% else %} Contact Info {% endif %}</h3>
+                    <div class="space-y-2 text-gray-700 dark:text-gray-300">
+                        <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %} الهاتف: {% else %} Phone: {% endif %}</span> {{ vendor.phone }}</p>
+                        <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %} البريد: {% else %} Email: {% endif %}</span> {{ vendor.email }}</p>
+                        <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %} النشاط: {% else %} Activity: {% endif %}</span> {{ vendor.get_activity_type_display }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h3 class="font-bold text-gray-800 dark:text-white mb-2">{% if LANGUAGE_CODE == 'ar' %} العنوان {% else %} Address {% endif %}</h3>
+                    <div class="space-y-2 text-gray-700 dark:text-gray-300">
+                        <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %} المدينة: {% else %} City: {% endif %}</span> {{ vendor.city }}</p>
+                        <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %} الحي: {% else %} District: {% endif %}</span> {{ vendor.district }}</p>
+                        <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %} الشارع: {% else %} Street: {% endif %}</span> {{ vendor.street }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="font-bold text-gray-800 dark:text-white mb-2">{% if LANGUAGE_CODE == 'ar' %} وصف الخدمة {% else %} Service Description {% endif %}</h3>
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-gray-700 dark:text-gray-300">
+                    {{ vendor.description|default:"لا يوجد وصف"|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Business Documents -->
+            <div>
+                <h3 class="font-bold text-gray-800 dark:text-white mb-2">{% if LANGUAGE_CODE == 'ar' %} المستندات التجارية {% else %} Business Documents {% endif %}</h3>
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-gray-700 dark:text-gray-300">
+                    <p class="mb-2"><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %} نوع الوثيقة: {% else %} Document Type: {% endif %}</span>
+                        {{ vendor.get_business_document_type_display|default:"لم يتم توفير وثيقة" }}
+                    </p>
+
+                    {% if vendor.business_document_file %}
+                    <div class="mt-3">
+                        <a href="data:application/pdf;base64,{{ vendor.business_document_file }}"
+                           target="_blank"
+                           download="business_document.pdf"
+                           class="ripple inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            {% if LANGUAGE_CODE == 'ar' %} عرض الوثيقة {% else %} View Document {% endif %}
+                        </a>
+                    </div>
+                    {% else %}
+                    <p class="text-amber-600 dark:text-amber-400">{% if LANGUAGE_CODE == 'ar' %} لم يتم تحميل أي وثيقة {% else %} No document uploaded {% endif %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right column - Approval actions -->
+        <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% if LANGUAGE_CODE == 'ar' %} إجراء الموافقة {% else %} Approval Action {% endif %}</h2>
+
+            <form method="post" action="{% url 'vendor_approval_action' vendor.id %}">
+                {% csrf_token %}
+                <div class="mb-6">
+                    <label class="block font-medium text-gray-800 dark:text-white mb-3">{% if LANGUAGE_CODE == 'ar' %} اختر الإجراء: {% else %} Select Action: {% endif %}</label>
+                    <div class="space-y-3">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="action" value="approve" class="form-radio h-5 w-5 text-green-500 dark:text-green-400" required>
+                            <div>
+                                <span class="mr-2 block font-medium text-green-800 dark:text-green-300">{% if LANGUAGE_CODE == 'ar' %} موافقة {% else %} Approve {% endif %}</span>
+                                <span class="mr-2 block text-sm text-green-600 dark:text-green-400">{% if LANGUAGE_CODE == 'ar' %} سيتم إنشاء حساب للتاجر {% else %} Will create vendor account {% endif %}</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="action" value="reject" class="form-radio h-5 w-5 text-red-500 dark:text-red-400">
+                            <div>
+                                <span class="mr-2 block font-medium text-red-800 dark:text-red-300">{% if LANGUAGE_CODE == 'ar' %} رفض {% else %} Reject {% endif %}</span>
+                                <span class="mr-2 block text-sm text-red-600 dark:text-red-400">{% if LANGUAGE_CODE == 'ar' %} لن يتم إنشاء حساب {% else %} No account will be created {% endif %}</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label for="notes" class="block font-medium text-gray-800 dark:text-white mb-2">{% if LANGUAGE_CODE == 'ar' %} ملاحظات: {% else %} Notes: {% endif %}</label>
+                    <textarea id="notes" name="notes" rows="4" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="{% if LANGUAGE_CODE == 'ar' %} ملاحظات إضافية (اختياري) {% else %} Additional notes (optional) {% endif %}"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
+                    <a href="{% url 'vendor_approval_list' %}" class="ripple px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+                    </a>
+                    <button type="submit" class="ripple px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                        {% if LANGUAGE_CODE == 'ar' %} تأكيد الإجراء {% else %} Confirm Action {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ripple effect for buttons
+    document.querySelectorAll('.ripple').forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Prevent default only for anchor tags
+            if (this.tagName === 'A') {
+                e.preventDefault();
+                const link = this.getAttribute('href');
+
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple-effect');
+                this.appendChild(ripple);
+
+                // Get click position
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+
+                // Remove ripple after animation
+                setTimeout(() => {
+                    ripple.remove();
+                    window.location.href = link;
+                }, 600);
+            } else if (this.tagName === 'BUTTON') {
+                // For buttons, just create the ripple effect
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple-effect');
+                this.appendChild(ripple);
+
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+        });
+    });
+
+    // Check for dark mode preference
+    document.addEventListener('DOMContentLoaded', function() {
+        const darkModeCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('darkMode='));
+
+        const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+            document.documentElement.classList.add('dark');
+        }
+    });
+</script>
+{% endblock %}

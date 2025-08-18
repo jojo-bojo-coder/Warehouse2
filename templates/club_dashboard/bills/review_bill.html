@@ -1,0 +1,188 @@
+{% extends "base_club_dashboard.html" %}
+{% block content %}
+<style>
+    /* Dark mode styles (included for completeness) */
+    .dark .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
+    .dark .from-blue-50 { --tw-gradient-from: #1e3a8a var(--tw-gradient-from-position); --tw-gradient-to: rgba(30, 58, 138, 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+    .dark .to-purple-50 { --tw-gradient-to: #3b0764 var(--tw-gradient-to-position); }
+    .dark .bg-white { background-color: #1f2937; }
+    .dark .bg-white\/90 { background-color: rgba(31, 41, 55, 0.9); }
+    .dark .text-gray-800 { color: #f3f4f6; }
+    .dark .text-gray-700 { color: #d1d5db; }
+    .dark .text-gray-600 { color: #9ca3af; }
+    .dark .text-gray-500 { color: #6b7280; }
+    .dark .border-gray-200 { border-color: #374151; }
+    .dark .border-gray-100 { border-color: #374151; }
+    .dark .bg-blue-100 { background-color: #1e40af; }
+    .dark .text-blue-600 { color: #93c5fd; }
+    .dark .bg-green-100 { background-color: #065f46; }
+    .dark .text-green-800 { color: #6ee7b7; }
+    .dark .bg-red-100 { background-color: #7f1d1d; }
+    .dark .text-red-800 { color: #fca5a5; }
+    .dark .bg-purple-100 { background-color: #5b21b6; }
+    .dark .text-purple-600 { color: #c4b5fd; }
+    .dark .bg-gray-50 { background-color: #111827; }
+    .dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+    .dark .hover\:shadow-lg:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+    .dark input, .dark textarea, .dark select { background-color: #1f2937; color: #f3f4f6; border-color: #4b5563; }
+    .dark input:focus, .dark textarea:focus, .dark select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
+</style>
+
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden  dark:bg-gray-900">
+    <!-- Header Section -->
+    <div class="py-8 animate-fade-in">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2 transform transition-all duration-500 opacity-0 animate-title">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+            </div>
+            {% if LANGUAGE_CODE == 'ar' %} مراجعة الفاتورة #{{ order.id }} {% else %} Review Bill #{{ order.id }} {% endif %}
+        </h1>
+        <div class="flex items-center mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <span class="ml-2">{% if LANGUAGE_CODE == 'ar' %}العميل:{% else %}Customer:{% endif %} {{ order.first_name }} {{ order.last_name }}</span>
+            <span class="mx-2">|</span>
+            <span>{% if LANGUAGE_CODE == 'ar' %}المبلغ:{% else %}Amount:{% endif %} {{ order.total_price }} {{ club.vat_settings.currency }}</span>
+        </div>
+    </div>
+
+    <!-- Order Details -->
+    <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-md p-6 mb-6 opacity-0 animate-fade-in" style="animation-delay: 0.2s">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{% if LANGUAGE_CODE == 'ar' %} تفاصيل الطلب {% else %} Order Details {% endif %}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <h3 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">{% if LANGUAGE_CODE == 'ar' %} معلومات العميل {% else %} Customer Information {% endif %}</h3>
+                <div class="space-y-1 text-gray-700 dark:text-gray-300">
+                    <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %}الاسم:{% else %}Name:{% endif %}</span> {{ order.first_name }} {{ order.last_name }}</p>
+                    <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني:{% else %}Email:{% endif %}</span> {{ order.user.email }}</p>
+                    <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %}الهاتف:{% else %}Phone:{% endif %}</span> {{ order.phone }}</p>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">{% if LANGUAGE_CODE == 'ar' %} معلومات الشحن {% else %} Shipping Information {% endif %}</h3>
+                <div class="space-y-1 text-gray-700 dark:text-gray-300">
+                    <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %}العنوان:{% else %}Address:{% endif %}</span> {{ order.address }}</p>
+                    <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %}المدينة:{% else %}City:{% endif %}</span> {{ order.city }}</p>
+                    <p><span class="font-medium">{% if LANGUAGE_CODE == 'ar' %}المنطقة:{% else %}Region:{% endif %}</span> {{ order.region }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- START: Coach Information Section -->
+    <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-md p-6 mb-6 opacity-0 animate-fade-in" style="animation-delay: 0.3s">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+            {% if LANGUAGE_CODE == 'ar' %} معلومات مقدمي الخدمة / المنتجات {% else %} Coach / Vendor Information {% endif %}
+        </h2>
+        {% for coach_id, data in coaches_items.items %}
+        <div class="mb-8 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div class="flex items-center mb-4 ">
+                {% if data.coach_profile.business_photo_base64 %}
+                    <img src="{{ data.coach_profile.business_photo_base64 }}" alt="Logo" class="w-12 h-12 rounded-full ml-4 object-cover">
+                {% endif %}
+                <div>
+                    <h3 class="text-md font-semibold text-gray-800 dark:text-white">{{ data.coach_profile.business_name_ar }}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ data.coach_profile.full_name }}</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-300">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="py-2 px-4 text-right">{% if LANGUAGE_CODE == 'ar' %}الصنف{% else %}Item{% endif %}</th>
+                            <th class="py-2 px-4 text-right">{% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}</th>
+                            <th class="py-2 px-4 text-right">{% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}</th>
+                            <th class="py-2 px-4 text-right">{% if LANGUAGE_CODE == 'ar' %}المجموع{% else %}Total{% endif %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data.items %}
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-2 px-4">
+                                {% if item.product %}{{ item.product.title }}{% elif item.service %}{{ item.service.title }}{% endif %}
+                            </td>
+                            <td class="py-2 px-4">{{ item.price }} {{ club.vat_settings.currency }}</td>
+                            <td class="py-2 px-4">{{ item.quantity }}</td>
+                            <td class="py-2 px-4">{{ item.get_total }} {{ club.vat_settings.currency }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-gray-500 dark:text-gray-400">
+            {% if LANGUAGE_CODE == 'ar' %} لا توجد معلومات عن مقدمي الخدمة لهذا الطلب. {% else %} No vendor information found for this order. {% endif %}
+        </p>
+        {% endfor %}
+    </div>
+    <!-- END: Coach Information Section -->
+
+    <!-- Revision Form -->
+    <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-md p-6 mb-6 opacity-0 animate-fade-in" style="animation-delay: 0.4s">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{% if LANGUAGE_CODE == 'ar' %} مراجعة الفاتورة {% else %} Bill Review {% endif %}</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% if LANGUAGE_CODE == 'ar' %} ملاحظات المدير {% else %} Director Notes {% endif %}</label>
+                {{ form.director_notes }}
+            </div>
+            {% if can_take_action %}
+            <div class="flex justify-end space-x-4">
+                <button type="submit" name="action" value="approved" class="ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">{% if LANGUAGE_CODE == 'ar' %} موافقة {% else %} Approve {% endif %}</button>
+                <button type="submit" name="action" value="rejected" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">{% if LANGUAGE_CODE == 'ar' %} رفض {% else %} Reject {% endif %}</button>
+            </div>
+            {% else %}
+            <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-center">
+                <p class="text-gray-700 dark:text-gray-300 font-medium">
+                    {% if LANGUAGE_CODE == 'ar' %} تم التعامل مع هذه الفاتورة بالفعل (الحالة: {{ revision.get_status_display }}). {% else %} This bill has already been processed (Status: {{ revision.get_status_display }}). {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-md p-6 opacity-0 animate-fade-in" style="animation-delay: 0.5s">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{% if LANGUAGE_CODE == 'ar' %} التعليقات {% else %} Comments {% endif %}</h2>
+        <div class="space-y-4 mb-6">
+            {% for comment in comments %}
+            <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="font-medium text-gray-700 dark:text-gray-300">
+                        {% if comment.author.accountant_profile %}{% if LANGUAGE_CODE == 'ar' %}المحاسب{% else %}Accountant{% endif %} : {{ comment.author.accountant_profile.full_name }}
+                        {% elif comment.author.director_profile %}{% if LANGUAGE_CODE == 'ar' %}المدير{% else %}Director{% endif %} : {{ comment.author.director_profile.full_name }}
+                        {% else %}{% if LANGUAGE_CODE == 'ar' %}مستخدم{% else %}User{% endif %} : {{ comment.author.user.username }}{% endif %}
+                    </span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300">{{ comment.comment }}</p>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %} لا توجد تعليقات {% else %} No comments yet {% endif %}</p>
+            {% endfor %}
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% if LANGUAGE_CODE == 'ar' %} أضف تعليق {% else %} Add Comment {% endif %}</label>
+                {{ comment_form.comment }}
+                <input type="hidden" name="comment" value="true">
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">{% if LANGUAGE_CODE == 'ar' %} إرسال التعليق {% else %} Post Comment {% endif %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-title');
+        animatedElements.forEach(element => {
+            element.classList.remove('opacity-0');
+            if (element.classList.contains('animate-title')) {
+                element.classList.add('opacity-100');
+            }
+        });
+    });
+</script>
+{% endblock %}
