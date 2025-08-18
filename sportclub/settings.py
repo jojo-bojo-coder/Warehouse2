@@ -104,15 +104,19 @@ ASGI_APPLICATION = "sportclub.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+import os
+import dj_database_url
+
+# Read environment variables
+SECRET_KEY = os.environ.get('SECRET_KEY', 'optional-default-for-local-dev')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+# Database configuration
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'warehouse',
-        'USER': 'nagham',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600
+    )
 }
 
 
