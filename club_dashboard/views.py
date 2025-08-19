@@ -72,6 +72,7 @@ from django.db.models import ExpressionWrapper
 from django.db.models import F, ExpressionWrapper, Avg, DurationField
 from django.db.models.functions import TruncDay
 
+
 @club_permission_required('club_dashboard_index')
 @login_required
 def club_dashboard_index(request):
@@ -79,12 +80,17 @@ def club_dashboard_index(request):
     user = request.user
 
     # ✅ Ensure the user has a valid director profile
-
-
     # ✅ Get the correct club for the director
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None) or getattr(user.userprofile.custom_role_profile,'club', None)
-    club_name = club.name
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None) or getattr(user.userprofile.custom_role_profile, 'club',
+                                                                          None)
 
+    if not club:
+        # Handle case where user doesn't have access to any club
+        return render(request, 'club_dashboard/error.html', {'error': 'No club found for this user'})
+
+    club_name = club.name
     club_admin = user.userprofile.director_profile
 
     # Get date range (last 30 days by default)
@@ -140,9 +146,9 @@ def club_dashboard_index(request):
         .annotate(count=Count('id'))
     )
 
-    ticket_labels =[]
-    ticket_data =[]
-    ticket_colors =[]
+    ticket_labels = []
+    ticket_data = []
+    ticket_colors = []
     for status in ticket_status_counts:
         ticket_labels.append(status['status'].capitalize())
         ticket_data.append(status['count'])
@@ -155,7 +161,7 @@ def club_dashboard_index(request):
         else:
             ticket_colors.append('#6B7280')  # gray
 
-    # Revenue by payment method
+    # Revenue by payment method - FIXED: Move payment_data.append inside the loop
     payment_method_counts = (
         Order.objects.filter(
             club=club,
@@ -166,13 +172,14 @@ def club_dashboard_index(request):
         .annotate(total=Sum('total_price'))
     )
 
-    payment_labels =[]
-    payment_data =[]
-    payment_colors =['#3B82F6', '#10B981', '#F59E0B', '#6366F1']
+    payment_labels = []
+    payment_data = []
+    payment_colors = ['#3B82F6', '#10B981', '#F59E0B', '#6366F1']
+
     for method in payment_method_counts:
-        payment_labels.append(dict(Order.PAYMENT_METHOD_CHOICES).get(method['payment_method'],
-                                                                     method['payment_method']))
-    payment_data.append(float(method['total']))
+        payment_labels.append(dict(Order.PAYMENT_METHOD_CHOICES).get(
+            method['payment_method'], method['payment_method']))
+        payment_data.append(float(method['total']))  # Now inside the loop
 
     # Weekly revenue comparison
     current_week_start = end_date - timezone.timedelta(days=7)
@@ -200,33 +207,7 @@ def club_dashboard_index(request):
     if previous_week_revenue > 0:
         weekly_change = ((current_week_revenue - previous_week_revenue) / previous_week_revenue) * 100
 
-    current_month_start = end_date.replace(day=1)
-    previous_month_start = (current_month_start - timezone.timedelta(days=1)).replace(day=1)
-    previous_month_end = current_month_start - timezone.timedelta(days=1)
-
-    current_month_revenue = (
-            Order.objects.filter(
-                club=club,
-                status__in=['confirmed', 'completed'],
-                created_at__range=[current_month_start, end_date]
-            )
-            .aggregate(total=Sum('total_price'))['total'] or 0
-    )
-
-    previous_month_revenue = (
-            Order.objects.filter(
-                club=club,
-                status__in=['confirmed', 'completed'],
-                created_at__range=[previous_month_start, previous_month_end]
-            )
-            .aggregate(total=Sum('total_price'))['total'] or 0
-    )
-
-    monthly_change = 0
-    if previous_month_revenue > 0:
-        monthly_change = ((current_month_revenue - previous_month_revenue) / previous_month_revenue) * 100
-
-    # Monthly revenue comparison
+    # Monthly revenue comparison (using the more accurate version)
     current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     next_month_start = (current_month_start + timezone.timedelta(days=32)).replace(day=1)
     current_month_end = next_month_start - timezone.timedelta(days=1)
@@ -256,7 +237,6 @@ def club_dashboard_index(request):
     if previous_month_revenue > 0:
         monthly_change = ((current_month_revenue - previous_month_revenue) / previous_month_revenue) * 100
 
-
     # ✅ Get directors linked through UserProfile
     directors = UserProfile.objects.filter(account_type='6', administrator_profile__club=club)
     director_count = directors.count()
@@ -271,9 +251,6 @@ def club_dashboard_index(request):
     # ✅ FIXED: Get notifications WITHOUT marking them as read immediately
     notifications = Notification.objects.filter(club=club).order_by('-created_at')
     unread_count = notifications.filter(is_read=False).count()
-
-    # ✅ Don't mark as read here - only mark as read when user actually opens the dropdown
-    # notifications.update(is_read=True)  # <-- REMOVE THIS LINE
 
     def calc_percent(v, total):
         return round((v / total) * 100, 2) if total > 0 else 0
@@ -290,17 +267,18 @@ def club_dashboard_index(request):
         .order_by('-rating', '-created_at')[:5]
     )
 
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    # Date filtering for orders
+    start_date_param = request.GET.get('start_date')
+    end_date_param = request.GET.get('end_date')
 
-    if not start_date:
-        start_date = (timezone.now() - timezone.timedelta(days=30)).strftime('%Y-%m-%d')
-    if not end_date:
-        end_date = timezone.now().strftime('%Y-%m-%d')
+    if not start_date_param:
+        start_date_param = (timezone.now() - timezone.timedelta(days=30)).strftime('%Y-%m-%d')
+    if not end_date_param:
+        end_date_param = timezone.now().strftime('%Y-%m-%d')
 
     try:
-        start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+        start_date_obj = datetime.strptime(start_date_param, '%Y-%m-%d')
+        end_date_obj = datetime.strptime(end_date_param, '%Y-%m-%d')
         end_date_obj = end_date_obj.replace(hour=23, minute=59, second=59)
     except ValueError:
         start_date_obj = timezone.now() - timezone.timedelta(days=30)
@@ -323,12 +301,10 @@ def club_dashboard_index(request):
     average_daily_sales = round(total_revenue / days_in_period, 2) if days_in_period > 0 else 0
 
     # Calculate conversion rate (example: orders vs visitors)
-    # You'll need to implement actual visitor tracking for this
     total_visitors = 1000  # Replace with actual visitor count if available
     conversion_rate = round((confirmed_orders.count() / total_visitors * 100), 1) if total_visitors > 0 else 0
 
-
-    # Revenue sources breakdown (example values - customize based on your data)
+    # Revenue sources breakdown
     revenue_sources = {
         'direct': confirmed_orders.filter(payment_method='credit_card').count(),
         'organic': confirmed_orders.filter(payment_method='cash_on_delivery').count(),
@@ -376,102 +352,99 @@ def club_dashboard_index(request):
     total_emails = 12346
     email_growth_rate = 0.3
 
-    if club:
-        directors = UserProfile.objects.filter(
-            account_type='2',
-            director_profile__club=club
-        ).select_related('user', 'director_profile')
+    # Staff management
+    directors = UserProfile.objects.filter(
+        account_type='2',
+        director_profile__club=club
+    ).select_related('user', 'director_profile')
 
-        receptionists = UserProfile.objects.filter(
-            account_type='5',
-            receptionist_profile__club=club
-        ).select_related('user', 'receptionist_profile')
+    receptionists = UserProfile.objects.filter(
+        account_type='5',
+        receptionist_profile__club=club
+    ).select_related('user', 'receptionist_profile')
 
-        administrators = UserProfile.objects.filter(
-            account_type='6',
-            administrator_profile__club=club
-        ).select_related('user', 'administrator_profile')
+    administrators = UserProfile.objects.filter(
+        account_type='6',
+        administrator_profile__club=club
+    ).select_related('user', 'administrator_profile')
 
-        accountants = UserProfile.objects.filter(
-            account_type='7',
-            accountant_profile__club=club
-        ).select_related('user', 'accountant_profile')
+    accountants = UserProfile.objects.filter(
+        account_type='7',
+        accountant_profile__club=club
+    ).select_related('user', 'accountant_profile')
 
-        vendorManagers = UserProfile.objects.filter(
-            account_type='8',
-            vendor_manager_profile__club=club
-        ).select_related('user', 'vendor_manager_profile')
+    vendorManagers = UserProfile.objects.filter(
+        account_type='8',
+        vendor_manager_profile__club=club
+    ).select_related('user', 'vendor_manager_profile')
 
-        customRoles = UserProfile.objects.filter(
-            account_type='9',
-            custom_role_profile__club=club
-        ).select_related('user', 'custom_role_profile')
+    customRoles = UserProfile.objects.filter(
+        account_type='9',
+        custom_role_profile__club=club
+    ).select_related('user', 'custom_role_profile')
 
-        staff_list = []
+    staff_list = []
 
-        for director in directors:
-            staff_list.append({
-                'userprofile': director,
-                'role': 'مدير عام',
-                'role_en': 'General Manager',
-                'profile': director.director_profile,
-                'profile_type': 'director'
-            })
+    for director in directors:
+        staff_list.append({
+            'userprofile': director,
+            'role': 'مدير عام',
+            'role_en': 'General Manager',
+            'profile': director.director_profile,
+            'profile_type': 'director'
+        })
 
-        for receptionist in receptionists:
-            staff_list.append({
-                'userprofile': receptionist,
-                'role': 'موظف استقبال',
-                'role_en': 'Receptionist',
-                'profile': receptionist.receptionist_profile,
-                'profile_type': 'receptionist'
-            })
+    for receptionist in receptionists:
+        staff_list.append({
+            'userprofile': receptionist,
+            'role': 'موظف استقبال',
+            'role_en': 'Receptionist',
+            'profile': receptionist.receptionist_profile,
+            'profile_type': 'receptionist'
+        })
 
-        for administrator in administrators:
-            staff_list.append({
-                'userprofile': administrator,
-                'role': 'إداري',
-                'role_en': 'Administrator',
-                'profile': administrator.administrator_profile,
-                'profile_type': 'administrator'
-            })
+    for administrator in administrators:
+        staff_list.append({
+            'userprofile': administrator,
+            'role': 'إداري',
+            'role_en': 'Administrator',
+            'profile': administrator.administrator_profile,
+            'profile_type': 'administrator'
+        })
 
-        for accountant in accountants:
-            staff_list.append({
-                'userprofile': accountant,
-                'role': 'محاسب',
-                'role_en': 'Accountant',
-                'profile': accountant.accountant_profile,
-                'profile_type': 'accountant'
-            })
+    for accountant in accountants:
+        staff_list.append({
+            'userprofile': accountant,
+            'role': 'محاسب',
+            'role_en': 'Accountant',
+            'profile': accountant.accountant_profile,
+            'profile_type': 'accountant'
+        })
 
-        for vendorManager in vendorManagers:
-            staff_list.append({
-                'userprofile': vendorManager,
-                'role': 'مدير تجار',
-                'role_en': 'Vendor Manager',
-                'profile': vendorManager.vendor_manager_profile,
-                'profile_type': 'vendorManager'
-            })
+    for vendorManager in vendorManagers:
+        staff_list.append({
+            'userprofile': vendorManager,
+            'role': 'مدير تجار',
+            'role_en': 'Vendor Manager',
+            'profile': vendorManager.vendor_manager_profile,
+            'profile_type': 'vendorManager'
+        })
 
-        for customRole in customRoles:
-            staff_list.append({
-                'userprofile': customRole,
-                'role': 'دور خاص',
-                'role_en': 'Custom Role',
-                'profile': customRole.custom_role_profile,
-                'profile_type': 'customRole'
-            })
+    for customRole in customRoles:
+        staff_list.append({
+            'userprofile': customRole,
+            'role': 'دور خاص',
+            'role_en': 'Custom Role',
+            'profile': customRole.custom_role_profile,
+            'profile_type': 'customRole'
+        })
 
-        staff_list.sort(key=lambda x: x['userprofile'].creation_date, reverse=True)
-    else:
-        staff_list = []
+    staff_list.sort(key=lambda x: x['userprofile'].creation_date, reverse=True)
 
     categories_count = Category.objects.filter(is_active=True).count()
     subcategories_count = SubCategory.objects.filter(is_active=True).count()
 
-    total_revenue = int(
-        orders.filter(status__in=['confirmed', 'completed']).aggregate(Sum('total_price'))['total_price__sum'] or 0)
+    total_revenue_int = int(total_revenue)
     context['LANGUAGE_CODE'] = translation.get_language()
 
     return render(request, 'club_dashboard/index.html', {
@@ -481,7 +454,7 @@ def club_dashboard_index(request):
         'students': students,
         'coaches': coaches,
         'directors': directors,
-        'director_count': directors.count(),
+        'director_count': director_count,
         'coach_count': coach_count,
         'student_count': student_count,
         'orders': orders,
@@ -489,7 +462,7 @@ def club_dashboard_index(request):
         'unread_count': unread_count,
         'top_rated_coaches': top_rated_coaches,
         'top_reviews': top_reviews,
-        'total_revenue': total_revenue,
+        'total_revenue': total_revenue_int,
         'total_commission': total_commission,
         'net_revenue': net_revenue,
         'average_daily_sales': average_daily_sales,
@@ -521,9 +494,6 @@ def club_dashboard_index(request):
         'current_week_revenue': current_week_revenue,
         'previous_week_revenue': previous_week_revenue,
         'weekly_change': weekly_change,
-        'current_month_revenue': current_month_revenue,
-        'previous_month_revenue': previous_month_revenue,
-        'monthly_change': monthly_change,
         'current_month_revenue': current_month_revenue,
         'previous_month_revenue': previous_month_revenue,
         'monthly_change': monthly_change,
