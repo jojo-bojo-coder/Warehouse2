@@ -25,7 +25,7 @@
                     </svg>
                 </div>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">قيد المراجعة</h3>
-                <p class="text-gray-600">طلبك قيد المراجعة من قبل إدارة النادي</p>
+                <p class="text-gray-600">طلبك قيد المراجعة من قبل إدارة المنصة</p>
                 {% elif vendor.approval_status == 'approved' %}
                 <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +55,7 @@
                     <span class="font-medium">{{ vendor.get_activity_type_display }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-gray-600">النادي:</span>
+                    <span class="text-gray-600">المنصة:</span>
                     <span class="font-medium">{{ vendor.club.name }}</span>
                 </div>
                 <div class="flex justify-between">
@@ -97,7 +97,7 @@
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h1 class="text-2xl font-bold text-gray-900">طلبات البائعين المعلقة</h1>
-                <p class="text-gray-600 mt-1">نادي {{ club.name }}</p>
+                <p class="text-gray-600 mt-1">منصة {{ club.name }}</p>
             </div>
 
             {% if pending_vendors %}

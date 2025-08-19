@@ -233,441 +233,105 @@
           </form>
         </div>
 
-        <!-- Vendor Form -->
+        <!-- Vendor Form - Now redirects to multi-step process -->
         <div id="vendor-form" class="tab-content hidden">
-          <form class="space-y-6" method="post" enctype="multipart/form-data">
+          <div class="text-center space-y-6">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+            </div>
+
+            <h3 class="text-xl font-semibold text-gray-900">
+              {% if LANGUAGE_CODE == 'ar' %}
+              تسجيل بائع
+              {% else %}
+              Vendor Registration
+              {% endif %}
+            </h3>
+
+            <p class="text-gray-600">
+              {% if LANGUAGE_CODE == 'ar' %}
+              نقدم لك تجربة تسجيل محسّنة مع خطوات واضحة ومنظمة لضمان دقة المعلومات وسرعة المراجعة
+              {% else %}
+              We offer you an enhanced registration experience with clear and organized steps to ensure information accuracy and quick review
+              {% endif %}
+            </p>
+
+            <a href="{% url 'vendor_signup_step1' %}"
+               class="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+              {% if LANGUAGE_CODE == 'ar' %}
+              ابدأ التسجيل كبائع
+              {% else %}
+              Start Vendor Registration
+              {% endif %}
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Receptionist Form -->
+        <div id="receptionist-form" class="tab-content hidden">
+          <form class="space-y-6" method="post">
             {% csrf_token %}
-            <input type="hidden" name="account_type" value="4">
+            <input type="hidden" name="account_type" value="5">
 
             <h3>{% if LANGUAGE_CODE == 'ar' %}
-              المعلومات الشخصية
+              معلومات المستخدم
               {% else %}
-              Personal Information
+              User Information
               {% endif %}</h3>
-
             <div>
-              <label for="vendor_full_name" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                الاسم الكامل
+              <label for="username" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+                اسم المستخدم
                 {% else %}
-                Full Name
+                Username
                 {% endif %}</label>
               <div class="mt-1">
-                <input id="vendor_full_name" name="full_name" type="text" required class="input-style" placeholder="{% if LANGUAGE_CODE == 'ar' %}الاسم الكامل{% else %}Full Name{% endif %}" />
+                <input id="username" name="username" type="text" required class="input-style" />
               </div>
             </div>
-
             <div>
-              <label for="vendor_phone" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                رقم الهاتف
-                {% else %}
-                Phone Number
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="vendor_phone" name="phone" type="text" required class="input-style" placeholder="{% if LANGUAGE_CODE == 'ar' %}رقم الهاتف{% else %}Phone Number{% endif %}" />
-              </div>
-            </div>
-
-            <div>
-              <label for="vendor_email" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                البريد الإلكتروني
+              <label for="email" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+                البريد الالكتروني
                 {% else %}
                 Email
                 {% endif %}</label>
               <div class="mt-1">
-                <input id="vendor_email" name="email" type="email" required class="input-style" placeholder="{% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %}" />
+                <input id="email" name="email" type="email" required class="input-style" />
               </div>
             </div>
-
-            <!-- Business Information -->
-            <h3>{% if LANGUAGE_CODE == 'ar' %}معلومات النشاط{% else %}Business Information{% endif %}</h3>
-
             <div>
-              <label for="id_business_name_ar" class="block text-sm font-medium text-black">
-                {% if LANGUAGE_CODE == 'ar' %}اسم النشاط التجاري (عربي){% else %}Business Name (Arabic){% endif %}
-              </label>
-              <div class="mt-1">
-                {{ vendor_form.business_name_ar }}
-                {% if vendor_form.business_name_ar.errors %}
-                  <div class="text-red-600 text-sm mt-1">
-                    {% for error in vendor_form.business_name_ar.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-
-            <div>
-              <label for="id_business_name_en" class="block text-sm font-medium text-black">
-                {% if LANGUAGE_CODE == 'ar' %}Business Name (English){% else %}Business Name (English){% endif %}
-              </label>
-              <div class="mt-1">
-                {{ vendor_form.business_name_en }}
-                {% if vendor_form.business_name_en.errors %}
-                  <div class="text-red-600 text-sm mt-1">
-                    {% for error in vendor_form.business_name_en.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-
-            <div>
-            <label for="{{ vendor_form.activity_type.id_for_label }}" class="block text-sm font-medium text-black">
-              {% if LANGUAGE_CODE == 'ar' %}
-                نوع النشاط
-              {% else %}
-                Activity Type
-              {% endif %}
-            </label>
-            <div class="mt-1">
-              {{ vendor_form.activity_type }}
-              {% if vendor_form.activity_type.errors %}
-                <div class="text-red-600 text-sm mt-1">
-                  {% for error in vendor_form.activity_type.errors %}
-                    <p>{{ error }}</p>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-          </div>
-
-            <h3>{% if LANGUAGE_CODE == 'ar' %}
-              المستندات التجارية
-              {% else %}
-              Business Documents
-              {% endif %}</h3>
-
-            <div>
-              <label for="business_document_type" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                نوع الوثيقة التجارية
+              <label for="password" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+                كلمة المرور
                 {% else %}
-                Business Document Type
+                Password
                 {% endif %}</label>
               <div class="mt-1">
-                <select id="business_document_type" name="business_document_type" class="input-style" required>
-                  {% if LANGUAGE_CODE == 'ar' %}
-                  <option value="">اختر نوع الوثيقة</option>
-                  <option value="freelance">وثيقة العمل الحر</option>
-                  <option value="commercial_register">صورة السجل التجاري</option>
-                  {% else %}
-                  <option value="">Select document type</option>
-                  <option value="freelance">Freelance Document</option>
-                  <option value="commercial_register">Commercial Register</option>
-                  {% endif %}
-                </select>
+                <input id="password" name="password" type="password" required class="input-style" />
               </div>
             </div>
 
-            <div>
-              <label for="business_document_file" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                ملف الوثيقة التجارية (PDF أو صورة)
-                {% else %}
-                Business Document File (PDF or Image)
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="business_document_file" name="business_document_file" type="file" class="input-style" accept=".pdf,.jpg,.jpeg,.png" />
-              </div>
-            </div>
-
-            <h3>{% if LANGUAGE_CODE == 'ar' %}
-            السجل التجاري
-            {% else %}
-            Commercial Registration
-            {% endif %}</h3>
-
-            <div>
-              <label for="commercial_registration_number" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                رقم السجل التجاري (10 أرقام)
-                {% else %}
-                Commercial Registration Number (10 digits)
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="commercial_registration_number" name="commercial_registration_number" type="text"
-                       required class="input-style" maxlength="10" pattern="[0-9]{10}"
-                       placeholder="{% if LANGUAGE_CODE == 'ar' %}رقم السجل التجاري (10 أرقام){% else %}Commercial Registration Number (10 digits){% endif %}" />
-                <small class="text-gray-500">{% if LANGUAGE_CODE == 'ar' %}مطلوب - 10 أرقام بالضبط{% else %}Required - exactly 10 digits{% endif %}</small>
-              </div>
-            </div>
-
-            <div>
-              <label for="commercial_registration_certificate" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                شهادة السجل التجاري (PDF أو صورة)
-                {% else %}
-                Commercial Registration Certificate (PDF or Image)
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="commercial_registration_certificate" name="commercial_registration_certificate"
-                       type="file" required class="input-style" accept=".pdf,.jpg,.jpeg,.png" />
-                <small class="text-gray-500">{% if LANGUAGE_CODE == 'ar' %}مطلوب - PDF أو صورة{% else %}Required - PDF or Image{% endif %}</small>
-              </div>
-            </div>
-
-
-
-            <h3>{% if LANGUAGE_CODE == 'ar' %}
-              المعلومات الضريبية (اختياري)
-              {% else %}
-              Tax Information (Optional)
-              {% endif %}</h3>
-
-            <div>
-              <label for="tax_number" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                الرقم الضريبي (15 رقم - اختياري)
-                {% else %}
-                Tax Number (15 digits - Optional)
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="tax_number" name="tax_number" type="text"
-                       class="input-style" maxlength="15" pattern="[0-9]{15}"
-                       placeholder="{% if LANGUAGE_CODE == 'ar' %}الرقم الضريبي (15 رقم - اختياري){% else %}Tax Number (15 digits - Optional){% endif %}" />
-                <small class="text-gray-500">{% if LANGUAGE_CODE == 'ar' %}اختياري - 15 رقم بالضبط إذا تم إدخاله{% else %}Optional - exactly 15 digits if entered{% endif %}</small>
-              </div>
-            </div>
-
-            <div>
-              <label for="tax_certificate" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                شهادة الرقم الضريبي (PDF أو صورة - اختياري)
-                {% else %}
-                Tax Certificate (PDF or Image - Optional)
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="tax_certificate" name="tax_certificate"
-                       type="file" class="input-style" accept=".pdf,.jpg,.jpeg,.png" />
-                <small class="text-gray-500">{% if LANGUAGE_CODE == 'ar' %}اختياري - PDF أو صورة{% else %}Optional - PDF or Image{% endif %}</small>
-              </div>
-            </div>
-
-            <h3>{% if LANGUAGE_CODE == 'ar' %}
-              شعار المتجر
-              {% else %}
-              Store Logo
-              {% endif %}</h3>
-
-            <div>
-              <label for="store_logo" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                شعار المتجر
-                {% else %}
-                Store Logo
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="store_logo" name="store_logo" type="file"
-                       required class="input-style" accept=".jpg,.jpeg,.png,.gif" />
-                <small class="text-gray-500">{% if LANGUAGE_CODE == 'ar' %}مطلوب - صورة بصيغة JPG, PNG أو GIF{% else %}Required - JPG, PNG or GIF image{% endif %}</small>
-              </div>
-            </div>
-
-
-
-            <h3>{% if LANGUAGE_CODE == 'ar' %}
-              العنوان
-              {% else %}
-              Address
-              {% endif %}</h3>
-
-            <!-- Region and City -->
-            <div>
-              <label for="id_region" class="block text-sm font-medium text-black">
-                {% if LANGUAGE_CODE == 'ar' %}المنطقة{% else %}Region{% endif %}
-              </label>
-              <div class="mt-1">
-                {{ vendor_form.region }}
-                {% if vendor_form.region.errors %}
-                  <div class="text-red-600 text-sm mt-1">
-                    {% for error in vendor_form.region.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-
-            <div>
-              <label for="id_city" class="block text-sm font-medium text-black">
-                {% if LANGUAGE_CODE == 'ar' %}المدينة{% else %}City{% endif %}
-              </label>
-              <div class="mt-1">
-                {{ vendor_form.city }}
-                {% if vendor_form.city.errors %}
-                  <div class="text-red-600 text-sm mt-1">
-                    {% for error in vendor_form.city.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-
-            <!-- Number of Branches -->
-            <div>
-              <label for="id_number_of_branches" class="block text-sm font-medium text-black">
-                {% if LANGUAGE_CODE == 'ar' %}عدد الفروع{% else %}Number of Branches{% endif %}
-              </label>
-              <div class="mt-1">
-                {{ vendor_form.number_of_branches }}
-                {% if vendor_form.number_of_branches.errors %}
-                  <div class="text-red-600 text-sm mt-1">
-                    {% for error in vendor_form.number_of_branches.errors %}
-                      <p>{{ error }}</p>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-
-            <div>
-              <label for="vendor_district" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                الحي
-                {% else %}
-                District
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="vendor_district" name="district" type="text" class="input-style" placeholder="{% if LANGUAGE_CODE == 'ar' %}الحي{% else %}District{% endif %}" />
-              </div>
-            </div>
-
-            <div>
-              <label for="vendor_street" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                الشارع
-                {% else %}
-                Street
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="vendor_street" name="street" type="text" required class="input-style" placeholder="{% if LANGUAGE_CODE == 'ar' %}الشارع{% else %}Street{% endif %}" />
-              </div>
-            </div>
-
-            <div>
-              <label for="vendor_description" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                وصف الخدمة
-                {% else %}
-                Service Description
-                {% endif %}</label>
-              <div class="mt-1">
-                <textarea id="vendor_description" name="description" rows="4" class="input-style" placeholder="{% if LANGUAGE_CODE == 'ar' %}وصف الخدمة{% else %}Service Description{% endif %}"></textarea>
-              </div>
-            </div>
-
-            <div>
-              <label for="vendor_profile_image" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                الصورة الشخصية
-                {% else %}
-                Profile Image
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="vendor_profile_image" name="profile_image" type="file" class="input-style" accept="image/*" />
-              </div>
-            </div>
-
-            <div class="flex items-center">
-              <input id="vendor_accept_terms" name="accept_terms" type="checkbox" required class="ml-2" />
-              <label for="vendor_accept_terms" class="block text-sm font-medium text-black">
-                {% if LANGUAGE_CODE == 'ar' %}
-                أوافق على <a href="{% url 'terms_and_conditions' %}" class="text-blue-600 hover:underline" >سياسة الخصوصية و شروط الاستخدام</a>
-                {% else %}
-                I agree to the <a href="{% url 'terms_and_conditions' %}" class="text-blue-600 hover:underline">privacy policy and terms of use </a>
-                {% endif %}
-              </label>
-            </div>
+            {{ receptionist_form.as_p }}
 
             <div>
               <button type="submit" class="submit-btn">{% if LANGUAGE_CODE == 'ar' %}
-                تسجيل طلب مقدم الخدمة
+                انشاء حساب موظف استقبال
                 {% else %}
-                Submit Vendor Application
+                Create Receptionist Account
                 {% endif %}</button>
-            </div>
-
-            <div class="bg-blue-50 border border-blue-200 rounded-md p-3 mt-4">
-              <p class="text-sm text-blue-800">
-                {% if LANGUAGE_CODE == 'ar' %}
-                ℹ️ سيتم مراجعة طلبك من قبل إدارة المنصة وسيتم التواصل معك قريباً
-                {% else %}
-                ℹ️ Your application will be reviewed by the salon management and you will be contacted soon
-                {% endif %}
-              </p>
             </div>
           </form>
         </div>
-
       </div>
     </div>
   </div>
 </div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const studentTab = document.getElementById("student-tab");
-    const clubTab = document.getElementById("club-tab");
-    const vendorTab = document.getElementById("vendor-tab");
-    const studentForm = document.getElementById("student-form");
-    const clubForm = document.getElementById("club-form");
-    const vendorForm = document.getElementById("vendor-form");
-
-    // Function to handle tab switching
-    function switchTab(activeTab, activeForm) {
-      // Remove active class from all tabs
-      [studentTab, vendorTab].forEach(tab => {
-        tab.classList.remove("active-tab");
-      });
-
-      // Hide all forms
-      [studentForm, clubForm, vendorForm].forEach(form => {
-        form.classList.add("hidden");
-      });
-
-      // Activate selected tab and form
-      activeTab.classList.add("active-tab");
-      activeForm.classList.remove("hidden");
-
-      console.log(`Switched to ${activeTab.id} Form`);
-    }
-
-    // Event listeners for tabs
-    studentTab.addEventListener("click", function() {
-      switchTab(studentTab, studentForm);
-    });
-
-
-    vendorTab.addEventListener("click", function() {
-      switchTab(vendorTab, vendorForm);
-    });
-
-    // Ensure correct form is visible on page load (club tab is active by default)
-    switchTab(studentTab, studentForm);
-
-
-    const regionSelect = document.getElementById('id_region');
-  const citySelect = document.getElementById('id_city');
-
-  if (regionSelect && citySelect) {
-    regionSelect.addEventListener('change', function() {
-      const region = this.value;
-      fetch(`/api/cities/?region=${encodeURIComponent(region)}`)
-        .then(response => response.json())
-        .then(data => {
-          citySelect.innerHTML = '';
-          const defaultOption = document.createElement('option');
-          defaultOption.value = '';
-          defaultOption.textContent = '{% if LANGUAGE_CODE == "ar" %}اختر المدينة{% else %}Select City{% endif %}';
-          citySelect.appendChild(defaultOption);
-
-          data.cities.forEach(city => {
-            const option = document.createElement('option');
-            option.value = city;
-            option.textContent = city;
-            citySelect.appendChild(option);
-          });
-        });
-    });
-  }
-  });
-</script>
-
 <style>
-  /* Modern tab design */
-  .flex.justify-center.mb-4 {
+      .flex.justify-center.mb-4 {
     margin-bottom: 2rem;
   }
 
@@ -818,43 +482,48 @@
 .input-style:valid {
   border-color: #10b981;
 }
+.tab-btn {
+  @apply px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 transition-colors duration-200;
+}
+
+.active-tab {
+  @apply text-indigo-600 border-indigo-600;
+}
+
+.tab-content {
+  @apply transition-all duration-300;
+}
+
+.input-style {
+  @apply w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500;
+}
+
+.submit-btn {
+  @apply w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+}
 </style>
+
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const regionSelect = document.getElementById('region-select');
-  const citySelect = document.getElementById('city-select');
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = document.querySelectorAll('.tab-btn');
+  const contents = document.querySelectorAll('.tab-content');
 
-  if (regionSelect && citySelect) {
-    const regionsAndCities = {
-      "الرياض": ["الرياض", "الزلفي", "المجمعة", "الخرج", "الدوادمي"],
-      "مكة المكرمة": ["جدة", "مكة", "الطائف", "رابغ"],
-      "القصيم": ["بريدة", "عنيزة", "الرس"],
-      "المنطقة الشرقية": ["الخبر", "الدمام", "القطيف", "حفر الباطن", "الأحساء", "الجبيل", "بقيق"],
-      "عسير": ["محايل عسير", "أبها", "بيشة"],
-      "تبوك": ["تبوك"],
-      "حائل": ["حائل"],
-      "الحدود الشمالية": ["عرعر", "شرورة"],
-      "جازان": ["صيبا", "جازان", "أبو عريش", "الدرب"],
-      "نجران": ["نجران"],
-      "الباحة": ["الباحة"],
-      "الجوف": ["سكاكا", "القريات"],
-      "المدينة المنورة": ["المدينة المنورة", "ينبع", "العلا"]
-    };
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      const targetId = this.id.replace('-tab', '-form');
 
-    regionSelect.addEventListener('change', function() {
-      const selectedRegion = this.value;
-      citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+      // Remove active class from all tabs
+      tabs.forEach(t => t.classList.remove('active-tab'));
+      // Add active class to clicked tab
+      this.classList.add('active-tab');
 
-      if (selectedRegion && regionsAndCities[selectedRegion]) {
-        regionsAndCities[selectedRegion].forEach(city => {
-          const option = document.createElement('option');
-          option.value = city;
-          option.textContent = city;
-          citySelect.appendChild(option);
-        });
-      }
+      // Hide all content
+      contents.forEach(content => content.classList.add('hidden'));
+      // Show target content
+      document.getElementById(targetId).classList.remove('hidden');
     });
-  }
+  });
 });
 </script>
 {% endblock %}
+

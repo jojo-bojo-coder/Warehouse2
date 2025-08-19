@@ -393,6 +393,326 @@ def handle_file_upload(file_field):
         return encoded_file
     return None
 
+
+
+
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.http import JsonResponse
+from django.utils import timezone
+from django.contrib.auth.models import User
+from .models import CoachProfile, UserProfile
+from .vendor_multistep_forms import (
+    VendorStep1Form, VendorStep2Form, VendorStep3Form, VendorStep4Form, handle_file_upload
+)
+import base64
+
+
+def vendor_signup_step1(request):
+    """Step 1: Personal Information"""
+
+    # Initialize session data if not exists
+    if 'vendor_signup_data' not in request.session:
+        request.session['vendor_signup_data'] = {}
+
+    form = VendorStep1Form(initial=request.session['vendor_signup_data'].get('step1', {}))
+
+    if request.method == 'POST':
+        form = VendorStep1Form(request.POST)
+        if form.is_valid():
+            # Save step 1 data to session
+            request.session['vendor_signup_data']['step1'] = form.cleaned_data
+            request.session.modified = True
+            return redirect('vendor_signup_step2')
+
+    context = {
+        'form': form,
+        'step': 1,
+        'total_steps': 4,
+        'step_title': 'المعلومات الشخصية',
+        'progress_percentage': 25
+    }
+
+    return render(request, 'accounts/vendor_signup/step1.html', context)
+
+
+def vendor_signup_step2(request):
+    """Step 2: Business Information"""
+
+    print("📌 Entered vendor_signup_step2 view")
+    print("📌 Request method:", request.method)
+    print("📌 Session keys:", request.session.keys())
+
+    # Check if step 1 is completed
+    if 'vendor_signup_data' not in request.session or 'step1' not in request.session['vendor_signup_data']:
+        print("❌ Step 1 not completed, redirecting to step 1")
+        messages.error(request, 'يرجى إكمال الخطوة الأولى أولاً')
+        return redirect('vendor_signup_step1')
+
+    # Show any saved data from step 2 if exists
+    initial_data = request.session['vendor_signup_data'].get('step2', {})
+    print("📌 Initial data for form:", initial_data)
+
+    form = VendorStep2Form(initial=initial_data)
+
+    if request.method == 'POST':
+        print("📌 Handling POST request with data:", request.POST.dict())
+        form = VendorStep2Form(request.POST)
+
+        if form.is_valid():
+            print("✅ Form is valid")
+            step2_data = form.cleaned_data.copy()
+            print("📌 Cleaned data:", step2_data)
+
+            # Store activity_type as ID (already a string from ChoiceField)
+            # No need to convert since it's already the ID as string
+            step2_data['activity_type_id'] = step2_data['activity_type']
+
+            # Remove the original field to avoid confusion
+            del step2_data['activity_type']
+
+            request.session['vendor_signup_data']['step2'] = step2_data
+            request.session.modified = True
+            print("✅ Step 2 data saved to session")
+            return redirect('vendor_signup_step3')
+        else:
+            print("❌ Form is invalid, errors:", form.errors)
+
+    context = {
+        'form': form,
+        'step': 2,
+        'total_steps': 4,
+        'step_title': 'معلومات النشاط',
+        'progress_percentage': 50
+    }
+
+    print("📌 Rendering step2.html with context:", context)
+
+    return render(request, 'accounts/vendor_signup/step2.html', context)
+
+
+
+def vendor_signup_step3(request):
+    """Step 3: Location & Registration"""
+
+    # Check if previous steps are completed
+    if ('vendor_signup_data' not in request.session or
+            'step1' not in request.session['vendor_signup_data'] or
+            'step2' not in request.session['vendor_signup_data']):
+        messages.error(request, 'يرجى إكمال الخطوات السابقة أولاً')
+        return redirect('vendor_signup_step1')
+
+    form = VendorStep3Form(initial=request.session['vendor_signup_data'].get('step3', {}))
+
+    if request.method == 'POST':
+        form = VendorStep3Form(request.POST)
+        if form.is_valid():
+            # Save step 3 data to session
+            request.session['vendor_signup_data']['step3'] = form.cleaned_data
+            request.session.modified = True
+            return redirect('vendor_signup_step4')
+
+    context = {
+        'form': form,
+        'step': 3,
+        'total_steps': 4,
+        'step_title': 'الموقع والتسجيل',
+        'progress_percentage': 75
+    }
+
+    return render(request, 'accounts/vendor_signup/step3.html', context)
+
+
+def vendor_signup_step4(request):
+    """Step 4: Documents & Verification"""
+
+    print(">>> Entered vendor_signup_step4 view")
+    print("Session keys:", request.session.keys())
+
+    # Check if previous steps are completed
+    if ('vendor_signup_data' not in request.session or
+            'step1' not in request.session['vendor_signup_data'] or
+            'step2' not in request.session['vendor_signup_data'] or
+            'step3' not in request.session['vendor_signup_data']):
+        print("Previous steps not completed. Redirecting to step1.")
+        messages.error(request, 'يرجى إكمال الخطوات السابقة أولاً')
+        return redirect('vendor_signup_step1')
+
+    print("Previous steps found in session ✅")
+
+    form = VendorStep4Form()
+    print("Initialized empty VendorStep4Form")
+
+    if request.method == 'POST':
+        print(">>> POST request detected")
+        print("POST data:", request.POST)
+        print("FILES data:", request.FILES)
+
+        form = VendorStep4Form(request.POST, request.FILES)
+        if form.is_valid():
+            print("Form is valid ✅")
+            try:
+                # Create the vendor profile
+                print("Calling create_vendor_from_session...")
+                vendor_data = create_vendor_from_session(request, form)
+                print("Vendor created successfully:", vendor_data)
+
+                # Clear session data
+                if 'vendor_signup_data' in request.session:
+                    print("Clearing session data")
+                    del request.session['vendor_signup_data']
+
+                messages.success(request, 'تم تسجيل طلبك بنجاح! سيتم مراجعته والرد عليك قريباً.')
+                print("Redirecting to vendor_signup_success")
+                return redirect('vendor_signup_success')
+
+            except Exception as e:
+                print("❌ Exception occurred while creating vendor:", str(e))
+                messages.error(request, f'حدث خطأ أثناء التسجيل: {str(e)}')
+        else:
+            print("❌ Form is invalid. Errors:", form.errors)
+
+    context = {
+        'form': form,
+        'step': 4,
+        'total_steps': 4,
+        'step_title': 'المستندات والتحقق',
+        'progress_percentage': 100,
+        'summary_data': get_summary_data(request)
+    }
+
+    print(">>> Rendering step4 template with context:", context)
+    return render(request, 'accounts/vendor_signup/step4.html', context)
+
+
+
+def create_vendor_from_session(request, step4_form):
+    """Create vendor profile from session data and step 4 form"""
+
+    session_data = request.session['vendor_signup_data']
+    step1_data = session_data['step1']
+    step2_data = session_data['step2']
+    step3_data = session_data['step3']
+
+    # Handle file uploads
+    business_document_base64 = handle_file_upload(step4_form.cleaned_data['business_document_file'])
+    commercial_cert_base64 = handle_file_upload(step4_form.cleaned_data['commercial_registration_certificate'])
+    tax_cert_base64 = handle_file_upload(step4_form.cleaned_data.get('tax_certificate'))
+    store_logo_base64 = handle_file_upload(step4_form.cleaned_data['store_logo'])
+
+    # Get activity type
+    from club_dashboard.models import Category
+    activity_type = Category.objects.get(id=step2_data['activity_type_id'])
+
+    # Create vendor profile with correct field names
+    vendor_profile = CoachProfile.objects.create(
+        # Step 1 data
+        full_name=step1_data['full_name'],
+        phone=step1_data['phone'],
+        email=step1_data['email'],
+
+        # Step 2 data
+        business_name_ar=step2_data['business_name_ar'],
+        business_name_en=step2_data['business_name_en'],
+        activity_type=activity_type,
+        number_of_branches=step2_data['number_of_branches'],
+        description=step2_data['description'],
+
+        # Step 3 data
+        region=step3_data['region'],
+        city=step3_data['city'],
+        district=step3_data['district'],
+        street=step3_data['street'],
+        business_document_type=step3_data['business_document_type'],
+        commercial_registration_number=step3_data['commercial_registration_number'],
+        tax_number=step3_data.get('tax_number', ''),
+
+        # Step 4 data (files) - use correct field names from CoachProfile model
+        business_document_file=business_document_base64,  # Changed from business_document_base64
+        commercial_registration_certificate=commercial_cert_base64,  # Changed from commercial_registration_certificate_base64
+        tax_certificate=tax_cert_base64,  # Changed from tax_certificate_base64
+        store_logo_base64=store_logo_base64,
+
+        # Default values - approval_status instead of is_approved
+        approval_status='pending',  # Changed from is_approved=False
+        created_at=timezone.now()
+    )
+
+    return vendor_profile
+
+
+def get_summary_data(request):
+    """Get summary data for step 4 display"""
+    if 'vendor_signup_data' not in request.session:
+        return {}
+
+    session_data = request.session['vendor_signup_data']
+
+    summary = {}
+
+    if 'step1' in session_data:
+        summary['personal'] = {
+            'full_name': session_data['step1'].get('full_name'),
+            'phone': session_data['step1'].get('phone'),
+            'email': session_data['step1'].get('email')
+        }
+
+    if 'step2' in session_data:
+        summary['business'] = {
+            'business_name_ar': session_data['step2'].get('business_name_ar'),
+            'business_name_en': session_data['step2'].get('business_name_en'),
+            'number_of_branches': session_data['step2'].get('number_of_branches')
+        }
+
+    if 'step3' in session_data:
+        summary['location'] = {
+            'region': session_data['step3'].get('region'),
+            'city': session_data['step3'].get('city'),
+            'district': session_data['step3'].get('district'),
+            'commercial_registration_number': session_data['step3'].get('commercial_registration_number')
+        }
+
+    return summary
+
+
+def vendor_signup_success(request):
+    """Success page after vendor registration"""
+    return render(request, 'accounts/vendor_signup/success.html')
+
+
+def vendor_signup_restart(request):
+    """Clear session and restart vendor signup"""
+    if 'vendor_signup_data' in request.session:
+        del request.session['vendor_signup_data']
+    return redirect('vendor_signup_step1')
+
+
+# AJAX endpoint for dynamic city loading
+def get_cities_by_region_vendor(request):
+    """Get cities for a specific region (AJAX endpoint for vendor signup)"""
+    region = request.GET.get('region')
+
+    if not region:
+        return JsonResponse({'cities': []})
+
+    try:
+        from .fields import REGIONS_AND_CITIES
+        cities = REGIONS_AND_CITIES.get(region, [])
+        # Return as array of [value, label] pairs
+        city_choices = [(city, city) for city in cities]
+        return JsonResponse({'cities': city_choices})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+
+
+
+
 from django.utils import timezone
 def signup(request):
     context = {}
