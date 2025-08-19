@@ -25,9 +25,15 @@ SECRET_KEY = 'django-insecure-6b1mw+^bk3)_5hys8=%1b-#8j+d*70q9t=px4-6ouary0ymve3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['warehouse2-production.up.railway.app', '127.0.0.1', 'localhost', '*']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://warehouse2-production.up.railway.app',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Application definition
 
 INSTALLED_APPS = [
@@ -65,6 +71,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'coach_dashboard.middleware.CoachPolicyMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'club_dashboard.vendor_manager_middleware.VendorManagerMiddleware',
 ]
 
@@ -163,9 +170,12 @@ LANGUAGES = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'sportclub/static']
+
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
