@@ -14,9 +14,36 @@ import os
 from accountant_dashboard.models import Banner
 
 
+def get_default_landing_content():
+    """
+    Fallback function to get default content from JSON file
+    """
+    json_file_path = os.path.join(settings.BASE_DIR, 'pages/index.json')
+
+    try:
+        with open(json_file_path, 'r', encoding='utf-8') as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Ultimate fallback if JSON file is missing or corrupted
+        return {
+            "hero_title": "Welcome",
+            "hero_subtitle": "Default subtitle",
+            "about_title": "About Us",
+            "about_description": "Default about description",
+            "features_title": "Features",
+            "plans_title": "Plans & Pricing",
+            "cta_title": "Get Started",
+            "cta_description": "Join us today",
+            "nav_items": [],
+            "bullets": [],
+            "services": [],
+            "pricing": []
+        }
+
+
 def index(request):
     """
-    Load the index page with dynamic data from CMS
+    Load the index page with dynamic data from CMS, falling back to JSON file
     """
     try:
         # Get club-specific content if available
@@ -41,19 +68,21 @@ def index(request):
                     "cta_description": cms_content.cta_description,
                 }
             except club.LandingPageContent.DoesNotExist:
-                # Fallback to default content
+                # Fallback to JSON content if CMS content doesn't exist
                 context = get_default_landing_content()
         else:
             # For non-logged in users or users without club association
             context = get_default_landing_content()
 
     except Exception as e:
-        # Fallback to default data if any error occurs
+        # Fallback to JSON data if any error occurs
         context = get_default_landing_content()
 
+    # Add banners and language code
     banners = Banner.objects.all()
     context['LANGUAGE_CODE'] = translation.get_language()
     context['banners'] = banners
+
     return render(request, 'pages/index.html', context)
 
 
