@@ -38,6 +38,11 @@
     </div>
     <form class="mt-8 space-y-6" method="post" id="signin-form">
       {% csrf_token %}
+        {% if error %}
+      <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+        {{ error }}
+      </div>
+      {% endif %}
       <div class="-space-y-px rounded-md shadow-sm">
         <div>
           <label for="email-address" class="sr-only">
