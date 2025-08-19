@@ -10,13 +10,13 @@
             <img
                     class="h-32 w-32 rounded-full border-4 border-rose-200 shadow-md hover-scale"
                     src="{{ userprofile.profile_image_base64|default:'https://via.placeholder.com/128' }}"
-                    alt="{% if LANGUAGE_CODE == 'ar' %}صورة الملف الشخصي للاعب{% else %}Customer profile picture{% endif %}"
+                    alt="{% if LANGUAGE_CODE == 'ar' %}صورة الملف الشخصي لعميل{% else %}Customer profile picture{% endif %}"
             />
           </div>
           <div class="mr-6">
             <h1 class="text-3xl font-bold text-rose-800">✨ {{ student.full_name }}</h1>
             <p class="text-xl text-gray-600">{% if LANGUAGE_CODE == 'ar' %}
-              لاعب في نادى  {{ student.club.name }}
+              عميل في منصة  {{ student.club.name }}
               {% else %}
               Member at {{ student.club.name }}
               {% endif %}</p>
@@ -26,7 +26,7 @@
       <div class="px-4 py-5 sm:px-6">
         <h3 class="text-lg leading-6 font-medium text-rose-700">
           <span class="inline-block mr-2">👤</span>
-          {% if LANGUAGE_CODE == 'ar' %}نبذة عن الللاعب{% else %}About the Client{% endif %}
+          {% if LANGUAGE_CODE == 'ar' %}نبذة عن العميل{% else %}About the Client{% endif %}
         </h3>
         <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ student.about }}</p>
       </div>
@@ -69,8 +69,7 @@
                   class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-pink-50 transition-colors duration-300"
           >
             <dt class="text-sm font-medium text-rose-600">
-              <span class="inline-block mr-1">💇‍♀️</span>
-              {% if LANGUAGE_CODE == 'ar' %}النادي{% else %}Salon{% endif %}
+              {% if LANGUAGE_CODE == 'ar' %}المنصة{% else %}Platform{% endif %}
             </dt>
             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
               {{ student.club.name }}

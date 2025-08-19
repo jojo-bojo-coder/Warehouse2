@@ -10,7 +10,7 @@
           <h2 class="text-3xl font-extrabold text-rose-800 mb-8 text-center animate__animated animate__fadeIn">
             <span class="inline-block mr-2">✨</span>
             {% if LANGUAGE_CODE == 'ar' %}
-            تعديل الملف الشخصي للاعب
+            تعديل الملف الشخصي للعميل
             {% else %}
             Edit Customer Profile
             {% endif %}
@@ -35,7 +35,7 @@
                         id="profile_image_preview"
                         class="h-40 w-40 rounded-full border-4 border-rose-300 mx-auto lg:mx-0 transition duration-300 hover:border-rose-400 shadow-lg"
                         src="{{ student.profile_image_base64|default:'https://via.placeholder.com/160' }}"
-                        alt="{% if LANGUAGE_CODE == 'ar' %}صورة الملف الشخصي للاعب{% else %}Customer profile picture{% endif %}"
+                        alt="{% if LANGUAGE_CODE == 'ar' %}صورة الملف الشخصي للعميل{% else %}Customer profile picture{% endif %}"
                 />
                 <input
                         type="file"

@@ -9,13 +9,13 @@
         {% if LANGUAGE_CODE == 'ar' %}
         منصة {{ club.name }}
         {% else %}
-        {{ club.name}} Club
+        {{ club.name}} Platform
         {% endif %}
       </h2>
     </div>
     <div class="absolute top-20 left-1/2 transform -translate-x-1/2 z-30">
       <img src="data:image/jpeg;base64,{{ club.club_profile_image_base64|safe }}"
-           alt="{% if LANGUAGE_CODE == 'ar' %}شعار المنصة{% else %}Club Logo{% endif %}"
+           alt="{% if LANGUAGE_CODE == 'ar' %}شعار المنصة{% else %}Platform Logo{% endif %}"
            class="w-32 h-32 rounded-full border-4 border-white shadow-xl">
     </div>
     <div class="absolute bottom-6 left-0 right-0 text-center text-white z-20">
