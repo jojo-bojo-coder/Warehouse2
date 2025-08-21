@@ -613,6 +613,7 @@ def create_vendor_from_session(request, step4_form):
         full_name=step1_data['full_name'],
         phone=step1_data['phone'],
         email=step1_data['email'],
+        club = get_main_club(),
 
         # Step 2 data
         business_name_ar=step2_data['business_name_ar'],
