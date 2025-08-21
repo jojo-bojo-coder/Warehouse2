@@ -79,6 +79,12 @@
     <form id="vendor-step-form" method="post" enctype="multipart/form-data" class="space-y-6">
         {% csrf_token %}
 
+        {% if error %}
+      <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+        {{ error }}
+      </div>
+      {% endif %}
+
         <!-- Documents Section -->
         <div class="bg-gray-50 rounded-lg p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
@@ -193,7 +199,7 @@
 
             <div class="flex items-start">
                 {{ form.accept_terms }}
-                <label for="{{ form.accept_terms.id_for_label }}" class="ml-3 text-sm text-gray-700">
+                <label for="{{ form.accept_terms.id_for_label }}" class="mr-3 text-sm text-gray-700">
                     {% if LANGUAGE_CODE == 'ar' %}
                     أوافق على
                     <a href="{% url 'terms_and_conditions' %}" target="_blank" class="text-blue-600 hover:text-blue-800 underline">
@@ -226,7 +232,7 @@
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
-                <div class="ml-3">
+                <div class="mr-3">
                     <p class="text-sm text-green-700">
                         {% if LANGUAGE_CODE == 'ar' %}
                         <strong>تهانينا!</strong> أنت على وشك إكمال التسجيل. بعد إرسال الطلب، سيتم مراجعته من قبل فريقنا والرد عليك خلال 24-48 ساعة.
