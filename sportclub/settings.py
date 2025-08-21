@@ -248,7 +248,7 @@ CKEDITOR_CONFIGS = {
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-MAIN_CLUB_ID = 1
+MAIN_CLUB_ID = 4
 MAIN_CLUB_DIRECTOR_EMAIL = "naghammohamed287@gmail.com"
 
 # WhatsApp Configuration
