@@ -242,7 +242,10 @@ def club_dashboard_index(request):
     director_count = directors.count()
 
     # ✅ Fetch students and coaches from this club
-    students = StudentProfile.objects.filter(club=club)
+    students = UserProfile.objects.filter(
+        account_type='3', 
+        student_profile__club=club
+    ).select_related('user', 'student_profile')
     student_count = students.count()
 
     coaches = CoachProfile.objects.filter(
