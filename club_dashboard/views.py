@@ -245,7 +245,10 @@ def club_dashboard_index(request):
     students = StudentProfile.objects.filter(club=club)
     student_count = students.count()
 
-    coaches = CoachProfile.objects.filter(club=club)
+    coaches = CoachProfile.objects.filter(
+    club=club,
+    approval_status__in=['pending', 'approved']
+)
     coach_count = coaches.count()
 
     # ✅ FIXED: Get notifications WITHOUT marking them as read immediately
