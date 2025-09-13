@@ -1,0 +1,519 @@
+{% extends 'base_coach_dashboard.html' %}
+{% load static %}
+{% block content %}
+<style>
+    /* Animation Classes */
+    .animate-fadeIn {
+        animation: fadeIn 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Button Effects */
+    .btn-gradient {
+        background-size: 200% auto;
+        transition: all 0.2s ease;
+    }
+
+    .btn-gradient:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #eff6ff;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #3B82F6;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #1D4ED8;
+    }
+
+    /* Form Input Styling */
+    input, textarea, select {
+        border-color: #93C5FD !important;
+        border-radius: 0.5rem !important;
+        transition: all 0.2s ease !important;
+        padding: 0.75rem 1rem !important;
+        background-color: #fff;
+        color: #1E3A8A;
+    }
+
+    input:focus, textarea:focus, select:focus {
+        border-color: #3B82F6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+        outline: none !important;
+    }
+
+    /* Checkbox Styling */
+    input[type="checkbox"] {
+        width: 1.25rem;
+        height: 1.25rem;
+        accent-color: #3B82F6;
+        cursor: pointer;
+    }
+
+    /* Carousel Styling */
+    .carousel {
+        max-width: 300px;
+        margin: 1.5rem auto;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .carousel-item-content {
+        position: relative;
+        width: 200px;
+        margin: auto;
+        border: 2px solid #93C5FD;
+        border-radius: 8px;
+        padding: 5px;
+        background-color: white;
+    }
+
+    .carousel img {
+        object-fit: contain;
+        width: 100%;
+        max-height: 200px;
+        border-radius: 4px;
+    }
+
+    .carousel-item-content i {
+        position: absolute;
+        bottom: 0;
+        right: 50%;
+        transform: translate(50%, 21%);
+        color: white;
+        width: 100%;
+        background: rgba(59, 130, 246, 0.7);
+        text-align: center;
+        height: 60px;
+        font-size: 25px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .carousel-item-content i:hover {
+        background: rgba(29, 78, 216, 0.8);
+    }
+
+    .carousel-control-prev-icon, .carousel-control-next-icon {
+        background-color: #3B82F6;
+        border-radius: 50%;
+        padding: 12px;
+    }
+
+    /* Dark Mode Styles */
+    .dark .animated-bg {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    }
+
+    .dark .stat-card {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+
+    .dark .text-gray-800 {
+        color: #f8fafc;
+    }
+
+    .dark .text-gray-700 {
+        color: #e2e8f0;
+    }
+
+    .dark .text-gray-500 {
+        color: #94a3b8;
+    }
+
+    .dark .text-blue-700 {
+        color: #93c5fd;
+    }
+
+    .dark input,
+    .dark textarea,
+    .dark select {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+
+    .dark input:focus,
+    .dark textarea:focus,
+    .dark select:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+    }
+
+    .dark .carousel {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark .carousel-item-content {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+
+    .dark ::-webkit-scrollbar-track {
+        background: #1e293b;
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+        background: #3b82f6;
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: #2563eb;
+    }
+
+    .dark .bg-blue-50 {
+        background-color: #1e293b;
+    }
+
+    .dark .bg-white {
+        background-color: #0f172a;
+    }
+
+    .dark .bg-gradient-to-r.from-blue-500.to-indigo-600 {
+        background: linear-gradient(to right, #3b82f6, #6366f1);
+    }
+
+    .dark .bg-blue-100 {
+        background-color: #1e40af;
+    }
+
+    .dark .text-blue-800 {
+        color: #bfdbfe;
+    }
+
+    .dark .hover\:bg-blue-200:hover {
+        background-color: #1e3a8a;
+    }
+
+    .dark .p-4.bg-blue-50 {
+        background-color: #1e293b !important;
+        border: 1px solid #334155;
+    }
+
+    .dark .btn-gradient {
+        color: white;
+    }
+
+    .dark form {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+
+    .dark h1 {
+        color: white;
+    }
+</style>
+
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 px-4 pt-8 font-sans dark:bg-gray-900 min-h-screen animate-fadeIn">
+    <section class="container mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-2 animate-fadeIn dark:text-white">
+            <i class="fas fa-edit text-blue-600"></i>
+            {% if LANGUAGE_CODE == 'ar' %}تعديل مخزون المنتج{% else %}Edit Product Stock{% endif %}
+        </h1>
+
+        <form method="post" enctype="multipart/form-data" class="w-full p-6 bg-white rounded-lg shadow-md stat-card animate-fadeInUp mb-12 dark:bg-gray-800 dark:border dark:border-gray-700">
+            {% csrf_token %}
+            <!-- Hidden field to indicate images changed -->
+            <input type="hidden" name="images_changed" id="images_changed" value="false">
+
+            <!-- Image Carousel Display -->
+            <div id="carouselExampleIndicators" class="carousel slide carousel-dark">
+                <div class="carousel-inner" id="profile-imgs-box">
+                    {% for profile_img in profile_imgs %}
+                    <div class="carousel-item {% if forloop.counter == 1 %} active {% endif %}" id="cropped-result-{{forloop.counter}}">
+                        <div class="carousel-item-content">
+                            <img src="{{profile_img.img_base64}}" class="d-block w-100" alt="{% if LANGUAGE_CODE == 'ar' %}صورة المنتج{% else %}Product Image{% endif %}">
+                            <input type="hidden" value="{{profile_img.img_base64}}" name="profile_imgs" id="userprofile-avatar-{{forloop.counter}}">
+                            <i class="fas fa-trash text-blue-600 hover:text-blue-800" aria-label="{% if LANGUAGE_CODE == 'ar' %}حذف الصورة{% else %}Remove Image{% endif %}"></i>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if profile_imgs %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev" aria-label="{% if LANGUAGE_CODE == 'ar' %}الصورة السابقة{% else %}Previous Image{% endif %}">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">{% if LANGUAGE_CODE == 'ar' %}السابق{% else %}Previous{% endif %}</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next" aria-label="{% if LANGUAGE_CODE == 'ar' %}الصورة التالية{% else %}Next Image{% endif %}">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">{% if LANGUAGE_CODE == 'ar' %}التالي{% else %}Next{% endif %}</span>
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Image Upload -->
+            <div class="mb-4 text-center animate-fadeInUp" style="animation-delay: 0.1s;">
+                <label for="image-upload" class="form-label d-block text-blue-700 font-medium dark:text-blue-300">{% if LANGUAGE_CODE == 'ar' %}رفع صورة للمنتج{% else %}Upload Product Image{% endif %}</label>
+                <input type="file" id="image-upload" class="form-control mx-auto border-blue-300 focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" style="max-width: 300px;" accept="image/*" aria-label="{% if LANGUAGE_CODE == 'ar' %}اختيار صورة المنتج{% else %}Select Product Image{% endif %}">
+                <button type="button" id="upload-image-btn" class="btn-gradient mt-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-4 py-2 rounded-md flex items-center mx-auto">
+                    <i class="fas fa-image mr-2"></i> {% if LANGUAGE_CODE == 'ar' %}إضافة الصورة{% else %}Add Image{% endif %}
+                </button>
+            </div>
+
+            <!-- Form Fields -->
+            <div class="mb-4 animate-fadeInUp" style="animation-delay: 0.2s;">
+                <label for="product" class="block text-sm font-medium text-blue-700 mb-1 dark:text-blue-300">{% if LANGUAGE_CODE == 'ar' %}اسم المنتج{% else %}Product Name{% endif %}</label>
+                {{form.title}}
+            </div>
+            <div class="mb-4 animate-fadeInUp" style="animation-delay: 0.3s;">
+                <label for="description" class="block text-sm font-medium text-blue-700 mb-1 dark:text-blue-300">{% if LANGUAGE_CODE == 'ar' %}الوصف{% else %}Description{% endif %}</label>
+                {{form.desc}}
+            </div>
+            <div class="mb-4 animate-fadeInUp" style="animation-delay: 0.4s;">
+                <label for="quantity" class="block text-sm font-medium text-blue-700 mb-1 dark:text-blue-300">{% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Quantity{% endif %}</label>
+                {{form.stock}}
+            </div>
+            <div class="mb-4 animate-fadeInUp" style="animation-delay: 0.5s;">
+                <label for="price" class="block text-sm font-medium text-blue-700 mb-1 dark:text-blue-300">{% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}</label>
+                {{form.price}}
+            </div>
+            <div class="mb-4 animate-fadeInUp" style="animation-delay: 0.5s;">
+                <label class="block text-sm font-medium text-blue-700 mb-1 flex items-center gap-2 dark:text-blue-300">
+                    <i class="fas fa-calculator text-blue-600"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}حساب الضرائب والأرباح{% else %}Tax & Profit Calculation{% endif %}
+                </label>
+
+                <div class="p-4 bg-blue-50 rounded-lg dark:bg-gray-700">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-600 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}ضريبة الهيئة{% else %}Tax Authority (15%){% endif %}:</span>
+                        <span id="tax-authority" class="font-medium dark:text-white">{{ product.tax_authority_amount }}</span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-600 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}عمولة المنصة{% else %}Platform Commission{% endif %}:</span>
+                        <span id="platform-profit" class="font-medium dark:text-white">{{ product.total_platform_fee }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}صافي ربح البائع{% else %}Vendor Net Profit{% endif %}:</span>
+                        <span id="vendor-profit" class="font-medium text-green-600 dark:text-green-400">{{ product.vendor_net_profit }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4 animate-fadeInUp" style="animation-delay: 0.6s;">
+                <label for="manufacturing_date" class="block text-sm font-medium text-blue-700 mb-1 dark:text-blue-300">{% if LANGUAGE_CODE == 'ar' %}تاريخ التصنيع{% else %}Manufacturing Date{% endif %}</label>
+                {{form.manufacturing_date}}
+            </div>
+            <div class="mb-4 animate-fadeInUp" style="animation-delay: 0.7s;">
+                <label for="expiration_date" class="block text-sm font-medium text-blue-700 mb-1 dark:text-blue-300">{% if LANGUAGE_CODE == 'ar' %}تاريخ انتهاء الصلاحية{% else %}Expiration Date{% endif %}</label>
+                {{form.expiration_date}}
+            </div>
+            <div class="mb-4 animate-fadeInUp" style="animation-delay: 0.8s;">
+                <label for="is_enabled" class="flex items-center gap-4">
+                    {{form.is_enabled}}
+                    <span class="ml-2 text-sm font-medium text-blue-700 dark:text-blue-300">{% if LANGUAGE_CODE == 'ar' %}متاح{% else %}Available{% endif %}</span>
+                </label>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end animate-fadeInUp" style="animation-delay: 0.9s;">
+                <a href="{% url 'coachviewProducts' %}" class="btn-gradient px-4 py-2 bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 ml-4 flex items-center dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800" aria-label="{% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}">
+                    <i class="fas fa-times-circle mr-2"></i> {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                </a>
+                <button type="submit" class="btn-gradient px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-md hover:from-blue-600 hover:to-indigo-700 flex items-center" aria-label="{% if LANGUAGE_CODE == 'ar' %}تعديل وحفظ{% else %}Save Changes{% endif %}">
+                    <i class="fas fa-check-circle mr-2"></i> {% if LANGUAGE_CODE == 'ar' %}تعديل وحفظ{% else %}Save Changes{% endif %}
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize counter for image IDs
+        let imgCounter = {% if profile_imgs %}{{profile_imgs|length}}{% else %}0{% endif %};
+        // Track if images have been changed
+        let imagesChanged = false;
+
+        // Function to remove active class from carousel items
+        function removeCarouselActive() {
+            document.querySelectorAll('.carousel-item').forEach(element => {
+                element.classList.remove('active');
+            });
+        }
+
+        // Function to remove an image
+        function removeImage(id) {
+            let obj = document.getElementById(id);
+            if (!obj) return;
+
+            // Get all carousel items
+            let objs = document.querySelectorAll('.carousel-item');
+
+            // Remove the specified item
+            obj.remove();
+
+            // Mark images as changed
+            imagesChanged = true;
+            document.getElementById('images_changed').value = 'true';
+
+            // Update active class on remaining items
+            let remainingItems = document.querySelectorAll('.carousel-item');
+            if (remainingItems.length > 0) {
+                // Remove active class from all items first
+                remainingItems.forEach(item => item.classList.remove('active'));
+                // Set first remaining item as active
+                remainingItems[0].classList.add('active');
+            }
+
+            // Hide carousel controls if no images remain
+            const carousel = document.getElementById('carouselExampleIndicators');
+            if (carousel) {
+                const prevBtn = carousel.querySelector('.carousel-control-prev');
+                const nextBtn = carousel.querySelector('.carousel-control-next');
+                if (remainingItems.length === 0) {
+                    if (prevBtn) prevBtn.classList.add('d-none');
+                    if (nextBtn) nextBtn.classList.add('d-none');
+                } else {
+                    if (prevBtn) prevBtn.classList.remove('d-none');
+                    if (nextBtn) nextBtn.classList.remove('d-none');
+                }
+            }
+        }
+
+        // Function to add image to carousel
+        function addImage(imageData) {
+            imgCounter++;
+            removeCarouselActive();
+
+            // Mark images as changed
+            imagesChanged = true;
+            document.getElementById('images_changed').value = 'true';
+
+            const html_code = `
+                <div class="carousel-item active" id="image-result-${imgCounter}">
+                    <div class="carousel-item-content">
+                        <img src="${imageData}" class="d-block w-100" alt="{% if LANGUAGE_CODE == 'ar' %}صورة المنتج{% else %}Product Image{% endif %}">
+                        <input type="hidden" name="profile_imgs" value="${imageData}" id="userprofile-avatar-${imgCounter}">
+                        <i class="fas fa-trash text-blue-600 hover:text-blue-800" onclick="removeImage('image-result-${imgCounter}')" aria-label="{% if LANGUAGE_CODE == 'ar' %}حذف الصورة{% else %}Remove Image{% endif %}"></i>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('profile-imgs-box').insertAdjacentHTML('beforeend', html_code);
+
+            // Show carousel controls if this is the first image
+            if (imgCounter === 1) {
+                const carousel = document.getElementById('carouselExampleIndicators');
+                if (carousel) {
+                    const prevBtn = carousel.querySelector('.carousel-control-prev');
+                    const nextBtn = carousel.querySelector('.carousel-control-next');
+                    if (prevBtn) prevBtn.classList.remove('d-none');
+                    if (nextBtn) nextBtn.classList.remove('d-none');
+                }
+            }
+        }
+
+        // Handle file upload when button is clicked
+        document.getElementById('upload-image-btn').addEventListener('click', function() {
+            const fileInput = document.getElementById('image-upload');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    addImage(e.target.result);
+                    // Clear the file input for next upload
+                    fileInput.value = '';
+                };
+
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                alert('{% if LANGUAGE_CODE == "ar" %}يرجى اختيار صورة أولاً{% else %}Please select an image first{% endif %}');
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('fa-trash')) {
+                const carouselItem = e.target.closest('.carousel-item');
+                if (carouselItem) {
+                    // Optional: Add confirmation dialog
+                    if (!confirm('{% if LANGUAGE_CODE == "ar" %}هل أنت متأكد من حذف هذه الصورة؟{% else %}Are you sure you want to delete this image?{% endif %}')) {
+                        return;
+                    }
+
+                    // Remove the item
+                    carouselItem.remove();
+
+                    // Mark images as changed
+                    imagesChanged = true;
+                    document.getElementById('images_changed').value = 'true';
+
+                    // Update active class on remaining items
+                    const remainingItems = document.querySelectorAll('.carousel-item');
+                    if (remainingItems.length > 0) {
+                        remainingItems.forEach(item => item.classList.remove('active'));
+                        remainingItems[0].classList.add('active');
+                    }
+
+                    // Update carousel controls visibility
+                    const carousel = document.getElementById('carouselExampleIndicators');
+                    if (carousel) {
+                        const prevBtn = carousel.querySelector('.carousel-control-prev');
+                        const nextBtn = carousel.querySelector('.carousel-control-next');
+                        const shouldHide = remainingItems.length === 0;
+                        if (prevBtn) prevBtn.classList.toggle('d-none', shouldHide);
+                        if (nextBtn) nextBtn.classList.toggle('d-none', shouldHide);
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const priceInput = document.querySelector('#id_price');
+    const taxAuthorityEl = document.querySelector('#tax-authority');
+    const platformProfitEl = document.querySelector('#platform-profit');
+    const vendorProfitEl = document.querySelector('#vendor-profit');
+
+    function calculateTaxes() {
+        const price = parseFloat(priceInput.value) || 0;
+        const ProductRealPrice = Math.round(price / 1.15 );
+        const taxAuthority = price - ProductRealPrice;
+        const commissionRate = 0.05; // Default 5%, actual will be calculated on save
+        const platformProfit = (price - taxAuthority) * commissionRate;
+        const platformProfitTax = platformProfit * 0.15;
+        const totalPlatformFee = platformProfit + platformProfitTax;
+        const vendorProfit = price - taxAuthority - totalPlatformFee;
+
+        taxAuthorityEl.textContent = taxAuthority.toFixed(2);
+        platformProfitEl.textContent = totalPlatformFee.toFixed(2);
+        vendorProfitEl.textContent = vendorProfit.toFixed(2);
+    }
+
+    priceInput.addEventListener('input', calculateTaxes);
+});
+</script>
+{% endblock %}

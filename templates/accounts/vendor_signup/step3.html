@@ -1,0 +1,268 @@
+{% extends "vendor_signup_base.html" %}
+
+{% block step_content %}
+<div class="space-y-6">
+    <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}
+            الموقع والتسجيل التجاري
+            {% else %}
+            Location & Business Registration
+            {% endif %}
+        </h2>
+        <p class="text-gray-600">
+            {% if LANGUAGE_CODE == 'ar' %}
+            أدخل موقع نشاطك ومعلومات التسجيل التجاري
+            {% else %}
+            Enter your business location and registration details
+            {% endif %}
+        </p>
+    </div>
+
+    <form id="vendor-step-form" method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Location Section -->
+        <div class="bg-gray-50 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                {% if LANGUAGE_CODE == 'ar' %}
+                معلومات الموقع
+                {% else %}
+                Location Information
+                {% endif %}
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="{{ form.region.id_for_label }}" class="form-label">
+                        {{ form.region.label }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.region }}
+                    {% if form.region.errors %}
+                        <div class="form-error">
+                            {% for error in form.region.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.city.id_for_label }}" class="form-label">
+                        {{ form.city.label }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <div class="form-error">
+                            {% for error in form.city.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="{{ form.district.id_for_label }}" class="form-label">
+                        {{ form.district.label }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.district }}
+                    {% if form.district.errors %}
+                        <div class="form-error">
+                            {% for error in form.district.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.street.id_for_label }}" class="form-label">
+                        {{ form.street.label }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.street }}
+                    {% if form.street.errors %}
+                        <div class="form-error">
+                            {% for error in form.street.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Registration Section -->
+        <div class="bg-gray-50 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                {% if LANGUAGE_CODE == 'ar' %}
+                معلومات التسجيل التجاري
+                {% else %}
+                Business Registration Information
+                {% endif %}
+            </h3>
+
+            <div class="form-group">
+                <label for="{{ form.business_document_type.id_for_label }}" class="form-label">
+                    {{ form.business_document_type.label }}
+                    <span class="text-red-500">*</span>
+                </label>
+                {{ form.business_document_type }}
+                {% if form.business_document_type.errors %}
+                    <div class="form-error">
+                        {% for error in form.business_document_type.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <p class="form-help">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    اختر نوع الوثيقة التجارية التي تملكها
+                    {% else %}
+                    Choose the type of business document you have
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="{{ form.commercial_registration_number.id_for_label }}" class="form-label">
+                        {{ form.commercial_registration_number.label }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.commercial_registration_number }}
+                    {% if form.commercial_registration_number.errors %}
+                        <div class="form-error">
+                            {% for error in form.commercial_registration_number.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="form-help">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        يجب أن يكون 10 أرقام بالضبط
+                        {% else %}
+                        Must be exactly 10 digits
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.tax_number.id_for_label }}" class="form-label">
+                        {{ form.tax_number.label }}
+                    </label>
+                    {{ form.tax_number }}
+                    {% if form.tax_number.errors %}
+                        <div class="form-error">
+                            {% for error in form.tax_number.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="form-help">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        اختياري - إذا كان لديك رقم ضريبي
+                        {% else %}
+                        Optional - if you have a tax number
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        <strong>مهم:</strong> تأكد من صحة رقم السجل التجاري. سيتم التحقق من هذه المعلومات مع الجهات المختصة.
+                        {% else %}
+                        <strong>Important:</strong> Make sure the commercial registration number is correct. This information will be verified with the relevant authorities.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Dynamic city loading based on region selection
+document.getElementById('{{ form.region.id_for_label }}').addEventListener('change', function() {
+    const region = this.value;
+    const citySelect = document.getElementById('{{ form.city.id_for_label }}');
+
+    if (region) {
+        fetch(`{% url 'get_cities_by_region_vendor' %}?region=${encodeURIComponent(region)}`)
+            .then(response => response.json())
+            .then(data => {
+                citySelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar" %}اختر المدينة{% else %}Select City{% endif %}</option>';
+                data.cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city[0];  // value
+                    option.textContent = city[1];  // label
+                    citySelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading cities:', error);
+            });
+    } else {
+        citySelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar" %}اختر المدينة{% else %}Select City{% endif %}</option>';
+    }
+});
+</script>
+{% endblock %}
+
+{% block navigation %}
+<div class="flex justify-between">
+    <div>
+        <a href="{% url 'vendor_signup_step2' %}"
+           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+            {% if LANGUAGE_CODE == 'ar' %}
+            السابق
+            {% else %}
+            Previous
+            {% endif %}
+        </a>
+    </div>
+
+    <div class="flex space-x-4">
+        <a href="{% url 'vendor_signup_restart' %}"
+           class="px-6 py-3 text-gray-500 hover:text-gray-700 transition-colors duration-200">
+            {% if LANGUAGE_CODE == 'ar' %}
+            إعادة البدء
+            {% else %}
+            Start Over
+            {% endif %}
+        </a>
+
+        <button type="submit" form="vendor-step-form"
+                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+            {% if LANGUAGE_CODE == 'ar' %}
+            التالي
+            {% else %}
+            Next
+            {% endif %}
+        </button>
+    </div>
+</div>
+{% endblock %}
+

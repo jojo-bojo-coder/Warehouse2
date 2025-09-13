@@ -1,0 +1,727 @@
+{% extends "base_club_dashboard.html" %}
+{% block content %}
+<style>
+    /* Dark mode overrides for service management */
+    .dark .bg-gradient-to-br {
+        background: linear-gradient(to bottom right, var(--tw-gradient-from), var(--tw-gradient-to));
+    }
+
+    .dark .bg-blue-50 {
+        background-color: rgba(30, 41, 59, 0.8);
+    }
+
+    .dark .bg-purple-50 {
+        background-color: rgba(55, 48, 163, 0.8);
+    }
+
+    .dark .bg-white {
+        background-color: rgba(31, 41, 55, 0.9) !important;
+    }
+
+    .dark .bg-white\/90 {
+        background-color: rgba(31, 41, 55, 0.9) !important;
+    }
+
+    .dark .bg-gray-50 {
+        background-color: rgba(17, 24, 39, 0.9) !important;
+    }
+
+    .dark .text-gray-800 {
+        color: #e5e7eb;
+    }
+
+    .dark .text-gray-700 {
+        color: #d1d5db;
+    }
+
+    .dark .text-gray-900 {
+        color: #f3f4f6;
+    }
+
+    .dark .border-gray-100 {
+        border-color: rgba(55, 65, 81, 0.5);
+    }
+
+    .dark .border-gray-200 {
+        border-color: rgba(55, 65, 81, 0.7);
+    }
+
+    .dark .border-gray-300 {
+        border-color: rgba(75, 85, 99, 0.5);
+    }
+
+    .dark .bg-blue-100 {
+        background-color: rgba(29, 78, 216, 0.2);
+    }
+
+    .dark .bg-amber-100 {
+        background-color: rgba(146, 64, 14, 0.2);
+    }
+
+    .dark .bg-green-100 {
+        background-color: rgba(5, 150, 105, 0.2);
+    }
+
+    .dark .bg-red-100 {
+        background-color: rgba(220, 38, 38, 0.2);
+    }
+
+    .dark .hover\:bg-gray-50:hover {
+        background-color: rgba(17, 24, 39, 0.9) !important;
+    }
+
+    .dark .bg-blue-100\/50 {
+        background-color: rgba(29, 78, 216, 0.1);
+    }
+
+    .dark .bg-amber-100\/50 {
+        background-color: rgba(146, 64, 14, 0.1);
+    }
+
+    .dark .bg-green-100\/50 {
+        background-color: rgba(5, 150, 105, 0.1);
+    }
+
+    .dark .bg-red-100\/50 {
+        background-color: rgba(220, 38, 38, 0.1);
+    }
+
+    .dark .bg-blue-50\/80 {
+        background-color: rgba(30, 41, 59, 0.7);
+    }
+
+    .dark .border-blue-200 {
+        border-color: rgba(29, 78, 216, 0.3);
+    }
+
+    .dark .text-blue-800 {
+        color: #93c5fd;
+    }
+
+    .dark .text-amber-800 {
+        color: #fdba74;
+    }
+
+    .dark .text-green-800 {
+        color: #6ee7b7;
+    }
+
+    .dark .text-red-800 {
+        color: #fca5a5;
+    }
+
+    .dark .bg-gray-100 {
+        background-color: rgba(17, 24, 39, 0.5);
+    }
+
+    .dark .text-gray-500 {
+        color: #9ca3af;
+    }
+
+    .dark .text-gray-400 {
+        color: #9ca3af;
+    }
+
+    .dark .bg-gray-500 {
+        background-color: #6b7280;
+    }
+
+    .dark .hover\:bg-gray-600:hover {
+        background-color: #4b5563;
+    }
+
+    .dark .shadow-lg {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    .dark .shadow-md {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .shadow-purple-300\/40 {
+        box-shadow: 0 4px 6px -1px rgba(167, 139, 250, 0.2), 0 2px 4px -1px rgba(167, 139, 250, 0.1);
+    }
+
+    .dark .shadow-blue-300\/40 {
+        box-shadow: 0 4px 6px -1px rgba(147, 197, 253, 0.2), 0 2px 4px -1px rgba(147, 197, 253, 0.1);
+    }
+
+    .dark .bg-gray-800 {
+        background-color: rgba(17, 24, 39, 0.9);
+    }
+
+    .dark .bg-gray-700 {
+        background-color: rgba(31, 41, 55, 0.9);
+    }
+
+    .dark .text-gray-300 {
+        color: #d1d5db;
+    }
+
+    .dark .border-gray-700 {
+        border-color: rgba(55, 65, 81, 0.7);
+    }
+
+    .dark .bg-gray-600 {
+        background-color: rgba(75, 85, 99, 0.7);
+    }
+
+    .dark .text-white {
+        color: #f9fafb;
+    }
+</style>
+
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gradient-to-br from-blue-50 to-purple-50 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900">
+    <!-- Title and main button -->
+    <div class="flex justify-between items-center py-8 animate-fade-in">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2 transform transition-all duration-500 opacity-0 animate-title">
+            <div class="p-2 bg-blue-100 rounded-full text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 3H11V13H13V3ZM17.83 5.17L16.41 6.59C17.99 7.86 19 9.81 19 12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12C5 9.81 6.01 7.86 7.58 6.58L6.17 5.17C4.23 6.82 3 9.26 3 12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12C21 9.26 19.77 6.82 17.83 5.17Z"/>
+                </svg>
+            </div>
+            {% if LANGUAGE_CODE == 'ar' %} إدارة الخدمات {% else %} Service Management {% endif %}
+        </h1>
+        <div class="flex space-x-2">
+            <button onclick="toggleBulkActions()" class="ml-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 transform opacity-0 animate-button shadow-md hover:shadow-purple-300/40 dark:from-purple-600 dark:to-purple-700 dark:hover:from-purple-700 dark:hover:to-purple-800">
+                {% if LANGUAGE_CODE == 'ar' %} إجراءات متعددة {% else %} Bulk Actions {% endif %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 opacity-0 animate-fade-in" style="animation-delay: 0.2s">
+        <!-- Total Services -->
+        <div class="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 dark:bg-gray-800/90 dark:border-blue-600">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %} إجمالي الخدمات {% else %} Total Services {% endif %}</h3>
+                <div class="bg-blue-100/50 p-2 rounded-full dark:bg-blue-900/50">
+                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ stats.total }}</p>
+        </div>
+
+        <!-- Pending Services -->
+        <div class="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-amber-500 dark:bg-gray-800/90 dark:border-amber-600">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %} قيد المراجعة {% else %} Pending {% endif %}</h3>
+                <div class="bg-amber-100/50 p-2 rounded-full dark:bg-amber-900/50">
+                    <svg class="w-6 h-6 text-amber-600 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ stats.pending }}</p>
+        </div>
+
+        <!-- Approved Services -->
+        <div class="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-green-500 dark:bg-gray-800/90 dark:border-green-600">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %} مقبولة {% else %} Approved {% endif %}</h3>
+                <div class="bg-green-100/50 p-2 rounded-full dark:bg-green-900/50">
+                    <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ stats.approved }}</p>
+        </div>
+
+        <!-- Rejected Services -->
+        <div class="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-red-500 dark:bg-gray-800/90 dark:border-red-600">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %} مرفوضة {% else %} Rejected {% endif %}</h3>
+                <div class="bg-red-100/50 p-2 rounded-full dark:bg-red-900/50">
+                    <svg class="w-6 h-6 text-red-600 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ stats.rejected }}</p>
+        </div>
+    </div>
+
+    <!-- Latest Pending Services Section -->
+    <div class="mb-8 opacity-0 animate-fade-in" style="animation-delay: 0.3s">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
+                {% if LANGUAGE_CODE == 'ar' %} أحدث الخدمات قيد المراجعة {% else %} Latest Pending Services {% endif %}
+            </h2>
+            {% if latest_pending %}
+            <a href="{% url 'pending_services' %}" class="text-blue-600 hover:text-blue-800 font-medium flex items-center transition-all duration-200 dark:text-blue-400 dark:hover:text-blue-300">
+                {% if LANGUAGE_CODE == 'ar' %} عرض الكل {% else %} View All {% endif %}
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 dark:bg-gray-800/90">
+            <table class="min-w-full bg-white text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                <thead class="bg-gray-50 text-gray-700 text-sm dark:bg-gray-700 dark:text-gray-300">
+                <tr>
+                    <th class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}الخدمة{% else %}Service{% endif %}</th>
+                    <th class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}التاجر{% else %}Vendor{% endif %}</th>
+                    <th class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}</th>
+                    <th class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
+                    <th class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for service in latest_pending %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50/60 transition-all duration-200 dark:border-gray-700 dark:hover:bg-gray-700/60">
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                        <div class="flex items-center space-x-3">
+                            {% if service.image %}
+                            <img src="{{ service.image.url }}" alt="{{ service.title }}" class="ml-2 w-10 h-10 rounded-lg object-cover">
+                            {% else %}
+                            <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center dark:bg-gray-700">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 3H11V13H13V3ZM17.83 5.17L16.41 6.59C17.99 7.86 19 9.81 19 12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12C5 9.81 6.01 7.86 7.58 6.58L6.17 5.17C4.23 6.82 3 9.26 3 12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12C21 9.26 19.77 6.82 17.83 5.17Z"/>
+                                </svg>
+                            </div>
+                            {% endif %}
+                            <span>{{ service.title|truncatechars:30 }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div>
+                            <div class="font-medium dark:text-white">{{ service.creator.userprofile.Coach_profile.business_name|default:service.creator.userprofile.Coach_profile.full_name }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ service.creator.email }}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">{{ service.price }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                    <td class="px-6 py-4">{{ service.creation_date|date:"d M Y" }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex space-x-2">
+                            <button onclick="showApprovalModal({{ service.id }}, '{{ service.title|escapejs }}')" class="ml-2 text-xs bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full transition-all duration-200 hover:from-green-600 hover:to-green-700 dark:from-green-600 dark:to-green-700 dark:hover:from-green-700 dark:hover:to-green-800">
+                                {% if LANGUAGE_CODE == 'ar' %} قبول {% else %} Approve {% endif %}
+                            </button>
+                            <button onclick="showRejectionModal({{ service.id }}, '{{ service.title|escapejs }}')" class="text-xs bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full transition-all duration-200 hover:from-red-600 hover:to-red-700 dark:from-red-600 dark:to-red-700 dark:hover:from-red-700 dark:hover:to-red-800">
+                                {% if LANGUAGE_CODE == 'ar' %} رفض {% else %} Reject {% endif %}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50/60 transition-all duration-200 dark:border-gray-700 dark:hover:bg-gray-700/60">
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                        {% if LANGUAGE_CODE == 'ar' %} لا توجد خدمات قيد المراجعة حالياً {% else %} No pending services currently {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Filter and Search Section -->
+    <div class="mb-6 opacity-0 animate-fade-in" style="animation-delay: 0.4s">
+        <form method="GET" class="flex flex-wrap gap-4 items-end">
+            <!-- Search -->
+            <div class="flex-1 min-w-64">
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                    {% if LANGUAGE_CODE == 'ar' %} البحث {% else %} Search {% endif %}
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0 pl-3{% else %}right-0 pr-3{% endif %} flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <input
+                            type="text"
+                            name="search"
+                            value="{{ search_query }}"
+                            class="bg-white/90 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full {% if LANGUAGE_CODE == 'ar' %}pl-10 pr-4{% else %}pr-10 pl-4{% endif %} py-2.5 dark:bg-gray-700/90 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="{% if LANGUAGE_CODE == 'ar' %}ابحث بالاسم، التاجر، البريد...{% else %}Search by name, coach, email...{% endif %}"
+                    >
+                </div>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="min-w-48">
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                    {% if LANGUAGE_CODE == 'ar' %} الحالة {% else %} Status {% endif %}
+                </label>
+                <select name="status" class="bg-white/90 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-3 py-2.5 dark:bg-gray-700/90 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>
+                    {% if LANGUAGE_CODE == 'ar' %} جميع الخدمات {% else %} All Services {% endif %}
+                    </option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>
+                    {% if LANGUAGE_CODE == 'ar' %} قيد المراجعة {% else %} Pending {% endif %}
+                    </option>
+                    <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>
+                    {% if LANGUAGE_CODE == 'ar' %} مقبولة {% else %} Approved {% endif %}
+                    </option>
+                    <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>
+                    {% if LANGUAGE_CODE == 'ar' %} مرفوضة {% else %} Rejected {% endif %}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Filter Button -->
+            <button type="submit" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2.5 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-blue-300/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800">
+                {% if LANGUAGE_CODE == 'ar' %} تصفية {% else %} Filter {% endif %}
+            </button>
+        </form>
+    </div>
+
+    <!-- Bulk Actions Bar (Hidden by default) -->
+    <div id="bulkActionsBar" class="hidden mb-6 bg-blue-50/80 backdrop-blur-sm border border-blue-200 rounded-lg p-4 dark:bg-blue-900/50 dark:border-blue-800">
+        <form id="bulkActionForm" method="POST">
+            {% csrf_token %}
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+          <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
+            <span id="selectedCount">0</span> {% if LANGUAGE_CODE == 'ar' %} خدمة محددة {% else %} services selected {% endif %}
+          </span>
+                    <select name="bulk_action" class="bg-white border border-blue-300 text-blue-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 px-3 py-2 dark:bg-gray-700 dark:border-blue-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">{% if LANGUAGE_CODE == 'ar' %} اختر إجراء {% else %} Choose Action {% endif %}</option>
+                        <option value="approve">{% if LANGUAGE_CODE == 'ar' %} قبول الكل {% else %} Approve All {% endif %}</option>
+                        <option value="reject">{% if LANGUAGE_CODE == 'ar' %} رفض الكل {% else %} Reject All {% endif %}</option>
+                    </select>
+                    <textarea name="bulk_notes" placeholder="{% if LANGUAGE_CODE == 'ar' %}ملاحظات (اختياري){% else %}Notes (optional){% endif %}" class="bg-white border border-blue-300 text-blue-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 px-3 py-2 w-64 h-10 resize-none dark:bg-gray-700 dark:border-blue-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
+                </div>
+                <div class="flex space-x-2">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 dark:bg-blue-700 dark:hover:bg-blue-800">
+                        {% if LANGUAGE_CODE == 'ar' %} تطبيق {% else %} Apply {% endif %}
+                    </button>
+                    <button type="button" onclick="cancelBulkSelection()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all duration-200 dark:bg-gray-600 dark:hover:bg-gray-700">
+                        {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Services Table -->
+    <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden transition-all duration-500 opacity-0 animate-table transform translate-y-5 hover:shadow-xl dark:bg-gray-800/90 dark:hover:shadow-xl">
+        <table class="w-full text-sm text-gray-700 dark:text-gray-300" id="servicesTable">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    <input type="checkbox" id="selectAll" onchange="toggleAllServices()" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
+                </th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} الخدمة {% else %} Service {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} التاجر {% else %} Vendor {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} السعر {% else %} Price {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} الحالة {% else %} Status {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} التاريخ {% else %} Date {% endif %}</th>
+                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} الإجراءات {% else %} Actions {% endif %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for service in services %}
+            <tr class="bg-white/80 border-b border-gray-100 hover:bg-gray-50/60 transition-all duration-200 opacity-0 animate-row dark:bg-gray-800/80 dark:border-gray-700 dark:hover:bg-gray-700/60" style="animation-delay: {{ forloop.counter|add:2 }}00ms">
+                <td class="px-6 py-4">
+                    <input type="checkbox" name="service_ids" value="{{ service.id }}" onchange="updateBulkSelection()" class="service-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
+                </td>
+                <td class="px-6 py-4 font-medium text-gray-900 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} dark:text-white">
+                    <div class="flex items-center space-x-3">
+                        {% if service.image %}
+                        <img src="{{ service.image.url }}" alt="{{ service.title }}" class="ml-2 w-12 h-12 rounded-lg object-cover">
+                        {% else %}
+                        <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center dark:bg-gray-700">
+                            <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 3H11V13H13V3ZM17.83 5.17L16.41 6.59C17.99 7.86 19 9.81 19 12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12C5 9.81 6.01 7.86 7.58 6.58L6.17 5.17C4.23 6.82 3 9.26 3 12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12C21 9.26 19.77 6.82 17.83 5.17Z"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <div class="font-medium">{{ service.title }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ service.classification.first.name|default:"غير مصنف" }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    <div>
+                        <div class="font-medium dark:text-white">{{ service.creator.userprofile.Coach_profile.business_name|default:service.creator.userprofile.Coach_profile.full_name }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ service.creator.email }}</div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{{ service.price }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    {% if service.approval_status == 'pending' %}
+                    <span class="px-2 py-1 text-xs bg-amber-100 text-amber-800 rounded-full dark:bg-amber-900 dark:text-amber-200">
+            {% if LANGUAGE_CODE == 'ar' %} قيد المراجعة {% else %} Pending {% endif %}
+          </span>
+                    {% elif service.approval_status == 'approved' %}
+                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-200">
+            {% if LANGUAGE_CODE == 'ar' %} مقبول {% else %} Approved {% endif %}
+          </span>
+                    {% elif service.approval_status == 'rejected' %}
+                    <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full dark:bg-red-900 dark:text-red-200">
+            {% if LANGUAGE_CODE == 'ar' %} مرفوض {% else %} Rejected {% endif %}
+          </span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{{ service.creation_date|date:"d M Y" }}</td>
+                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                    <div class="flex space-x-2">
+                        <a href="{% url 'service_detail' service.id %}" class="ml-2 font-medium text-blue-600 hover:text-blue-800 transition-all duration-200 dark:text-blue-400 dark:hover:text-blue-300">
+                            {% if LANGUAGE_CODE == 'ar' %} عرض {% else %} View {% endif %}
+                        </a>
+                        {% if service.approval_status == 'pending' %}
+                        <button onclick="showApprovalModal({{ service.id }}, '{{ service.title|escapejs }}')" class="font-medium text-green-600 hover:text-green-800 transition-all duration-200 dark:text-green-400 dark:hover:text-green-300">
+                            {% if LANGUAGE_CODE == 'ar' %} قبول {% else %} Approve {% endif %}
+                        </button>
+                        <button onclick="showRejectionModal({{ service.id }}, '{{ service.title|escapejs }}')" class="font-medium text-red-600 hover:text-red-800 transition-all duration-200 dark:text-red-400 dark:hover:text-red-300">
+                            {% if LANGUAGE_CODE == 'ar' %} رفض {% else %} Reject {% endif %}
+                        </button>
+                        {% endif %}
+                        {% if service.approval_status == 'approved' or service.approval_status == 'rejected'  %}
+                        <button onclick="showDeleteModal({{ service.id }}, '{{ service.title|escapejs }}')" class="font-medium text-gray-600 hover:text-gray-800 transition-all duration-200 dark:text-gray-400 dark:hover:text-gray-300">
+                            {% if LANGUAGE_CODE == 'ar' %} حذف {% else %} Delete {% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr class="bg-white/80 border-b border-gray-100 opacity-0 animate-fade-in dark:bg-gray-800/80 dark:border-gray-700" style="animation-delay: 300ms">
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    {% if LANGUAGE_CODE == 'ar' %} 🚫 لا توجد خدمات حالياً {% else %} 🚫 No services available currently {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if services.has_other_pages %}
+    <div class="flex justify-center mt-8 opacity-0 animate-fade-in" style="animation-delay: 0.6s">
+        <nav class="flex space-x-2">
+            {% if services.has_previous %}
+            <a href="?page={{ services.previous_page_number }}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-2 bg-white/90 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200 dark:bg-gray-700/90 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
+                {% if LANGUAGE_CODE == 'ar' %} السابق {% else %} Previous {% endif %}
+            </a>
+            {% endif %}
+
+            {% for num in services.paginator.page_range %}
+            {% if services.number == num %}
+            <span class="px-3 py-2 bg-blue-600 text-white rounded-lg dark:bg-blue-700">{{ num }}</span>
+            {% else %}
+            <a href="?page={{ num }}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-2 bg-white/90 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200 dark:bg-gray-700/90 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">{{ num }}</a>
+            {% endif %}
+            {% endfor %}
+
+            {% if services.has_next %}
+            <a href="?page={{ services.next_page_number }}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{search_query }}{% endif %}" class="px-3 py-2 bg-white/90 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-200 dark:bg-gray-700/90 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
+                {% if LANGUAGE_CODE == 'ar' %} التالي {% else %} Next {% endif %}
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    <!-- Approval Modal -->
+    <div id="approvalModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75 dark:bg-gray-900 dark:opacity-90"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full dark:bg-gray-800">
+                <form id="approvalForm" method="POST" action="">
+                    {% csrf_token %}
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4 dark:text-white">
+                            {% if LANGUAGE_CODE == 'ar' %} قبول الخدمة {% else %} Approve Service {% endif %}
+                        </h3>
+                        <p class="text-sm text-gray-500 mb-4 dark:text-gray-300">
+                            {% if LANGUAGE_CODE == 'ar' %} أنت على وشك قبول الخدمة: {% else %} You are about to approve the service: {% endif %}
+                            <span id="approvalServiceTitle" class="font-medium dark:text-white"></span>
+                        </p>
+                        <div class="mb-4">
+                            <label for="approvalNotes" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+                                {% if LANGUAGE_CODE == 'ar' %} ملاحظات الموافقة (اختياري) {% else %} Approval Notes (optional) {% endif %}
+                            </label>
+                            <textarea name="approval_notes" id="approvalNotes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm dark:bg-green-700 dark:hover:bg-green-800">
+                            {% if LANGUAGE_CODE == 'ar' %} تأكيد القبول {% else %} Confirm Approval {% endif %}
+                        </button>
+                        <button type="button" onclick="hideModal('approvalModal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500">
+                            {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div id="rejectionModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75 dark:bg-gray-900 dark:opacity-90"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full dark:bg-gray-800">
+                <form id="rejectionForm" method="POST" action="">
+                    {% csrf_token %}
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4 dark:text-white">
+                            {% if LANGUAGE_CODE == 'ar' %} رفض الخدمة {% else %} Reject Service {% endif %}
+                        </h3>
+                        <p class="text-sm text-gray-500 mb-4 dark:text-gray-300">
+                            {% if LANGUAGE_CODE == 'ar' %} أنت على وشك رفض الخدمة: {% else %} You are about to reject the service: {% endif %}
+                            <span id="rejectionServiceTitle" class="font-medium dark:text-white"></span>
+                        </p>
+                        <div class="mb-4">
+                            <label for="rejectionReason" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+                                {% if LANGUAGE_CODE == 'ar' %} سبب الرفض {% else %} Reason for Rejection {% endif %} <span class="text-red-500">*</span>
+                            </label>
+                            <textarea name="rejection_reason" id="rejectionReason" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm dark:bg-red-700 dark:hover:bg-red-800">
+                            {% if LANGUAGE_CODE == 'ar' %} تأكيد الرفض {% else %} Confirm Rejection {% endif %}
+                        </button>
+                        <button type="button" onclick="hideModal('rejectionModal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500">
+                            {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75 dark:bg-gray-900 dark:opacity-90"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full dark:bg-gray-800">
+                <form id="deleteForm" method="POST" action="">
+                    {% csrf_token %}
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4 dark:text-white">
+                            {% if LANGUAGE_CODE == 'ar' %} حذف الخدمة {% else %} Delete Service {% endif %}
+                        </h3>
+                        <p class="text-sm text-gray-500 mb-4 dark:text-gray-300">
+                            {% if LANGUAGE_CODE == 'ar' %} أنت على وشك حذف الخدمة: {% else %} You are about to delete the service: {% endif %}
+                            <span id="deleteServiceTitle" class="font-medium dark:text-white"></span>
+                        </p>
+                        <p class="text-sm text-red-500 mb-4 dark:text-red-400">
+                            {% if LANGUAGE_CODE == 'ar' %} ⚠️ هذا الإجراء لا يمكن التراجع عنه! {% else %} ⚠️ This action cannot be undone! {% endif %}
+                        </p>
+                        <div class="mb-4">
+                            <label for="deleteReason" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+                                {% if LANGUAGE_CODE == 'ar' %} سبب الحذف (اختياري) {% else %} Reason for Deletion (optional) {% endif %}
+                            </label>
+                            <textarea name="delete_reason" id="deleteReason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse dark:bg-gray-700">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm dark:bg-red-700 dark:hover:bg-red-800">
+                            {% if LANGUAGE_CODE == 'ar' %} تأكيد الحذف {% else %} Confirm Delete {% endif %}
+                        </button>
+                        <button type="button" onclick="hideModal('deleteModal')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500">
+                            {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show approval modal
+    function showApprovalModal(serviceId, serviceTitle) {
+      const modal = document.getElementById('approvalModal');
+      const form = document.getElementById('approvalForm');
+      const titleSpan = document.getElementById('approvalServiceTitle');
+
+      titleSpan.textContent = serviceTitle;
+      form.action = `/club_dashboard/services/${serviceId}/approve/`;
+      modal.classList.remove('hidden');
+    }
+
+    // Show rejection modal
+    function showRejectionModal(serviceId, serviceTitle) {
+      const modal = document.getElementById('rejectionModal');
+      const form = document.getElementById('rejectionForm');
+      const titleSpan = document.getElementById('rejectionServiceTitle');
+
+      titleSpan.textContent = serviceTitle;
+      form.action = `/club_dashboard/services/${serviceId}/reject/`;
+      modal.classList.remove('hidden');
+    }
+
+    // Hide any modal
+    function hideModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // Toggle bulk actions bar
+    function toggleBulkActions() {
+      const bulkActionsBar = document.getElementById('bulkActionsBar');
+      bulkActionsBar.classList.toggle('hidden');
+    }
+
+    // Select all services
+    function toggleAllServices() {
+      const selectAll = document.getElementById('selectAll');
+      const checkboxes = document.querySelectorAll('.service-checkbox');
+
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+      });
+
+      updateBulkSelection();
+    }
+
+    // Update bulk selection count
+    function updateBulkSelection() {
+      const selectedCount = document.querySelectorAll('.service-checkbox:checked').length;
+      document.getElementById('selectedCount').textContent = selectedCount;
+    }
+
+    // Cancel bulk selection
+    function cancelBulkSelection() {
+      const checkboxes = document.querySelectorAll('.service-checkbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      document.getElementById('selectAll').checked = false;
+      updateBulkSelection();
+      toggleBulkActions();
+    }
+
+    // Initialize animations
+    document.addEventListener('DOMContentLoaded', () => {
+      const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-title, .animate-button, .animate-table, .animate-row');
+
+      animatedElements.forEach(element => {
+        element.classList.remove('opacity-0');
+        if (element.classList.contains('animate-title')) {
+          element.classList.add('opacity-100');
+        }
+      });
+    });
+
+    // Show delete modal
+    function showDeleteModal(serviceId, serviceTitle) {
+        const modal = document.getElementById('deleteModal');
+        const form = document.getElementById('deleteForm');
+        const titleSpan = document.getElementById('deleteServiceTitle');
+
+        titleSpan.textContent = serviceTitle;
+        form.action = `/club_dashboard/delete-service/${serviceId}/`;
+        modal.classList.remove('hidden');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,347 @@
+{% extends "base_coach_dashboard.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+  <!-- Header -->
+  <div class="py-8">
+    <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
+      {% if LANGUAGE_CODE == 'ar' %}المدفوعات والفواتير{% else %}Payments & Invoices{% endif %}
+    </h1>
+    <p class="text-gray-600 dark:text-gray-300">
+      {% if LANGUAGE_CODE == 'ar' %}راجع أرباحك وأنشئ الفواتير{% else %}Review your earnings and generate invoices{% endif %}
+    </p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <!-- Total Earnings -->
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-blue-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي الأرباح{% else %}Total Earnings{% endif %}</h2>
+        <div class="p-3 rounded-full bg-blue-400/20">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4">
+        <p class="text-3xl font-bold">{{ total_earnings|floatformat:2 }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</p>
+        <p class="text-sm opacity-80 mt-1">{% if LANGUAGE_CODE == 'ar' %}تم التحقق + مكتمل{% else %}Confirmed + Completed{% endif %}</p>
+      </div>
+    </div>
+
+    <!-- Confirmed Earnings -->
+    <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-purple-100">{% if LANGUAGE_CODE == 'ar' %}أرباح مؤكدة{% else %}Confirmed Earnings{% endif %}</h2>
+        <div class="p-3 rounded-full bg-purple-400/20">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4">
+        <p class="text-3xl font-bold">{{ confirmed_earnings|floatformat:2 }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</p>
+      </div>
+    </div>
+
+    <!-- Pending Earnings -->
+    <div class="bg-gradient-to-r from-yellow-500 to-amber-500 rounded-xl p-6 text-white">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-yellow-100">{% if LANGUAGE_CODE == 'ar' %}أرباح معلقة{% else %}Pending Earnings{% endif %}</h2>
+        <div class="p-3 rounded-full bg-yellow-400/20">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4">
+        <p class="text-3xl font-bold">{{ pending_earnings|floatformat:2 }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</p>
+        <p class="text-sm opacity-80 mt-1">{% if LANGUAGE_CODE == 'ar' %}في انتظار التأكيد{% else %}Awaiting confirmation{% endif %}</p>
+      </div>
+    </div>
+
+    <!-- Paid Earnings -->
+    <div class="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-green-100">{% if LANGUAGE_CODE == 'ar' %}أرباح مدفوعة{% else %}Paid Earnings{% endif %}</h2>
+        <div class="p-3 rounded-full bg-green-400/20">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4">
+        <p class="text-3xl font-bold">{{ paid_earnings|floatformat:2 }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</p>
+        <p class="text-sm opacity-80 mt-1">{% if LANGUAGE_CODE == 'ar' %} تم الدفع لك و لم يتم التوصيل بعد{% else %}Paid to you{% endif %}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date Filter Form -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+    <form method="get" class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 {% if LANGUAGE_CODE == 'ar' %}md:space-x-reverse{% endif %}">
+      <div class="w-full md:w-auto">
+        <label for="date_from" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% if LANGUAGE_CODE == 'ar' %}من تاريخ{% else %}From Date{% endif %}</label>
+        <input type="date" id="date_from" name="date_from" value="{{ date_from }}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+      </div>
+      <div class="w-full md:w-auto">
+        <label for="date_to" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{% if LANGUAGE_CODE == 'ar' %}إلى تاريخ{% else %}To Date{% endif %}</label>
+        <input type="date" id="date_to" name="date_to" value="{{ date_to }}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+      </div>
+      <div class="w-full md:w-auto flex space-x-2 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          {% if LANGUAGE_CODE == 'ar' %}تصفية{% else %}Filter{% endif %}
+        </button>
+        <a href="{% url 'coach_payments' %}" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+          {% if LANGUAGE_CODE == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
+        </a>
+        {% if date_from and date_to %}
+        <a href="{% url 'generate_payment_statement' %}?date_from={{ date_from }}&date_to={{ date_to }}" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+          {% if LANGUAGE_CODE == 'ar' %}إنشاء كشف حساب{% else %}Generate Statement{% endif %}
+        </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Earnings Chart -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% if LANGUAGE_CODE == 'ar' %}الأرباح الشهرية{% else %}Monthly Earnings{% endif %}</h2>
+    <div class="h-64">
+      <canvas id="earningsChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-8">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}سجل الطلبات{% else %}Order History{% endif %}</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order #{% endif %}</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}العناصر{% else %}Items{% endif %}</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}الإجمالي{% else %}Total{% endif %}</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        {% for order in orders %}
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">#{{ order.id }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ order.created_at|date:"Y-m-d" }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+            {% for item in order.items.all %}
+              {% if item.product and item.product.creator == request.user %}
+                {{ item.product.title }} (x{{ item.quantity }})<br>
+              {% elif item.service and item.service.creator == request.user %}
+                {{ item.service.title }} (x{{ item.quantity }})<br>
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+            {% for item in order.items.all %}
+              {% if item.product and item.product.creator == request.user %}
+                {% widthratio item.price 1 item.quantity as item_total %}
+                {{ item_total|floatformat:2 }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}<br>
+              {% elif item.service and item.service.creator == request.user %}
+                {% with price=item.service.discounted_price|default:item.price %}
+                  {% widthratio price 1 item.quantity as item_total %}
+                  {{ item_total|floatformat:2 }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}<br>
+                {% endwith %}
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+              {% if order.status == 'completed' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+              {% elif order.status == 'confirmed' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+              {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+              {% elif order.status == 'paid' %}bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
+              {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+              {{ order.get_status_display }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <a href="{% url 'generate_invoice' order.id %}" class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 ml-3">{% if LANGUAGE_CODE == 'ar' %}فاتورة{% else %}Invoice{% endif %}</a>
+            <a href="{% url 'coachviewOrderDetails' order.id %}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">{% if LANGUAGE_CODE == 'ar' %}التفاصيل{% else %}Details{% endif %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}لا توجد طلبات{% else %}No orders found{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      </table>
+    </div>
+    {% if orders.paginator.num_pages > 1 %}
+    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+      <div class="flex-1 flex justify-between sm:hidden">
+        {% if orders.has_previous %}
+        <a href="?page={{ orders.previous_page_number }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+          {% if LANGUAGE_CODE == 'ar' %}السابق{% else %}Previous{% endif %}
+        </a>
+        {% endif %}
+        {% if orders.has_next %}
+        <a href="?page={{ orders.next_page_number }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+          {% if LANGUAGE_CODE == 'ar' %}التالي{% else %}Next{% endif %}
+        </a>
+        {% endif %}
+      </div>
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700 dark:text-gray-300">
+            {% if LANGUAGE_CODE == 'ar' %}
+            عرض <span class="font-medium">{{ orders.start_index }}</span> إلى <span class="font-medium">{{ orders.end_index }}</span> من <span class="font-medium">{{ orders.paginator.count }}</span> نتيجة
+            {% else %}
+            Showing <span class="font-medium">{{ orders.start_index }}</span> to <span class="font-medium">{{ orders.end_index }}</span> of <span class="font-medium">{{ orders.paginator.count }}</span> results
+            {% endif %}
+          </p>
+        </div>
+        <div>
+          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            {% if orders.has_previous %}
+            <a href="?page={{ orders.previous_page_number }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span class="sr-only">{% if LANGUAGE_CODE == 'ar' %}السابق{% else %}Previous{% endif %}</span>
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </a>
+            {% endif %}
+
+            {% for num in orders.paginator.page_range %}
+              {% if orders.number == num %}
+              <a href="?page={{ num }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                {{ num }}
+              </a>
+              {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+              <a href="?page={{ num }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                {{ num }}
+              </a>
+              {% endif %}
+            {% endfor %}
+
+            {% if orders.has_next %}
+            <a href="?page={{ orders.next_page_number }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span class="sr-only">{% if LANGUAGE_CODE == 'ar' %}التالي{% else %}Next{% endif %}</span>
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </a>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Wait for DOM to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing chart...');
+
+    // Get the canvas element
+    const ctx = document.getElementById('earningsChart');
+    if (!ctx) {
+      console.error('Canvas element not found!');
+      return;
+    }
+
+    // Prepare chart data
+    const monthlyData = {{ monthly_earnings|safe }};
+    console.log('Monthly data:', monthlyData);
+
+    // Check if we have data
+    if (!monthlyData || monthlyData.length === 0) {
+      console.log('No monthly earnings data available');
+      // Show a message or create an empty chart
+      const chartContainer = ctx.parentElement;
+      chartContainer.innerHTML = '<p class="text-center text-gray-500 py-8">{% if LANGUAGE_CODE == "ar" %}لا توجد بيانات للعرض{% else %}No data available{% endif %}</p>';
+      return;
+    }
+
+    // Extract labels and data
+    const labels = monthlyData.map(item => item.month);
+    const data = monthlyData.map(item => parseFloat(item.earnings));
+
+    console.log('Chart labels:', labels);
+    console.log('Chart data:', data);
+
+    // Create the chart
+    try {
+      const earningsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '{% if LANGUAGE_CODE == "ar" %}الأرباح ({{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}){% else %}Earnings ({{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}){% endif %}',
+            data: data,
+            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 1,
+            borderRadius: 4,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + context.raw.toFixed(2) + ' {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}';
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return value + ' {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}';
+                },
+                color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280'
+              },
+              grid: {
+                color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb'
+              }
+            },
+            x: {
+              ticks: {
+                color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280'
+              },
+              grid: {
+                color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb'
+              }
+            }
+          }
+        }
+      });
+
+      console.log('Chart created successfully');
+    } catch (error) {
+      console.error('Error creating chart:', error);
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,439 @@
+{% extends "base_coach_dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* Animation Classes */
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  .animate-fadeInUp {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* Keyframes */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Gradient Card Styles */
+  .gradient-card-blue {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    color: white;
+  }
+
+  .gradient-card-indigo {
+    background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+    color: white;
+  }
+
+  .gradient-card-purple {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    color: white;
+  }
+
+  .gradient-card-pink {
+    background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+    color: white;
+  }
+
+  .gradient-card-amber {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: white;
+  }
+
+  .gradient-card-green {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+  }
+
+  .gradient-card-red {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: white;
+  }
+
+  /* Custom styles for working hours */
+  .day-card {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+    background-color: white;
+    border: 1px solid #e2e8f0;
+  }
+
+  .dark .day-card {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .day-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .dark .day-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .time-input {
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 0.75rem;
+    background-color: white;
+    color: #1f2937;
+  }
+
+  .dark .time-input {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+  }
+
+  .toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 3.5rem;
+    height: 1.75rem;
+  }
+
+  .toggle-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e2e8f0;
+    transition: .4s;
+    border-radius: 1.75rem;
+  }
+
+  .dark .toggle-slider {
+    background-color: #4b5563;
+  }
+
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 1.25rem;
+    width: 1.25rem;
+    left: 0.25rem;
+    bottom: 0.25rem;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+
+  .toggle-input:checked + .toggle-slider {
+    background-color: #3b82f6;
+  }
+
+  .dark .toggle-input:checked + .toggle-slider {
+    background-color: #2563eb;
+  }
+
+  .toggle-input:checked + .toggle-slider:before {
+    transform: translateX(1.75rem);
+  }
+
+  /* Dark mode text colors */
+  .dark .text-gray-600 {
+    color: #9ca3af;
+  }
+
+  .dark .text-gray-800 {
+    color: #f3f4f6;
+  }
+
+  .dark .text-blue-800 {
+    color: #93c5fd;
+  }
+</style>
+
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+  <!-- Header Section -->
+  <div class="py-8 animate-fadeIn flex justify-between items-center">
+    <div>
+      <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-300 mb-2">
+        {% if LANGUAGE_CODE == 'ar' %}ساعات العمل{% else %}Working Hours{% endif %}
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        {% if LANGUAGE_CODE == 'ar' %}حدد ساعات العمل الخاصة بك{% else %}Set your business working hours{% endif %}
+      </p>
+    </div>
+
+    <a href="{% url 'vendor_working_hours_list' %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+      {% if LANGUAGE_CODE == 'ar' %}ساعات عمل التاجر{% else %}Vendor Hours{% endif %}
+    </a>
+  </div>
+
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="gradient-card-blue p-6 rounded-xl shadow-lg stat-card animate-fadeInUp">
+      <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
+        <i class="fas fa-clock ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}أيام العمل{% else %}Working Days{% endif %}
+      </h3>
+      <div class="text-4xl font-bold text-white">{{ working_days_count }}</div>
+    </div>
+
+    <div class="gradient-card-green p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
+      <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
+        <i class="fas fa-calendar-check ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}متاح اليوم{% else %}Available Today{% endif %}
+      </h3>
+      <div class="text-4xl font-bold text-white">
+        {% if is_available_today %}{% if LANGUAGE_CODE == 'ar' %}نعم{% else %}Yes{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}لا{% else %}No{% endif %}{% endif %}
+      </div>
+    </div>
+
+    <div class="gradient-card-amber p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
+      <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
+        <i class="fas fa-sun ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}متوسط ساعات العمل{% else %}Avg. Hours/Day{% endif %}
+      </h3>
+      <div class="text-4xl font-bold text-white">{{ average_hours_per_day|floatformat:1 }}</div>
+    </div>
+
+    <div class="gradient-card-purple p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.3s;">
+      <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
+        <i class="fas fa-toggle-on ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}حالة الساعات{% else %}Hours Status{% endif %}
+      </h3>
+      <div class="text-4xl font-bold text-white">
+        {% if form.instance.is_working_hours_enabled %}{% if LANGUAGE_CODE == 'ar' %}مفعل{% else %}Enabled{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}معطل{% else %}Disabled{% endif %}{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Form -->
+  <form method="post" class="animate-fadeInUp" style="animation-delay: 0.4s;">
+    {% csrf_token %}
+
+    <!-- Enable/Disable Toggle -->
+    <div class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
+          {% if LANGUAGE_CODE == 'ar' %}تفعيل ساعات العمل{% else %}Enable Working Hours{% endif %}
+        </h2>
+        <label class="toggle-label">
+          {{ form.is_working_hours_enabled }}
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <p class="text-gray-500 dark:text-gray-400 mt-2">
+        {% if LANGUAGE_CODE == 'ar' %}عند التفعيل، سيتم عرض ساعات العمل الخاصة بك للمدير{% else %}When enabled, your working hours will be shown to admin{% endif %}
+      </p>
+    </div>
+
+    <!-- Regular Hours -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">
+        {% if LANGUAGE_CODE == 'ar' %}ساعات العمل العادية{% else %}Regular Working Hours{% endif %}
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Monday -->
+        <div class="day-card bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}الإثنين{% else %}Monday{% endif %}</h3>
+            <label class="toggle-label">
+              {{ form.monday_enabled }}
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="space-y-2">
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الفتح{% else %}Opening Time{% endif %}</label>
+              {{ form.monday_opening }}
+            </div>
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الإغلاق{% else %}Closing Time{% endif %}</label>
+              {{ form.monday_closing }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Tuesday -->
+        <div class="day-card bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}الثلاثاء{% else %}Tuesday{% endif %}</h3>
+            <label class="toggle-label">
+              {{ form.tuesday_enabled }}
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="space-y-2">
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الفتح{% else %}Opening Time{% endif %}</label>
+              {{ form.tuesday_opening }}
+            </div>
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الإغلاق{% else %}Closing Time{% endif %}</label>
+              {{ form.tuesday_closing }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Wednesday -->
+        <div class="day-card bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}الأربعاء{% else %}Wednesday{% endif %}</h3>
+            <label class="toggle-label">
+              {{ form.wednesday_enabled }}
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="space-y-2">
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الفتح{% else %}Opening Time{% endif %}</label>
+              {{ form.wednesday_opening }}
+            </div>
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الإغلاق{% else %}Closing Time{% endif %}</label>
+              {{ form.wednesday_closing }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Thursday -->
+        <div class="day-card bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}الخميس{% else %}Thursday{% endif %}</h3>
+            <label class="toggle-label">
+              {{ form.thursday_enabled }}
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="space-y-2">
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الفتح{% else %}Opening Time{% endif %}</label>
+              {{ form.thursday_opening }}
+            </div>
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الإغلاق{% else %}Closing Time{% endif %}</label>
+              {{ form.thursday_closing }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Friday -->
+        <div class="day-card bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}الجمعة{% else %}Friday{% endif %}</h3>
+            <label class="toggle-label">
+              {{ form.friday_enabled }}
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="space-y-2">
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الفتح{% else %}Opening Time{% endif %}</label>
+              {{ form.friday_opening }}
+            </div>
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الإغلاق{% else %}Closing Time{% endif %}</label>
+              {{ form.friday_closing }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Saturday -->
+        <div class="day-card bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}السبت{% else %}Saturday{% endif %}</h3>
+            <label class="toggle-label">
+              {{ form.saturday_enabled }}
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="space-y-2">
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الفتح{% else %}Opening Time{% endif %}</label>
+              {{ form.saturday_opening }}
+            </div>
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الإغلاق{% else %}Closing Time{% endif %}</label>
+              {{ form.saturday_closing }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Sunday -->
+        <div class="day-card bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}الأحد{% else %}Sunday{% endif %}</h3>
+            <label class="toggle-label">
+              {{ form.sunday_enabled }}
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="space-y-2">
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الفتح{% else %}Opening Time{% endif %}</label>
+              {{ form.sunday_opening }}
+            </div>
+            <div>
+              <label class="block text-sm text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}وقت الإغلاق{% else %}Closing Time{% endif %}</label>
+              {{ form.sunday_closing }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="mt-8">
+      <button type="submit" class="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-300">
+        {% if LANGUAGE_CODE == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Toggle day fields based on enabled state
+  const toggleDayFields = (day) => {
+    const enabledCheckbox = document.querySelector(`input[name="${day}_enabled"]`);
+    const openingTime = document.querySelector(`input[name="${day}_opening"]`);
+    const closingTime = document.querySelector(`input[name="${day}_closing"]`);
+
+    const toggleFields = (isEnabled) => {
+      openingTime.disabled = !isEnabled;
+      closingTime.disabled = !isEnabled;
+    };
+
+    toggleFields(enabledCheckbox.checked);
+
+    enabledCheckbox.addEventListener('change', () => {
+      toggleFields(enabledCheckbox.checked);
+    });
+  };
+
+  // Apply to all days
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  days.forEach(day => toggleDayFields(day));
+});
+</script>
+{% endblock %}

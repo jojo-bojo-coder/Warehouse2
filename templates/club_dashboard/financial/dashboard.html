@@ -1,0 +1,1515 @@
+{% extends "base_club_dashboard.html" %}
+{% load static %}
+
+{% block title %}{% if LANGUAGE_CODE == 'ar' %}التفاصيل المالية{% else %}Financial Details{% endif %}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+      --primary: #4F46E5;
+      --primary-light: #EEF2FF;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --info: #06B6D4;
+      --dark: #1E293B;
+      --gray: #64748B;
+      --light-gray: #F1F5F9;
+      --sidebar-width: 260px;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #F8FAFC;
+      color: var(--dark);
+    }
+
+    .dark body {
+      background-color: #111827;
+      color: #F3F4F6;
+    }
+
+    .dashboard-container {
+      padding: 1.5rem;
+      {% if LANGUAGE_CODE == 'ar' %}margin-right: var(--sidebar-width);{% else %}margin-left: var(--sidebar-width);{% endif %}
+      transition: all 0.3s ease;
+    }
+
+    /* Header Styles */
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .dark .page-title {
+      color: #F3F4F6;
+    }
+
+    .page-subtitle {
+      color: var(--gray);
+      font-size: 0.875rem;
+    }
+
+    .dark .page-subtitle {
+      color: #9CA3AF;
+    }
+
+    /* Card Styles */
+    .card {
+      background-color: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dark .card {
+      background-color: #1F2937;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .dark .card:hover {
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .card-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dark .card-header {
+      border-bottom-color: #374151;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dark .card-title {
+      color: #F3F4F6;
+    }
+
+    .card-title i {
+      color: var(--primary);
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Stat Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      {% if LANGUAGE_CODE == 'ar' %}right: 0;{% else %}left: 0;{% endif %}
+      width: 4px;
+      height: 100%;
+    }
+
+    .stat-card.primary {
+      background-color: var(--primary-light);
+    }
+    .dark .stat-card.primary {
+      background-color: rgba(79, 70, 229, 0.2);
+    }
+    .stat-card.primary::before {
+      background-color: var(--primary);
+    }
+
+    .stat-card.success {
+      background-color: rgba(16, 185, 129, 0.1);
+    }
+    .dark .stat-card.success {
+      background-color: rgba(16, 185, 129, 0.2);
+    }
+    .stat-card.success::before {
+      background-color: var(--success);
+    }
+
+    .stat-card.warning {
+      background-color: rgba(245, 158, 11, 0.1);
+    }
+    .dark .stat-card.warning {
+      background-color: rgba(245, 158, 11, 0.2);
+    }
+    .stat-card.warning::before {
+      background-color: var(--warning);
+    }
+
+    .stat-card.info {
+      background-color: rgba(6, 182, 212, 0.1);
+    }
+    .dark .stat-card.info {
+      background-color: rgba(6, 182, 212, 0.2);
+    }
+    .stat-card.info::before {
+      background-color: var(--info);
+    }
+
+    .stat-card.danger {
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+    .dark .stat-card.danger {
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+    .stat-card.danger::before {
+      background-color: var(--danger);
+    }
+
+    .stat-icon {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .primary-icon {
+      color: var(--primary);
+    }
+
+    .success-icon {
+      color: var(--success);
+    }
+
+    .warning-icon {
+      color: var(--warning);
+    }
+
+    .info-icon {
+      color: var(--info);
+    }
+
+    .danger-icon {
+      color: var(--danger);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+
+    .dark .stat-label {
+      color: #9CA3AF;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .dark .stat-value {
+      color: #F3F4F6;
+    }
+
+    .stat-trend {
+      font-size: 0.75rem;
+      color: var(--gray);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .dark .stat-trend {
+      color: #9CA3AF;
+    }
+
+    /* Chart Containers */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+
+    .large-chart {
+      height: 400px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      gap: 0.25rem;
+    }
+
+    .badge-primary {
+      background-color: rgba(79, 70, 229, 0.1);
+      color: var(--primary);
+    }
+    .dark .badge-primary {
+      background-color: rgba(79, 70, 229, 0.2);
+    }
+
+    .badge-success {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+    .dark .badge-success {
+      background-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+    .dark .badge-warning {
+      background-color: rgba(245, 158, 11, 0.2);
+    }
+
+    .badge-danger {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+    .dark .badge-danger {
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .badge-info {
+      background-color: rgba(6, 182, 212, 0.1);
+      color: var(--info);
+    }
+    .dark .badge-info {
+      background-color: rgba(6, 182, 212, 0.2);
+    }
+
+    /* Tables */
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    th {
+      background-color: #F8FAFC;
+      padding: 0.75rem 1rem;
+      text-align: {% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %};
+      font-weight: 600;
+      color: var(--gray);
+      white-space: nowrap;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .dark th {
+      background-color: #1F2937;
+      color: #9CA3AF;
+      border-bottom-color: #374151;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #E2E8F0;
+      vertical-align: middle;
+    }
+
+    .dark td {
+      border-bottom-color: #374151;
+    }
+
+    tbody tr:hover {
+      background-color: #F8FAFC;
+    }
+
+    .dark tbody tr:hover {
+      background-color: #1F2937;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      gap: 0.5rem;
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #4338CA;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid #E2E8F0;
+      color: var(--gray);
+    }
+
+    .dark .btn-outline {
+      border-color: #374151;
+      color: #9CA3AF;
+    }
+
+    .btn-outline:hover {
+      background-color: #F8FAFC;
+    }
+
+    .dark .btn-outline:hover {
+      background-color: #1F2937;
+    }
+
+    /* Forms */
+    .filter-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+      min-width: 150px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray);
+    }
+
+    .dark .form-group label {
+      color: #9CA3AF;
+    }
+
+    .form-control {
+      display: block;
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--dark);
+      background-color: white;
+      background-clip: padding-box;
+      border: 1px solid #D1D5DB;
+      border-radius: 0.375rem;
+      transition: border-color 0.15s ease-in-out;
+    }
+
+    .dark .form-control {
+      background-color: #1F2937;
+      border-color: #374151;
+      color: #F3F4F6;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      outline: 0;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .dark .form-control:focus {
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+
+    /* Layout */
+    .grid-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .col-half {
+      grid-column: span 1;
+    }
+
+    .col-full {
+      grid-column: 1 / -1;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+      color: var(--gray);
+    }
+
+    .dark .empty-state {
+      color: #9CA3AF;
+    }
+
+    .empty-state i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #CBD5E1;
+    }
+
+    .dark .empty-state i {
+      color: #4B5563;
+    }
+
+    /* Dark mode toggle button */
+    .dark-mode-toggle {
+      position: fixed;
+      bottom: 2rem;
+      {% if LANGUAGE_CODE == 'ar' %}left: 2rem;{% else %}right: 2rem;{% endif %}
+      z-index: 50;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dark .dark-mode-toggle {
+      background-color: #1F2937;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark-mode-toggle:hover {
+      transform: translateY(-3px);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1280px) {
+      .dashboard-container {
+        {% if LANGUAGE_CODE == 'ar' %}margin-right: 0;{% else %}margin-left: 0;{% endif %}
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-row {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .form-group {
+        min-width: 100%;
+      }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            {% if LANGUAGE_CODE == 'ar' %}لوحة التحكم المالية{% else %}Financial Dashboard{% endif %}
+        </h1>
+        <p class="page-subtitle">
+            {% if LANGUAGE_CODE == 'ar' %}نظرة عامة على الأداء المالي للمنصة{% else %}Overview of your platform's financial performance{% endif %}
+        </p>
+    </div>
+
+    <!-- Dark mode toggle button -->
+    <div class="dark-mode-toggle" onclick="toggleDarkMode()">
+        <svg id="dark-mode-icon" class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg id="light-mode-icon" class="w-6 h-6 text-gray-700 dark:text-gray-300 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </div>
+
+    <!-- Revenue Summary Cards -->
+    <div class="stats-grid">
+        <!-- Total Revenue -->
+        <div class="stat-card primary">
+            <div class="stat-icon primary-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <h3 class="stat-label">{% if LANGUAGE_CODE == 'ar' %}إجمالي الإيرادات{% else %}Total Revenue{% endif %}</h3>
+            <div class="stat-value">{{ total_revenue }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</div>
+            <div class="stat-trend">
+                <i class="fas fa-info-circle"></i>
+                <span>{% if LANGUAGE_CODE == 'ar' %}الإيرادات المؤكدة والمكتملة{% else %}Confirmed & completed revenue{% endif %}</span>
+            </div>
+        </div>
+
+        <!-- Sales Gross -->
+        <div class="stat-card success">
+            <div class="stat-icon success-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="stat-label">{% if LANGUAGE_CODE == 'ar' %}إجمالي المبيعات{% else %}Sales Gross{% endif %}</h3>
+            <div class="stat-value">{{ sales_gross }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</div>
+            <div class="stat-trend">
+                <i class="fas fa-info-circle"></i>
+                <span>{% if LANGUAGE_CODE == 'ar' %}قبل الخصومات{% else %}Before deductions{% endif %}</span>
+            </div>
+        </div>
+
+        <!-- Net Revenue -->
+        <div class="stat-card info">
+            <div class="stat-icon info-icon">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <h3 class="stat-label">{% if LANGUAGE_CODE == 'ar' %}صافي الإيرادات{% else %}Net Revenue{% endif %}</h3>
+            <div class="stat-value">{{ net_revenue }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</div>
+            <div class="stat-trend">
+                <i class="fas fa-info-circle"></i>
+                <span>{% if LANGUAGE_CODE == 'ar' %}بعد الخصومات{% else %}After deductions{% endif %}</span>
+            </div>
+        </div>
+
+        <!-- Pending Revenue -->
+        <div class="stat-card warning">
+            <div class="stat-icon warning-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h3 class="stat-label">{% if LANGUAGE_CODE == 'ar' %}إيرادات معلقة{% else %}Pending Revenue{% endif %}</h3>
+            <div class="stat-value">{{ pending_revenue }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</div>
+            <div class="stat-trend">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{% if LANGUAGE_CODE == 'ar' %}في انتظار التأكيد{% else %}Awaiting confirmation{% endif %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics Cards -->
+    <div class="stats-grid">
+        <!-- Credit Card Revenue -->
+        <div class="stat-card primary">
+            <div class="stat-icon primary-icon">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <h3 class="stat-label">{% if LANGUAGE_CODE == 'ar' %}إيرادات البطاقات{% else %}Card Revenue{% endif %}</h3>
+            <div class="stat-value">{{ credit_card_revenue }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</div>
+            <div class="stat-trend">
+                <i class="fas fa-percentage"></i>
+                <span>{{ credit_card_percentage }}% {% if LANGUAGE_CODE == 'ar' %}من الإجمالي{% else %}of total{% endif %}</span>
+            </div>
+        </div>
+
+        <!-- Cash Revenue -->
+        <div class="stat-card info">
+            <div class="stat-icon info-icon">
+                <i class="fas fa-money-bill-alt"></i>
+            </div>
+            <h3 class="stat-label">{% if LANGUAGE_CODE == 'ar' %}إيرادات التحويل البنكي{% else %}Bank Transfer Revenue{% endif %}</h3>
+            <div class="stat-value">{{ cash_revenue }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</div>
+            <div class="stat-trend">
+                <i class="fas fa-percentage"></i>
+                <span>{{ cash_percentage }}% {% if LANGUAGE_CODE == 'ar' %}من الإجمالي{% else %}of total{% endif %}</span>
+            </div>
+        </div>
+
+        <!-- Cancellation Rate -->
+        <div class="stat-card danger">
+            <div class="stat-icon danger-icon">
+                <i class="fas fa-ban"></i>
+            </div>
+            <h3 class="stat-label">{% if LANGUAGE_CODE == 'ar' %}معدل الإلغاء{% else %}Cancellation Rate{% endif %}</h3>
+            <div class="stat-value">{{ cancellation_rate }}%</div>
+            <div class="stat-trend">
+                <i class="fas fa-chart-line"></i>
+                <span>{% if LANGUAGE_CODE == 'ar' %}من إجمالي الطلبات{% else %}of total orders{% endif %}</span>
+            </div>
+        </div>
+
+        <!-- Refund Rate -->
+        <div class="stat-card warning">
+            <div class="stat-icon warning-icon">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h3 class="stat-label">{% if LANGUAGE_CODE == 'ar' %}معدل الاسترجاع{% else %}Refund Rate{% endif %}</h3>
+            <div class="stat-value">{{ refund_rate }}%</div>
+            <div class="stat-trend">
+                <i class="fas fa-info-circle"></i>
+                <span>{{ refund_amount }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }} {% if LANGUAGE_CODE == 'ar' %}إجمالي{% else %}total{% endif %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card">
+        <div class="card-body">
+            <form class="filter-form" method="get">
+                <div class="form-group">
+                    <label for="start_date">{% if LANGUAGE_CODE == 'ar' %}من تاريخ{% else %}From Date{% endif %}</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}">
+                </div>
+                <div class="form-group">
+                    <label for="end_date">{% if LANGUAGE_CODE == 'ar' %}إلى تاريخ{% else %}To Date{% endif %}</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}">
+                </div>
+                <div class="form-group">
+                    <label for="time_period">{% if LANGUAGE_CODE == 'ar' %}عرض حسب{% else %}View By{% endif %}</label>
+                    <select class="form-control" id="time_period" name="time_period">
+                        <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>{% if LANGUAGE_CODE == 'ar' %}يومي{% else %}Daily{% endif %}</option>
+                        <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>{% if LANGUAGE_CODE == 'ar' %}أسبوعي{% else %}Weekly{% endif %}</option>
+                        <option value="monthly" {% if time_period == 'monthly' %}selected{% endif %}>{% if LANGUAGE_CODE == 'ar' %}شهري{% else %}Monthly{% endif %}</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter"></i> {% if LANGUAGE_CODE == 'ar' %}تصفية{% else %}Filter{% endif %}
+                </button>
+                <button type="button" class="btn btn-outline" id="exportDataBtn">
+                    <i class="fas fa-file-export"></i> {% if LANGUAGE_CODE == 'ar' %}تصدير البيانات{% else %}Export Data{% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Charts Row -->
+    <div class="grid-row">
+        <!-- Sales Performance Chart -->
+        <div class="col-full">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-line"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}أداء المبيعات{% else %}Sales Performance{% endif %}
+                    </h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline btn-sm active" data-chart="sales">
+                            {% if LANGUAGE_CODE == 'ar' %}المبيعات{% else %}Sales{% endif %}
+                        </button>
+                        <button class="btn btn-outline btn-sm" data-chart="revenue">
+                            {% if LANGUAGE_CODE == 'ar' %}الإيرادات{% else %}Revenue{% endif %}
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container large-chart">
+                        <canvas id="salesPerformanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Charts Row -->
+    <div class="grid-row">
+        <!-- Monthly Revenue Chart -->
+        <div class="col-half">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}الإيرادات الشهرية{% else %}Monthly Revenue{% endif %}
+                    </h2>
+                    <button class="btn btn-outline btn-sm" id="downloadChartBtn">
+                        <i class="fas fa-download"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}تحميل{% else %}Download{% endif %}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="monthlyRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Method Distribution -->
+        <div class="col-half">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-credit-card"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}توزيع طرق الدفع{% else %}Payment Methods{% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="paymentMethodChart"></canvas>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <span class="badge badge-success">
+                            <i class="fas fa-circle"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}بطاقات ائتمان{% else %}Credit Cards{% endif %}
+                        </span>
+                        <span class="badge badge-info mx-2">
+                            <i class="fas fa-circle"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}تحويل بنكي{% else %}Bank Transfer{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Performance Row -->
+<div class="grid-row">
+    <!-- Top Categories -->
+    <div class="col-half">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-tags"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}أفضل التصنيفات{% else %}Top Activity Types{% endif %}
+                </h2>
+            </div>
+            <div class="card-body">
+                {% if top_categories %}
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="categoryPerformanceChart"></canvas>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-tags"></i>
+                        <p>{% if LANGUAGE_CODE == 'ar' %}لا توجد بيانات متاحة{% else %}No data available{% endif %}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Vendors -->
+        <div class="col-half">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-users"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}أفضل البائعين{% else %}Top Vendors{% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}البائع{% else %}Vendor{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}المبيعات{% else %}Sales{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}العمولة{% else %}Commission{% endif %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vendor in vendor_commissions %}
+                                <tr>
+                                    <td>{{ vendor.vendor__business_name_ar|default:vendor.vendor__full_name }}</td>
+                                    <td>{{ vendor.total_sales }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                                    <td>{{ vendor.total_commission }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4">
+                                        <div class="empty-state">
+                                            <i class="fas fa-users-slash"></i>
+                                            <p>{% if LANGUAGE_CODE == 'ar' %}لا توجد بيانات متاحة{% else %}No data available{% endif %}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+    <!-- Products & Services Row -->
+    <div class="grid-row">
+        <!-- Top Products -->
+        <div class="col-half">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-box"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}أفضل المنتجات{% else %}Top Products{% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}المنتج{% else %}Product{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}الإيراد{% else %}Revenue{% endif %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-box text-primary mr-2"></i>
+                                            {{ product.name }}
+                                        </div>
+                                    </td>
+                                    <td>{{ product.quantity }}</td>
+                                    <td>{{ product.revenue }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4">
+                                        <div class="empty-state">
+                                            <i class="fas fa-box-open"></i>
+                                            <p>{% if LANGUAGE_CODE == 'ar' %}لا توجد منتجات مباعة{% else %}No products sold{% endif %}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Services -->
+        <div class="col-half">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-concierge-bell"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}أفضل الخدمات{% else %}Top Services{% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}الخدمة{% else %}Service{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}الإيراد{% else %}Revenue{% endif %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for service in top_services %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-spa text-success mr-2"></i>
+                                            {{ service.name }}
+                                        </div>
+                                    </td>
+                                    <td>{{ service.quantity }}</td>
+                                    <td>{{ service.revenue }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4">
+                                        <div class="empty-state">
+                                            <i class="fas fa-handshake-slash"></i>
+                                            <p>{% if LANGUAGE_CODE == 'ar' %}لا توجد خدمات مباعة{% else %}No services sold{% endif %}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Issues Row -->
+    <div class="grid-row">
+        <!-- Cancelled Orders -->
+        <div class="col-half">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-ban"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}طلبات ملغاة{% else %}Cancelled Orders{% endif %}
+                    </h2>
+                    <span class="badge badge-danger">{{ cancelled_orders.count }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order #{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}المبلغ{% else %}Amount{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}السبب{% else %}Reason{% endif %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in cancelled_orders %}
+                                <tr>
+                                    <td><a href="#" class="text-primary">#{{ order.id }}</a></td>
+                                    <td>{{ order.created_at|date:"Y-m-d" }}</td>
+                                    <td>{{ order.total_price }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                                    <td>
+                                        {% if order.cancellation %}
+                                            {{ order.cancellation.get_reason_display }}
+                                        {% else %}
+                                            <span class="text-muted">{% if LANGUAGE_CODE == 'ar' %}غير محدد{% else %}Not specified{% endif %}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <div class="empty-state">
+                                            <i class="fas fa-check-circle"></i>
+                                            <p>{% if LANGUAGE_CODE == 'ar' %}لا توجد طلبات ملغاة{% else %}No cancelled orders{% endif %}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Refund Requests -->
+        <div class="col-half">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-exchange-alt"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}طلبات استرجاع{% else %}Refund Requests{% endif %}
+                    </h2>
+                    <span class="badge badge-warning">{{ refunds.count }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order #{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}المبلغ{% else %}Amount{% endif %}</th>
+                                    <th>{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for refund in refunds %}
+                                <tr>
+                                    <td><a href="#" class="text-primary">#{{ refund.deal.id }}</a></td>
+                                    <td>{{ refund.created_at|date:"Y-m-d" }}</td>
+                                    <td>{{ refund.approved_refund_amount|default:refund.requested_refund_amount }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                                    <td>
+                                        <span class="badge
+                                            {% if refund.status == 'approved' %}badge-success
+                                            {% elif refund.status == 'rejected' %}badge-danger
+                                            {% else %}badge-warning{% endif %}">
+                                            {{ refund.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <div class="empty-state">
+                                            <i class="fas fa-check-circle"></i>
+                                            <p>{% if LANGUAGE_CODE == 'ar' %}لا توجد طلبات استرجاع{% else %}No refund requests{% endif %}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+
+<script>
+// Dark mode toggle function
+function toggleDarkMode() {
+    const html = document.documentElement;
+    const darkModeIcon = document.getElementById('dark-mode-icon');
+    const lightModeIcon = document.getElementById('light-mode-icon');
+
+    if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        darkModeIcon.classList.remove('hidden');
+        lightModeIcon.classList.add('hidden');
+        document.cookie = "darkMode=false; path=/; max-age=31536000"; // 1 year
+    } else {
+        html.classList.add('dark');
+        darkModeIcon.classList.add('hidden');
+        lightModeIcon.classList.remove('hidden');
+        document.cookie = "darkMode=true; path=/; max-age=31536000"; // 1 year
+    }
+}
+
+// Check for dark mode preference on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check cookie for dark mode preference
+    const darkModeCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('darkMode='));
+
+    const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+
+    // Also check system preference if no cookie exists
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+        document.getElementById('dark-mode-icon').classList.add('hidden');
+        document.getElementById('light-mode-icon').classList.remove('hidden');
+    }
+});
+
+$(document).ready(function() {
+    // Initialize DataTables if needed
+    // $('.table').DataTable();
+
+    // Sales Performance Chart
+    const salesPerformanceCtx = document.getElementById('salesPerformanceChart').getContext('2d');
+    const timePeriodData = JSON.parse('{{ time_period_data|escapejs }}');
+
+    if (timePeriodData && timePeriodData.length > 0) {
+        const salesPerformanceChart = new Chart(salesPerformanceCtx, {
+        type: 'bar',
+        data: {
+            labels: timePeriodData.map(item => item.period),
+            datasets: [
+                {
+                    // Sales Gross - Navy Blue
+                    label: '{% if LANGUAGE_CODE == "ar" %}إجمالي المبيعات{% else %}Sales Gross{% endif %}',
+                    data: timePeriodData.map(item => item.sales_gross),
+                    backgroundColor: 'rgba(30, 58, 138, 0.8)',
+                    borderColor: 'rgba(30, 58, 138, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y',
+                    barPercentage: 0.6
+                },
+                {
+                    // Net Revenue - Gold
+                    label: '{% if LANGUAGE_CODE == "ar" %}صافي الإيرادات{% else %}Net Revenue{% endif %}',
+                    data: timePeriodData.map(item => item.net_revenue),
+                    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    borderWidth: 3,
+                    type: 'line',
+                    yAxisID: 'y',
+                    pointBackgroundColor: 'rgba(245, 158, 11, 1)',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    rtl: {% if LANGUAGE_CODE == 'ar' %}true{% else %}false{% endif %},
+                    labels: {
+                        fontFamily: 'Cairo, sans-serif',
+                        usePointStyle: true,
+                        padding: 20,
+                        boxWidth: 12,
+                        color: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B'
+                    }
+                },
+                tooltip: {
+                    rtl: {% if LANGUAGE_CODE == 'ar' %}true{% else %}false{% endif %},
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.raw.toLocaleString() + ' {{ request.user.userprofile.director_profile.club.vat_settings.currency }}';
+                        }
+                    },
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                    titleColor: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B',
+                    bodyColor: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B',
+                    borderColor: document.documentElement.classList.contains('dark') ? '#374151' : '#E2E8F0'
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + ' {{ request.user.userprofile.director_profile.club.vat_settings.currency }}';
+                        },
+                        fontFamily: 'Cairo, sans-serif',
+                        color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#64748B'
+                    },
+                    grid: {
+                        color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        fontFamily: 'Cairo, sans-serif',
+                        color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#64748B'
+                    }
+                }
+            }
+        }
+    });
+
+        // Chart toggle buttons
+        $('[data-chart="sales"]').click(function() {
+            salesPerformanceChart.data.datasets[0].hidden = false;
+            salesPerformanceChart.data.datasets[1].hidden = true;
+            salesPerformanceChart.update();
+            $(this).addClass('active');
+            $('[data-chart="revenue"]').removeClass('active');
+        });
+
+        $('[data-chart="revenue"]').click(function() {
+            salesPerformanceChart.data.datasets[0].hidden = true;
+            salesPerformanceChart.data.datasets[1].hidden = false;
+            salesPerformanceChart.update();
+            $(this).addClass('active');
+            $('[data-chart="sales"]').removeClass('active');
+        });
+    } else {
+        $('#salesPerformanceChart').closest('.card-body').html(`
+            <div class="empty-state">
+                <i class="fas fa-chart-line"></i>
+                <p>{% if LANGUAGE_CODE == "ar" %}لا توجد بيانات مبيعات متاحة{% else %}No sales data available{% endif %}</p>
+            </div>
+        `);
+    }
+
+    // Category Performance Chart
+    const categoryPerformanceCtx = document.getElementById('categoryPerformanceChart')?.getContext('2d');
+    const topCategories = JSON.parse('{{ top_categories|escapejs }}');
+
+    if (categoryPerformanceCtx && topCategories && topCategories.length > 0) {
+        const categoryPerformanceChart = new Chart(categoryPerformanceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: topCategories.map(item => item.name),
+                datasets: [{
+                    data: topCategories.map(item => item.revenue),
+                    backgroundColor: [
+                        'rgba(79, 70, 229, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(6, 182, 212, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(79, 70, 229, 1)',
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(6, 182, 212, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        rtl: {% if LANGUAGE_CODE == 'ar' %}true{% else %}false{% endif %},
+                        labels: {
+                            fontFamily: 'Cairo, sans-serif',
+                            usePointStyle: true,
+                            color: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B'
+                        }
+                    },
+                    tooltip: {
+                        rtl: {% if LANGUAGE_CODE == 'ar' %}true{% else %}false{% endif %},
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value.toLocaleString()} {{ request.user.userprofile.director_profile.club.vat_settings.currency }} (${percentage}%)`;
+                            }
+                        },
+                        backgroundColor: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                        titleColor: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B',
+                        bodyColor: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B',
+                        borderColor: document.documentElement.classList.contains('dark') ? '#374151' : '#E2E8F0'
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+
+    // Monthly Revenue Chart
+    const monthlyRevenueChartCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+    const monthsData = JSON.parse('{{ months_data|escapejs }}');
+
+    if (monthsData && monthsData.length > 0) {
+        const monthlyRevenueChart = new Chart(monthlyRevenueChartCtx, {
+            type: 'line',
+            data: {
+                labels: monthsData.map(item => item.month),
+                datasets: [
+                    {
+                        label: '{% if LANGUAGE_CODE == "ar" %}إجمالي الإيرادات{% else %}Total Revenue{% endif %}',
+                        data: monthsData.map(item => item.total),
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(79, 70, 229, 1)',
+                        pointRadius: 4,
+                        tension: 0.4
+                    },
+                    {
+                        label: '{% if LANGUAGE_CODE == "ar" %}بطاقات الائتمان{% else %}Credit Cards{% endif %}',
+                        data: monthsData.map(item => item.credit_card),
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                        pointRadius: 3,
+                        tension: 0.4
+                    },
+                    {
+                        label: '{% if LANGUAGE_CODE == "ar" %}التحويل البنكي{% else %}Bank Transfer{% endif %}',
+                        data: monthsData.map(item => item.cash),
+                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                        borderColor: 'rgba(6, 182, 212, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(6, 182, 212, 1)',
+                        pointRadius: 3,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        rtl: {% if LANGUAGE_CODE == 'ar' %}true{% else %}false{% endif %},
+                        labels: {
+                            fontFamily: 'Cairo, sans-serif',
+                            color: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B'
+                        }
+                    },
+                    tooltip: {
+                        rtl: {% if LANGUAGE_CODE == 'ar' %}true{% else %}false{% endif %},
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw.toLocaleString() + ' {{ request.user.userprofile.director_profile.club.vat_settings.currency }}';
+                            }
+                        },
+                        backgroundColor: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                        titleColor: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B',
+                        bodyColor: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B',
+                        borderColor: document.documentElement.classList.contains('dark') ? '#374151' : '#E2E8F0'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' {{ request.user.userprofile.director_profile.club.vat_settings.currency }}';
+                            },
+                            fontFamily: 'Cairo, sans-serif',
+                            color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#64748B'
+                        },
+                        grid: {
+                            color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            fontFamily: 'Cairo, sans-serif',
+                            color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#64748B'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        $('#monthlyRevenueChart').closest('.card-body').html(`
+            <div class="empty-state">
+                <i class="fas fa-calendar-alt"></i>
+                <p>{% if LANGUAGE_CODE == "ar" %}لا توجد بيانات شهرية متاحة{% else %}No monthly data available{% endif %}</p>
+            </div>
+        `);
+    }
+
+    // Payment Method Chart
+    const paymentMethodChartCtx = document.getElementById('paymentMethodChart').getContext('2d');
+    const creditCardRevenue = parseFloat('{{ credit_card_revenue|default:0 }}');
+    const cashRevenue = parseFloat('{{ cash_revenue|default:0 }}');
+
+    if (creditCardRevenue > 0 || cashRevenue > 0) {
+        const paymentMethodChart = new Chart(paymentMethodChartCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    '{% if LANGUAGE_CODE == "ar" %}بطاقات ائتمان{% else %}Credit Cards{% endif %}',
+                    '{% if LANGUAGE_CODE == "ar" %}تحويل بنكي{% else %}Bank Transfer{% endif %}'
+                ],
+                datasets: [{
+                    data: [creditCardRevenue, cashRevenue],
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(6, 182, 212, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(6, 182, 212, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        rtl: {% if LANGUAGE_CODE == 'ar' %}true{% else %}false{% endif %},
+                        labels: {
+                            fontFamily: 'Cairo, sans-serif',
+                            color: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B'
+                        }
+                    },
+                    tooltip: {
+                        rtl: {% if LANGUAGE_CODE == 'ar' %}true{% else %}false{% endif %},
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value.toLocaleString()} {{ request.user.userprofile.director_profile.club.vat_settings.currency }} (${percentage}%)`;
+                            }
+                        },
+                        backgroundColor: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                        titleColor: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B',
+                        bodyColor: document.documentElement.classList.contains('dark') ? '#F3F4F6' : '#1E293B',
+                        borderColor: document.documentElement.classList.contains('dark') ? '#374151' : '#E2E8F0'
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    } else {
+        $('#paymentMethodChart').closest('.card-body').html(`
+            <div class="empty-state">
+                <i class="fas fa-credit-card"></i>
+                <p>{% if LANGUAGE_CODE == "ar" %}لا توجد بيانات طرق دفع متاحة{% else %}No payment method data available{% endif %}</p>
+            </div>
+        `);
+    }
+
+    // Export Data functionality
+    $('#exportDataBtn').click(function() {
+        const startDate = $('#start_date').val();
+        const endDate = $('#end_date').val();
+        window.location.href = `{% url 'export_financial_data' %}?start_date=${startDate}&end_date=${endDate}`;
+    });
+
+    // Chart download functionality
+    $('#downloadChartBtn').click(function() {
+        const canvas = document.getElementById('monthlyRevenueChart');
+        if (canvas) {
+            const image = canvas.toDataURL('image/png', 1.0);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = image;
+            downloadLink.download = 'monthly_revenue_chart.png';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    });
+});
+</script>
+
+{% endblock %}

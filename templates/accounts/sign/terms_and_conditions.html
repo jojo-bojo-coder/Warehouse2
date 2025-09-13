@@ -1,0 +1,261 @@
+{% extends "base_landing.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-indigo-50">
+  <div class="px-4 py-28 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
+    <div class="mx-auto w-full max-w-4xl lg:w-full">
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-indigo-600 px-6 py-8 text-center">
+          <h1 class="text-3xl font-extrabold text-white">
+            {% if LANGUAGE_CODE == 'ar' %}
+            الشروط والأحكام
+            {% else %}
+            Terms and Conditions
+            {% endif %}
+          </h1>
+          <p class="mt-2 text-indigo-200">
+            {% if LANGUAGE_CODE == 'ar' %}
+            آخر تحديث: {{ current_date }}
+            {% else %}
+            Last updated: {{ current_date }}
+            {% endif %}
+          </p>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8 prose max-w-none">
+          {% autoescape off %}
+            {{ terms_content }}
+          {% endautoescape %}
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+          <div class="flex justify-between items-center">
+            <p class="text-sm text-gray-600">
+              {% if LANGUAGE_CODE == 'ar' %}
+              بالاستمرار في استخدام المنصة، فإنك توافق على هذه الشروط والأحكام.
+              {% else %}
+              By continuing to use the platform, you agree to these terms and conditions.
+              {% endif %}
+            </p>
+            <a href="javascript:history.back()" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+              {% if LANGUAGE_CODE == 'ar' %}
+              العودة لصفحة التسجيل
+              {% else %}
+              Back to sign up
+              {% endif %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Reuse styles from signup.html */
+  .min-h-screen {
+    min-height: 100vh;
+  }
+
+  .bg-indigo-50 {
+    background-color: #eef2ff;
+  }
+
+  .bg-indigo-600 {
+    background-color: #4f46e5;
+  }
+
+  .text-indigo-200 {
+    color: #c7d2fe;
+  }
+
+  .text-indigo-600 {
+    color: #4f46e5;
+  }
+
+  .hover\:text-indigo-500:hover {
+    color: #6366f1;
+  }
+
+  .bg-white {
+    background-color: #ffffff;
+  }
+
+  .rounded-xl {
+    border-radius: 0.75rem;
+  }
+
+  .shadow-lg {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .overflow-hidden {
+    overflow: hidden;
+  }
+
+  .prose {
+    max-width: 65ch;
+    color: #374151;
+    line-height: 1.75;
+  }
+
+  .prose h2 {
+    color: #111827;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose p {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose ul {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    list-style-type: disc;
+  }
+
+  .prose ol {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    list-style-type: decimal;
+  }
+
+  .prose li {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .bg-gray-50 {
+    background-color: #f9fafb;
+  }
+
+  .border-gray-200 {
+    border-color: #e5e7eb;
+  }
+
+  .text-gray-600 {
+    color: #4b5563;
+  }
+
+  /* Responsive padding */
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .py-28 {
+    padding-top: 7rem;
+    padding-bottom: 7rem;
+  }
+
+  .sm\:px-6 {
+    @media (min-width: 640px) {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  .lg\:px-20 {
+    @media (min-width: 1024px) {
+      padding-left: 5rem;
+      padding-right: 5rem;
+    }
+  }
+
+  .xl\:px-24 {
+    @media (min-width: 1280px) {
+      padding-left: 6rem;
+      padding-right: 6rem;
+    }
+  }
+
+  /* Container styles */
+  .mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  .max-w-4xl {
+    max-width: 56rem;
+  }
+
+  .lg\:w-full {
+    @media (min-width: 1024px) {
+      width: 100%;
+    }
+  }
+
+  /* Content padding */
+  .p-8 {
+    padding: 2rem;
+  }
+
+  .px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  /* Text styles */
+  .text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  .font-extrabold {
+    font-weight: 800;
+  }
+
+  .text-white {
+    color: #ffffff;
+  }
+
+  .mt-2 {
+    margin-top: 0.5rem;
+  }
+
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .font-medium {
+    font-weight: 500;
+  }
+
+  /* Flex styles */
+  .flex {
+    display: flex;
+  }
+
+  .justify-between {
+    justify-content: space-between;
+  }
+
+  .items-center {
+    align-items: center;
+  }
+</style>
+{% endblock %}

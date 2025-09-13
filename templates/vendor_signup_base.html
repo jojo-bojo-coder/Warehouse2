@@ -1,0 +1,150 @@
+{% extends "base_landing.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 mt-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                تسجيل بائع جديد
+                {% else %}
+                Vendor Registration
+                {% endif %}
+            </h1>
+            <p class="text-gray-600">
+                {% if LANGUAGE_CODE == 'ar' %}
+                {{ step_title }}
+                {% else %}
+                {{ step_title }}
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    الخطوة {{ step }} من {{ total_steps }}
+                    {% else %}
+                    Step {{ step }} of {{ total_steps }}
+                    {% endif %}
+                </span>
+                <span class="text-sm font-medium text-blue-600">{{ progress_percentage }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ progress_percentage }}%"></div>
+            </div>
+        </div>
+
+        <!-- Step Indicators -->
+        <div class="flex justify-center mb-8">
+            <div class="flex items-center space-x-4">
+                {% for i in "1234" %}
+                <div class="flex items-center">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full
+                        {% if forloop.counter <= step %}
+                            bg-blue-600 text-white
+                        {% else %}
+                            bg-gray-300 text-gray-600
+                        {% endif %}
+                        font-semibold text-sm">
+                        {{ forloop.counter }}
+                    </div>
+                    {% if not forloop.last %}
+                    <div class="w-12 h-1 mx-2
+                        {% if forloop.counter < step %}
+                            bg-blue-600
+                        {% else %}
+                            bg-gray-300
+                        {% endif %}
+                        rounded"></div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Main Content Card -->
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            {% block step_content %}
+            {% endblock %}
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-between mt-8">
+            {% block navigation %}
+            <div class="flex space-x-4">
+                {% if step > 1 %}
+                <a href="{% url 'vendor_signup_step'|add:step|add:'-1' %}"
+                   class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    السابق
+                    {% else %}
+                    Previous
+                    {% endif %}
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="flex space-x-4">
+                <a href="{% url 'vendor_signup_restart' %}"
+                   class="px-6 py-3 text-gray-500 hover:text-gray-700 transition-colors duration-200">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    إعادة البدء
+                    {% else %}
+                    Start Over
+                    {% endif %}
+                </a>
+
+                <button type="submit" form="vendor-step-form"
+                        class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+                    {% if step == total_steps %}
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        إرسال الطلب
+                        {% else %}
+                        Submit Application
+                        {% endif %}
+                    {% else %}
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        التالي
+                        {% else %}
+                        Next
+                        {% endif %}
+                    {% endif %}
+                </button>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+<style>
+.input-style {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300;
+}
+
+.input-style:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group {
+    @apply mb-6;
+}
+
+.form-label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.form-error {
+    @apply text-red-600 text-sm mt-1;
+}
+
+.form-help {
+    @apply text-gray-500 text-sm mt-1;
+}
+</style>
+{% endblock %}
+

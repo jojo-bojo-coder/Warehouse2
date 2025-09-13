@@ -1,0 +1,484 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap"
+      rel="stylesheet"
+    />
+    <title>فاتورة ضريبية #{{ order.id }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Cairo";
+            font-size: 12px;
+            line-height: 1.3;
+            color: #333;
+            direction: rtl;
+            background: white;
+        }
+
+        .logo { width: 150px; height: auto; }
+        .qr-code { width: 100px; height: 100px; }
+
+        /* Header */
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #28a745;
+        }
+
+        .invoice-title {
+            background: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .invoice-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Main Layout Table */
+        .main-layout {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .main-layout td {
+            vertical-align: top;
+            padding: 10px;
+        }
+
+        .left-column {
+            width: 25%;
+        }
+
+        .center-column {
+            width: 50%;
+        }
+
+        .right-column {
+            width: 25%;
+        }
+
+        /* Section Boxes */
+        .section-box {
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+        }
+
+        .section-box.primary {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .section-box.info {
+            background: #17a2b8;
+            color: white;
+            border-color: #17a2b8;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .section-content {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .qr-placeholder {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px auto;
+            color: #333;
+            font-size: 10px;
+        }
+
+        .serial-number {
+            background: #f8f9fa;
+            color: #333;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Center Column Details */
+        .tax-invoice-header {
+            background: #28a745;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .invoice-details {
+            display: table;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .detail-row {
+            display: table-row;
+        }
+
+        .detail-cell {
+            display: table-cell;
+            width: 50%;
+            padding: 8px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* Info Sections */
+        .info-sections {
+            display: table;
+            width: 100%;
+        }
+
+        .info-row {
+            display: table-row;
+        }
+
+        .info-cell {
+            display: table-cell;
+            width: 50%;
+            padding: 5px;
+        }
+
+        .info-section {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .info-title {
+            background: #28a745;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .info-content {
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .info-content div {
+            margin-bottom: 3px;
+        }
+
+        /* Items Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 11px;
+        }
+
+        .items-table th {
+            background: #28a745;
+            color: white;
+            padding: 8px 4px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #28a745;
+            font-size: 10px;
+            line-height: 1.2;
+        }
+
+        .items-table td {
+            padding: 8px 4px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+            font-size: 10px;
+        }
+
+        .items-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            display: table;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .summary-row {
+            display: table-row;
+        }
+
+        .summary-left {
+            display: table-cell;
+            width: 65%;
+            padding-right: 10px;
+        }
+
+        .summary-right {
+            display: table-cell;
+            width: 35%;
+        }
+
+        .summary-left-content {
+            background: #17a2b8;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .summary-right-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 12px;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 14px;
+            background: #28a745;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        .currency {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        /* Responsive adjustments for PDF */
+        @media print {
+            .main-layout {
+                page-break-inside: avoid;
+            }
+
+            .items-table {
+                page-break-inside: auto;
+            }
+
+            .items-table tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="invoice-header">
+        <div class="invoice-subtitle"><img src="{{ request.build_absolute_uri }}{% static 'images/logo18.jpg' %}" class="logo" alt="Logo"></div>
+    </div>
+
+    <!-- Main Layout -->
+    <table class="main-layout">
+        <tr>
+            <!-- Left Column -->
+            <td class="left-column">
+                <div class="section-box info">
+                    <div class="section-title">رمز الاستجابة السريعة (QR Code)</div>
+                    <div class="qr-placeholder"><img src="data:image/png;base64,{{ qr_image_base64 }}" class="qr-code" alt="QR Code"></div>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-title">تاريخ ووقت إصدار الفاتورة</div>
+                    <div class="section-content">
+                        <div>{% now "Y/m/d" %}</div>
+                        <div>{% now "H:i:s" %}</div>
+                    </div>
+                </div>
+
+            </td>
+
+            <!-- Center Column -->
+            <td class="center-column">
+                <div class="tax-invoice-header">فاتورة ضريبية</div>
+
+                <div class="invoice-details">
+                    <div class="detail-row">
+                        <div class="detail-cell">
+                            <div class="detail-item">
+                                <div class="detail-label">التاريخ</div>
+                                <div class="detail-value">{% now "Y/m/d" %}</div>
+                            </div>
+                        </div>
+                        <div class="detail-cell">
+                            <div class="detail-item">
+                                <div class="detail-label">الرقم التسلسلي</div>
+                                <div class="detail-value">OFO-{{ order.id|stringformat:"04d" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-sections">
+                    <div class="info-row">
+                        <div class="info-cell">
+                            <div class="info-section">
+                                <div class="info-title">معلومات البائع</div>
+                                <div class="info-content">
+                                    <div><strong>رقم السجل التجاري:</strong> {{ coach_profile.commercial_registration_number }}</div>
+                                    <div><strong>رقم تسجيل ضريبة القيمة المضافة:</strong> {{ coach_profile.tax_number|default:"123456789000003" }}</div>
+                                    <div><strong>عنوان البائع:</strong> {{ coach_profile.region }} - {{ coach_profile.city }} - {{ coach_profile.street }} - {{ coach_profile.district }}</div>
+                                    <div><strong>اسم البائع:</strong> {{ coach_profile.full_name|default:"------" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-cell">
+                            <div class="info-section">
+                                <div class="info-title">معلومات المشتري</div>
+                                <div class="info-content">
+                                    <div><strong>عنوان المشتري:</strong> {{ order.address|default:"------" }}</div>
+                                    <div><strong>اسم المشتري:</strong> {{ order.first_name }} {{ order.last_name }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+
+            <!-- Right Column -->
+            <td class="right-column">
+                <div class="section-box primary">
+                    <div class="section-title">الرقم التسلسلي للفاتورة</div>
+                    <div class="serial-number">OFO-{{ order.id|stringformat:"04d" }}</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Items Table -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 15%;">المنتج</th>
+                <th style="width: 8%;">الوحدة</th>
+                <th style="width: 8%;">الكمية</th>
+                <th style="width: 12%;">المجموع</th>
+                <th style="width: 10%;">ضريبة الهيئة</th>
+                <th style="width: 12%;">عمولة المنصة</th>
+                <th style="width: 15%;">ربح التاجر</th>
+                <th style="width: 20%;">إجمالي المبلغ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in coach_items %}
+            <tr>
+                <td>
+                    {% if item.product %}
+                        {{ item.product.title }}
+                    {% elif item.service %}
+                        {{ item.service.title }}
+                    {% endif %}
+                </td>
+                <td>قطعة</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.tax_authority|default:0 }}</td>
+                <td>{{ item.total_platform_fee|default:0 }}</td>
+                <td>{{ item.vendor_profit|default:0 }}</td>
+                <td>{{ item.get_total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Summary Section -->
+    <div class="summary-section">
+        <div class="summary-row">
+
+                <div class="summary-right-content">
+                    <div class="summary-item">
+                        <span>سعر المنتج</span>
+                        <span class="currency">{{ total_subtotal|default:coach_total }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>ضريبة القيمة المضافة (15%)</span>
+                        <span class="currency">{{ total_tax|default:0 }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>المجموع مع الضريبة (15%)</span>
+                        <span class="currency">{{ coach_total }}</span>
+                    </div>
+                </div>
+        </div>
+    </div>
+</body>
+</html>
+
