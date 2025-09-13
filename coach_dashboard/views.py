@@ -1214,7 +1214,6 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from weasyprint import HTML
 import tempfile
 def viewOrderDetails(request, order_id):
     context = {}
@@ -1255,99 +1254,11 @@ from django.contrib import messages
 from django.db.models import Q
 from django.utils import translation, timezone
 from django.template.loader import render_to_string
-from weasyprint import HTML
 import qrcode
 import io
 import base64
 from decimal import Decimal
 from students.models import Order
-
-
-def print_order(request, order_id):
-    user = request.user
-    coach_profile = user.userprofile.Coach_profile
-    club = getattr(coach_profile, 'club', None)
-
-    try:
-        order = Order.objects.get(
-            Q(items__product__creator=user) | Q(items__service__coaches=coach_profile),
-            id=order_id,
-            club=club
-        )
-    except Order.DoesNotExist:
-        messages.error(request, "Order not found or you don't have permission to view it.")
-        return redirect('coachviewOrders')
-
-    lang = request.GET.get('lang', 'ar')
-    if lang not in ['ar', 'en']:
-        lang = 'ar'
-
-    translation.activate(lang)
-
-    coach_items = order.items.filter(
-        Q(product__creator=user) | Q(service__coaches=coach_profile))
-
-    commission_rate = float(coach_profile.get_current_commission_rate()) / 100
-
-    calculated_items = []
-    total_subtotal = Decimal('0.00')
-    total_tax_authority = Decimal('0.00')
-    total_vendor_profit = Decimal('0.00')
-    total_platform_fee = Decimal('0.00')
-
-    for item in coach_items:
-        price = Decimal(str(item.price))
-        quantity = item.quantity
-        item_total_price = price * quantity
-        product_real_price = (item_total_price / Decimal('1.15')).quantize(Decimal('0.01'))
-        tax_authority = (item_total_price - product_real_price).quantize(Decimal('0.01'))
-        taxable_amount = item_total_price - tax_authority
-        platform_profit = (taxable_amount * Decimal(str(commission_rate))).quantize(Decimal('0.01'))
-        platform_profit_tax = (platform_profit * Decimal('0.15')).quantize(Decimal('0.01'))
-        current_total_platform_fee = platform_profit + platform_profit_tax
-        vendor_profit = (item_total_price - tax_authority - current_total_platform_fee).quantize(Decimal('0.01'))
-
-        item.tax_authority = tax_authority
-        item.vendor_profit = vendor_profit
-        item.total_platform_fee = current_total_platform_fee
-        calculated_items.append(item)
-
-        total_subtotal += product_real_price
-        total_tax_authority += tax_authority
-        total_platform_fee += current_total_platform_fee
-        total_vendor_profit += vendor_profit
-
-    coach_total = sum(item.get_total() for item in coach_items)
-
-    qr_data = f"Seller: {coach_profile.full_name}\nVAT Number: {coach_profile.tax_number}\nDate: {timezone.now().isoformat()}\nInvoice Total: {coach_total}\nVAT Total: {total_tax_authority}"
-    qr_img = qrcode.make(qr_data)
-
-    buffer = io.BytesIO()
-    qr_img.save(buffer, format="PNG")
-    qr_image_base64 = base64.b64encode(buffer.getvalue()).decode()
-
-    template_name = f'coach_dashboard/orders/print_order_{lang}.html'
-
-    html_string = render_to_string(template_name, {
-        'order': order,
-        'coach_items': calculated_items,
-        'coach_total': coach_total,
-        'total_subtotal': total_subtotal,
-        'coach_profile': coach_profile,
-        'total_tax': total_tax_authority,
-        'total_platform_fee': total_platform_fee,
-        'total_vendor_profit': total_vendor_profit,
-        'club': club,
-        'qr_image_base64': qr_image_base64,
-    })
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="order_{order_id}_{lang}.pdf"'
-
-    HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(response)
-
-    translation.deactivate()
-    return response
 
 
 from django.shortcuts import render, redirect
@@ -2577,7 +2488,6 @@ from django.db.models import Sum, Q, F, Count
 from decimal import Decimal
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from weasyprint import HTML
 import tempfile
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator
@@ -2687,126 +2597,6 @@ def coach_payments(request):
     context['LANGUAGE_CODE'] = translation.get_language()
     return render(request, 'coach_dashboard/payments/coach_payments.html', context)
 
-
-@login_required
-def generate_invoice(request, order_id):
-    """Generate PDF invoice for a specific order"""
-    user = request.user
-    coach_profile = user.userprofile.Coach_profile
-
-    try:
-        order = Order.objects.get(
-            Q(items__product__creator=user) | Q(items__service__creator=user),
-            id=order_id
-        )
-    except Order.DoesNotExist:
-        messages.error(request, "Order not found or you don't have permission to view it.")
-        return redirect('coach_payments')
-
-    # Filter items to show only those belonging to this coach
-    coach_items = order.items.filter(
-        Q(product__creator=user) | Q(service__creator=user))
-
-    # Calculate total for coach's items only, considering discounted prices
-    coach_total = Decimal('0.00')
-    for item in coach_items:
-        if item.product:
-            coach_total += item.price * item.quantity
-        elif item.service:
-            # Use discounted price if available
-            effective_price = item.service.discounted_price if item.service.discounted_price else item.price
-            coach_total += Decimal(str(effective_price)) * Decimal(str(item.quantity))
-
-    # Render HTML template
-    html_string = render_to_string('coach_dashboard/payments/invoice_pdf.html', {
-        'user':user,
-        'order': order,
-        'coach_items': coach_items,
-        'coach_total': coach_total,
-        'coach': coach_profile,
-        'date': timezone.now().strftime("%Y-%m-%d"),
-    })
-
-    # Generate PDF
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="invoice_{order_id}.pdf"'
-
-    HTML(string=html_string).write_pdf(response)
-    return response
-
-
-@login_required
-def generate_payment_statement(request):
-    """Generate PDF payment statement for a date range"""
-    user = request.user
-
-    # Check if user has coach profile
-    if not hasattr(user, 'userprofile') or not user.userprofile.Coach_profile:
-        messages.error(request, "You don't have a coach profile.")
-        return redirect('coach_payments')
-
-    coach_profile = user.userprofile.Coach_profile
-
-    date_from = request.GET.get('date_from')
-    date_to = request.GET.get('date_to')
-
-    if not date_from or not date_to:
-        messages.error(request, "Please select a date range.")
-        return redirect('coach_payments')
-
-    try:
-        date_from = datetime.strptime(date_from, '%Y-%m-%d')
-        date_to = datetime.strptime(date_to, '%Y-%m-%d') + timedelta(days=1)
-    except ValueError:
-        messages.error(request, "Invalid date format. Please use YYYY-MM-DD.")
-        return redirect('coach_payments')
-
-    # Get orders in date range - only confirmed/completed orders
-    orders = Order.objects.filter(
-        Q(items__product__creator=user) | Q(items__service__creator=user),
-        status__in=['confirmed', 'completed'],
-        created_at__range=[date_from, date_to]
-    ).distinct().order_by('created_at').prefetch_related('items', 'items__product', 'items__service')
-
-    # Calculate total earnings for this coach (total price - commission)
-    total_earnings = Decimal('0.00')
-
-    for order in orders:
-        for item in order.items.all():
-            if ((item.product and item.product.creator == user) or
-                    (item.service and item.service.creator == user)):
-                # Use discounted price if available
-                if item.service and item.service.discounted_price:
-                    item_price = item.service.discounted_price
-                else:
-                    item_price = item.price
-
-                item_total = Decimal(str(item_price)) * Decimal(str(item.quantity))
-                # Calculate commission that goes to the platform
-                commission_rate = Decimal(str(coach_profile.get_current_commission_rate())) / Decimal('100')
-                commission_amount = item_total * commission_rate
-                # Coach gets the remaining amount after commission
-                coach_earnings = item_total - commission_amount
-                total_earnings += coach_earnings
-
-    # Render HTML template
-    html_string = render_to_string('coach_dashboard/payments/payment_statement_pdf.html', {
-        'orders': orders,
-        'user': user,
-        'coach_profile': coach_profile,
-        'total_earnings': total_earnings,
-        'date_from': date_from.strftime('%Y-%m-%d'),
-        'date_to': (date_to - timedelta(days=1)).strftime('%Y-%m-%d'),
-        'generated_date': timezone.now().strftime("%Y-%m-%d"),
-    })
-
-    # Generate PDF
-    response = HttpResponse(content_type='application/pdf')
-    response[
-        'Content-Disposition'] = f'attachment; filename="payment_statement_{date_from.strftime("%Y-%m-%d")}_{(date_to - timedelta(days=1)).strftime("%Y-%m-%d")}.pdf"'
-
-    HTML(string=html_string).write_pdf(response)
-    return response
 
 
 from django.shortcuts import render, redirect
