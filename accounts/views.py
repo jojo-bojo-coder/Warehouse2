@@ -24,7 +24,6 @@ from django.utils import timezone
 from django.utils import translation
 from django.contrib import messages
 from django.http import JsonResponse
-import pywhatkit as kit
 import random
 import string
 from datetime import datetime, timedelta
@@ -45,53 +44,6 @@ def get_main_club():
 def generate_otp():
     return str(random.randint(100000, 999999))
 
-
-def send_whatsapp_otp(phone_number, otp_code, user_name):
-    """Send OTP via WhatsApp using pywhatkit"""
-    try:
-        # Clean the phone number - remove all non-digit characters
-        cleaned_number = ''.join(filter(str.isdigit, phone_number))
-
-        # Format the phone number for WhatsApp
-        if cleaned_number.startswith('0'):
-            # Handle local numbers (e.g., Egypt)
-            formatted_number = '+20' + cleaned_number[1:]  # Egyptian country code
-        elif cleaned_number.startswith('966'):
-            # Handle Saudi numbers
-            formatted_number = '+' + cleaned_number
-        elif not cleaned_number.startswith('+'):
-            # Default to Saudi if no country code
-            formatted_number = '+966' + cleaned_number
-
-        # Remove any remaining non-digit characters except +
-        formatted_number = '+' + ''.join(filter(str.isdigit, formatted_number[1:]))
-
-        # Validate the final number length
-        if len(formatted_number) < 10 or len(formatted_number) > 15:
-            return False, "رقم الهاتف غير صالح"
-
-        # Arabic message
-        message = f"""
-🔐 رمز التحقق الخاص بك
-
-مرحباً {user_name}،
-رمز التحقق الخاص بك هو: *{otp_code}*
-
-⏰ صالح لمدة 5 دقائق فقط
-🚫 لا تشارك هذا الرمز مع أي شخص
-
-شكراً لك
-فريق المنصة
-        """
-
-        # Send immediately using pywhatkit
-        now = datetime.now()
-        kit.sendwhatmsg(formatted_number, message, now.hour, now.minute + 1, 15, True, 2)
-
-        return True, "تم إرسال رمز التحقق عبر الواتساب بنجاح"
-
-    except Exception as e:
-        return False, f"خطأ في إرسال رسالة الواتساب: {str(e)}"
 
 
 def send_email_otp(email, otp_code, user_name):
@@ -242,55 +194,11 @@ def select_otp_method(request):
         method = request.POST.get('otp_method')
 
         if method == 'whatsapp':
-            return redirect('send_otp_whatsapp')
+            return redirect('send_otp_email')
         elif method == 'email':
             return redirect('send_otp_email')
 
     return render(request, 'accounts/sign/select_otp_method.html', context)
-
-
-def send_otp_whatsapp(request):
-    """Step 3a: Send OTP via WhatsApp"""
-
-    if 'otp_user_id' not in request.session:
-        return redirect('signin')
-
-    try:
-        user_id = request.session['otp_user_id']
-        user = User.objects.get(id=user_id)
-        phone_number = request.session.get('user_phone')
-        user_name = request.session.get('user_name')
-
-        if not phone_number:
-            messages.error(request, "رقم الهاتف غير متوفر")
-            return redirect('select_otp_method')
-
-        # Generate and save OTP
-        otp_code = generate_otp()
-        OTP.objects.update_or_create(
-            user=user,
-            defaults={
-                "otp_code": otp_code,
-                "created_at": timezone.now(),
-                "delivery_method": "whatsapp"
-            }
-        )
-
-        # Send WhatsApp message in a separate thread to avoid blocking
-        def send_whatsapp_async():
-            success, message = send_whatsapp_otp(phone_number, otp_code, user_name)
-            # You can log the result or handle it as needed
-            print(f"WhatsApp OTP Status: {success}, Message: {message}")
-
-        thread = threading.Thread(target=send_whatsapp_async)
-        thread.start()
-
-        messages.success(request, "تم إرسال رمز التحقق عبر الواتساب. يرجى التحقق من رسائل الواتساب الخاصة بك.")
-        return redirect('verify_otp')
-
-    except Exception as e:
-        messages.error(request, f"خطأ في إرسال رمز التحقق: {str(e)}")
-        return redirect('select_otp_method')
 
 
 def send_otp_email(request):
