@@ -75,7 +75,7 @@
 
                 <div class="flex items-start space-x-4 mb-6">
                     {% if promotion.promotion_type == 'product' and promotion.product.product_images.all %}
-                        <img src="{{ promotion.product.product_images.first.img.url }}" alt="{{ promotion.product.title }}" class="ml-2 w-24 h-24 rounded-lg object-cover shadow-md">
+                        <img src="{{ promotion.product.product_images.first.img.url }}" alt="{{ promotion.product.title }}" class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} w-24 h-24 rounded-lg object-cover shadow-md">
                     {% elif promotion.promotion_type == 'service' and promotion.service.image %}
                         <img src="{{ promotion.service.image.url }}" alt="{{ promotion.service.title }}" class="w-24 h-24 rounded-lg object-cover shadow-md">
                     {% else %}
@@ -152,7 +152,7 @@
             <!-- Coach Information Card -->
             <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
                     {% if LANGUAGE_CODE == 'ar' %} معلومات التاجر {% else %} Coach Information {% endif %}
@@ -213,7 +213,7 @@
             <!-- Promotion Schedule Card -->
             <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     {% if LANGUAGE_CODE == 'ar' %} جدولة الترويج {% else %} Promotion Schedule {% endif %}
@@ -281,7 +281,7 @@
             <!-- Status and Pricing Card -->
             <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     {% if LANGUAGE_CODE == 'ar' %} الحالة والتسعير {% else %} Status & Pricing {% endif %}
