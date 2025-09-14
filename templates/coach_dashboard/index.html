@@ -95,13 +95,13 @@
 </style>
 
 <!-- Top Navigation Bar -->
-<div class="bg-white dark:bg-gray-800 shadow-md py-3 px-6 flex items-center justify-between sticky top-0 z-10 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[15%]{% else %}xl:pl-[15%]{% endif %}">
+<div class="bg-white dark:bg-gray-800 shadow-md py-3 px-6 flex items-center justify-between sticky top-0 z-10 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[19%]{% else %}xl:pl-[19%]{% endif %}">
   <!-- Coach Logo and Name -->
   <div class="flex items-center">
     {% if request.user.userprofile.Coach_profile and request.user.userprofile.Coach_profile.profile_image %}
-    <img class="h-10 w-10 rounded-full mr-3" src="{{ request.user.userprofile.Coach_profile.profile_image.url }}" alt="Coach Logo">
+    <img class="h-10 w-10 rounded-full {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}" src="{{ request.user.userprofile.Coach_profile.profile_image.url }}" alt="Coach Logo">
     {% else %}
-    <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold ml-3">
+    <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}">
       {{ request.user.userprofile.Coach_profile.full_name|first|upper }}
     </div>
     {% endif %}
