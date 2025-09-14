@@ -2,13 +2,13 @@ from django.db import models
 from accounts.models import ClubsModel
 from django.contrib.auth.models import User
 from django.utils import timezone
-from accounts.models import UserProfile,CoachProfile
+from accounts.models import UserProfile, CoachProfile
 
 
 # Create your models here.
 
 
-#Products
+# Products
 class ProductsClassificationModel(models.Model):
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -18,6 +18,8 @@ class ProductsClassificationModel(models.Model):
 
 
 from decimal import Decimal
+
+
 class ProductsModel(models.Model):
     APPROVAL_STATUS_CHOICES = [
         ('pending', 'قيد المراجعة'),
@@ -64,7 +66,7 @@ class ProductsModel(models.Model):
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=254, null=True)
     desc = models.TextField(null=True)
-    price = models.DecimalField(max_digits = 6, decimal_places = 2)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
     stock = models.IntegerField(default=1, null=True)
     classification = models.ManyToManyField('ProductsClassificationModel', blank=True)
     is_enabled = models.BooleanField(default=True)
@@ -170,11 +172,13 @@ class ProductsModel(models.Model):
         verbose_name_plural = "المنتجات"
         ordering = ['-creation_date']
 
+
 class ProductsImage(models.Model):
     product = models.ForeignKey('ProductsModel', on_delete=models.CASCADE)
     img = models.ImageField(upload_to="Products/imgs/%Y/%m/%d", blank=True, null=True)
     img_base64 = models.TextField(blank=True, null=True)
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
+
 
 class ProductsRate(models.Model):
     product = models.ForeignKey('ProductsModel', on_delete=models.CASCADE)
@@ -184,10 +188,7 @@ class ProductsRate(models.Model):
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
 
 
-
-
-
-#Services
+# Services
 class ServicesClassificationModel(models.Model):
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -244,7 +245,6 @@ class ServicesModel(models.Model):
 
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    coaches = models.ManyToManyField('accounts.CoachProfile', blank=True, related_name='services')
     title = models.CharField(max_length=254, null=True)
     desc = models.TextField(null=True)
     subscription_days = models.IntegerField(default=30, null=True, blank=True)
@@ -373,14 +373,15 @@ class ServicesModel(models.Model):
         verbose_name_plural = "الخدمات"
         ordering = ['-creation_date']
 
+
 class ServicesImage(models.Model):
     product = models.ForeignKey('ServicesModel', on_delete=models.CASCADE)
     img = models.ImageField(upload_to="Services/imgs/%Y/%m/%d", blank=True, null=True)
     img_base64 = models.TextField(blank=True, null=True)
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
 
+
 class ServicesRate(models.Model):
-    
     product = models.ForeignKey('ServicesModel', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     msg = models.TextField()
@@ -388,8 +389,7 @@ class ServicesRate(models.Model):
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
 
 
-
-#Blog
+# Blog
 class BlogClassificationModel(models.Model):
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -397,9 +397,11 @@ class BlogClassificationModel(models.Model):
     title = models.CharField(max_length=254, null=True)
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
 
+
 from django.db import models
 from django.contrib.auth.models import User
 from ckeditor_uploader.fields import RichTextUploadingField
+
 
 class Blog(models.Model):
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE, null=True)
@@ -416,11 +418,10 @@ class Blog(models.Model):
         return self.title or "Untitled Article"
 
 
-
 class ServiceOrderModel(models.Model):
     service = models.ForeignKey(ServicesModel, on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    price = models.DecimalField(max_digits = 6, decimal_places = 2)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
     is_complited = models.BooleanField(default=False)
     end_datetime = models.DateTimeField()
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
@@ -443,6 +444,7 @@ class CartItem(models.Model):
     @property
     def total_price(self):
         return self.quantity * self.product.price
+
 
 class ServiceCartItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -516,7 +518,8 @@ class Order(models.Model):
     postal_code = models.CharField(max_length=20)
     notes = models.TextField(blank=True, null=True)
 
-    transfer_receipt = models.ImageField(upload_to='transfer_receipts/', null=True, blank=True, verbose_name="إثبات التحويل")
+    transfer_receipt = models.ImageField(upload_to='transfer_receipts/', null=True, blank=True,
+                                         verbose_name="إثبات التحويل")
     transfer_uploaded_at = models.DateTimeField(null=True, blank=True, verbose_name="تاريخ رفع إثبات التحويل")
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -630,7 +633,7 @@ class Order(models.Model):
             print(f"Updated total vendor commission: {commission_data['total_vendor_commission']}")
 
         # Calculate club revenue (total - commissions)
-        commission_data['club_revenue'] =  commission_data['total_vendor_commission']
+        commission_data['club_revenue'] = commission_data['total_vendor_commission']
         print(f"\nFinal calculations:")
         print(f"Total order amount: {self.total_price}")
         print(f"Total vendor commission: {commission_data['total_vendor_commission']}")
@@ -726,7 +729,6 @@ class OrderVendorCommission(models.Model):
         return f"Commission for {self.vendor.business_name} - Order #{self.order.id}"
 
 
-
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(ProductsModel, on_delete=models.SET_NULL, null=True, blank=True)
@@ -797,6 +799,7 @@ class OrderItem(models.Model):
             return 'منتجات وخدمات'
         else:
             return 'غير معروف'
+
 
 class OrderCancellation(models.Model):
     CANCELLATION_REASONS = [
@@ -895,11 +898,13 @@ class Review(models.Model):
         """Determine if review should be visible based on order status"""
         return self.order.status in ['confirmed', 'completed']
 
+
 class ProductClick(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(ProductsModel, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     source = models.CharField(max_length=50)
+
 
 class ServiceClick(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

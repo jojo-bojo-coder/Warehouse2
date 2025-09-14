@@ -144,21 +144,6 @@
                         </div>
                     </div>
 
-                    <!-- Coaches Selection -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            {% if LANGUAGE_CODE == 'ar' %}الموظفون المسؤولون{% else %}Responsible Employees{% endif %}
-                        </label>
-                        <select name="coaches" id="id_coaches" multiple class="select2">
-                            {% for coach in form.fields.coaches.queryset %}
-                            <option value="{{ coach.id }}"
-                                    {% if coach.id|stringformat:"s" in selected_coach_ids %}selected{% endif %}>
-                            {{ coach }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
                     <!-- Service Classification -->
                     <div class="mb-6">
                         <label for="classification" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

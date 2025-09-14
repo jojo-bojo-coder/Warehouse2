@@ -363,7 +363,7 @@ class ServicesModelForm(forms.ModelForm):
     class Meta:
         model = ServicesModel
         fields = ['title', 'desc', 'price', 'pricing_period_months', 'discounted_price',
-                  'subcategory', 'is_enabled', 'coaches']
+                  'subcategory', 'is_enabled']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'}),
@@ -379,9 +379,6 @@ class ServicesModelForm(forms.ModelForm):
                 'class': 'w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300'}),
             'is_enabled': forms.CheckboxInput(
                 attrs={'class': 'h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2'}),
-            'coaches': forms.SelectMultiple(attrs={
-                'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
-            }),
         }
 
 class ServicesClassificationModelForm(forms.ModelForm):
