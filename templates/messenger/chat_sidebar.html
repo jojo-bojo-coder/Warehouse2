@@ -1,6 +1,135 @@
 {% load static %}
 {% load messenger_tags %}
 
+<style>
+/* Dark mode styles for sidebar */
+.dark .chat-sidebar {
+    background: #1e293b;
+    border-color: #374151;
+}
+
+.dark .chat-sidebar button {
+    background: #374151;
+    color: #f3f4f6;
+    border-color: #4b5563;
+}
+
+.dark .chat-sidebar button.active,
+.dark .chat-sidebar button:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.dark .chat-sidebar a {
+    background: transparent;
+    color: #f3f4f6;
+}
+
+.dark .chat-sidebar a:hover {
+    background: #374151;
+}
+
+.dark .chat-sidebar a.bg-indigo-100 {
+    background: #4338ca !important;
+}
+
+.dark .chat-sidebar .text-gray-500 {
+    color: #9ca3af;
+}
+
+.dark .chat-sidebar .text-gray-700 {
+    color: #d1d5db;
+}
+
+.dark .chat-sidebar .bg-gray-50 {
+    background: #1e293b;
+}
+
+.dark .chat-sidebar .bg-gray-100 {
+    background: #374151;
+}
+
+.dark .chat-sidebar .border-gray-200 {
+    border-color: #4b5563;
+}
+
+.dark .chat-sidebar .border-gray-100 {
+    border-color: #374151;
+}
+
+.dark .chat-sidebar input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+}
+
+.dark .chat-sidebar input::placeholder {
+    color: #9ca3af;
+}
+
+.dark .chat-sidebar input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.dark .chat-sidebar .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #374151;
+}
+
+.dark .chat-sidebar .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #374151;
+}
+
+/* Mobile sidebar dark mode */
+.dark #mobile-sidebar {
+    background: #1e293b;
+    color: #f3f4f6;
+}
+
+.dark #mobile-sidebar .border-gray-200 {
+    border-color: #4b5563;
+}
+
+.dark #mobile-sidebar .bg-indigo-600 {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.dark #mobile-sidebar button {
+    color: #f3f4f6;
+}
+
+.dark #mobile-sidebar a {
+    color: #f3f4f6;
+}
+
+.dark #mobile-sidebar a:hover {
+    background: #374151;
+}
+
+.dark #mobile-sidebar .bg-gray-50 {
+    background: #374151;
+}
+
+.dark #mobile-sidebar input {
+    background: #4b5563;
+    border-color: #6b7280;
+    color: #f3f4f6;
+}
+
+.dark #mobile-sidebar input::placeholder {
+    color: #9ca3af;
+}
+
+.dark #mobile-sidebar-toggle {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+/* Loading animation for dark mode */
+.dark .animate-spin {
+    border-color: #4b5563;
+    border-top-color: #6366f1;
+}
+</style>
+
 <div class="chat-sidebar bg-gray-50 border-r border-gray-200 h-full w-72 hidden md:block overflow-y-auto mt-16">
     <div class="flex border-b border-gray-200">
         <button id="chatsTabButton" class="flex-1 p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-center active">
@@ -13,9 +142,7 @@
         {% endif %}
     </div>
 
-
     <div id="chatsPanel" class="block">
-
         <a href="{% url 'messageRoom' club.id %}" class="block p-3 hover:bg-gray-100 transition duration-150 border-b border-gray-200 {% if current_room_id == club.id|stringformat:'s' %}bg-indigo-100{% endif %}">
             <div class="flex items-center space-x-3">
                 <div class="ml-3">
@@ -41,7 +168,6 @@
                 {% endif %}
             </div>
         </a>
-
 
         <div class="divide-y divide-gray-200">
             {% for chat in private_chats %}
@@ -81,7 +207,6 @@
         </div>
     </div>
 
-
     {% if user.userprofile.account_type == '2' %}
     <div id="membersPanel" class="hidden">
         <div class="p-3 bg-gray-50 border-b border-gray-200">
@@ -104,7 +229,6 @@
 
 <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden"></div>
 
-
 <div id="mobile-sidebar" class="fixed top-0 right-0 w-3/4 h-full bg-white z-30 transform translate-x-full transition-transform duration-300">
     <div class="h-full flex flex-col">
         <div class="p-4 border-b border-gray-200 bg-indigo-600 text-white flex justify-between items-center">
@@ -113,7 +237,6 @@
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
-
 
         <div class="flex border-b border-gray-200">
             <button id="chatsTabButtonMobile" class="flex-1 p-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-center active">
@@ -127,9 +250,7 @@
         </div>
 
         <div class="overflow-y-auto flex-1">
-
             <div id="chatsPanelMobile" class="block">
-
                 <a href="{% url 'messageRoom' club.id %}" class="block p-3 hover:bg-gray-100 transition duration-150 border-b border-gray-200 {% if current_room_id == club.id|stringformat:'s' %}bg-indigo-100{% endif %}">
                     <div class="flex items-center space-x-3">
                         <div class="ml-3">
@@ -150,7 +271,6 @@
                         </div>
                     </div>
                 </a>
-
 
                 <div class="divide-y divide-gray-200">
                     {% for chat in private_chats %}
@@ -210,6 +330,18 @@
 <script>
     // Mobile sidebar functionality
     document.addEventListener('DOMContentLoaded', function() {
+        // Dark mode detection (same as viewMessage.html)
+        const darkModeCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('darkMode='));
+
+        const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+            document.documentElement.classList.add('dark');
+        }
+
         const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
         const mobileSidebar = document.getElementById('mobile-sidebar');
         const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');

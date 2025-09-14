@@ -16,6 +16,7 @@
         display: flex;
         height: 100vh;
         overflow: hidden;
+        transition: all 0.3s ease;
     }
 
     .chat-content {
@@ -27,6 +28,7 @@
 
     .message-bubble {
         position: relative;
+        transition: all 0.3s ease;
     }
 
     .message-bubble:hover .message-actions {
@@ -55,10 +57,12 @@
         justify-content: center;
         cursor: pointer;
         font-size: 12px;
+        transition: all 0.2s ease;
     }
 
     .message-actions button:hover {
         background: rgba(0, 0, 0, 0.9);
+        transform: scale(1.1);
     }
 
     .message-deleted {
@@ -66,17 +70,196 @@
         font-style: italic;
     }
 
+    /* Chat header styles */
+    .chat-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: all 0.3s ease;
+    }
+
+    /* Message container */
+    .message-container {
+        background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    /* Input area */
+    .chat-input-area {
+        background: white;
+        border-top: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .chat-input {
+        background: white;
+        border: 1px solid #d1d5db;
+        color: #1f2937;
+        transition: all 0.3s ease;
+    }
+
+    .chat-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    /* Sent message styles */
+    .sent-message {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    /* Received message styles */
+    .received-message {
+        background: white;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    /* Dialog styles */
+    .dialog {
+        background: white;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    /* Date separator */
+    .date-separator {
+        color: #6b7280;
+        transition: all 0.3s ease;
+    }
+
+    /* DARK MODE STYLES */
+    .dark .chat-layout {
+        background: #0f172a;
+    }
+
+    .dark .chat-header {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    }
+
+    .dark .message-container {
+        background: #0f172a;
+    }
+
+    .dark .chat-input-area {
+        background: #1e293b;
+        border-top-color: #374151;
+    }
+
+    .dark .chat-input {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f3f4f6;
+    }
+
+    .dark .chat-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .dark .chat-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .dark .sent-message {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    }
+
+    .dark .received-message {
+        background: #374151;
+        color: #f3f4f6;
+        border-color: #4b5563;
+    }
+
+    .dark .dialog {
+        background: #1f2937;
+        color: #f3f4f6;
+        border-color: #374151;
+    }
+
+    .dark .date-separator {
+        color: #9ca3af;
+    }
+
+    .dark .message-actions button {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .dark .message-actions button:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Button styles for dark mode */
+    .dark .btn-primary {
+        background: #4f46e5;
+    }
+
+    .dark .btn-primary:hover {
+        background: #4338ca;
+    }
+
+    .dark .btn-secondary {
+        background: #6b7280;
+        color: #f3f4f6;
+    }
+
+    .dark .btn-secondary:hover {
+        background: #5b6472;
+    }
+
+    .dark .btn-danger {
+        background: #dc2626;
+    }
+
+    .dark .btn-danger:hover {
+        background: #b91c1c;
+    }
+
     @media (max-width: 768px) {
         .chat-sidebar {
             display: none;
         }
     }
+
+    /* Scrollbar styles */
+    #msg-container-box::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #msg-container-box::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+
+    #msg-container-box::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    #msg-container-box::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    .dark #msg-container-box::-webkit-scrollbar-track {
+        background: #1e293b;
+    }
+
+    .dark #msg-container-box::-webkit-scrollbar-thumb {
+        background: #475569;
+    }
+
+    .dark #msg-container-box::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+    }
 </style>
 <div class="chat-layout">
     {% include "messenger/chat_sidebar.html" %}
     <div class="chat-content">
-        <div class="h-screen flex flex-col bg-gray-100">
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white fixed top-0 left-0 right-0 z-10 shadow-lg">
+        <div class="h-screen flex flex-col message-container">
+            <div class="chat-header text-white fixed top-0 left-0 right-0 z-10 shadow-lg">
                 <div class="container mx-auto px-4 py-3 flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                         {% if profile_image %}
@@ -103,13 +286,13 @@
             <div class="flex-grow overflow-y-auto pt-20 pb-24" id="msg-container-box">
                 <div class="max-w-4xl mx-auto px-4 py-8" id="msg-container-box2">
                     {% for messages in messages_list %}
-                    <p class="text-center text-sm text-gray-500 my-6">
+                    <p class="text-center text-sm date-separator my-6">
                         {{messages.0|date:'Y-m-d'}}
                     </p>
                     {% for message in messages.1 %}
                     {% if message.sender == request.user %}
                     <div class="flex justify-end mb-4">
-                        <div class="bg-indigo-600 text-white rounded-lg px-4 py-2 max-w-xs lg:max-w-md shadow-md transform transition-all duration-300 hover:scale-105 message-bubble" data-msg-id="{{ message.id }}">
+                        <div class="sent-message rounded-lg px-4 py-2 max-w-xs lg:max-w-md shadow-md transform transition-all duration-300 hover:scale-105 message-bubble" data-msg-id="{{ message.id }}">
                             <p class="text-sm">{{message.msg}}</p>
                             <div class="flex items-center justify-end mt-1">
                                 <span class="text-xs opacity-75">{{message.creation_date|date:'H:i'}}</span>
@@ -124,9 +307,9 @@
                     </div>
                     {% else %}
                     <div class="flex mb-4">
-                        <div class="bg-white rounded-lg px-4 py-2 max-w-xs lg:max-md shadow-md transform transition-all duration-300 hover:scale-105 message-bubble" data-msg-id="{{ message.id }}">
+                        <div class="received-message rounded-lg px-4 py-2 max-w-xs lg:max-md shadow-md transform transition-all duration-300 hover:scale-105 message-bubble" data-msg-id="{{ message.id }}">
                             <p class="text-sm mt-1">{{message.msg}}</p>
-                            <span class="text-xs text-gray-500 block text-right mt-1">{{message.creation_date|date:'H:i'}}</span>
+                            <span class="text-xs opacity-75 block text-right mt-1">{{message.creation_date|date:'H:i'}}</span>
                             {% if request.user.userprofile.account_type == '2' %}  <!-- Director account type -->
                             <div class="message-actions">
                                 <button onclick="deleteMessage({{ message.id }})" title="حذف الرسالة">
@@ -142,9 +325,9 @@
                 </div>
             </div>
 
-            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
+            <div class="fixed bottom-0 left-0 right-0 chat-input-area px-4 py-3">
                 <form id="form" class="flex items-center gap-2 max-w-4xl mx-auto" onsubmit="event.preventDefault(); SendMsg();">
-                    <input type="text" id="senderMsg" class="flex-grow mr-2 px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 ease-in-out" placeholder="اكتب رسالة..." />
+                    <input type="text" id="senderMsg" class="chat-input flex-grow mr-2 px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 ease-in-out" placeholder="اكتب رسالة..." />
                     <button type="submit" class="bg-indigo-600 text-white rounded-full px-3 py-1 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:scale-105">
                         <i class="bi bi-send-fill text-lg transform rotate-45"></i>
                     </button>
@@ -155,14 +338,14 @@
 </div>
 
 <!-- Delete Confirmation Dialog -->
-<dialog id="delete-dialog" class="bg-white rounded-lg shadow-xl p-6 w-80">
-    <h3 class="text-lg font-bold mb-4 text-gray-800">تأكيد الحذف</h3>
-    <p class="text-gray-600 mb-6">هل أنت متأكد من أنك تريد حذف هذه الرسالة؟</p>
+<dialog id="delete-dialog" class="dialog rounded-lg shadow-xl p-6 w-80">
+    <h3 class="text-lg font-bold mb-4">تأكيد الحذف</h3>
+    <p class="mb-6 opacity-75">هل أنت متأكد من أنك تريد حذف هذه الرسالة؟</p>
     <div class="flex gap-3 justify-end">
-        <button id="cancel-delete" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded transition duration-300 ease-in-out">
+        <button id="cancel-delete" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded transition duration-300 ease-in-out btn-secondary">
             إلغاء
         </button>
-        <button id="confirm-delete" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition duration-300 ease-in-out">
+        <button id="confirm-delete" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition duration-300 ease-in-out btn-danger">
             حذف
         </button>
     </div>
@@ -172,6 +355,18 @@
     let messageToDelete = null;
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Dark mode detection (same as viewMessage.html)
+        const darkModeCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('darkMode='));
+
+        const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+            document.documentElement.classList.add('dark');
+        }
+
         const deleteDialog = document.getElementById('delete-dialog');
         const cancelDelete = document.getElementById('cancel-delete');
         const confirmDelete = document.getElementById('confirm-delete');
@@ -247,7 +442,7 @@
                 if (data.method == 'send_msg') {
                     let msg_html = `
                         <div class="flex justify-end mb-4">
-                            <div class="bg-indigo-600 text-white rounded-lg px-4 py-2 max-w-xs lg:max-w-md shadow-md transform transition-all duration-300 hover:scale-105 message-bubble" data-msg-id="${data.msg_id}">
+                            <div class="sent-message rounded-lg px-4 py-2 max-w-xs lg:max-w-md shadow-md transform transition-all duration-300 hover:scale-105 message-bubble" data-msg-id="${data.msg_id}">
                                 <p class="text-sm">${data.message}</p>
                                 <div class="flex items-center justify-end mt-1">
                                     <span class="text-xs opacity-75">${data.creation_date}</span>
@@ -300,9 +495,9 @@
 
         let msg_html = `
             <div class="flex mb-4">
-                <div class="bg-white rounded-lg px-4 py-2 max-w-xs lg:max-w-md shadow-md transform transition-all duration-300 hover:scale-105 message-bubble" data-msg-id="${data.msg_id}">
+                <div class="received-message rounded-lg px-4 py-2 max-w-xs lg:max-w-md shadow-md transform transition-all duration-300 hover:scale-105 message-bubble" data-msg-id="${data.msg_id}">
                     <p class="text-sm mt-1">${data.message}</p>
-                    <span class="text-xs text-gray-500 block text-right mt-1">${data.creation_date}</span>
+                    <span class="text-xs opacity-75 block text-right mt-1">${data.creation_date}</span>
                     ${deleteButton}
                 </div>
             </div>
