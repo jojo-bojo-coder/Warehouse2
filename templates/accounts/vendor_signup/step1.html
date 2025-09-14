@@ -94,7 +94,7 @@
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
-                <div class="ml-3">
+                <div class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %}">
                     <p class="text-sm text-blue-700">
                         {% if LANGUAGE_CODE == 'ar' %}
                         <strong>ملاحظة:</strong> تأكد من صحة جميع المعلومات المدخلة. سيتم استخدام هذه المعلومات في التواصل معك وإنشاء حسابك.
@@ -110,12 +110,14 @@
 {% endblock %}
 
 {% block navigation %}
-<div class="flex justify-between">
-    <div></div> <!-- Empty div for spacing -->
+<div class="flex justify-between items-center">
+    <div class="w-32"> <!-- Fixed width for spacing consistency -->
+        <!-- Empty for spacing -->
+    </div>
 
-    <div class="flex space-x-4">
+    <div class="flex space-x-4 rtl:space-x-reverse">
         <a href="{% url 'signup' %}"
-           class="px-6 py-3 text-gray-500 hover:text-gray-700 transition-colors duration-200">
+           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             العودة للتسجيل
             {% else %}
@@ -124,7 +126,7 @@
         </a>
 
         <button type="submit" form="vendor-step-form"
-                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium min-w-[120px]">
             {% if LANGUAGE_CODE == 'ar' %}
             التالي
             {% else %}

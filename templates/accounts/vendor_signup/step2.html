@@ -128,7 +128,7 @@
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
-                <div class="ml-3">
+                <div class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %}">
                     <p class="text-sm text-green-700">
                         {% if LANGUAGE_CODE == 'ar' %}
                         <strong>نصيحة:</strong> كلما كان وصف نشاطك أكثر تفصيلاً، كلما زادت فرصة قبول طلبك وجذب العملاء المناسبين.
@@ -144,10 +144,10 @@
 {% endblock %}
 
 {% block navigation %}
-<div class="flex justify-between">
+<div class="flex justify-between items-center">
     <div>
         <a href="{% url 'vendor_signup_step1' %}"
-           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+           class=" {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             السابق
             {% else %}
@@ -156,9 +156,9 @@
         </a>
     </div>
 
-    <div class="flex space-x-4">
+    <div class="flex space-x-4 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
         <a href="{% url 'vendor_signup_restart' %}"
-           class="px-6 py-3 text-gray-500 hover:text-gray-700 transition-colors duration-200">
+           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             إعادة البدء
             {% else %}
@@ -167,7 +167,7 @@
         </a>
 
         <button type="submit" form="vendor-step-form"
-                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium min-w-[120px]">
             {% if LANGUAGE_CODE == 'ar' %}
             التالي
             {% else %}

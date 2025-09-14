@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <div class="form-group">
                     <label for="{{ form.district.id_for_label }}" class="form-label">
                         {{ form.district.label }}
@@ -135,7 +135,7 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <div class="form-group">
                     <label for="{{ form.commercial_registration_number.id_for_label }}" class="form-label">
                         {{ form.commercial_registration_number.label }}
@@ -189,7 +189,7 @@
                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
-                <div class="ml-3">
+                <div class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %}">
                     <p class="text-sm text-yellow-700">
                         {% if LANGUAGE_CODE == 'ar' %}
                         <strong>مهم:</strong> تأكد من صحة رقم السجل التجاري. سيتم التحقق من هذه المعلومات مع الجهات المختصة.
@@ -232,10 +232,10 @@ document.getElementById('{{ form.region.id_for_label }}').addEventListener('chan
 {% endblock %}
 
 {% block navigation %}
-<div class="flex justify-between">
+<div class="flex justify-between items-center">
     <div>
         <a href="{% url 'vendor_signup_step2' %}"
-           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+           class=" {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             السابق
             {% else %}
@@ -244,9 +244,9 @@ document.getElementById('{{ form.region.id_for_label }}').addEventListener('chan
         </a>
     </div>
 
-    <div class="flex space-x-4">
+    <div class="flex space-x-4 rtl:space-x-reverse">
         <a href="{% url 'vendor_signup_restart' %}"
-           class="px-6 py-3 text-gray-500 hover:text-gray-700 transition-colors duration-200">
+           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             إعادة البدء
             {% else %}
@@ -255,7 +255,7 @@ document.getElementById('{{ form.region.id_for_label }}').addEventListener('chan
         </a>
 
         <button type="submit" form="vendor-step-form"
-                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium min-w-[120px]">
             {% if LANGUAGE_CODE == 'ar' %}
             التالي
             {% else %}

@@ -12,7 +12,7 @@ class VendorStep1Form(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={
             'placeholder': 'الاسم الكامل',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'required': True
         })
     )
@@ -22,7 +22,7 @@ class VendorStep1Form(forms.Form):
         max_length=15,
         widget=forms.TextInput(attrs={
             'placeholder': 'رقم الهاتف',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'required': True
         })
     )
@@ -31,7 +31,7 @@ class VendorStep1Form(forms.Form):
         label="البريد الإلكتروني",
         widget=forms.EmailInput(attrs={
             'placeholder': 'البريد الإلكتروني',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'required': True
         })
     )
@@ -51,7 +51,7 @@ class VendorStep2Form(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={
             'placeholder': 'اسم النشاط التجاري (عربي)',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'required': True
         })
     )
@@ -61,7 +61,7 @@ class VendorStep2Form(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={
             'placeholder': 'Business Name (English)',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'required': True
         })
     )
@@ -70,7 +70,7 @@ class VendorStep2Form(forms.Form):
         choices=[],
         label="نوع النشاط",
         widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'required': True
         })
     )
@@ -80,7 +80,7 @@ class VendorStep2Form(forms.Form):
         min_value=1,
         widget=forms.NumberInput(attrs={
             'placeholder': 'عدد الفروع',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'min': 1,
             'required': True
         })
@@ -91,7 +91,7 @@ class VendorStep2Form(forms.Form):
         widget=forms.Textarea(attrs={
             'placeholder': 'وصف الخدمة',
             'rows': 4,
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'required': True
         })
     )
@@ -117,7 +117,7 @@ class VendorStep3Form(forms.Form):
         choices=[],
         label="المنطقة",
         widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'id': 'region-select',
             'required': True
         })
@@ -127,7 +127,7 @@ class VendorStep3Form(forms.Form):
         choices=[],
         label="المدينة",
         widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'id': 'city-select',
             'required': True
         })
@@ -138,7 +138,7 @@ class VendorStep3Form(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={
             'placeholder': 'الحي',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'required': True
         })
     )
@@ -148,7 +148,7 @@ class VendorStep3Form(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={
             'placeholder': 'الشارع',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'required': True
         })
     )
@@ -161,7 +161,7 @@ class VendorStep3Form(forms.Form):
         ],
         label="نوع الوثيقة التجارية",
         widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2' ,
             'required': True
         })
     )
@@ -171,7 +171,7 @@ class VendorStep3Form(forms.Form):
         max_length=10,
         widget=forms.TextInput(attrs={
             'placeholder': 'رقم السجل التجاري (10 أرقام)',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'maxlength': '10',
             'pattern': '[0-9]{10}',
             'required': True
@@ -184,7 +184,7 @@ class VendorStep3Form(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'placeholder': 'الرقم الضريبي (اختياري)',
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'maxlength': '15'
         })
     )
@@ -237,7 +237,7 @@ class VendorStep4Form(forms.Form):
     business_document_file = forms.FileField(
         label="ملف الوثيقة التجارية",
         widget=forms.FileInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'accept': '.pdf,.jpg,.jpeg,.png',
             'required': True
         })
@@ -246,7 +246,7 @@ class VendorStep4Form(forms.Form):
     commercial_registration_certificate = forms.FileField(
         label="شهادة السجل التجاري",
         widget=forms.FileInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'accept': '.pdf,.jpg,.jpeg,.png',
             'required': True
         })
@@ -256,7 +256,7 @@ class VendorStep4Form(forms.Form):
         label="شهادة الرقم الضريبي (اختياري)",
         required=False,
         widget=forms.FileInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'accept': '.pdf,.jpg,.jpeg,.png'
         })
     )
@@ -264,7 +264,7 @@ class VendorStep4Form(forms.Form):
     store_logo = forms.FileField(
         label="شعار المتجر",
         widget=forms.FileInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300',
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 mt-2',
             'accept': '.jpg,.jpeg,.png,.gif',
             'required': True
         })

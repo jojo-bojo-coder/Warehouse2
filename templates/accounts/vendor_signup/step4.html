@@ -135,7 +135,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <div class="form-group">
                     <label for="{{ form.tax_certificate.id_for_label }}" class="form-label">
                         {{ form.tax_certificate.label }}
@@ -193,7 +193,7 @@
 
             <div class="flex items-start">
                 {{ form.accept_terms }}
-                <label for="{{ form.accept_terms.id_for_label }}" class="ml-3 text-sm text-gray-700">
+                <label for="{{ form.accept_terms.id_for_label }}" class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm text-gray-700">
                     {% if LANGUAGE_CODE == 'ar' %}
                     أوافق على
                     <a href="{% url 'terms_and_conditions' %}" target="_blank" class="text-blue-600 hover:text-blue-800 underline">
@@ -226,7 +226,7 @@
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
-                <div class="ml-3">
+                <div class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %}">
                     <p class="text-sm text-green-700">
                         {% if LANGUAGE_CODE == 'ar' %}
                         <strong>تهانينا!</strong> أنت على وشك إكمال التسجيل. بعد إرسال الطلب، سيتم مراجعته من قبل فريقنا والرد عليك خلال 24-48 ساعة.
@@ -238,6 +238,47 @@
             </div>
         </div>
     </form>
+
+    <div id="submitConfirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="max-w-2xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s">
+        <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden dark:bg-gray-800/90 dark:border dark:border-gray-700">
+            <div class="bg-gradient-to-r from-blue-500 to-green-600 px-6 py-4">
+                <h2 class="text-xl font-semibold text-white">
+                    {% if LANGUAGE_CODE == 'ar' %}تأكيد الإرسال{% else %}Confirm Submission{% endif %}
+                </h2>
+            </div>
+
+            <div class="p-6">
+                <div class="text-center">
+                    <svg class="mx-auto h-16 w-16 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">
+                        {% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من إرسال الطلب؟{% else %}Are you sure you want to submit your application?{% endif %}
+                    </h3>
+                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                        <p>
+                            {% if LANGUAGE_CODE == 'ar' %}
+                            بعد الإرسال، سيتم مراجعة طلبك من قبل فريقنا والرد عليك خلال 24-48 ساعة.
+                            {% else %}
+                            After submission, your application will be reviewed by our team and you'll receive a response within 24-48 hours.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center space-x-4 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
+                    <button id="cancelSubmitBtn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                        {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                    </button>
+                    <button id="confirmSubmitBtn" class="px-6 py-2 bg-gradient-to-r from-blue-500 to-green-600 text-white rounded-lg hover:from-blue-600 hover:to-green-700 transition-all duration-300 dark:from-blue-600 dark:to-green-700 dark:hover:from-blue-700 dark:hover:to-green-800">
+                        {% if LANGUAGE_CODE == 'ar' %}نعم، أرسل الطلب{% else %}Yes, Submit Application{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 
 <script>
@@ -270,14 +311,46 @@ document.getElementById('vendor-step-form').addEventListener('submit', function(
         e.preventDefault();
     }
 });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('submitConfirmationModal');
+    const cancelBtn = document.getElementById('cancelSubmitBtn');
+    const confirmBtn = document.getElementById('confirmSubmitBtn');
+    const submitBtn = document.querySelector('button[type="submit"][form="vendor-step-form"]');
+    const form = document.getElementById('vendor-step-form');
+
+    // Show modal when submit button is clicked
+    submitBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        modal.classList.remove('hidden');
+    });
+
+    // Hide modal when cancel button is clicked
+    cancelBtn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+    });
+
+    // Submit form when confirm button is clicked
+    confirmBtn.addEventListener('click', function() {
+        form.submit();
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+});
 </script>
 {% endblock %}
 
 {% block navigation %}
-<div class="flex justify-between">
+<div class="flex justify-between items-center">
     <div>
         <a href="{% url 'vendor_signup_step3' %}"
-           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+           class=" {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             السابق
             {% else %}
@@ -286,9 +359,9 @@ document.getElementById('vendor-step-form').addEventListener('submit', function(
         </a>
     </div>
 
-    <div class="flex space-x-4">
+    <div class="flex space-x-4 rtl:space-x-reverse">
         <a href="{% url 'vendor_signup_restart' %}"
-           class="px-6 py-3 text-gray-500 hover:text-gray-700 transition-colors duration-200">
+           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             إعادة البدء
             {% else %}
@@ -297,7 +370,7 @@ document.getElementById('vendor-step-form').addEventListener('submit', function(
         </a>
 
         <button type="submit" form="vendor-step-form"
-                class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium">
+                class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium min-w-[120px]">
             {% if LANGUAGE_CODE == 'ar' %}
             إرسال الطلب
             {% else %}
