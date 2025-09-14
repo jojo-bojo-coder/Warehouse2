@@ -124,7 +124,6 @@
   /* CKEditor Content Area */
   .cke_contents {
       border: none !important;
-      background: white !important;
   }
 
   .cke_wysiwyg_frame {
@@ -375,5 +374,115 @@
           document.documentElement.classList.add('dark');
       }
   });
+
+    // Enhanced CKEditor dark mode configuration
+CKEDITOR.on('instanceReady', function(ev) {
+    var editor = ev.editor;
+
+    function updateEditorTheme() {
+        const isDark = document.documentElement.classList.contains('dark');
+
+        // Update editor content area
+        if (isDark) {
+            editor.document.getBody().setStyle('background-color', '#1f2937');
+            editor.document.getBody().setStyle('color', '#f3f4f6');
+        } else {
+            editor.document.getBody().setStyle('background-color', '#ffffff');
+            editor.document.getBody().setStyle('color', '#1f2937');
+        }
+
+        // Update toolbar and bottom elements
+        const editorElement = editor.container.$;
+        const toolbar = editorElement.querySelector('.cke_top');
+        const bottom = editorElement.querySelector('.cke_bottom');
+        const buttons = editorElement.querySelectorAll('.cke_button');
+        const combos = editorElement.querySelectorAll('.cke_combo');
+
+        if (isDark) {
+            // Apply dark styles to toolbar
+            if (toolbar) {
+                toolbar.style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+                toolbar.style.borderBottomColor = '#374151';
+            }
+
+            // Apply dark styles to bottom
+            if (bottom) {
+                bottom.style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+                bottom.style.borderTopColor = '#374151';
+                bottom.style.color = '#e5e7eb';
+            }
+
+            // Apply dark styles to buttons
+            buttons.forEach(button => {
+                button.style.color = '#e5e7eb';
+            });
+
+            // Apply dark styles to combo boxes
+            combos.forEach(combo => {
+                const text = combo.querySelector('.cke_combo_text');
+                if (text) text.style.color = '#e5e7eb';
+            });
+        } else {
+            // Reset to light mode
+            if (toolbar) {
+                toolbar.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
+                toolbar.style.borderBottomColor = '#cbd5e0';
+            }
+
+            if (bottom) {
+                bottom.style.background = '#f8fafc';
+                bottom.style.borderTopColor = '#cbd5e0';
+                bottom.style.color = '#1f2937';
+            }
+
+            buttons.forEach(button => {
+                button.style.color = '#1f2937';
+            });
+
+            combos.forEach(combo => {
+                const text = combo.querySelector('.cke_combo_text');
+                if (text) text.style.color = '#1f2937';
+            });
+        }
+    }
+
+    // Apply theme on load with delay to ensure elements are rendered
+    setTimeout(updateEditorTheme, 100);
+
+    // Listen for dark mode changes
+    const observer = new MutationObserver(updateEditorTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+});
+
+// Also update when dark mode is toggled
+function toggleDarkMode() {
+    const html = document.documentElement;
+    const toggle = document.getElementById('toggle');
+
+    if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        if (toggle) toggle.checked = false;
+        document.cookie = "darkMode=false; path=/; max-age=31536000";
+    } else {
+        html.classList.add('dark');
+        if (toggle) toggle.checked = true;
+        document.cookie = "darkMode=true; path=/; max-age=31536000";
+    }
+
+    // Trigger CKEditor theme update
+    setTimeout(() => {
+        for (let name in CKEDITOR.instances) {
+            const editor = CKEDITOR.instances[name];
+            if (editor && editor.document) {
+                // Trigger the theme update
+                const event = new MutationEvent();
+                document.documentElement.dispatchEvent(event);
+            }
+        }
+    }, 100);
+}
 </script>
 {% endblock %}
