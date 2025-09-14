@@ -27,7 +27,7 @@
         {% if promotion.status == 'pending' %}
         <div class="bg-amber-50 dark:bg-amber-900 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
             <div class="flex items-center">
-                <svg class="w-5 h-5 text-amber-600 dark:text-amber-300 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-300 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <span class="text-amber-800 dark:text-amber-100 font-medium">
@@ -38,7 +38,7 @@
         {% elif promotion.status == 'active' %}
         <div class="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-4">
             <div class="flex items-center">
-                <svg class="w-5 h-5 text-green-600 dark:text-green-300 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-green-600 dark:text-green-300 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <span class="text-green-800 dark:text-green-100 font-medium">
@@ -49,7 +49,7 @@
         {% elif promotion.status == 'rejected' %}
         <div class="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-4">
             <div class="flex items-center">
-                <svg class="w-5 h-5 text-red-600 dark:text-red-300 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-red-600 dark:text-red-300 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <span class="text-red-800 dark:text-red-100 font-medium">
@@ -67,7 +67,7 @@
             <!-- Item Information Card -->
             <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-                    <svg class="w-5 h-5 ml-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                     </svg>
                     {% if LANGUAGE_CODE == 'ar' %} معلومات العنصر {% else %} Item Information {% endif %}
