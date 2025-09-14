@@ -246,7 +246,7 @@ function resetForm() {
 // Confirm delete
 function confirmDelete(id, name) {
     document.getElementById('featureToDelete').textContent = name;
-    document.getElementById('deleteForm').action = `/club_dashboard/promotions/delete-feature/${id}/`;
+    document.getElementById('deleteForm').action = `/club_dashboard/promotions/features/delete/${id}/`;
     document.getElementById('deleteModal').classList.remove('hidden');
 }
 
