@@ -1299,10 +1299,10 @@ def edit_bank_info(request):
 
             # Clean and validate IBAN
             cleaned_iban = iban.replace(' ', '').upper()  # Remove spaces and convert to uppercase
-            iban_pattern = re.compile(r'^[A-Z0-9]{4}8060[A-Z0-9]{4}800012SA1212$')
+            iban_pattern = re.compile(r'^SA\d{22}$')
 
             if not iban_pattern.match(cleaned_iban):
-                messages.error(request, "Invalid IBAN format. Please use format: XXXX 8060 XXXX 8000 12SA 1212")
+                messages.error(request, "Invalid IBAN format. Must start with SA followed by exactly 22 digits (e.g., SA1234567890123456789012)")
                 context = {
                     'coach': coach,
                     'LANGUAGE_CODE': translation.get_language(),

@@ -75,6 +75,22 @@
     .dark .border-green-500 {
         border-color: #48bb78;
     }
+
+    /* IBAN input styling */
+    .iban-input {
+        font-family: 'Courier New', monospace;
+        letter-spacing: 1px;
+    }
+
+    .iban-format-hint {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .dark .iban-format-hint {
+        color: #9ca3af;
+    }
 </style>
 
 <div class="bg-white dark:bg-gray-900 w-full px-4 sm:px-6 lg:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
@@ -126,9 +142,12 @@
                                 {% if LANGUAGE_CODE == 'ar' %}رقم الآيبان{% else %}IBAN{% endif %}
                             </label>
                             <input type="text" id="iban" name="iban" value="{{ coach.iban|default:'' }}"
-                                   class="w-full px-3 py-2 border {% if messages and 'IBAN' in message %}border-red-500 dark:border-red-500{% else %}border-gray-300 dark:border-gray-600{% endif %} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                   maxlength="29"
-                                   placeholder="XXXX 8060 XXXX 8000 12SA 1212">
+                                   class="iban-input w-full px-3 py-2 border {% if messages and 'IBAN' in message %}border-red-500 dark:border-red-500{% else %}border-gray-300 dark:border-gray-600{% endif %} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                   maxlength="26"
+                                   placeholder="SA12 3456 7890 1234 5678 9012">
+                            <div class="iban-format-hint">
+                                {% if LANGUAGE_CODE == 'ar' %}يجب أن يبدأ بـ SA متبوعاً بـ 22 رقماً{% else %}Must start with SA followed by 22 digits{% endif %}
+                            </div>
                             {% if messages %}
                                 {% for message in messages %}
                                     {% if 'IBAN' in message %}
@@ -158,22 +177,92 @@
 document.addEventListener('DOMContentLoaded', function() {
     const ibanInput = document.getElementById('iban');
 
-    ibanInput.addEventListener('input', function(e) {
-        // Remove all non-alphanumeric characters and convert to uppercase
-        let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    // Format existing value on page load
+    if (ibanInput.value) {
+        formatIbanValue(ibanInput);
+    }
 
-        // Format the value into the desired pattern
+    ibanInput.addEventListener('input', function(e) {
+        formatIbanValue(e.target);
+    });
+
+    ibanInput.addEventListener('paste', function(e) {
+        // Allow paste and then format
+        setTimeout(() => {
+            formatIbanValue(e.target);
+        }, 10);
+    });
+
+    function formatIbanValue(input) {
+        // Get cursor position before formatting
+        const cursorPosition = input.selectionStart;
+        const oldValue = input.value;
+
+        // Remove spaces and non-alphanumeric characters, convert to uppercase
+        let cleanValue = input.value.replace(/\s/g, '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+
+        // Ensure it starts with SA
+        if (cleanValue.length > 0 && !cleanValue.startsWith('SA')) {
+            if (cleanValue.startsWith('S')) {
+                cleanValue = 'SA' + cleanValue.substring(1);
+            } else {
+                cleanValue = 'SA' + cleanValue;
+            }
+        }
+
+        // Only allow digits after SA and limit to exactly 22 digits
+        if (cleanValue.length > 2) {
+            const prefix = cleanValue.substring(0, 2); // SA
+            let numbers = cleanValue.substring(2).replace(/[^0-9]/g, ''); // Only digits
+
+            // Limit to exactly 22 digits after SA
+            if (numbers.length > 22) {
+                numbers = numbers.substring(0, 22);
+            }
+
+            cleanValue = prefix + numbers;
+        }
+
+        // Format with spaces every 4 characters
         let formattedValue = '';
-        for (let i = 0; i < value.length; i++) {
-            if (i === 4 || i === 8 || i === 12 || i === 16 || i === 20) {
+        for (let i = 0; i < cleanValue.length; i++) {
+            if (i > 0 && i % 4 === 0) {
                 formattedValue += ' ';
             }
-            formattedValue += value[i];
+            formattedValue += cleanValue[i];
         }
 
         // Update the input value
-        e.target.value = formattedValue;
-    });
+        input.value = formattedValue;
+
+        // Restore cursor position (approximately)
+        if (formattedValue.length > oldValue.length) {
+            input.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
+        } else if (formattedValue.length < oldValue.length) {
+            input.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+        } else {
+            input.setSelectionRange(cursorPosition, cursorPosition);
+        }
+
+        // Validate and show visual feedback
+        validateIban(input, cleanValue);
+    }
+
+    function validateIban(input, cleanValue) {
+        const isValid = /^SA\d{22}$/.test(cleanValue);
+
+        if (cleanValue.length > 0) {
+            if (isValid) {
+                input.classList.remove('border-red-500', 'dark:border-red-500');
+                input.classList.add('border-green-500', 'dark:border-green-500');
+            } else {
+                input.classList.remove('border-green-500', 'dark:border-green-500');
+                input.classList.add('border-red-500', 'dark:border-red-500');
+            }
+        } else {
+            input.classList.remove('border-red-500', 'dark:border-red-500', 'border-green-500', 'dark:border-green-500');
+        }
+    }
 });
 </script>
 {% endblock %}
