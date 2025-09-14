@@ -14,9 +14,9 @@
                 </h1>
                 <p class="text-gray-600">
                     {% if LANGUAGE_CODE == 'ar' %}
-                    يجب عليك رفع سياسة الشروط والأحكام وسياسة الاسترجاع قبل أن تتمكن من إضافة أي منتجات أو خدمات.
+                    يجب عليك رفع سياسة المتجر وسياسة الاسترجاع قبل أن تتمكن من إضافة أي منتجات أو خدمات.
                     {% else %}
-                    You must upload Terms & Conditions and Refund Policy documents before you can add any products or services.
+                    You must upload Store and Refund Policy documents before you can add any products or services.
                     {% endif %}
                 </p>
             </div>
@@ -27,7 +27,7 @@
                 <!-- Terms & Conditions -->
                 <div class="space-y-2">
                     <label class="block text-sm font-medium text-gray-700">
-                        {% if LANGUAGE_CODE == 'ar' %}سياسة الشروط والأحكام{% else %}Terms & Conditions Policy{% endif %}
+                        {% if LANGUAGE_CODE == 'ar' %}سياسة المتجر{% else %}Store Policy{% endif %}
                         <span class="text-red-500">*</span>
                     </label>
                     {{ form.terms_conditions }}

@@ -14,9 +14,9 @@
                 </h1>
                 <p class="text-gray-600 dark:text-gray-300">
                     {% if LANGUAGE_CODE == 'ar' %}
-                    يمكنك تحديث سياسة الشروط والأحكام وسياسة الاسترجاع هنا
+                    يمكنك تحديث سياسة المتجر وسياسة الاسترجاع هنا
                     {% else %}
-                    You can update your Terms & Conditions and Refund Policy documents here
+                    You can update your Store and Refund Policy documents here
                     {% endif %}
                 </p>
 
@@ -46,7 +46,7 @@
                 <!-- Terms & Conditions -->
                 <div class="space-y-2">
                     <label class="block text-sm font-medium text-blue-600 dark:text-blue-400">
-                        {% if LANGUAGE_CODE == 'ar' %}سياسة الشروط والأحكام{% else %}Terms & Conditions Policy{% endif %}
+                        {% if LANGUAGE_CODE == 'ar' %}سياسة المتجر{% else %}Store Policy{% endif %}
                         <span class="text-red-500">*</span>
                     </label>
                     {{ form.terms_conditions }}
