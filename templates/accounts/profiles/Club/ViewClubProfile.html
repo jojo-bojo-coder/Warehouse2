@@ -200,20 +200,6 @@
             </div>
 
             <div class="px-6 py-4 bg-gray-50 sm:px-10 flex justify-end gap-2 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %} animate-[fadeInUp_0.6s_ease-out_0.3s_both] dark:bg-gray-700">
-                <button
-                    id="settingsButton"
-                    class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 dark:from-blue-600 dark:to-blue-700"
-                >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    {% if LANGUAGE_CODE == 'ar' %}
-                    الإعدادات
-                    {% else %}
-                    Settings
-                    {% endif %}
-                </button>
                 <a
                     href="{% url 'EditClubProfile' club.id %}"
                     class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 dark:from-blue-600 dark:to-blue-700"
@@ -230,8 +216,8 @@
             </div>
         </div>
         <div class="dashboard-toggle-card">
-            <h3 style="margin-bottom: 15px; display: flex; align-items: center;" class="text-gray-800 dark:text-gray-200">
-                <span style="font-size: 24px; margin-right: 10px;">🎛️</span>
+            <h3 style="margin-bottom: 15px; display: flex; align-items: center;" class="text-gray-800 dark:text-gray-200 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}">
+                <span style="font-size: 24px;" class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}">🎛️</span>
                 {% if LANGUAGE_CODE == 'ar' %}إعدادات لوحة التحكم{% else %}Dashboard Settings{% endif %}
                 <span id="status-indicator" class="status-indicator">
       {% if dashboard_settings.show_employee_client_counts %}
@@ -266,7 +252,7 @@
         </div>
         <div class="dashboard-toggle-card">
             <h3 style="margin-bottom: 15px; display: flex; align-items: center;" class="text-gray-800 dark:text-gray-200">
-                <span style="font-size: 24px; margin-right: 10px;">📝</span>
+                <span style="font-size: 24px;" class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}">📝</span>
                 {% if LANGUAGE_CODE == 'ar' %}تعديل الوصف{% else %}Edit Descriptions{% endif %}
             </h3>
 
@@ -298,7 +284,7 @@
         <!-- Add this after the existing sections in your template -->
         <div class="dashboard-toggle-card">
             <h3 style="margin-bottom: 15px; display: flex; align-items: center;" class="text-gray-800 dark:text-gray-200">
-                <span style="font-size: 24px; margin-right: 10px;">🏦</span>
+                <span style="font-size: 24px;" class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}">🏦</span>
                 {% if LANGUAGE_CODE == 'ar' %}معلومات الحساب البنكي{% else %}Bank Account Information{% endif %}
             </h3>
 
