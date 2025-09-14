@@ -216,13 +216,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <div class="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 rounded-xl text-white stat-card animate-fadeInUp">
                 <h3 class="text-blue-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-box ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي المنتجات{% else %}Total Products{% endif %}
+                    <i class="fas fa-box {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي المنتجات{% else %}Total Products{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">{{ total_products }}</div>
             </div>
             <div class="bg-gradient-to-r from-green-500 to-emerald-500 p-6 rounded-xl text-white stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
                 <h3 class="text-green-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-money-bill-wave ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}القيمة الإجمالية{% else %}Total Value{% endif %}
+                    <i class="fas fa-money-bill-wave {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}القيمة الإجمالية{% else %}Total Value{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">
                     <span id="total-value">{{ total_value|floatformat:2 }}</span>
@@ -231,25 +231,25 @@
             </div>
             <div class="bg-gradient-to-r from-amber-500 to-yellow-500 p-6 rounded-xl text-white stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
                 <h3 class="text-amber-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-exclamation-triangle ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}مخزون منخفض{% else %}Low Stock{% endif %}
+                    <i class="fas fa-exclamation-triangle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}مخزون منخفض{% else %}Low Stock{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">{{ low_stock_count }}</div>
             </div>
             <div class="bg-gradient-to-r from-red-500 to-pink-500 p-6 rounded-xl text-white stat-card animate-fadeInUp" style="animation-delay: 0.3s;">
                 <h3 class="text-red-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-times-circle ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}نفذ من المخزون{% else %}Out of Stock{% endif %}
+                    <i class="fas fa-times-circle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}نفذ من المخزون{% else %}Out of Stock{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">{{ out_of_stock_count }}</div>
             </div>
             <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-xl text-white stat-card animate-fadeInUp" style="animation-delay: 0.4s;">
                 <h3 class="text-purple-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-clock ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}ينتهي خلال شهر{% else %}Expiring Soon{% endif %}
+                    <i class="fas fa-clock {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}ينتهي خلال شهر{% else %}Expiring Soon{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">{{ expiring_soon_count }}</div>
             </div>
             <div class="bg-gradient-to-r from-rose-500 to-red-500 p-6 rounded-xl text-white stat-card animate-fadeInUp" style="animation-delay: 0.5s;">
                 <h3 class="text-rose-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-exclamation-circle ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}منتجات منتهية{% else %}Expired Products{% endif %}
+                    <i class="fas fa-exclamation-circle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}منتجات منتهية{% else %}Expired Products{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">{{ expired_count }}</div>
             </div>
@@ -266,9 +266,6 @@
                     <option>{% if LANGUAGE_CODE == 'ar' %}ينتهي خلال شهر{% else %}Expiring Soon{% endif %}</option>
                     <option>{% if LANGUAGE_CODE == 'ar' %}منتهي الصلاحية{% else %}Expired{% endif %}</option>
                 </select>
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i class="fas fa-filter text-blue-400 dark:text-blue-300"></i>
-                </div>
             </div>
             <div class="relative">
                 <input id="minPrice" type="number" placeholder="{% if LANGUAGE_CODE == 'ar' %}السعر الأدنى{% else %}Min Price{% endif %}" class="w-full px-4 py-2.5 pl-10 border border-blue-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 focus:border-transparent bg-white dark:bg-gray-800 text-blue-700 dark:text-gray-200 shadow-sm transition-all duration-200" aria-label="{% if LANGUAGE_CODE == 'ar' %}السعر الأدنى{% else %}Minimum Price{% endif %}"/>
@@ -314,19 +311,19 @@
                     <!-- Status Badge -->
                     <div class="absolute top-2 left-2 flex flex-wrap gap-1">
                         {% if product.is_enabled %}
-                        <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs shadow-sm"><i class="fas fa-check-circle ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}متاح{% else %}Available{% endif %}</span>
+                        <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs shadow-sm"><i class="fas fa-check-circle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}متاح{% else %}Available{% endif %}</span>
                         {% else %}
-                        <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs shadow-sm"><i class="fas fa-times-circle ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}غير متاح{% else %}Unavailable{% endif %}</span>
+                        <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs shadow-sm"><i class="fas fa-times-circle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}غير متاح{% else %}Unavailable{% endif %}</span>
                         {% endif %}
                         {% if product.stock == 0 %}
-                        <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs shadow-sm"><i class="fas fa-exclamation-circle ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}نفذ{% else %}Out of stock{% endif %}</span>
+                        <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs shadow-sm"><i class="fas fa-exclamation-circle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}نفذ{% else %}Out of stock{% endif %}</span>
                         {% elif product.stock <= 10 %}
-                        <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs shadow-sm"><i class="fas fa-exclamation-triangle ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}منخفض{% else %}Low stock{% endif %}</span>
+                        <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs shadow-sm"><i class="fas fa-exclamation-triangle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}منخفض{% else %}Low stock{% endif %}</span>
                         {% endif %}
                         {% if product.is_expired %}
-                        <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs shadow-sm"><i class="fas fa-exclamation-circle ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}منتهي{% else %}Expired{% endif %}</span>
+                        <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs shadow-sm"><i class="fas fa-exclamation-circle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}منتهي{% else %}Expired{% endif %}</span>
                         {% elif product.is_expiring_soon %}
-                        <span class="px-2 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full text-xs shadow-sm"><i class="fas fa-clock ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}ينتهي قريباً{% else %}Expiring soon{% endif %}</span>
+                        <span class="px-2 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full text-xs shadow-sm"><i class="fas fa-clock {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}ينتهي قريباً{% else %}Expiring soon{% endif %}</span>
                         {% endif %}
                         {% if product.approval_status == 'rejected' %}
                         <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">
@@ -354,7 +351,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                                 </svg>
                             </div>
-                            <div class="ml-3">
+                            <div class="{% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}">
                                 <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
                                     {% if LANGUAGE_CODE == 'ar' %}سبب الرفض{% else %}Rejection Reason{% endif %}
                                 </h3>
@@ -375,13 +372,13 @@
                             <span class="font-bold text-lg text-blue-600 dark:text-blue-400">{{ product.price }} <span class="text-sm">{{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</span></span>
                         </div>
                         <div class="text-gray-600 dark:text-gray-300 text-sm bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg transition-all duration-200 stat-card">
-                            <i class="fas fa-box ml-1 text-blue-600 dark:text-blue-400"></i>{% if LANGUAGE_CODE == 'ar' %}المخزون:{% else %}Stock:{% endif %} <span class="font-medium">{{ product.stock }}</span>
+                            <i class="fas fa-box {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %} text-blue-600 dark:text-blue-400"></i>{% if LANGUAGE_CODE == 'ar' %}المخزون:{% else %}Stock:{% endif %} <span class="font-medium">{{ product.stock }}</span>
                         </div>
                     </div>
                     <!-- Expiration Date -->
                     {% if product.expiration_date %}
                     <div class="text-sm text-gray-600 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg transition-all duration-200 stat-card">
-                        <i class="fas fa-calendar-times ml-1 text-blue-600 dark:text-blue-400"></i>{% if LANGUAGE_CODE == 'ar' %}انتهاء الصلاحية:{% else %}Expiry Date:{% endif %}
+                        <i class="fas fa-calendar-times {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %} text-blue-600 dark:text-blue-400"></i>{% if LANGUAGE_CODE == 'ar' %}انتهاء الصلاحية:{% else %}Expiry Date:{% endif %}
                         <span class="font-medium {% if product.is_expired %}text-red-600 dark:text-red-400{% elif product.is_expiring_soon %}text-amber-600 dark:text-amber-400{% else %}text-gray-800 dark:text-gray-200{% endif %}">
                             {{ product.expiration_date|date:"Y-m-d" }}
                         </span>
@@ -393,14 +390,14 @@
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-t border-gray-200 dark:border-gray-700 px-5 py-3 flex justify-between">
                     <div class="flex space-x-3">
                         <a href="{% url 'coachproduct_details' product.id %}" class="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center transition-all duration-200 group" aria-label="{% if LANGUAGE_CODE == 'ar' %}تفاصيل المنتج{% else %}Product Details{% endif %}">
-                            <i class="fas fa-eye ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}تفاصيل{% else %}Details{% endif %}
+                            <i class="fas fa-eye {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}تفاصيل{% else %}Details{% endif %}
                         </a>
                         <a href="{% url 'coacheditProduct' product.id %}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center transition-all duration-200 group" aria-label="{% if LANGUAGE_CODE == 'ar' %}تعديل المنتج{% else %}Edit Product{% endif %}">
-                            <i class="fas fa-edit ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}
+                            <i class="fas fa-edit {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}
                         </a>
                     </div>
                     <a href="{% url 'coachDeleteProduct' product.id %}" class="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center transition-all duration-200 group delete-product" data-id="{{ product.id }}" aria-label="{% if LANGUAGE_CODE == 'ar' %}حذف المنتج{% else %}Delete Product{% endif %}">
-                        <i class="fas fa-trash ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}
+                        <i class="fas fa-trash {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}
                     </a>
                 </div>
             </div>
@@ -408,11 +405,11 @@
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-t border-gray-200 dark:border-gray-700 px-5 py-3 flex justify-between">
                 <div class="flex space-x-3">
                     <a href="{% url 'coachproduct_details' product.id %}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center transition-all duration-200 group" aria-label="{% if LANGUAGE_CODE == 'ar' %}تفاصيل المنتج{% else %}Product Details{% endif %}">
-                        <i class="fas fa-eye ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}تفاصيل{% else %}Details{% endif %}
+                        <i class="fas fa-eye {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}تفاصيل{% else %}Details{% endif %}
                     </a>
                 </div>
                 <a href="{% url 'coachDeleteProduct' product.id %}" class="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center transition-all duration-200 group delete-product" data-id="{{ product.id }}" aria-label="{% if LANGUAGE_CODE == 'ar' %}حذف المنتج{% else %}Delete Product{% endif %}">
-                    <i class="fas fa-trash ml-1"></i>{% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}
+                    <i class="fas fa-trash {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}
                 </a>
             </div>
         </div>
@@ -422,7 +419,7 @@
             <div class="text-blue-500 dark:text-blue-400 mb-4">
                 <i class="fas fa-box text-5xl"></i>
             </div>
-            <p class="text-blue-600 dark:text-blue-400 font-medium text-lg mb-4"><i class="fas fa-info-circle mr-2"></i>{% if LANGUAGE_CODE == 'ar' %}لا توجد منتجات متاحة حالياً{% else %}No products available at the moment{% endif %}</p>
+            <p class="text-blue-600 dark:text-blue-400 font-medium text-lg mb-4"><i class="fas fa-info-circle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>{% if LANGUAGE_CODE == 'ar' %}لا توجد منتجات متاحة حالياً{% else %}No products available at the moment{% endif %}</p>
             <a href="{% url 'coachaddProduct' %}" class="mt-2 inline-block btn-gradient px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-md" aria-label="{% if LANGUAGE_CODE == 'ar' %}إضافة منتج جديد{% else %}Add New Product{% endif %}">
                 <i class="fas fa-plus mr-2"></i>{% if LANGUAGE_CODE == 'ar' %}إضافة منتج جديد{% else %}Add New Product{% endif %}
             </a>
