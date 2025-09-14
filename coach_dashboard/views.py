@@ -1104,7 +1104,7 @@ def viewOrders(request):
 
     # Get orders that contain products or services created by this coach
     orders = Order.objects.filter(
-        Q(items__product__creator=user) | Q(items__service__coaches=coach_profile),
+        Q(items__product__creator=user) | Q(items__service__creator=user),
         club=club
     ).distinct().order_by('-created_at')
 
