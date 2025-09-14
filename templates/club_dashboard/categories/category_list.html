@@ -202,6 +202,39 @@
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
     }
+
+    /* Modal styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-content {
+        width: 90%;
+        max-width: 500px;
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+        transform: translateY(0);
+    }
 </style>
 
 <div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden  dark:bg-gray-900">
@@ -319,230 +352,298 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {% for category in categories %}
             <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <div class="relative">
-                    {% if category.image %}
-                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-48 object-cover">
-                    {% else %}
-                    <div class="w-full h-48 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14-7H5m14 14H5m14-7H5"/>
-                        </svg>
-                    </div>
-                    {% endif %}
-                    <div class="absolute top-2 right-2">
-                        <span class="px-2 py-1 text-xs rounded-full {% if category.is_active %}bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300{% else %}bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300{% endif %}">
-                            {% if category.is_active %}
-                                {% if LANGUAGE_CODE == 'ar' %} نشط {% else %} Active {% endif %}
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-3">
+                            {% if category.image %}
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-12 h-12 rounded-lg object-cover">
                             {% else %}
-                                {% if LANGUAGE_CODE == 'ar' %} غير نشط {% else %} Inactive {% endif %}
+                            <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                                </svg>
+                            </div>
                             {% endif %}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="p-4">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="font-semibold text-lg text-gray-800 dark:text-white">{{ category.name }}</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">{{ category.description|default:"No description available" }}</p>
+                            <div>
+                                <h3 class="font-semibold text-gray-800 dark:text-white line-clamp-1">{{ category.name }}</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-1">{{ category.description|default:"" }}</p>
+                            </div>
                         </div>
                         <div class="flex space-x-2">
-                            <a href="{% url 'category_detail' category.id %}" class="ml-2 ripple btn-gradient bg-blue-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-600 transition-colors duration-300">
-                                {% if LANGUAGE_CODE == 'ar' %} عرض {% else %} View {% endif %}
+                            <a href="{% url 'edit_category' category.id %}" class="ripple p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-lg transition-colors duration-300" title="{% if LANGUAGE_CODE == 'ar' %} تعديل {% else %} Edit {% endif %}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
                             </a>
-                            <a href="{% url 'edit_category' category.id %}" class="ripple btn-gradient bg-green-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-600 transition-colors duration-300">
-                                {% if LANGUAGE_CODE == 'ar' %} تعديل {% else %} Edit {% endif %}
-                            </a>
-                            <button
-                                    onclick="toggleStatus('category', {{ category.id }}, {{ category.is_active|yesno:'true,false' }})"
-                                    class="ripple btn-gradient {% if category.is_active %}bg-orange-500 hover:bg-orange-600{% else %}bg-emerald-500 hover:bg-emerald-600{% endif %} text-white px-3 py-1 rounded-lg text-sm transition-colors duration-300"
-                            >
+                            <button onclick="showToggleModal({{ category.id }}, '{{ category.name }}', {{ category.is_active|yesno:"true,false" }})" class="ripple p-2 {% if category.is_active %}text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50{% else %}text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/50{% endif %} rounded-lg transition-colors duration-300" title="{% if category.is_active %}{% if LANGUAGE_CODE == 'ar' %} تعطيل {% else %} Disable {% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %} تمكين {% else %} Enable {% endif %}{% endif %}">
                                 {% if category.is_active %}
-                                {% if LANGUAGE_CODE == 'ar' %} إبطال {% else %} Disable {% endif %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
                                 {% else %}
-                                {% if LANGUAGE_CODE == 'ar' %} تفعيل {% else %} Enable {% endif %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
                                 {% endif %}
                             </button>
-                            <a href="{% url 'delete_category' category.id %}" class="ripple btn-gradient bg-red-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-600 transition-colors duration-300">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <a href="{% url 'delete_category' category.id %}" class="ripple p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-lg transition-colors duration-300" title="{% if LANGUAGE_CODE == 'ar' %} حذف {% else %} Delete {% endif %}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
                             </a>
                         </div>
                     </div>
-
-                    <!-- Subcategories section -->
-                    <div class="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                         <div class="flex justify-between items-center mb-3">
-                            <h4 class="font-medium text-gray-800 dark:text-white">
-                                {% if LANGUAGE_CODE == 'ar' %} الفئات الفرعية {% else %} Subcategories {% endif %}
-                                <span class="text-sm text-gray-500 dark:text-gray-400">({{ category.subcategory_count }})</span>
-                            </h4>
-                            <a href="{% url 'add_subcategory' %}?category={{ category.id }}" class="ripple btn-gradient bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-lg text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300">
-                                {% if LANGUAGE_CODE == 'ar' %} إضافة فئة فرعية {% else %} Add Subcategory {% endif %}
+                            <h4 class="font-medium text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %} الفئات الفرعية {% else %} Subcategories {% endif %}</h4>
+                            <a href="{% url 'add_subcategory' %}?category={{ category.id }}" class="ripple text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-full transition-colors duration-300 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                {% if LANGUAGE_CODE == 'ar' %} إضافة {% else %} Add {% endif %}
                             </a>
                         </div>
-
-                        {% if category.subcategories.all %}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div class="space-y-2 max-h-40 overflow-y-auto">
                             {% for subcategory in category.subcategories.all %}
-                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 transition-colors duration-300">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <h5 class="font-medium text-gray-800 dark:text-white">{{ subcategory.name }}</h5>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{{ subcategory.description|default:"" }}</p>
+                            <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div class="flex items-center gap-2">
+                                    {% if subcategory.image %}
+                                    <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" class="w-8 h-8 rounded-md object-cover">
+                                    {% else %}
+                                    <div class="w-8 h-8 rounded-md bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-purple-600 dark:text-purple-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                                        </svg>
                                     </div>
-                                    <span class="px-1.5 py-0.5 text-xs rounded-full {% if subcategory.is_active %}bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300{% else %}bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300{% endif %}">
-                                        {% if subcategory.is_active %}
-                                            {% if LANGUAGE_CODE == 'ar' %} نشط {% else %} Active {% endif %}
-                                        {% else %}
-                                            {% if LANGUAGE_CODE == 'ar' %} غير نشط {% else %} Inactive {% endif %}
-                                        {% endif %}
-                                    </span>
+                                    {% endif %}
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-800 dark:text-white line-clamp-1">{{ subcategory.name }}</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">{{ subcategory.description|default:"" }}</p>
+                                    </div>
                                 </div>
-                                <div class="flex justify-end space-x-1 mt-2">
-                                    <a href="{% url 'edit_subcategory' subcategory.id %}" class="ml-2 text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm">
-                                        {% if LANGUAGE_CODE == 'ar' %} تعديل {% else %} Edit {% endif %}
+                                <div class="flex space-x-1">
+                                    <a href="{% url 'edit_subcategory' subcategory.id %}" class="ripple p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-md transition-colors duration-300" title="{% if LANGUAGE_CODE == 'ar' %} تعديل {% else %} Edit {% endif %}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
                                     </a>
-                                    <button
-                                            onclick="toggleStatus('subcategory', {{ subcategory.id }}, {{ subcategory.is_active|yesno:'true,false' }})"
-                                            class="text-sm {% if subcategory.is_active %}text-orange-500 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300{% else %}text-emerald-500 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300{% endif %}"
-                                    >
+                                    <button onclick="showToggleModal({{ subcategory.id }}, '{{ subcategory.name }}', {{ subcategory.is_active|yesno:"true,false" }}, true)" class="ripple p-1 {% if subcategory.is_active %}text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50{% else %}text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/50{% endif %} rounded-md transition-colors duration-300" title="{% if subcategory.is_active %}{% if LANGUAGE_CODE == 'ar' %} تعطيل {% else %} Disable {% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %} تمكين {% else %} Enable {% endif %}{% endif %}">
                                         {% if subcategory.is_active %}
-                                        {% if LANGUAGE_CODE == 'ar' %} إبطال {% else %} Disable {% endif %}
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
                                         {% else %}
-                                        {% if LANGUAGE_CODE == 'ar' %} تفعيل {% else %} Enable {% endif %}
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
                                         {% endif %}
                                     </button>
-                                    <a href="{% url 'delete_subcategory' subcategory.id %}" class="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm">
-                                        {% if LANGUAGE_CODE == 'ar' %} حذف {% else %} Delete {% endif %}
+                                    <a href="{% url 'delete_subcategory' subcategory.id %}" class="ripple p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-md transition-colors duration-300" title="{% if LANGUAGE_CODE == 'ar' %} حذف {% else %} Delete {% endif %}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
                                     </a>
                                 </div>
                             </div>
+                            {% empty %}
+                            <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2">{% if LANGUAGE_CODE == 'ar' %} لا توجد فئات فرعية {% else %} No subcategories yet {% endif %}</p>
                             {% endfor %}
                         </div>
-                        {% else %}
-                        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-                            <p class="text-gray-500 dark:text-gray-400 text-sm">
-                                {% if LANGUAGE_CODE == 'ar' %} لا توجد فئات فرعية لهذه الفئة {% else %} No subcategories for this category {% endif %}
-                            </p>
-                        </div>
-                        {% endif %}
                     </div>
+                </div>
+                <div class="px-6 py-3 bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-500 dark:text-gray-400 flex justify-between items-center">
+                    <span>ID: {{ category.id }}</span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {{ category.created_at|date:"M d, Y" }}
+                    </span>
                 </div>
             </div>
             {% empty %}
-            <div class="col-span-full text-center py-12">
-                <svg class="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14-7H5m14 14H5m14-7H5"/>
-                </svg>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    {% if search_query %}
-                    {% if LANGUAGE_CODE == 'ar' %} لا توجد فئات مطابقة {% else %} No matching categories {% endif %}
-                    {% else %}
-                    {% if LANGUAGE_CODE == 'ar' %} لا توجد فئات {% else %} No categories found {% endif %}
-                    {% endif %}
-                </h3>
-                <p class="text-gray-500 dark:text-gray-400">
-                    {% if search_query %}
-                    {% if LANGUAGE_CODE == 'ar' %} جرب البحث بكلمات مختلفة {% else %} Try searching with different keywords {% endif %}
-                    {% else %}
-                    {% if LANGUAGE_CODE == 'ar' %} ابدأ بإضافة فئة جديدة {% else %} Start by adding a new category {% endif %}
-                    {% endif %}
-                </p>
+            <div class="col-span-2 text-center py-12">
+                <div class="mx-auto w-24 h-24 text-gray-400 mb-4">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-16"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">{% if LANGUAGE_CODE == 'ar' %} لا توجد فئات {% else %} No categories found {% endif %}</h3>
+                <p class="text-gray-500 dark:text-gray-400 mb-4">{% if LANGUAGE_CODE == 'ar' %} لم تقم بإضافة أي فئات بعد. {% else %} You haven't added any categories yet. {% endif %}</p>
+                <a href="{% url 'add_category' %}" class="ripple btn-gradient inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    {% if LANGUAGE_CODE == 'ar' %} إضافة فئة جديدة {% else %} Add New Category {% endif %}
+                </a>
             </div>
             {% endfor %}
         </div>
+    </div>
 
-        <!-- Categories Pagination -->
-        {% if categories.has_other_pages %}
-        <div class="flex justify-center mt-8">
+    <!-- Pagination -->
+    {% if categories.has_other_pages %}
+    <div class="mt-8 opacity-0 animate-fade-in" style="animation-delay: 0.6s">
+        <div class="flex justify-center">
             <nav class="flex items-center space-x-2">
                 {% if categories.has_previous %}
-                <a href="?category_page={{ categories.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300">
-                    {% if LANGUAGE_CODE == 'ar' %} السابق {% else %} Previous {% endif %}
+                <a href="?page={{ categories.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="ripple px-3 py-1.5 bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-300">
+                    <span class="sr-only">{% if LANGUAGE_CODE == 'ar' %} السابق {% else %} Previous {% endif %}</span>
+                    <svg class="w-5 h-5 {% if LANGUAGE_CODE == 'ar' %}rotate-180{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
                 </a>
                 {% endif %}
 
-                {% for num in categories.paginator.page_range %}
-                {% if num == categories.number %}
-                <span class="px-3 py-2 bg-blue-500 text-white rounded-lg">{{ num }}</span>
-                {% else %}
-                <a href="?category_page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300">{{ num }}</a>
-                {% endif %}
+                {% for i in categories.paginator.page_range %}
+                    {% if categories.number == i %}
+                    <span class="px-3 py-1.5 bg-blue-500 text-white rounded-lg">{{ i }}</span>
+                    {% else %}
+                    <a href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}" class="ripple px-3 py-1.5 bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-300">{{ i }}</a>
+                    {% endif %}
                 {% endfor %}
 
                 {% if categories.has_next %}
-                <a href="?category_page={{ categories.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300">
-                    {% if LANGUAGE_CODE == 'ar' %} التالي {% else %} Next {% endif %}
+                <a href="?page={{ categories.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="ripple px-3 py-1.5 bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-300">
+                    <span class="sr-only">{% if LANGUAGE_CODE == 'ar' %} التالي {% else %} Next {% endif %}</span>
+                    <svg class="w-5 h-5 {% if LANGUAGE_CODE == 'ar' %}rotate-180{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
                 </a>
                 {% endif %}
             </nav>
         </div>
-        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Enable/Disable Confirmation Modal -->
+<div id="toggleModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/50">
+                    <svg id="toggleIcon" class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <!-- Icon will be set dynamically -->
+                    </svg>
+                </div>
+                <h3 id="toggleTitle" class="text-lg font-semibold text-gray-800 dark:text-white text-center mb-2">
+                    <!-- Title will be set dynamically -->
+                </h3>
+                <p id="toggleMessage" class="text-gray-600 dark:text-gray-300 text-center">
+                    <!-- Message will be set dynamically -->
+                </p>
+            </div>
+            <div class="flex border-t border-gray-200 dark:border-gray-700">
+                <button id="toggleCancel" type="button" class="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300">
+                    {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+                </button>
+                <form id="toggleForm" method="POST" action="" class="flex-1">
+                    {% csrf_token %}
+                    <button id="toggleConfirm" type="submit" class="w-full py-3 px-4 font-medium transition-colors duration-300">
+                        <!-- Text will be set dynamically -->
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Toggle status functionality
-    function toggleStatus(type, id, currentStatus) {
-        const url = `/club_dashboard/${type === 'category' ? 'categories' : 'subcategories'}/${id}/toggle-status/`;
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const statusText = currentStatus ? 'disable' : 'enable';
+    // Add ripple effect to buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const rippleButtons = document.querySelectorAll('.ripple');
+        rippleButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const circle = document.createElement('span');
+                circle.classList.add('ripple-effect');
 
-        if (confirm(`Are you sure you want to ${statusText} this ${type}?`)) {
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                const radius = diameter / 2;
+
+                const rect = button.getBoundingClientRect();
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${e.clientX - rect.left - radius}px`;
+                circle.style.top = `${e.clientY - rect.top - radius}px`;
+
+                // Remove any existing ripple effect
+                const ripple = button.querySelector('.ripple-effect');
+                if (ripple) {
+                    ripple.remove();
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating the status. Please check console for details.');
+
+                button.appendChild(circle);
+
+                // Remove the span after the animation completes
+                setTimeout(() => {
+                    circle.remove();
+                }, 600);
+            });
+        });
+
+        // Initialize animations
+        document.querySelectorAll('.animate-fade-in, .animate-title, .animate-button').forEach(el => {
+            el.style.opacity = 1;
+        });
+
+        // Modal functionality
+        const modal = document.getElementById('toggleModal');
+        const cancelButton = document.getElementById('toggleCancel');
+
+        if (cancelButton) {
+            cancelButton.addEventListener('click', function() {
+                modal.classList.remove('active');
             });
         }
-    }
 
-    // Add ripple effect to buttons
-    document.querySelectorAll('.ripple').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const link = this.getAttribute('href');
-
-            // Create ripple effect
-            const ripple = document.createElement('span');
-            ripple.classList.add('ripple-effect');
-            this.appendChild(ripple);
-
-            // Get click position
-            const rect = this.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            ripple.style.left = `${x}px`;
-            ripple.style.top = `${y}px`;
-
-            // Remove ripple after animation
-            setTimeout(() => {
-                ripple.remove();
-                if (link) window.location.href = link;
-            }, 600);
-        });
+        // Close modal when clicking outside
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        }
     });
-</script>
 
+    // Show the enable/disable confirmation modal
+    function showToggleModal(id, name, isActive, isSubcategory = false) {
+        const modal = document.getElementById('toggleModal');
+        const icon = document.getElementById('toggleIcon');
+        const title = document.getElementById('toggleTitle');
+        const message = document.getElementById('toggleMessage');
+        const confirmButton = document.getElementById('toggleConfirm');
+        const form = document.getElementById('toggleForm');
+
+        // Set the form action
+        const disableText = "{% if LANGUAGE_CODE == 'ar' %} تعطيل {% else %} Disable {% endif %}";
+        const enableText = "{% if LANGUAGE_CODE == 'ar' %} تمكين {% else %} Enable {% endif %}";
+        const confirmDisableText = "{% if LANGUAGE_CODE == 'ar' %} هل أنت متأكد أنك تريد تعطيل {% else %} Are you sure you want to disable {% endif %}";
+        const confirmEnableText = "{% if LANGUAGE_CODE == 'ar' %} هل أنت متأكد أنك تريد تمكين {% else %} Are you sure you want to enable {% endif %}";
+
+        const url = isSubcategory
+            ? `/club_dashboard/subcategories/${id}/toggle-status/`
+            : `/club_dashboard/categories/${id}/toggle-status/`;
+        form.action = url;
+
+        if (isActive) {
+            // Disable action
+            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+            title.textContent = disableText + " " + name;
+            message.textContent = confirmDisableText + " " + name + "?";
+            confirmButton.textContent = disableText;
+            confirmButton.className = 'w-full py-3 px-4 font-medium transition-colors duration-300 bg-red-500 hover:bg-red-600 text-white';
+        } else {
+            // Enable action
+            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+            title.textContent = enableText + " " + name;
+            message.textContent = confirmEnableText + " " + name + "?";
+            confirmButton.textContent = enableText;
+            confirmButton.className = 'w-full py-3 px-4 font-medium transition-colors duration-300 bg-green-500 hover:bg-green-600 text-white';
+        }
+
+        // Show the modal
+        modal.classList.add('active');
+    }
+</script>
 {% endblock %}

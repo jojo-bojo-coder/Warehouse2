@@ -3909,13 +3909,9 @@ def toggle_category_status(request, category_id):
         status_text = 'activated' if category.is_active else 'deactivated'
         messages.success(request, f'Category "{category.name}" has been {status_text}!')
 
-        return JsonResponse({
-            'success': True,
-            'is_active': category.is_active,
-            'message': f'Category {status_text} successfully!'
-        })
+        return redirect('category_list')
 
-    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+    return redirect('category_list')
 
 
 @login_required
@@ -3929,13 +3925,9 @@ def toggle_subcategory_status(request, subcategory_id):
         status_text = 'activated' if subcategory.is_active else 'deactivated'
         messages.success(request, f'Subcategory "{subcategory.name}" has been {status_text}!')
 
-        return JsonResponse({
-            'success': True,
-            'is_active': subcategory.is_active,
-            'message': f'Subcategory {status_text} successfully!'
-        })
+        return redirect('category_list')
 
-    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+    return redirect('category_list')
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
