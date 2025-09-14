@@ -301,7 +301,7 @@
         </div>
         <div class="mt-4 flex items-center">
           <p class="text-4xl font-bold text-indigo-600 dark:text-indigo-400">{{ offers_count }}</p>
-          <div class="mr-4">
+          <div class="{% if LANGUAGE_CODE == 'ar' %}mr-4{% else %}ml-4{% endif %}">
             <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
               <span>{% if LANGUAGE_CODE == 'ar' %}منتجات{% else %}Products{% endif %}: {{ products_count }}</span>
             </div>
