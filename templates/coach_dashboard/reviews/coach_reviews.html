@@ -143,25 +143,25 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="gradient-card-amber p-6 rounded-xl shadow-lg stat-card animate-fadeInUp">
                 <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-                    <i class="fas fa-star mr-2"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي التقييمات{% else %}Total Reviews{% endif %}
+                    <i class="fas fa-star {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي التقييمات{% else %}Total Reviews{% endif %}
                 </h3>
                 <div class="text-4xl font-bold text-white">{{ total_reviews }}</div>
             </div>
             <div class="gradient-card-green p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
                 <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-                    <i class="fas fa-check-circle mr-2"></i> {% if LANGUAGE_CODE == 'ar' %}طلبات مؤكدة{% else %}Confirmed{% endif %}
+                    <i class="fas fa-check-circle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}طلبات مؤكدة{% else %}Confirmed{% endif %}
                 </h3>
                 <div class="text-4xl font-bold text-white">{{ confirmed_reviews }}</div>
             </div>
             <div class="gradient-card-blue p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
                 <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-                    <i class="fas fa-check-double mr-2"></i> {% if LANGUAGE_CODE == 'ar' %}مكتملة{% else %}Completed{% endif %}
+                    <i class="fas fa-check-double {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}مكتملة{% else %}Completed{% endif %}
                 </h3>
                 <div class="text-4xl font-bold text-white">{{ completed_reviews }}</div>
             </div>
             <div class="gradient-card-red p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.4s;">
                 <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-                    <i class="fas fa-times-circle mr-2"></i> {% if LANGUAGE_CODE == 'ar' %}ملغية/مستردة{% else %}Cancelled/Refunded{% endif %}
+                    <i class="fas fa-times-circle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}ملغية/مستردة{% else %}Cancelled/Refunded{% endif %}
                 </h3>
                 <div class="text-4xl font-bold text-white">{{ cancelled_reviews|add:refunded_reviews }}</div>
             </div>
@@ -178,9 +178,6 @@
                     <option value="cancelled">{% if LANGUAGE_CODE == 'ar' %}ملغية{% else %}Cancelled{% endif %}</option>
                     <option value="refunded">{% if LANGUAGE_CODE == 'ar' %}مستردة{% else %}Refunded{% endif %}</option>
                 </select>
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i class="fas fa-filter text-gray-400 dark:text-gray-500"></i>
-                </div>
             </div>
             <div class="relative">
                 <select id="typeFilter" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-sm transition-all duration-200">
@@ -188,9 +185,6 @@
                     <option value="product">{% if LANGUAGE_CODE == 'ar' %}منتجات فقط{% else %}Products Only{% endif %}</option>
                     <option value="service">{% if LANGUAGE_CODE == 'ar' %}خدمات فقط{% else %}Services Only{% endif %}</option>
                 </select>
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i class="fas fa-boxes text-gray-400 dark:text-gray-500"></i>
-                </div>
             </div>
             <div class="relative">
                 <input id="searchInput" type="text" placeholder="{% if LANGUAGE_CODE == 'ar' %}بحث باسم العميل...{% else %}Search by client name...{% endif %}" class="w-full px-4 py-2.5 pl-10 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-sm transition-all duration-200" aria-label="{% if LANGUAGE_CODE == 'ar' %}بحث باسم اللاعب{% else %}Search by student name{% endif %}"/>
@@ -206,22 +200,22 @@
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Client{% endif %}
                         </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {% if LANGUAGE_CODE == 'ar' %}العنصر{% else %}Item{% endif %}
                         </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {% if LANGUAGE_CODE == 'ar' %}التقييم{% else %}Rating{% endif %}
                         </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {% if LANGUAGE_CODE == 'ar' %}التعليق{% else %}Comment{% endif %}
                         </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {% if LANGUAGE_CODE == 'ar' %}حالة الطلب{% else %}Order Status{% endif %}
                         </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}
                         </th>
                     </tr>
@@ -236,7 +230,7 @@
                                 <div class="flex-shrink-0 h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                                     <i class="fas fa-user text-amber-600 dark:text-amber-400"></i>
                                 </div>
-                                <div class="ml-4">
+                                <div class="{% if LANGUAGE_CODE == 'ar' %}mr-4{% else %}ml-4{% endif %}">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
                                         {{ review.student.full_name }}
                                     </div>
