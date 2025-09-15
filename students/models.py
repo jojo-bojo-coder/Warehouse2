@@ -66,13 +66,22 @@ class ProductsModel(models.Model):
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=254, null=True)
     desc = models.TextField(null=True)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    price = models.DecimalField(max_digits = 6, decimal_places = 2)
     stock = models.IntegerField(default=1, null=True)
     classification = models.ManyToManyField('ProductsClassificationModel', blank=True)
     is_enabled = models.BooleanField(default=True)
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
-    manufacturing_date = models.DateField(null=True, blank=True, verbose_name="تاريخ التصنيع")
-    expiration_date = models.DateField(null=True, blank=True, verbose_name="تاريخ انتهاء الصلاحية")
+    manufacturing_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="تاريخ التصنيع"
+    )
+
+    expiration_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="تاريخ انتهاء الصلاحية"
+    )
 
     @property
     def is_expiring_soon(self):

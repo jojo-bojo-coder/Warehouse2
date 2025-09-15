@@ -395,6 +395,11 @@ class ProductsModelForm(forms.ModelForm):
         coach_profile = kwargs.pop('coach_profile', None)
         super().__init__(*args, **kwargs)
 
+        # Make fields optional
+        self.fields['manufacturing_date'].required = False
+        self.fields['expiration_date'].required = False
+        self.fields['subcategory'].required = False
+
         if coach_profile and coach_profile.activity_type:
             # Filter subcategories based on coach's activity type
             self.fields['subcategory'].queryset = SubCategory.objects.filter(
@@ -422,10 +427,14 @@ class ProductsModelForm(forms.ModelForm):
                 'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'}),
             'subcategory': forms.Select(attrs={
                 'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'}),
-            'manufacturing_date': forms.DateInput(attrs={'type': 'date',
-                                                         'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'}),
-            'expiration_date': forms.DateInput(attrs={'type': 'date',
-                                                      'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'}),
+            'manufacturing_date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+            }),
+            'expiration_date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+            }),
             'is_enabled': forms.CheckboxInput(),
         }
 
