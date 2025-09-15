@@ -300,20 +300,20 @@ class CoachTicketForm(forms.ModelForm):
         model = CoachReceptionistTicket
         fields = [ 'subject', 'message']
         labels = {
-            'subject': 'الموضوع',
-            'message': 'الرسالة',
+            'subject': 'Subject',
+            'message': 'Message',
         }
         help_texts = {
-            'subject': 'اكتب موضوع طلب الدعم',
-            'message': 'اكتب تفاصيل طلب الدعم',
+            'subject': 'Write the subject of your support request',
+            'message': 'Enter the details of your support request',
         }
         widgets = {
             'message': forms.Textarea(attrs={
                 'rows': 4,
-                'placeholder': 'اكتب رسالتك هنا...'
+                'placeholder': 'Write your message here...'
             }),
             'subject': forms.TextInput(attrs={
-                'placeholder': 'موضوع الطلب'
+                'placeholder': 'Subject of the request'
             }),
         }
 

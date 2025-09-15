@@ -108,10 +108,10 @@
                 <i class="fas fa-ticket-alt text-blue-600 dark:text-blue-400 text-2xl"></i>
             </div>
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-                إنشاء طلب دعم جديد
+                {% if LANGUAGE_CODE == 'ar' %}إنشاء طلب دعم جديد{% else %}Create New Support Ticket{% endif %}
             </h1>
             <p class="text-gray-600 dark:text-gray-400">
-                سيتم توجيه طلبك إلى أحد موظفي الدعم الفني المتاحين
+                {% if LANGUAGE_CODE == 'ar' %}سيتم توجيه طلبك إلى أحد موظفي الدعم الفني المتاحين{% else %}Your request will be directed to an available technical support staff{% endif %}
             </p>
         </div>
 
@@ -137,11 +137,11 @@
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <a href="{% url 'coach_ticket_list' %}" class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                        إلغاء
+                    <a href="{% url 'coach_ticket_list' %}" class="{% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                        {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
                     </a>
                     <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                        إنشاء الطلب
+                        {% if LANGUAGE_CODE == 'ar' %}إنشاء الطلب{% else %}Create Ticket{% endif %}
                     </button>
                 </div>
             </form>

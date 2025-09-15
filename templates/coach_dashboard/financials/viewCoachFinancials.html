@@ -130,25 +130,25 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white stat-card animate-fadeInUp">
                 <h3 class="text-blue-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-credit-card ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إيرادات البطاقات{% else %}Credit Card Revenue{% endif %}
+                    <i class="fas fa-credit-card {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}إيرادات البطاقات{% else %}Credit Card Revenue{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">{{ credit_card_revenue }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</div>
             </div>
             <div class="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
                 <h3 class="text-green-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-money-bill-wave ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إيرادات التحويل البنكي{% else %}Bank transfer Revenue{% endif %}
+                    <i class="fas fa-money-bill-wave {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}إيرادات التحويل البنكي{% else %}Bank transfer Revenue{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">{{ cash_revenue }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</div>
             </div>
             <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
                 <h3 class="text-purple-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-coins ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي الإيرادات{% else %}Total Revenue{% endif %}
+                    <i class="fas fa-coins {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي الإيرادات{% else %}Total Revenue{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">{{ total_revenue }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</div>
             </div>
             <div class="bg-gradient-to-r from-yellow-500 to-amber-500 rounded-xl p-6 text-white stat-card animate-fadeInUp" style="animation-delay: 0.3s;">
                 <h3 class="text-yellow-100 text-sm mb-2 flex items-center">
-                    <i class="fas fa-clock ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إيرادات معلقة{% else %}Pending Revenue{% endif %}
+                    <i class="fas fa-clock {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}إيرادات معلقة{% else %}Pending Revenue{% endif %}
                 </h3>
                 <div class="text-4xl font-bold">{{ pending_revenue }} {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}</div>
             </div>
