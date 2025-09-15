@@ -92,14 +92,14 @@
         <input type="date" id="date_to" name="date_to" value="{{ date_to }}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
       </div>
       <div class="w-full md:w-auto flex space-x-2 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
-        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <button type="submit" class="mt-4 w-28 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm">
           {% if LANGUAGE_CODE == 'ar' %}تصفية{% else %}Filter{% endif %}
         </button>
-        <a href="{% url 'coach_payments' %}" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+        <a href="{% url 'coach_payments' %}" class=" mt-4 w-28 px-4 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-center text-sm">
           {% if LANGUAGE_CODE == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
         </a>
         {% if date_from and date_to %}
-        <a href="{% url 'generate_payment_statement' %}?date_from={{ date_from }}&date_to={{ date_to }}" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+        <a href="{% url 'generate_payment_statement' %}?date_from={{ date_from }}&date_to={{ date_to }}" class=" mt-4 w-28 px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-center text-sm">
           {% if LANGUAGE_CODE == 'ar' %}إنشاء كشف حساب{% else %}Generate Statement{% endif %}
         </a>
         {% endif %}
