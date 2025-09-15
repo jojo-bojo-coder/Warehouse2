@@ -195,14 +195,14 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
     <div class="gradient-card-blue p-6 rounded-xl shadow-lg stat-card animate-fadeInUp">
       <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-        <i class="fas fa-clock ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}أيام العمل{% else %}Working Days{% endif %}
+        <i class="fas fa-clock {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}أيام العمل{% else %}Working Days{% endif %}
       </h3>
       <div class="text-4xl font-bold text-white">{{ working_days_count }}</div>
     </div>
 
     <div class="gradient-card-green p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
       <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-        <i class="fas fa-calendar-check ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}متاح اليوم{% else %}Available Today{% endif %}
+        <i class="fas fa-calendar-check {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}متاح اليوم{% else %}Available Today{% endif %}
       </h3>
       <div class="text-4xl font-bold text-white">
         {% if is_available_today %}{% if LANGUAGE_CODE == 'ar' %}نعم{% else %}Yes{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}لا{% else %}No{% endif %}{% endif %}
@@ -211,14 +211,14 @@
 
     <div class="gradient-card-amber p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
       <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-        <i class="fas fa-sun ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}متوسط ساعات العمل{% else %}Avg. Hours/Day{% endif %}
+        <i class="fas fa-sun {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}متوسط ساعات العمل{% else %}Avg. Hours/Day{% endif %}
       </h3>
       <div class="text-4xl font-bold text-white">{{ average_hours_per_day|floatformat:1 }}</div>
     </div>
 
     <div class="gradient-card-purple p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.3s;">
       <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-        <i class="fas fa-toggle-on ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}حالة الساعات{% else %}Hours Status{% endif %}
+        <i class="fas fa-toggle-on {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}حالة الساعات{% else %}Hours Status{% endif %}
       </h3>
       <div class="text-4xl font-bold text-white">
         {% if form.instance.is_working_hours_enabled %}{% if LANGUAGE_CODE == 'ar' %}مفعل{% else %}Enabled{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}معطل{% else %}Disabled{% endif %}{% endif %}
