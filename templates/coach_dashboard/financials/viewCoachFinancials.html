@@ -179,28 +179,28 @@
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-blue-50 dark:bg-gray-700">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order #{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}العنصر{% else %}Item{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}الضريبة{% else %}Tax{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}عمولة المنصة{% else %}Platform Fee{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}صافي الربح{% else %}Net Profit{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}الإجمالي{% else %}Total{% endif %}
                             </th>
                         </tr>
