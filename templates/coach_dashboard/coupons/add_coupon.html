@@ -93,8 +93,8 @@
     <section class="container mx-auto px-4 pt-8 pb-16">
         <!-- Header Section -->
         <div class="flex justify-between items-center mb-8 animate-fadeIn">
-            <div class="flex items-center space-x-4">
-                <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+            <div class="flex items-center ">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400 {% if LANGUAGE_CODE == 'ar' %}ml-4{% else %}mr-4{% endif %}">
                     <i class="fas fa-tag text-xl"></i>
                 </div>
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
@@ -111,7 +111,7 @@
                 <!-- Basic Information Section -->
                 <div class="p-6 md:p-8">
                     <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-6 flex items-center">
-                        <i class="fas fa-info-circle text-blue-500 dark:text-blue-400 ml-2"></i>
+                        <i class="fas fa-info-circle text-blue-500 dark:text-blue-400 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                         {% if LANGUAGE_CODE == 'ar' %}معلومات أساسية{% else %}Basic Information{% endif %}
                     </h2>
 
@@ -125,9 +125,6 @@
                                 </label>
                                 <div class="relative">
                                     {{ form.code }}
-                                    <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0{% else %}right-0{% endif %} flex items-center pr-3 pointer-events-none text-gray-400 dark:text-gray-500">
-                                        <i class="fas fa-hashtag"></i>
-                                    </div>
                                 </div>
                                 {% if form.code.errors %}
                                     <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.code.errors.0 }}</p>
@@ -148,7 +145,7 @@
                             <!-- Active Status -->
                             <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                 {{ form.is_active }}
-                                <label for="{{ form.is_active.id_for_label }}" class="mr-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <label for="{{ form.is_active.id_for_label }}" class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
                                     {% if LANGUAGE_CODE == 'ar' %}تفعيل القسيمة{% else %}Activate Coupon{% endif %}
                                 </label>
                             </div>
@@ -161,9 +158,6 @@
                                     </label>
                                     <div class="relative">
                                         {{ form.start_date }}
-                                        <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0{% else %}right-0{% endif %} flex items-center pr-3 pointer-events-none text-gray-400 dark:text-gray-500">
-                                            <i class="far fa-calendar-alt"></i>
-                                        </div>
                                     </div>
                                     {% if form.start_date.errors %}
                                         <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.start_date.errors.0 }}</p>
@@ -175,9 +169,6 @@
                                     </label>
                                     <div class="relative">
                                         {{ form.end_date }}
-                                        <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0{% else %}right-0{% endif %} flex items-center pr-3 pointer-events-none text-gray-400 dark:text-gray-500">
-                                            <i class="far fa-calendar-alt"></i>
-                                        </div>
                                     </div>
                                     {% if form.end_date.errors %}
                                         <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.end_date.errors.0 }}</p>
@@ -191,7 +182,7 @@
                 <!-- Discount Settings Section -->
                 <div class="p-6 md:p-8">
                     <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-6 flex items-center">
-                        <i class="fas fa-percentage text-blue-500 dark:text-blue-400 ml-2"></i>
+                        <i class="fas fa-percentage text-blue-500 dark:text-blue-400 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                         {% if LANGUAGE_CODE == 'ar' %}إعدادات الخصم{% else %}Discount Settings{% endif %}
                     </h2>
 
@@ -206,13 +197,13 @@
                                 <div class="grid grid-cols-2 gap-3">
                                     <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-blue-300 dark:hover:border-blue-500 {% if form.discount_type.value == 'percentage' %}border-blue-500 bg-blue-50 dark:bg-blue-900/30{% else %}border-gray-200 dark:border-gray-600{% endif %}">
                                         <input type="radio" name="discount_type" value="percentage" class="form-radio h-4 w-4 text-blue-600 dark:text-blue-400" {% if form.discount_type.value == 'percentage' %}checked{% endif %}>
-                                        <span class="mr-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <span class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
                                             {% if LANGUAGE_CODE == 'ar' %}نسبة مئوية{% else %}Percentage{% endif %}
                                         </span>
                                     </label>
                                     <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-blue-300 dark:hover:border-blue-500 {% if form.discount_type.value == 'fixed' %}border-blue-500 bg-blue-50 dark:bg-blue-900/30{% else %}border-gray-200 dark:border-gray-600{% endif %}">
                                         <input type="radio" name="discount_type" value="fixed" class="form-radio h-4 w-4 text-blue-600 dark:text-blue-400" {% if form.discount_type.value == 'fixed' %}checked{% endif %}>
-                                        <span class="mr-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <span class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
                                             {% if LANGUAGE_CODE == 'ar' %}مبلغ ثابت{% else %}Fixed Amount{% endif %}
                                         </span>
                                     </label>
@@ -229,9 +220,6 @@
                                 </label>
                                 <div class="relative">
                                     {{ form.discount_value }}
-                                    <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0{% else %}right-0{% endif %} flex items-center pr-3 pointer-events-none text-gray-400 dark:text-gray-500">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </div>
                                 </div>
                                 {% if form.discount_value.errors %}
                                     <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.discount_value.errors.0 }}</p>
@@ -249,9 +237,7 @@
                                 </label>
                                 <div class="relative">
                                     {{ form.max_discount }}
-                                    <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0{% else %}right-0{% endif %} flex items-center pr-3 pointer-events-none text-gray-400 dark:text-gray-500">
-                                        <i class="fas fa-tag"></i>
-                                    </div>
+
                                 </div>
                             </div>
 
@@ -263,9 +249,7 @@
                                 </label>
                                 <div class="relative">
                                     {{ form.min_order_value }}
-                                    <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0{% else %}right-0{% endif %} flex items-center pr-3 pointer-events-none text-gray-400 dark:text-gray-500">
-                                        <i class="fas fa-shopping-cart"></i>
-                                    </div>
+
                                 </div>
                             </div>
 
@@ -276,9 +260,7 @@
                                 </label>
                                 <div class="relative">
                                     {{ form.max_uses }}
-                                    <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0{% else %}right-0{% endif %} flex items-center pr-3 pointer-events-none text-gray-400 dark:text-gray-500">
-                                        <i class="fas fa-redo"></i>
-                                    </div>
+
                                 </div>
                                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                     {% if LANGUAGE_CODE == 'ar' %}أدخل 0 لاستخدام غير محدود{% else %}Enter 0 for unlimited uses{% endif %}
@@ -291,7 +273,7 @@
                 <!-- Student Selection Section -->
                 <div class="p-6 md:p-8">
                     <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-6 flex items-center">
-                        <i class="fas fa-users text-blue-500 dark:text-blue-400 ml-2"></i>
+                        <i class="fas fa-users text-blue-500 dark:text-blue-400 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                         {% if LANGUAGE_CODE == 'ar' %}تطبيق على العملاء{% else %}Apply to Clients{% endif %}
                     </h2>
 
@@ -299,7 +281,7 @@
                         <!-- All Students Toggle -->
                         <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                             {{ form.all_students }}
-                            <label for="{{ form.all_students.id_for_label }}" class="mr-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label for="{{ form.all_students.id_for_label }}" class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {% if LANGUAGE_CODE == 'ar' %}جميع العملاء{% else %}All Clients{% endif %}
                             </label>
                         </div>
@@ -317,7 +299,7 @@
                 <!-- Products & Services Section -->
                 <div class="p-6 md:p-8">
                     <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-6 flex items-center">
-                        <i class="fas fa-box-open text-blue-500 dark:text-blue-400 ml-2"></i>
+                        <i class="fas fa-box-open text-blue-500 dark:text-blue-400 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                         {% if LANGUAGE_CODE == 'ar' %}تطبيق على المنتجات والخدمات{% else %}Apply to Products & Services{% endif %}
                     </h2>
 
@@ -325,14 +307,14 @@
                         <!-- Products Column -->
                         <div class="space-y-4">
                             <h3 class="text-md font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                                <i class="fas fa-box text-blue-400 dark:text-blue-300 ml-2"></i>
+                                <i class="fas fa-box text-blue-400 dark:text-blue-300 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                                 {% if LANGUAGE_CODE == 'ar' %}المنتجات{% else %}Products{% endif %}
                             </h3>
 
                             <!-- All Products Toggle -->
                             <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                 {{ form.apply_to_all_products }}
-                                <label for="{{ form.apply_to_all_products.id_for_label }}" class="mr-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <label for="{{ form.apply_to_all_products.id_for_label }}" class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
                                     {% if LANGUAGE_CODE == 'ar' %}جميع المنتجات{% else %}All Products{% endif %}
                                 </label>
                             </div>
@@ -349,14 +331,14 @@
                         <!-- Services Column -->
                         <div class="space-y-4">
                             <h3 class="text-md font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                                <i class="fas fa-concierge-bell text-blue-400 dark:text-blue-300 ml-2"></i>
+                                <i class="fas fa-concierge-bell text-blue-400 dark:text-blue-300 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                                 {% if LANGUAGE_CODE == 'ar' %}الخدمات{% else %}Services{% endif %}
                             </h3>
 
                             <!-- All Services Toggle -->
                             <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                 {{ form.apply_to_all_services }}
-                                <label for="{{ form.apply_to_all_services.id_for_label }}" class="mr-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <label for="{{ form.apply_to_all_services.id_for_label }}" class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
                                     {% if LANGUAGE_CODE == 'ar' %}جميع الخدمات{% else %}All Services{% endif %}
                                 </label>
                             </div>
@@ -375,11 +357,11 @@
                 <!-- Form Actions -->
                 <div class="p-6 md:p-8 bg-gray-50 dark:bg-gray-700">
                     <div class="flex flex-col md:flex-row justify-end space-y-3 md:space-y-0 md:space-x-3">
-                        <a href="{% url 'coach_coupons' %}" class="ml-2 btn bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500 text-gray-700 dark:text-white px-6 py-3 rounded-lg font-medium">
+                        <a href="{% url 'coach_coupons' %}" class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} btn bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500 text-gray-700 dark:text-white px-6 py-3 rounded-lg font-medium">
                             {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
                         </a>
                         <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center">
-                            <i class="fas fa-save ml-2"></i>
+                            <i class="fas fa-save {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                             {% if LANGUAGE_CODE == 'ar' %}حفظ القسيمة{% else %}Save Coupon{% endif %}
                         </button>
                     </div>
