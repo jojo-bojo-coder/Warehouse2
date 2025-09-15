@@ -591,13 +591,14 @@ def send_notification(user, club, message):
 from coach_dashboard.models import CoachReceptionistTicket
 @login_required
 def receptionist_ticket_list(request):
+    club = get_user_club(request.user)
     user_profile = request.user.userprofile
     if user_profile.account_type != '5':  # 5 is receptionist
         return redirect('home')
 
     receptionist_profile = user_profile.receptionist_profile
     tickets = CoachReceptionistTicket.objects.filter(receptionist=receptionist_profile).order_by('-created_at')
-    return render(request, 'receptionist_dashboard/tickets/receptionist_ticket_list.html', {'tickets': tickets})
+    return render(request, 'receptionist_dashboard/tickets/receptionist_ticket_list.html', {'tickets': tickets,'club': club})
 
 
 @login_required
