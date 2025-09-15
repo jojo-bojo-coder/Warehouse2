@@ -146,7 +146,7 @@
                 {% if LANGUAGE_CODE == 'ar' %}ساعات العمل{% else %}Working Hours{% endif %}
             </h1>
             <a href="{% url 'add_vendor_working_hours' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
-                <i class="fas fa-plus ml-2"></i>
+                <i class="fas fa-plus {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                 {% if LANGUAGE_CODE == 'ar' %}إضافة جدول جديد{% else %}Add New Schedule{% endif %}
             </a>
         </div>
@@ -175,19 +175,19 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <div class="gradient-card-indigo p-6 rounded-xl shadow-lg stat-card animate-fadeInUp">
                 <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-                    <i class="fas fa-calendar-alt ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي الجداول{% else %}Total Schedules{% endif %}
+                    <i class="fas fa-calendar-alt {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}إجمالي الجداول{% else %}Total Schedules{% endif %}
                 </h3>
                 <div class="text-4xl font-bold text-white">{{ working_hours.count }}</div>
             </div>
             <div class="gradient-card-green p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.1s;">
                 <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-                    <i class="fas fa-check-circle ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}جداول نشطة{% else %}Active Schedules{% endif %}
+                    <i class="fas fa-check-circle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}جداول نشطة{% else %}Active Schedules{% endif %}
                 </h3>
                 <div class="text-4xl font-bold text-white">{{ working_hours|filter_active:True|length }}</div>
             </div>
             <div class="gradient-card-amber p-6 rounded-xl shadow-lg stat-card animate-fadeInUp" style="animation-delay: 0.2s;">
                 <h3 class="text-white text-opacity-80 text-sm mb-2 flex items-center">
-                    <i class="fas fa-clock ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}جداول مستقبلية{% else %}Upcoming Schedules{% endif %}
+                    <i class="fas fa-clock {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}جداول مستقبلية{% else %}Upcoming Schedules{% endif %}
                 </h3>
                 <div class="text-4xl font-bold text-white">{{ working_hours|filter_upcoming|length }}</div>
             </div>
@@ -202,19 +202,19 @@
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 #
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}العنوان{% else %}Title{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}الفترة{% else %}Date Range{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}ساعات العمل{% else %}Working Hours{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 {% if LANGUAGE_CODE == 'ar' %}إجراءات{% else %}Actions{% endif %}
                             </th>
                         </tr>

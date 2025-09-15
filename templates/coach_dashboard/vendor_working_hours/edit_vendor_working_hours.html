@@ -12,7 +12,7 @@
                 {% if LANGUAGE_CODE == 'ar' %}تعديل جدول ساعات العمل{% else %}Edit Working Hours Schedule{% endif %}
             </h1>
             <a href="{% url 'vendor_working_hours_list' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
-                <i class="fas fa-arrow-left ml-2"></i>
+                <i class="fas fa-arrow-left {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                 {% if LANGUAGE_CODE == 'ar' %}رجوع{% else %}Back{% endif %}
             </a>
         </div>
@@ -59,7 +59,7 @@
 
                         <div class="flex items-center">
                             {{ form.is_active }}
-                            <label for="{{ form.is_active.id_for_label }}" class="mr-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label for="{{ form.is_active.id_for_label }}" class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %} block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {% if LANGUAGE_CODE == 'ar' %}تفعيل الجدول{% else %}Activate Schedule{% endif %}
                             </label>
                         </div>
@@ -73,15 +73,15 @@
                         </h3>
                         <ul class="space-y-2 text-sm text-blue-700 dark:text-blue-300">
                             <li class="flex items-start">
-                                <i class="fas fa-check-circle mt-1 ml-2 text-blue-500 dark:text-blue-400"></i>
+                                <i class="fas fa-check-circle mt-1 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-blue-500 dark:text-blue-400"></i>
                                 {% if LANGUAGE_CODE == 'ar' %}يمكنك فقط تفعيل جدول واحد في كل مرة{% else %}You can only have one active schedule at a time{% endif %}
                             </li>
                             <li class="flex items-start">
-                                <i class="fas fa-check-circle mt-1 ml-2 text-blue-500 dark:text-blue-400"></i>
+                                <i class="fas fa-check-circle mt-1 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-blue-500 dark:text-blue-400"></i>
                                 {% if LANGUAGE_CODE == 'ar' %}اترك حقل الوقت فارغًا ليوم معين لتعيينه كيوم إجازة{% else %}Leave time fields blank for a day to mark it as closed{% endif %}
                             </li>
                             <li class="flex items-start">
-                                <i class="fas fa-check-circle mt-1 ml-2 text-blue-500 dark:text-blue-400"></i>
+                                <i class="fas fa-check-circle mt-1 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-blue-500 dark:text-blue-400"></i>
                                 {% if LANGUAGE_CODE == 'ar' %}يجب أن يكون وقت الإغلاق بعد وقت الفتح{% else %}Closing time must be after opening time{% endif %}
                             </li>
                         </ul>
