@@ -273,6 +273,22 @@ def signin(request):
         # Admin always skips OTP
         if user_profile and user_profile.account_type == '1':
             otp_required = False
+        if user_profile and user_profile.account_type == '2':
+            otp_required = False
+        if user_profile and user_profile.account_type == '3':
+            otp_required = False
+        if user_profile and user_profile.account_type == '4':
+            otp_required = False
+        if user_profile and user_profile.account_type == '5':
+            otp_required = False
+        if user_profile and user_profile.account_type == '6':
+            otp_required = False
+        if user_profile and user_profile.account_type == '7':
+            otp_required = False
+        if user_profile and user_profile.account_type == '8':
+            otp_required = False
+        if user_profile and user_profile.account_type == '9':
+            otp_required = False
         # Check club security settings
         elif security_settings and not security_settings.enable_otp_verification:
             otp_required = False
