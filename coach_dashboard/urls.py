@@ -50,7 +50,6 @@ urlpatterns = [
 
     path('orders/', views.viewOrders, name='coachviewOrders'),
     path('orders/<int:order_id>/', views.viewOrderDetails, name='coachviewOrderDetails'),
-    path('orders/print/<int:order_id>/', views.print_order, name='coach_print_order'),
     path('business-profile/', views.view_business_profile, name='view_business_profile'),
     path('business-profile/edit/', views.edit_business_profile, name='edit_business_profile'),
     path('reviews/', views.coach_reviews, name='coach_reviews'),
@@ -72,8 +71,6 @@ urlpatterns = [
     path('working-hours/', views.working_hours, name='working_hours'),
     path('coach-performance/', views.coach_performance, name='coach_performance'),
     path('payments/', views.coach_payments, name='coach_payments'),
-    path('payments/invoice/<int:order_id>/', views.generate_invoice, name='generate_invoice'),
-    path('payments/statement/', views.generate_payment_statement, name='generate_payment_statement'),
     path('coach/marketing/', views.coach_marketing_dashboard, name='coach_marketing'),
     path('marketing/create-promotion/', views.create_promotion, name='create_promotion'),
     path('marketing/get-price/', views.get_promotion_price, name='get_promotion_price'),
