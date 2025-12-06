@@ -24,7 +24,6 @@ from django.utils import timezone
 from django.utils import translation
 from django.contrib import messages
 from django.http import JsonResponse
-import pywhatkit as kit
 import random
 import string
 from datetime import datetime, timedelta
@@ -86,7 +85,6 @@ def send_whatsapp_otp(phone_number, otp_code, user_name):
 
         # Send immediately using pywhatkit
         now = datetime.now()
-        kit.sendwhatmsg(formatted_number, message, now.hour, now.minute + 1, 15, True, 2)
 
         return True, "تم إرسال رمز التحقق عبر الواتساب بنجاح"
 
@@ -322,7 +320,7 @@ def signin(request):
             # Check OTP method from security settings
             if security_settings and security_settings.otp_method == 'whatsapp':
                 if phone_number:
-                    return redirect('send_otp_whatsapp')
+                    return redirect('send_otp_email')
                 else:
                     # If WhatsApp is required but no phone number, fall back to email
                     return redirect('send_otp_email')
