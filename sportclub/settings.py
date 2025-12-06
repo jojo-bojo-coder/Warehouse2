@@ -184,13 +184,18 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Email settings (SMTP Configuration)
 # Replace with actual email details
+# ============================================================================
+# EMAIL SETTINGS (SMTP Configuration) - FIXED VERSION
+# ============================================================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Or use another email service
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'af5275794@gmail.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'tnxm zlrz lrny rzcq'  # Use an app password (Gmail)
-DEFAULT_FROM_EMAIL = 'noreply@yourdomain.com'
+EMAIL_HOST_USER = 'af5275794@gmail.com'
+EMAIL_HOST_PASSWORD = 'tnxm zlrz lrny rzcq'  # Gmail App Password
+DEFAULT_FROM_EMAIL = 'af5275794@gmail.com'  # Use your actual email
+EMAIL_TIMEOUT = 10  # CRITICAL: Timeout after 10 seconds to prevent worker hangs
+# ============================================================================
 LOGIN_URL = 'http://127.0.0.1:8000/auth/signin/'
 
 # Default primary key field type

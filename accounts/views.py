@@ -92,11 +92,29 @@ def send_whatsapp_otp(phone_number, otp_code, user_name):
         return False, f"خطأ في إرسال رسالة الواتساب: {str(e)}"
 
 
+import random
+from django.utils.timezone import now, timedelta
+import base64
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from django.http import JsonResponse
+import string
+import threading
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 def send_email_otp(email, otp_code, user_name):
-    """Send OTP via email"""
+    """Send OTP via email asynchronously"""
     try:
         subject = "رمز التحقق - المنصة"
-
         message = f"""
         مرحباً {user_name},
 
@@ -109,16 +127,28 @@ def send_email_otp(email, otp_code, user_name):
         فريق المنصة
         """
 
-        send_mail(
-            subject,
-            message,
-            "noreply@yourdomain.com",
-            [email],
-            fail_silently=False,
-        )
+        def send_async():
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,  # Use settings email
+                    [email],
+                    fail_silently=False,
+                )
+                logger.info(f"OTP email sent successfully to {email}")
+            except Exception as e:
+                logger.error(f"Failed to send OTP email to {email}: {str(e)}")
+
+        # Send email in background thread
+        thread = threading.Thread(target=send_async, daemon=True)
+        thread.start()
+
+        # Return immediately without waiting
         return True, "تم إرسال رمز التحقق عبر البريد الإلكتروني بنجاح"
 
     except Exception as e:
+        logger.error(f"Error setting up email for {email}: {str(e)}")
         return False, f"خطأ في إرسال البريد الإلكتروني: {str(e)}"
 
 
@@ -421,41 +451,57 @@ def send_otp_whatsapp(request):
 
 
 def send_otp_email(request):
-    """Step 3b: Send OTP via Email"""
+    """Send OTP via email - optimized for quick response"""
+    if request.method == 'POST':
+        try:
+            email = request.POST.get('email', '').strip()
 
-    if 'otp_user_id' not in request.session:
-        return redirect('signin')
+            if not email:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'البريد الإلكتروني مطلوب'
+                }, status=400)
 
-    try:
-        user_id = request.session['otp_user_id']
-        user = User.objects.get(id=user_id)
-        email = request.session.get('user_email')
-        user_name = request.session.get('user_name')
+            # Find user
+            user = User.objects.filter(email=email).first()
+            if not user:
+                # Don't reveal if email exists or not (security)
+                return JsonResponse({
+                    'success': True,
+                    'message': 'إذا كان البريد الإلكتروني مسجلاً، ستتلقى رمز التحقق'
+                })
 
-        # Generate and save OTP
-        otp_code = generate_otp()
-        OTP.objects.update_or_create(
-            user=user,
-            defaults={
-                "otp_code": otp_code,
-                "created_at": timezone.now(),
-                "delivery_method": "email"
-            }
-        )
+            # Generate OTP
+            otp_code = str(random.randint(100000, 999999))
 
-        # Send email
-        success, message = send_email_otp(email, otp_code, user_name)
+            # Save OTP to database (synchronous - fast)
+            from .models import OTP
+            OTP.objects.filter(user=user).delete()
+            OTP.objects.create(
+                user=user,
+                otp_code=otp_code,
+                expires_at=now() + timedelta(minutes=5)
+            )
 
-        if success:
-            messages.success(request, "تم إرسال رمز التحقق عبر البريد الإلكتروني.")
-            return redirect('verify_otp')
-        else:
-            messages.error(request, message)
-            return redirect('select_otp_method')
+            # Send email asynchronously (non-blocking)
+            success, message = send_email_otp(email, otp_code, user.username)
 
-    except Exception as e:
-        messages.error(request, f"خطأ في إرسال رمز التحقق: {str(e)}")
-        return redirect('select_otp_method')
+            return JsonResponse({
+                'success': success,
+                'message': message
+            })
+
+        except Exception as e:
+            logger.error(f"Error in send_otp_email view: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'message': 'حدث خطأ في إرسال رمز التحقق'
+            }, status=500)
+
+    return JsonResponse({
+        'success': False,
+        'message': 'طريقة الطلب غير صالحة'
+    }, status=405)
 
 
 
