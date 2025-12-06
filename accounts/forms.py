@@ -24,9 +24,15 @@ class StudentProfileForm(forms.ModelForm):
         fields = ['full_name', 'phone', 'birthday', 'profile_image_base64']
 
         widgets = {
-            'full_name': forms.TextInput(attrs={'class': "w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500", 'placeholder': 'الاسم كامل'}),
-            'phone': forms.TextInput(attrs={'class': "w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500", 'placeholder': 'رقم الهاتف'}),
+            'full_name': forms.TextInput(attrs={'class': "w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ", 'placeholder': 'Full Name / الاسم الكامل'}),
+            'phone': forms.TextInput(attrs={'class': "w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500", 'placeholder': 'Phone Number / رقم الهاتف'}),
             'birthday': forms.DateInput(format=('%d-%m-%Y'), attrs={'type': 'date', 'class': "w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"}),
+        }
+        labels = {
+            'full_name': 'الاسم الكامل',
+            'phone': 'رقم الهاتف',
+            'birthday': 'تاريخ الميلاد',
+            'profile_image_base64': 'صورة الملف الشخصي',
         }
 
     def clean_profile_image_base64(self):

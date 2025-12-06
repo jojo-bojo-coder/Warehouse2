@@ -1,231 +1,297 @@
-{% extends "base_landing.html" %} {% load students_tags %} {% load static %} {% load i18n %} {% block content %}
-<link rel="stylesheet" href="{% static 'css/landing.css' %}" />
+{% extends "base_landing.html" %}
+{% load static %}
+{% load i18n %}
+{% block content %}
 
-<main class="bg-indigo-50 text-gray-900">
+<main class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 mt-20">
   <!-- Hero Section -->
-  <section class="overflow-hidden bg-indigo-50">
-    <div class="relative h-screen">
-      <!-- Banner Slider -->
-      <div class="swiper banner-slider h-full">
-        <div class="swiper-wrapper">
-          {% for banner in banners %}
-          {% if banner.is_active %}
-          <div class="swiper-slide relative h-full">
-            <div class="absolute inset-0">
-              <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="object-cover object-center w-full h-full">
-            </div>
-            <div class="absolute inset-0 bg-indigo-600 opacity-30"></div>
-            <div class="relative h-full flex items-center justify-center">
-              <div class="text-center px-4 sm:px-6 md:px-24 lg:text-right 2xl:px-32">
-                <h1 class="flex flex-col gap-2 text-4xl font-extrabold text-white sm:text-6xl xl:text-7xl box">
-                  <span>{{ hero_title }}</span>
-                  <span class="text-indigo-200">{{ hero_subtitle }}</span>
-                </h1>
-                <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 lg:justify-start">
-                  <a href="{% url 'signup' %}" class="w-full sm:w-auto rounded-full bg-white px-8 py-4 text-lg font-bold text-indigo-600 shadow-md hover:bg-indigo-100 hover:shadow-lg transition duration-300 box">
-                    {% if LANGUAGE_CODE == 'ar' %}ابدأ التسوق الآن{% else %}Start Shopping Now{% endif %}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-          {% empty %}
-          <!-- Default banner if no banners exist -->
-          <div class="swiper-slide relative h-full">
-            <div class="absolute inset-0">
-              <img src="https://images.pexels.com/photos/4050388/pexels-photo-4050388.jpeg" alt="Default banner" class="object-cover object-center w-full h-full">
-            </div>
-            <div class="absolute inset-0 bg-indigo-600 opacity-30"></div>
-            <div class="relative h-full flex items-center justify-center">
-              <div class="text-center px-4 sm:px-6 md:px-24 lg:text-right 2xl:px-32">
-                <h1 class="flex flex-col gap-2 text-4xl font-extrabold text-white sm:text-6xl xl:text-7xl box">
-                  <span>{{ hero_title }}</span>
-                  <span class="text-indigo-200">{{ hero_subtitle }}</span>
-                </h1>
-                <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 lg:justify-start">
-                  <a href="{% url 'signup' %}" class="w-full sm:w-auto rounded-full bg-white px-8 py-4 text-lg font-bold text-indigo-600 shadow-md hover:bg-indigo-100 hover:shadow-lg transition duration-300 box">
-                    {% if LANGUAGE_CODE == 'ar' %}ابدأ التسوق الآن{% else %}Start Shopping Now{% endif %}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        <!-- Add pagination -->
-        <div class="swiper-pagination"></div>
-        <!-- Add navigation buttons -->
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-button-next"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- About Section -->
-  <section id="about" class="py-20 bg-indigo-50">
-    <div class="container mx-auto px-4">
-      <h2 class="text-4xl font-bold text-center text-indigo-900 mb-12 box">
-        {{ about_title }}
-      </h2>
-      <p
-        class="text-xl text-indigo-800 text-center max-w-3xl mx-auto mb-16 box"
-      >
-        {{ about_description }}
-      </p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div class="space-y-8">
-          {% for bullet in bullets %}
-          <div
-            class="flex items-center bg-white p-6 rounded-xl shadow-lg transition duration-300 hover:shadow-xl box"
-          >
-            <p class="text-lg font-semibold text-indigo-900">
+  <section class="overflow-hidden bg-slate-50 dark:bg-slate-900">
+    <div class="flex flex-col lg:min-h-[800px] lg:flex-row-reverse lg:items-stretch">
+      <div class="relative flex w-full items-center justify-center lg:order-2 lg:w-7/12">
+        <div class="relative px-4 pb-16 text-center sm:px-6 md:px-24 py-32 lg:text-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %} 2xl:px-32">
+          <h1 class="flex flex-col gap-2 text-4xl font-extrabold text-slate-900 dark:text-white sm:text-6xl xl:text-7xl">
+            <span>
               {% if LANGUAGE_CODE == 'ar' %}
-              {{ bullet.description_ar }}
+                {{ landing_content.hero_title_ar }}
               {% else %}
-              {{ bullet.description_en }}
-              {% endif %}
-            </p>
-          </div>
-          {% endfor %}
-        </div>
-        <div class="flex justify-center">
-          <img
-            src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg"
-            alt="About Image"
-            class="rounded-xl shadow-2xl max-w-full h-auto"
-          />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Services Section -->
-  <section class="py-20 bg-indigo-50" id="services">
-    <div class="container mx-auto px-4">
-      <h2 class="text-4xl font-bold text-center text-indigo-900 mb-16 box">
-        {{ features_title }}
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {% for service in services %}
-        <div
-          class="bg-white rounded-xl p-8 text-center shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 box"
-        >
-          <div class="mb-6 flex justify-center text-5xl text-indigo-600">
-            <i class="{{ service.icon }}"></i>
-          </div>
-          <h3 class="mb-4 text-2xl font-semibold text-indigo-900">
-            {% if LANGUAGE_CODE == 'ar' %}
-            {{ service.name_ar }}
-            {% else %}
-            {{ service.name_en }}
-            {% endif %}
-          </h3>
-          <p class="text-indigo-700">
-            {% if LANGUAGE_CODE == 'ar' %}
-            {{ service.description_ar }}
-            {% else %}
-            {{ service.description_en }}
-            {% endif %}</p>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <!-- Pricing Section -->
-  <section class="py-20 bg-indigo-50" id="pricing">
-    <div class="container mx-auto px-4">
-      <h2 class="text-4xl font-bold text-center text-indigo-900 mb-16">
-        {{ plans_title }}
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {% for plan in pricing %}
-        <div
-                class="bg-white box rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col"
-        >
-          <!-- Top: Title & Price -->
-          <div class="bg-indigo-600 p-8 text-white">
-            <h3 class="text-2xl font-bold mb-2">{{ plan.name }}</h3>
-            <div class="flex items-end">
-              <span class="text-4xl font-bold">{{ plan.price }}</span>
-              <span class="text-xl mb-1 mr-1">
-              {% if LANGUAGE_CODE == 'ar' %}
-              /شهريًا
-              {% else %}
-              /monthly
+                {{ landing_content.hero_title_en }}
               {% endif %}
             </span>
-            </div>
-          </div>
-
-          <!-- Middle: Features and Button (Flex-grow here!) -->
-          <div class="p-8 flex flex-col flex-grow">
-            <ul class="space-y-4 mb-8">
-              {% for feature in plan.features %}
-              <li class="flex items-center">
-                <svg
-                        class="w-5 h-5 mr-2 text-green-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                <span class="text-indigo-900">{{ feature }}</span>
-              </li>
-              {% endfor %}
-            </ul>
-
-            <!-- Push to bottom -->
-            <a
-                    href="{% url 'signup' %}"
-                    class="mt-auto block w-full bg-indigo-600 text-white text-center px-4 py-2 rounded-full font-semibold hover:bg-indigo-700 transition duration-300"
-            >
+            <span class="text-nowrap text-blue-500">
               {% if LANGUAGE_CODE == 'ar' %}
-              اختر الباقة
+                {{ landing_content.hero_subtitle_ar }}
               {% else %}
-              Choose Plan
+                {{ landing_content.hero_subtitle_en }}
               {% endif %}
+            </span>
+          </h1>
+          <p class="mt-8 text-xl text-slate-600 dark:text-slate-300 sm:text-2xl">
+            {% if LANGUAGE_CODE == 'ar' %}
+              {{ landing_content.hero_description_ar }}
+            {% else %}
+              {{ landing_content.hero_description_en }}
+            {% endif %}
+          </p>
+          <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 lg:justify-start">
+            <a href="#about" class="w-full sm:w-auto rounded-full border border-blue-500 text-blue-500 px-8 py-4 text-lg font-bold shadow-md hover:bg-blue-500/10 transition duration-300">
+              {% if LANGUAGE_CODE == 'ar' %}نبذة عنا{% else %}About us{% endif %}
+            </a>
+            <a href="{% url 'signup' %}" class="w-full sm:w-auto rounded-full bg-blue-500 px-8 py-4 text-lg font-bold text-white shadow-md hover:opacity-90 transition duration-300">
+              {% if LANGUAGE_CODE == 'ar' %}ابدأ الآن مجانًا{% else %}Start for free{% endif %}
             </a>
           </div>
         </div>
-        {% endfor %}
+      </div>
+      <div class="relative h-96 w-full overflow-hidden lg:order-1 lg:h-auto lg:w-5/12">
+        <div class="absolute inset-0">
+          {% if landing_content.hero_image %}
+            <img src="{{ landing_content.hero_image.url }}" alt="Hero Image" class="object-cover object-center w-4/5 h-4/5 rounded-2xl mt-20">
+          {% else %}
+            <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg" alt="Hero Image" class="object-cover object-center w-4/5 h-4/5 rounded-2xl mt-20">
+          {% endif %}
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- Featured Partner Section -->
+  <section class="py-16 md:py-24 bg-white dark:bg-slate-800">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+          {% if LANGUAGE_CODE == 'ar' %}التجار المميزون{% else %}Featured Vendors{% endif %}
+        </h2>
+        <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
+          {% if LANGUAGE_CODE == 'ar' %}شركاء فخورون بأفضل التجار في المنطقة{% else %}Proudly partnered with the region's leading vendors{% endif %}
+        </p>
+      </div>
+        {% if featured_coaches %}
+        <div class="mt-16">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for coach in featured_coaches %}
+                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700 hover:shadow-xl transition duration-300">
+                    <!-- Coach Image -->
+                    <div class="h-48 overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        {% if coach.profile_image_base64 %}
+                        <img src="{{ coach.profile_image_base64 }}"
+                             alt="{{ coach.full_name }}"
+                             class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                        {% elif coach.business_photo_base64 %}
+                        <img src="{{ coach.business_photo_base64 }}"
+                             alt="{{ coach.full_name }}"
+                             class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900 dark:to-blue-800">
+                            <i class="fas fa-user-tie text-5xl text-blue-500 dark:text-blue-300"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Coach Info -->
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                            {{ coach.full_name }}
+                        </h3>
+
+                        <!-- Business Name -->
+                        {% if coach.business_name_ar or coach.business_name_en %}
+                        <p class="mt-2 text-blue-600 dark:text-blue-400 font-medium">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ coach.business_name_ar|default:coach.business_name_en }}
+                            {% else %}
+                                {{ coach.business_name_en|default:coach.business_name_ar }}
+                            {% endif %}
+                        </p>
+                        {% endif %}
+
+                        <!-- Activity Type -->
+                        {% if coach.activity_type %}
+                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                            <i class="fas fa-running ml-2"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ coach.activity_type.name_ar|default:coach.activity_type.name }}
+                            {% else %}
+                                {{ coach.activity_type.name|default:coach.activity_type.name_ar }}
+                            {% endif %}
+                        </p>
+                        {% endif %}
+
+                        <!-- Region/Location -->
+                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                            <i class="fas fa-map-marker-alt ml-2"></i>
+                            {{ coach.region }}
+                            {% if coach.city %}- {{ coach.city }}{% endif %}
+                        </p>
+
+                        <!-- Description Excerpt -->
+                        {% if coach.description %}
+                        <p class="mt-3 text-slate-700 dark:text-slate-300 line-clamp-2">
+                            {{ coach.description|truncatechars:100 }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% else %}
+        <!-- No coaches available message -->
+        <div class="mt-12 text-center">
+            <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-8 border border-slate-200 dark:border-slate-700">
+                <i class="fas fa-users text-4xl text-slate-400 dark:text-slate-500 mb-4"></i>
+                <h3 class="text-xl font-semibold text-slate-700 dark:text-slate-300">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        لا يوجد تجار متاحون حاليًا
+                    {% else %}
+                        No Vendors available at the moment
+                    {% endif %}
+                </h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-400">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        سيتم إضافة التجار قريبًا. تابعنا!
+                    {% else %}
+                        Vendors will be added soon. Stay tuned!
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+  </section>
+
+  <!-- Why Choose Us Section -->
+  <section id="about" class="py-16 md:py-24 bg-slate-50 dark:bg-slate-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center">
+        <p class="text-blue-500 font-semibold">
+          {% if LANGUAGE_CODE == 'ar' %}لماذا تختارنا{% else %}Why Choose Us{% endif %}
+        </p>
+        <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+          {% if LANGUAGE_CODE == 'ar' %}
+            {{ landing_content.about_title_ar }}
+          {% else %}
+            {{ landing_content.about_title_en }}
+          {% endif %}
+        </h2>
+        <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
+          {% if LANGUAGE_CODE == 'ar' %}
+            {{ landing_content.about_description_ar }}
+          {% else %}
+            {{ landing_content.about_description_en }}
+          {% endif %}
+        </p>
+      </div>
+
+      {% if features %}
+      <div class="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        {% for feature in features %}
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 text-center">
+          <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-500/10 text-blue-500 mx-auto">
+            <i class="{{ feature.icon }} text-3xl"></i>
+          </div>
+          <h3 class="mt-6 text-xl font-bold text-slate-900 dark:text-white">
+            {% if LANGUAGE_CODE == 'ar' %}
+              {{ feature.title_ar }}
+            {% else %}
+              {{ feature.title_en }}
+            {% endif %}
+          </h3>
+          <p class="mt-2 text-slate-600 dark:text-slate-300">
+            {% if LANGUAGE_CODE == 'ar' %}
+              {{ feature.description_ar }}
+            {% else %}
+              {{ feature.description_en }}
+            {% endif %}
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  {% if faqs %}
+  <section id="services" class="py-16 md:py-24 bg-white dark:bg-slate-800">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center">
+        <p class="text-blue-500 font-semibold">
+          {% if LANGUAGE_CODE == 'ar' %}أسئلة؟{% else %}Questions?{% endif %}
+        </p>
+        <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+          {% if LANGUAGE_CODE == 'ar' %}الأسئلة الشائعة{% else %}Frequently Asked Questions{% endif %}
+        </h2>
+      </div>
+      <div class="mt-12 max-w-3xl mx-auto">
+        <div class="space-y-4">
+          {% for faq in faqs %}
+          <details class="group border-b border-slate-200 dark:border-slate-700 pb-4">
+            <summary class="flex items-center justify-between cursor-pointer">
+              <h3 class="text-lg font-medium text-slate-900 dark:text-white">
+                {% if LANGUAGE_CODE == 'ar' %}
+                  {{ faq.question_ar }}
+                {% else %}
+                  {{ faq.question_en }}
+                {% endif %}
+              </h3>
+              <span class="material-icons-outlined text-slate-500">add</span>
+            </summary>
+            <div class="mt-4 text-slate-600 dark:text-slate-300">
+              <p>
+                {% if LANGUAGE_CODE == 'ar' %}
+                  {{ faq.answer_ar }}
+                {% else %}
+                  {{ faq.answer_en }}
+                {% endif %}
+              </p>
+            </div>
+          </details>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
 
   <!-- Call to Action Section -->
-  <section class="py-20 bg-indigo-50">
+  <section class="py-20 bg-slate-50 dark:bg-slate-900">
     <div class="container mx-auto px-4">
-      <div class="bg-indigo-600 rounded-xl p-12 text-center text-white box">
+      <div class="bg-blue-500 rounded-xl p-12 text-center text-white">
         <h2 class="text-3xl md:text-4xl font-bold mb-6">
-          {{ cta_title }}
+          {% if LANGUAGE_CODE == 'ar' %}
+            {{ landing_content.cta_title_ar }}
+          {% else %}
+            {{ landing_content.cta_title_en }}
+          {% endif %}
         </h2>
         <p class="text-xl md:text-2xl mb-10 max-w-2xl mx-auto">
-          {{ cta_description }}
-        </p>
-        <a
-          href="{% url 'signup' %}"
-          class="inline-block bg-white text-indigo-600 px-8 py-4 rounded-full text-lg font-bold hover:bg-indigo-100 transition duration-300"
-        >
           {% if LANGUAGE_CODE == 'ar' %}
-          ابدأ الآن مجانًا
+            {{ landing_content.cta_description_ar }}
           {% else %}
-          Start for free
+            {{ landing_content.cta_description_en }}
           {% endif %}
+        </p>
+        <a href="{% url 'signup' %}" class="inline-block bg-white text-blue-500 px-8 py-4 rounded-full text-lg font-bold hover:bg-slate-100 transition duration-300">
+          {% if LANGUAGE_CODE == 'ar' %}ابدأ الآن مجانًا{% else %}Start for free{% endif %}
         </a>
       </div>
     </div>
   </section>
 </main>
 
-<script src="{% static 'js/landing.js' %}"></script>
+<script>
+// Accordion functionality
+document.querySelectorAll('details').forEach((detail) => {
+  detail.addEventListener('toggle', () => {
+    const icon = detail.querySelector('.material-icons-outlined');
+    if (detail.open) {
+      icon.textContent = 'remove';
+    } else {
+      icon.textContent = 'add';
+    }
+  });
+});
+</script>
+
 {% endblock content %}

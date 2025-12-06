@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <style>
-  /* Reuse the same styles from revenue_analytics.html */
+  /* Animation Classes */
   .animate-float {
       animation: float 4s ease-in-out infinite;
   }
@@ -22,6 +22,23 @@
       opacity: 0;
   }
 
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Button Effects */
   .btn-gradient {
       background-size: 200% auto;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -57,11 +74,13 @@
       padding: 1.5rem;
       margin-bottom: 1.5rem;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
   }
 
   .dark .chart-container {
       background-color: #1f2937;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+      border-color: #374151;
   }
 
   .data-table {
@@ -75,11 +94,13 @@
       text-align: right;
       font-weight: 600;
       color: #374151;
+      border-bottom: 1px solid #e5e7eb;
   }
 
   .dark .data-table th {
       background-color: #374151;
       color: #f3f4f6;
+      border-color: #4b5563;
   }
 
   .data-table td {
@@ -129,20 +150,20 @@
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full min-h-screen pb-12 dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
 
   <!-- Main Content -->
   <div class="px-4 md:px-8 pt-6">
     <!-- Header Section -->
-    <div class="py-6 text-center">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+    <div class="py-8">
+      <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
         {% if LANGUAGE_CODE == 'ar' %}
         مراجعة الفواتير
         {% else %}
         Bills Review
         {% endif %}
       </h1>
-      <p class="text-gray-600 dark:text-gray-300 mt-2">
+      <p class="text-gray-600 dark:text-gray-400">
         {% if LANGUAGE_CODE == 'ar' %}
         لوحة مراجعة وتدقيق الفواتير قبل إرسالها للمدير
         {% else %}
@@ -152,44 +173,66 @@
     </div>
 
     <!-- Pending Bills Section -->
-    <div class="chart-container mb-8">
+    <div class="animate-[fadeIn_0.8s_ease-out_0.5s_both] chart-container mb-8">
       <div class="flex justify-between items-start mb-6">
         <div>
-          <h2 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-            </svg>
+          <h2 class="text-2xl font-semibold text-gray-800 dark:text-white flex items-center gap-3">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
             {% if LANGUAGE_CODE == 'ar' %} الفواتير الجاهزة للمراجعة {% else %} Bills Ready for Review {% endif %}
           </h2>
         </div>
       </div>
 
       <div class="overflow-x-auto">
-        <table class="data-table">
-          <thead>
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
+          <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th>{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Customer{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}المبلغ{% else %}Amount{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Customer{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}المبلغ{% else %}Amount{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {% for order in orders %}
               {% if not order.bill_revisions.exists or order.bill_revisions.first.status == 'pending' %}
-              <tr>
-                <td>#{{ order.id }}</td>
-                <td>{{ order.first_name }} {{ order.last_name }}</td>
-                <td>{{ order.total_price }} {{ club.vat_settings.currency }}</td>
-                <td>{{ order.created_at|date:"Y-m-d" }}</td>
-                <td>
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  #{{ order.id }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                  {{ order.first_name }} {{ order.last_name }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                  {{ order.total_price }} {{ club.vat_settings.currency }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                  {{ order.created_at|date:"Y-m-d" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
                   <span class="status-badge status-pending">
                     {% if LANGUAGE_CODE == 'ar' %} يحتاج مراجعة {% else %} Needs Review {% endif %}
                   </span>
                 </td>
-                <td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <a href="{% url 'accountant_review_bill' order.id %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                     {% if LANGUAGE_CODE == 'ar' %} مراجعة {% else %} Review {% endif %}
                   </a>
@@ -198,7 +241,7 @@
               {% endif %}
             {% empty %}
               <tr>
-                <td colspan="6" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                   {% if LANGUAGE_CODE == 'ar' %} لا توجد فواتير تحتاج مراجعة حالياً {% else %} No bills need review currently {% endif %}
                 </td>
               </tr>
@@ -209,37 +252,57 @@
     </div>
 
     <!-- In Progress Revisions Section -->
-    <div class="chart-container">
+    <div class="animate-[fadeIn_0.8s_ease-out_0.6s_both] chart-container">
       <div class="flex justify-between items-start mb-6">
         <div>
-          <h2 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
+          <h2 class="text-2xl font-semibold text-gray-800 dark:text-white flex items-center gap-3">
+            <div class="p-2 bg-green-100 dark:bg-green-900 rounded-full text-green-600 dark:text-green-300">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
             {% if LANGUAGE_CODE == 'ar' %} المراجعات قيد المعالجة {% else %} Revisions in Progress {% endif %}
           </h2>
         </div>
       </div>
 
       <div class="overflow-x-auto">
-        <table class="data-table">
-          <thead>
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
+          <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th>{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Customer{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}ملاحظات المحاسب{% else %}Accountant Notes{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}آخر تحديث{% else %}Last Updated{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Customer{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}ملاحظات المحاسب{% else %}Accountant Notes{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}آخر تحديث{% else %}Last Updated{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {% for revision in revisions %}
-              <tr>
-                <td>#{{ revision.order.id }}</td>
-                <td>{{ revision.order.first_name }} {{ revision.order.last_name }}</td>
-                <td class="max-w-xs truncate">{{ revision.accountant_notes|default:"-"|truncatechars:50 }}</td>
-                <td>
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  #{{ revision.order.id }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                  {{ revision.order.first_name }} {{ revision.order.last_name }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 max-w-xs truncate">
+                  {{ revision.accountant_notes|default:"-"|truncatechars:50 }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
                   {% if revision.status == 'pending' %}
                     <span class="status-badge status-pending">
                       {% if LANGUAGE_CODE == 'ar' %} قيد المراجعة {% else %} Pending {% endif %}
@@ -250,8 +313,10 @@
                     </span>
                   {% endif %}
                 </td>
-                <td>{{ revision.updated_at|timesince }} {% if LANGUAGE_CODE == 'ar' %}منذ{% else %}ago{% endif %}</td>
-                <td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                  {{ revision.updated_at|timesince }} {% if LANGUAGE_CODE == 'ar' %}منذ{% else %}ago{% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <a href="{% url 'accountant_review_bill' revision.order.id %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                     {% if LANGUAGE_CODE == 'ar' %} عرض {% else %} View {% endif %}
                   </a>
@@ -259,7 +324,7 @@
               </tr>
             {% empty %}
               <tr>
-                <td colspan="6" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                   {% if LANGUAGE_CODE == 'ar' %} لا توجد مراجعات حالياً {% else %} No revisions in progress {% endif %}
                 </td>
               </tr>
@@ -270,4 +335,38 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Dark mode toggle - Fixed version
+  function toggleDarkMode() {
+    const html = document.documentElement;
+    const toggle = document.getElementById('toggle');
+
+    if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        if(toggle) toggle.checked = false;
+        document.cookie = "darkMode=false; path=/; max-age=31536000";
+    } else {
+        html.classList.add('dark');
+        if(toggle) toggle.checked = true;
+        document.cookie = "darkMode=true; path=/; max-age=31536000";
+    }
+  }
+
+  // Check for saved dark mode preference on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const darkModeCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('darkMode='));
+
+    const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+        const toggle = document.getElementById('toggle');
+        if(toggle) toggle.checked = true;
+    }
+  });
+</script>
 {% endblock %}

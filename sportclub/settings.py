@@ -96,6 +96,7 @@ TEMPLATES = [
                 'accounts.context_processors.club_context',
                 'students.context_processors.cart_items_count',
                 'club_dashboard.context_processors.club_notifications',
+                'club_dashboard.context_processors.club_contact_info',
                 'pages.context_processors.language_context',
                 'receptionist_dashboard.context_processors.ticket_notifications',
                 'students.context_processors.cart_context',

@@ -27,7 +27,6 @@ urlpatterns = [
     path('articles/', views.viewArticles, name='clientviewArticles'),
     path('articles/<int:id>/', views.viewArticle, name='viewArticle'),
     path('salon/service-duration/<int:service_id>/', views.get_service_duration, name='get_service_duration'),
-    path('salon/service-info/<int:service_id>/', views.get_service_info, name='get_service_info'),
     path('studentViewServicesSpecific/<int:id>', views.viewServicesSpecific, name='viewServicesSpecific'),
 
     # Order Service
@@ -39,6 +38,8 @@ urlpatterns = [
     path('reviews/edit/<int:review_id>/', views.edit_review, name='edit_review'),  # ✅ Edit Review
     path('cart/', views.cart, name='cart'),
     path('cart/add/', views.add_to_cart, name='add_to_cart'),
+    path('add-package-to-cart/', views.add_package_to_cart, name='add_package_to_cart'),
+    path('update-package-cart/', views.update_package_cart, name='update_package_cart'),
     path('cart/update/', views.update_cart, name='update_cart'),
     path('cart/count/', views.get_cart_count, name='get_cart_count'),
     path('cart/delete-product/<int:item_id>/', views.delete_product_from_cart, name='delete_product_from_cart'),

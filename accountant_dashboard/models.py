@@ -22,7 +22,7 @@ class VATSettings(models.Model):
         ('د.ل', 'د.ل - Libyan Dinar'),
         ('ج.س', 'ج.س - Sudanese Pound'),
     ]
-    club = models.OneToOneField('accounts.ClubsModel', on_delete=models.CASCADE, related_name='vat_settings')
+    club = models.OneToOneField('accounts.ClubsModel', on_delete=models.CASCADE, related_name='vat_settingsss')
     language = models.CharField(
         max_length=10,
         choices=[('ar', 'Arabic'), ('en', 'English')],

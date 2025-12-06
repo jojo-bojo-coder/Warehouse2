@@ -284,10 +284,19 @@
         <div class="content-section">
             <div class="section-title">ملخص الطلب - Order Summary</div>
 
+            <!-- Total Amount (Prominent Display) -->
             <div class="total-amount">
-                المبلغ الإجمالي: {{ order_total|floatformat:2 }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                <br>
-                Total Amount: {{ order_total|floatformat:2 }} SAR
+                <div style="font-size: 0.875rem; margin-bottom: 0.5rem; opacity: 0.9;">
+                    المبلغ الإجمالي للتحويل - Total Amount to Transfer
+                </div>
+                <div style="font-size: 2rem; font-weight: 700;">
+                    {{ order_total|floatformat:2 }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                </div>
+                {% if request.user.userprofile.student_profile.club.vat_settings.is_enabled %}
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">
+                    (شامل الضريبة - VAT included)
+                </div>
+                {% endif %}
             </div>
 
             <div class="section-title">تفاصيل الحساب البنكي - Bank Account Details</div>

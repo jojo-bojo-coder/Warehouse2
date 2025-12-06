@@ -21,6 +21,25 @@ from .views import (
 
 urlpatterns = [
     path('', views.club_dashboard_index, name="club_dashboard_index"),
+    path('club/landing/edit/', views.edit_landing_content, name='edit_landing_content'),
+
+    # Features management
+    path('club/landing/features/', views.manage_features, name='manage_features'),
+    path('club/landing/features/<int:feature_id>/edit/', views.edit_feature, name='edit_feature'),
+    path('club/landing/features/<int:feature_id>/delete/', views.delete_feature, name='delete_feature'),
+
+    # Banners management
+    path('club/landing/banners/', views.manage_banners, name='manage_banners'),
+    path('club/landing/banners/<int:banner_id>/delete/', views.delete_banner, name='delete_banner'),
+
+    # FAQs management
+    path('club/landing/faqs/', views.manage_faqs, name='manage_faqs'),
+    path('club/landing/faqs/<int:faq_id>/delete/', views.delete_faq, name='delete_faq'),
+
+    # Navigation items management
+    path('club/landing/nav-items/', views.manage_nav_items, name='manage_nav_items'),
+    path('club/<int:club_id>/contact/update/', views.update_club_contact, name='update_club_contact'),
+    path('club/landing/nav-items/<int:nav_item_id>/delete/', views.delete_nav_item, name='delete_nav_item'),
     path('set-language/<str:language>/', set_language_redirect, name='set_language_redirect'),
     # Students Management
     path('viewStudents', views.viewStudents, name="viewStudents"),
@@ -167,6 +186,8 @@ urlpatterns = [
     path('promotions/features/set-base-price/', views.set_promotion_base_price, name='set_promotion_base_price'),
     path('director/bills/', views.director_bills_review, name='director_bills_review'),
     path('director/bills/review/<int:revision_id>/', views.director_review_bill, name='director_review_bill'),
+
+    path('director/vat-settings/', views.manage_vat_settings, name='manage_vat_settings'),
 
 ]
 

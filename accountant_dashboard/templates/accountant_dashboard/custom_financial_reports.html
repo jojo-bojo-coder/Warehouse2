@@ -3,7 +3,7 @@
 {% load permission_tags %}
 {% block content %}
 <style>
-  /* Reuse the same styles from revenue_analytics.html */
+  /* Animation Classes */
   .animate-float {
       animation: float 4s ease-in-out infinite;
   }
@@ -18,11 +18,23 @@
       opacity: 0;
   }
 
-  .animate-stagger > * {
-      animation: fadeInUp 0.6s ease-out forwards;
-      opacity: 0;
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
   }
 
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Button Effects */
   .btn-gradient {
       background-size: 200% auto;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -34,23 +46,19 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   }
 
-  .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Filter section styles */
   .filter-section {
-      background-color: rgba(255, 255, 255, 0.9);
+      background-color: white;
       border-radius: 0.75rem;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
   }
 
   .dark .filter-section {
-      background-color: rgba(31, 41, 55, 0.9);
+      background-color: #1f2937;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+      border-color: #374151;
   }
 
   .filter-label {
@@ -79,83 +87,36 @@
       color: #f3f4f6;
   }
 
-  /* Table styles */
-  .data-table {
-      width: 100%;
-      border-collapse: collapse;
+  .chart-container {
+      background-color: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
   }
 
-  .data-table th {
-      background-color: #f3f4f6;
-      padding: 0.75rem 1rem;
-      text-align: right;
-      font-weight: 600;
-      color: #374151;
-  }
-
-  .dark .data-table th {
-      background-color: #374151;
-      color: #f3f4f6;
-  }
-
-  .data-table td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid #e5e7eb;
-      color: #4b5563;
-  }
-
-  .dark .data-table td {
-      border-color: #4b5563;
-      color: #d1d5db;
-  }
-
-  .data-table tr:hover td {
-      background-color: #f9fafb;
-  }
-
-  .dark .data-table tr:hover td {
-      background-color: #374151;
-  }
-
-  /* Badge styles */
-  .badge {
-      display: inline-block;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-  }
-
-  .badge-primary {
-      background-color: #3b82f6;
-      color: white;
-  }
-
-  .badge-secondary {
-      background-color: #6b7280;
-      color: white;
-  }
-
-  .badge-success {
-      background-color: #10b981;
-      color: white;
+  .dark .chart-container {
+      background-color: #1f2937;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+      border-color: #374151;
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full min-h-screen pb-12 dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
 
   <!-- Main Content -->
   <div class="px-4 md:px-8 pt-6">
     <!-- Header Section -->
-    <div class="py-6 text-center ">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+    <div class="py-8">
+      <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
         {% if LANGUAGE_CODE == 'ar' %}
         تقارير مالية مخصصة
         {% else %}
         Custom Financial Reports
         {% endif %}
       </h1>
-      <p class="text-gray-600 dark:text-gray-300 mt-2">
+      <p class="text-gray-600 dark:text-gray-400">
         {% if LANGUAGE_CODE == 'ar' %}
         إنشاء تقارير مالية حسب الفترة الزمنية، النوع، التاجر أو الفئة
         {% else %}
@@ -165,7 +126,7 @@
     </div>
 
     <!-- Filters Section -->
-    <div class="filter-section">
+    <div class="animate-[fadeIn_0.8s_ease-out_0.2s_both] filter-section">
       <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <!-- Report Type Filter -->
         <div>
@@ -238,11 +199,13 @@
 
         <!-- Action Buttons -->
         <div class="flex items-end gap-2">
-          <button type="submit" name="format" value="html" class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 w-full">
+          <button type="submit" name="format" value="html" class="btn-gradient bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 w-full">
             {% if LANGUAGE_CODE == 'ar' %}عرض التقرير{% else %}View Report{% endif %}
+            <i class="fas fa-chart-bar"></i>
           </button>
-          <button type="submit" name="format" value="csv" class="btn-gradient bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 w-full">
+          <button type="submit" name="format" value="csv" class="btn-gradient bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 w-full">
             {% if LANGUAGE_CODE == 'ar' %}تحميل CSV{% else %}Download CSV{% endif %}
+            <i class="fas fa-download"></i>
           </button>
         </div>
       </form>
@@ -251,100 +214,143 @@
     <!-- Report Summary -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <!-- Total Orders -->
-      <div class="stat-card flex flex-col gap-4 rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700">
+      <div class="animate-[fadeInUp_0.6s_ease-out_0.3s_both] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}إجمالي الطلبات{% else %}Total Orders{% endif %}</h2>
-          <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 shadow-inner">
+          <h2 class="text-xl font-semibold text-blue-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي الطلبات{% else %}Total Orders{% endif %}</h2>
+          <div class="p-3 rounded-full bg-blue-400/20">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/>
             </svg>
           </div>
         </div>
-        <p class="text-4xl font-bold text-gray-800 dark:text-white text-center">{{ orders.count }}</p>
+        <div class="flex justify-center items-center h-24">
+          <p class="text-5xl font-bold">{{ orders.count }}</p>
+        </div>
       </div>
 
       <!-- Total Revenue -->
-      <div class="stat-card flex flex-col gap-4 rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700">
+      <div class="animate-[fadeInUp_0.6s_ease-out_0.4s_both] bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}إجمالي الإيرادات{% else %}Total Revenue{% endif %}</h2>
-          <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 shadow-inner">
+          <h2 class="text-xl font-semibold text-green-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي الإيرادات{% else %}Total Revenue{% endif %}</h2>
+          <div class="p-3 rounded-full bg-green-400/20">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
             </svg>
           </div>
         </div>
-        <p class="text-4xl font-bold text-gray-800 dark:text-white text-center">
-          {{ total_revenue|floatformat:2 }} {{ request.user.userprofile.accountant_profile.club.vat_settings.currency }}
-        </p>
+        <div class="flex justify-center items-center h-24">
+          <p class="text-5xl font-bold">{{ total_revenue|floatformat:2 }} {{ request.user.userprofile.accountant_profile.club.vat_settings.currency }}</p>
+        </div>
       </div>
 
       <!-- Date Range -->
-      <div class="stat-card flex flex-col gap-4 rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700">
+      <div class="animate-[fadeInUp_0.6s_ease-out_0.5s_both] bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}الفترة الزمنية{% else %}Date Range{% endif %}</h2>
-          <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 shadow-inner">
+          <h2 class="text-xl font-semibold text-purple-100">{% if LANGUAGE_CODE == 'ar' %}الفترة الزمنية{% else %}Date Range{% endif %}</h2>
+          <div class="p-3 rounded-full bg-purple-400/20">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
             </svg>
           </div>
         </div>
-        <p class="text-2xl font-bold text-gray-800 dark:text-white text-center">
-          {{ start_date|date:"Y-m-d" }}<br>to<br>{{ end_date|date:"Y-m-d" }}
-        </p>
+        <div class="flex flex-col justify-center items-center h-24 text-center">
+          <p class="text-2xl font-bold">{{ start_date|date:"Y-m-d" }}</p>
+          <p class="text-lg">to</p>
+          <p class="text-2xl font-bold">{{ end_date|date:"Y-m-d" }}</p>
+        </div>
       </div>
 
       <!-- Report Type -->
-      <div class="stat-card flex flex-col gap-4 rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700">
+      <div class="animate-[fadeInUp_0.6s_ease-out_0.6s_both] bg-gradient-to-r from-yellow-500 to-amber-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}نوع التقرير{% else %}Report Type{% endif %}</h2>
-          <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 shadow-inner">
+          <h2 class="text-xl font-semibold text-yellow-100">{% if LANGUAGE_CODE == 'ar' %}نوع التقرير{% else %}Report Type{% endif %}</h2>
+          <div class="p-3 rounded-full bg-yellow-400/20">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
             </svg>
           </div>
         </div>
-        <p class="text-2xl font-bold text-gray-800 dark:text-white text-center">
-          {% if report_type == 'products' %}
-            {% if LANGUAGE_CODE == 'ar' %}المنتجات{% else %}Products{% endif %}
-          {% else %}
-            {% if LANGUAGE_CODE == 'ar' %}الخدمات{% else %}Services{% endif %}
-          {% endif %}
-        </p>
+        <div class="flex justify-center items-center h-24">
+          <p class="text-3xl font-bold text-center">
+            {% if report_type == 'products' %}
+              {% if LANGUAGE_CODE == 'ar' %}المنتجات{% else %}Products{% endif %}
+            {% else %}
+              {% if LANGUAGE_CODE == 'ar' %}الخدمات{% else %}Services{% endif %}
+            {% endif %}
+          </p>
+        </div>
       </div>
     </div>
 
     <!-- Detailed Report Table -->
-    <div class="chart-container">
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+    <div class="animate-[fadeIn_0.8s_ease-out_0.7s_both] chart-container">
+      <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
+        <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+          </svg>
+        </div>
         {% if LANGUAGE_CODE == 'ar' %}التفاصيل{% else %}Details{% endif %}
       </h2>
       <div class="overflow-x-auto">
-        <table class="data-table">
-          <thead>
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th>{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Customer{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}النوع{% else %}Type{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}الاسم{% else %}Name{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}التاجر{% else %}Vendor{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}الفئة{% else %}Category{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}</th>
-              <th>{% if LANGUAGE_CODE == 'ar' %}الإجمالي{% else %}Total{% endif %}</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Customer{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}النوع{% else %}Type{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}الاسم{% else %}Name{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}التاجر{% else %}Vendor{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}الفئة{% else %}Category{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {% if LANGUAGE_CODE == 'ar' %}الإجمالي{% else %}Total{% endif %}
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {% for order in orders %}
               {% for item in order.items.all %}
                 {% if report_type == 'products' and item.product or report_type == 'services' and item.service %}
-                  <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.created_at|date:"Y-m-d" }}</td>
-                    <td>{{ order.first_name }} {{ order.last_name }}</td>
-                    <td>{% if item.product %}{% if LANGUAGE_CODE == 'ar' %}منتج{% else %}Product{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}خدمة{% else %}Service{% endif %}{% endif %}</td>
-                    <td>
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                      {{ order.id }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                      {{ order.created_at|date:"Y-m-d" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                      {{ order.first_name }} {{ order.last_name }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                      {% if item.product %}
+                        {% if LANGUAGE_CODE == 'ar' %}منتج{% else %}Product{% endif %}
+                      {% else %}
+                        {% if LANGUAGE_CODE == 'ar' %}خدمة{% else %}Service{% endif %}
+                      {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                       {% if item.product %}
                         {{ item.product.title }}
                       {% elif item.service %}
@@ -353,35 +359,41 @@
                         N/A
                       {% endif %}
                     </td>
-                    <td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                       {% if item.product %}
                         {{ item.product.creator.userprofile.Coach_profile.full_name|default:"N/A" }}
                       {% else %}
                         {{ item.service.creator.userprofile.Coach_profile.full_name|default:"N/A" }}
                       {% endif %}
                     </td>
-                    <td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                       {% if item.product %}
                         {{ item.product.creator.userprofile.Coach_profile.activity_type.name|default:"N/A" }}
                       {% else %}
                         {{ item.service.creator.userprofile.Coach_profile.activity_type.name|default:"N/A" }}
                       {% endif %}
                     </td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.price }} {{ request.user.userprofile.accountant_profile.club.vat_settings.currency }}</td>
-                    <td>{{ item.price|multiply:item.quantity }} {{ request.user.userprofile.accountant_profile.club.vat_settings.currency }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                      {{ item.quantity }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                      {{ item.price }} {{ request.user.userprofile.accountant_profile.club.vat_settings.currency }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400">
+                      {{ item.price|multiply:item.quantity }} {{ request.user.userprofile.accountant_profile.club.vat_settings.currency }}
+                    </td>
                   </tr>
                 {% endif %}
               {% empty %}
                 <tr>
-                  <td colspan="10" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                  <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                     {% if LANGUAGE_CODE == 'ar' %}لا توجد عناصر في الطلب{% else %}No items in order{% endif %}
                   </td>
                 </tr>
               {% endfor %}
             {% empty %}
               <tr>
-                <td colspan="10" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                   {% if LANGUAGE_CODE == 'ar' %}لا توجد بيانات متاحة{% else %}No data available{% endif %}
                 </td>
               </tr>
@@ -392,4 +404,38 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Dark mode toggle - Fixed version
+  function toggleDarkMode() {
+    const html = document.documentElement;
+    const toggle = document.getElementById('toggle');
+
+    if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        if(toggle) toggle.checked = false;
+        document.cookie = "darkMode=false; path=/; max-age=31536000";
+    } else {
+        html.classList.add('dark');
+        if(toggle) toggle.checked = true;
+        document.cookie = "darkMode=true; path=/; max-age=31536000";
+    }
+  }
+
+  // Check for saved dark mode preference on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const darkModeCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('darkMode='));
+
+    const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+        const toggle = document.getElementById('toggle');
+        if(toggle) toggle.checked = true;
+    }
+  });
+</script>
 {% endblock %}

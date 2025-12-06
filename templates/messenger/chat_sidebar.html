@@ -137,7 +137,7 @@
         </button>
         {% if user.userprofile.account_type == '2' %}
         <button id="membersTabButton" class="flex-1 p-4 bg-gray-100 text-gray-700 font-bold text-center">
-            أعضاء النادي
+            أعضاء المنصة
         </button>
         {% endif %}
     </div>
@@ -148,12 +148,12 @@
                 <div class="ml-3">
                     {% if club.club_profile_image_base64 %}
                     <img src="data:image/jpeg;base64,{{ club.club_profile_image_base64|safe }}"
-                         alt="صورة النادي"
+                         alt="صورة المنصة"
                          class="w-12 h-12 rounded-full object-cover border border-gray-300"
                          style="background-color: white;">
                     {% else %}
                     <img src="{% static '/img/default-profile-img-2.png' %}"
-                         alt="صورة النادي"
+                         alt="صورة المنصة"
                          class="w-12 h-12 rounded-full object-cover border border-gray-300">
                     {% endif %}
                 </div>
@@ -244,7 +244,7 @@
             </button>
             {% if user.userprofile.account_type == '2' %}
             <button id="membersTabButtonMobile" class="flex-1 p-3 bg-gray-100 text-gray-700 font-bold text-center">
-                أعضاء النادي
+                أعضاء المنصة
             </button>
             {% endif %}
         </div>
@@ -256,12 +256,12 @@
                         <div class="ml-3">
                             {% if club.club_profile_image_base64 %}
                             <img src="data:image/jpeg;base64,{{ club.club_profile_image_base64|safe }}"
-                                 alt="صورة النادي"
+                                 alt="صورة المنصة"
                                  class="w-12 h-12 rounded-full object-cover border border-gray-300"
                                  style="background-color: white;">
                             {% else %}
                             <img src="{% static '/img/default-profile-img-2.png' %}"
-                                 alt="صورة النادي"
+                                 alt="صورة المنصة"
                                  class="w-12 h-12 rounded-full object-cover border border-gray-300">
                             {% endif %}
                         </div>

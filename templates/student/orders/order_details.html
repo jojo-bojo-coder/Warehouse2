@@ -1,11 +1,18 @@
-{% extends "base_student_dashboard.html" %} {% load students_tags %} {% load static %}
+{% extends "base_student_dashboard.html" %}
+{% load students_tags %}
+{% load static %}
 {% block content %}
 
 <div class="bg-gradient-to-br from-rose-50 to-amber-50 min-h-screen py-8">
     <div class="max-w-5xl mx-auto px-4 mb-24">
+        <!-- Breadcrumb -->
         <div class="flex items-center mb-6 text-gray-600">
             <a href="{% url 'studentIndex' %}" class="hover:text-rose-600 transition-colors duration-300">
                 {% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Home{% endif %}
+            </a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'student_orders' %}" class="hover:text-rose-600 transition-colors duration-300">
+                {% if LANGUAGE_CODE == 'ar' %}طلباتي{% else %}My Orders{% endif %}
             </a>
             <span class="mx-2">/</span>
             <span class="text-rose-600">
@@ -13,86 +20,114 @@
             </span>
         </div>
 
-        <h1 class="text-3xl font-bold text-rose-800 mb-8 text-right animate__animated animate__fadeIn">
-            <span class="inline-block">✨</span>
-            {% if LANGUAGE_CODE == 'ar' %}تفاصيل الطلب{% else %}Order Details{% endif %} #{{ order.id }}
-        </h1>
-        <div class="text-right mb-6">
-            <button onclick="window.print()" class="bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-300">
-                {% if LANGUAGE_CODE == 'ar' %}طباعة PDF{% else %}Print PDF{% endif %}
-            </button>
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-rose-800 text-right animate__animated animate__fadeIn">
+                <span class="inline-block">✨</span>
+                {% if LANGUAGE_CODE == 'ar' %}تفاصيل الطلب{% else %}Order Details{% endif %} #{{ order.id }}
+            </h1>
+            <div class="flex gap-2">
+                <button onclick="window.print()" class="bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-300">
+                    <i class="fas fa-print ml-2"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}طباعة{% else %}Print{% endif %}
+                </button>
+                <a href="{% url 'student_orders' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow transition duration-300">
+                    <i class="fas fa-arrow-left ml-2"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}العودة للطلبات{% else %}Back to Orders{% endif %}
+                </a>
+            </div>
         </div>
 
-        <!-- Order Status -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6 border-l-4 border-rose-400 animate__animated animate__fadeInUp animate__faster">
-            <div class="flex justify-between items-center">
-                <div class="text-xl font-semibold">
-                    {% if order.payment_method == 'cash_on_delivery' and order.status == 'pending' %}
-                    <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full">
-                        <span class="mr-1">⏳</span>
-                        {% if LANGUAGE_CODE == 'ar' %}قيد الانتظار{% else %}Pending{% endif %}
-                    </span>
-                    {% elif order.status == 'confirmed' %}
-                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">
-                        <span class="mr-1">✅</span>
-                        {% if LANGUAGE_CODE == 'ar' %}تم التأكيد{% else %}Confirmed{% endif %}
-                    </span>
-                    {% elif order.status == 'cancelled' %}
-                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full">
-                        <span class="mr-1">❌</span>
-                        {% if LANGUAGE_CODE == 'ar' %}تم الإلغاء{% else %}Cancelled{% endif %}
-                    </span>
-                    {% elif order.status == 'completed' %}
-                    <span class="bg-rose-100 text-rose-800 px-3 py-1 rounded-full">
-                        <span class="mr-1">🎉</span>
-                        {% if LANGUAGE_CODE == 'ar' %}مكتمل{% else %}Completed{% endif %}
-                    </span>
-                    {% endif %}
+        <!-- Order Status Card -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border-l-4 {% if order.status == 'pending' %}border-amber-400{% elif order.status == 'confirmed' %}border-green-400{% elif order.status == 'cancelled' %}border-red-400{% else %}border-rose-400{% endif %} animate__animated animate__fadeInUp animate__faster">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="text-lg font-semibold mb-2">
+                        {% if order.status == 'pending' %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-800">
+                            <i class="fas fa-clock ml-2"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}قيد الانتظار{% else %}Pending{% endif %}
+                        </span>
+                        {% elif order.status == 'confirmed' %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800">
+                            <i class="fas fa-check-circle ml-2"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}تم التأكيد{% else %}Confirmed{% endif %}
+                        </span>
+                        {% elif order.status == 'cancelled' %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-800">
+                            <i class="fas fa-times-circle ml-2"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}تم الإلغاء{% else %}Cancelled{% endif %}
+                        </span>
+                        {% elif order.status == 'completed' %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-rose-100 text-rose-800">
+                            <i class="fas fa-trophy ml-2"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}مكتمل{% else %}Completed{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-gray-600 text-sm">
+                        <i class="far fa-calendar-alt ml-2"></i>
+                        {{ order.created_at|date:"d M Y, H:i" }}
+                    </p>
                 </div>
                 <div class="text-right">
                     <h2 class="text-xl font-semibold mb-1 text-rose-700">
                         {% if LANGUAGE_CODE == 'ar' %}الطلب{% else %}Order{% endif %} #{{ order.id }}
                     </h2>
-                    <p class="text-gray-600">{{ order.created_at|date:"d M Y, H:i" }}</p>
+                    <p class="text-gray-600">{{ order.get_order_type_display }}</p>
                 </div>
             </div>
 
             {% if order.payment_method == 'cash_on_delivery' and order.status == 'pending' %}
-            <div class="mt-4 bg-amber-50 border border-amber-200 p-4 rounded-md text-right animate__animated animate__pulse animate__infinite animate__slow">
-                <p class="text-amber-800">
-                    <i class="fas fa-exclamation-circle ml-2"></i>
-                    {% if LANGUAGE_CODE == 'ar' %}
-                    طلبك قيد المراجعة. سيتم تأكيده من قبل المدير قريباً.
-                    {% else %}
-                    Your order is under review. It will be confirmed by the manager soon.
-                    {% endif %}
-                </p>
+            <div class="mt-4 bg-amber-50 border border-amber-200 p-4 rounded-lg text-right animate-pulse">
+                <div class="flex items-start">
+                    <i class="fas fa-exclamation-circle text-amber-500 mt-1 ml-2"></i>
+                    <div>
+                        <p class="text-amber-800 font-medium">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                            طلبك قيد المراجعة. سيتم تأكيده من قبل المدير قريباً.
+                            {% else %}
+                            Your order is under review. It will be confirmed by the manager soon.
+                            {% endif %}
+                        </p>
+                        {% if order.transfer_receipt %}
+                        <p class="text-amber-700 text-sm mt-1">
+                            <i class="fas fa-file-upload ml-2"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}
+                            تم رفع إثبات التحويل: {{ order.transfer_uploaded_at|date:"d M Y, H:i" }}
+                            {% else %}
+                            Transfer receipt uploaded: {{ order.transfer_uploaded_at|date:"d M Y, H:i" }}
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
             {% endif %}
         </div>
 
-        <!-- Cancellation Information (only show if order is cancelled) -->
+        <!-- Cancellation Information -->
         {% if order.status == 'cancelled' and cancellation %}
-        <div class="bg-red-50 border border-red-200 rounded-lg shadow-md p-6 mb-6 animate__animated animate__fadeInUp animate__faster">
+        <div class="bg-red-50 border border-red-200 rounded-xl shadow-md p-6 mb-6 animate__animated animate__fadeInUp animate__faster">
             <h2 class="text-xl font-semibold mb-4 text-right text-red-700">
-                <span class="inline-block mr-2">🚫</span>
+                <i class="fas fa-ban ml-2"></i>
                 {% if LANGUAGE_CODE == 'ar' %}تفاصيل الإلغاء{% else %}Cancellation Details{% endif %}
             </h2>
 
-            <div class="space-y-3 text-right">
+            <div class="space-y-3">
                 <div class="bg-white p-4 rounded-lg border border-red-100">
-                    <div class="flex justify-between items-start">
-                        <div class="text-left">
-                            <p class="text-sm text-gray-500">
-                                {% if LANGUAGE_CODE == 'ar' %}تاريخ الإلغاء:{% else %}Cancelled on:{% endif %}
-                            </p>
-                            <p class="font-medium text-red-600">{{ cancellation.cancelled_at|date:"d M Y, H:i" }}</p>
-                        </div>
-                        <div class="text-right">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
                             <p class="text-sm text-gray-500 mb-1">
                                 {% if LANGUAGE_CODE == 'ar' %}سبب الإلغاء:{% else %}Cancellation Reason:{% endif %}
                             </p>
                             <p class="font-semibold text-red-700">{{ cancellation.get_reason_display_text }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500 mb-1">
+                                {% if LANGUAGE_CODE == 'ar' %}تاريخ الإلغاء:{% else %}Cancelled on:{% endif %}
+                            </p>
+                            <p class="font-medium text-red-600">{{ cancellation.cancelled_at|date:"d M Y, H:i" }}</p>
                         </div>
                     </div>
                 </div>
@@ -100,13 +135,12 @@
                 {% if cancellation.additional_notes %}
                 <div class="bg-white p-4 rounded-lg border border-red-100">
                     <p class="text-sm text-gray-500 mb-2 text-right">
+                        <i class="fas fa-sticky-note ml-2"></i>
                         {% if LANGUAGE_CODE == 'ar' %}ملاحظات إضافية:{% else %}Additional Notes:{% endif %}
                     </p>
                     <p class="text-gray-700 text-right">{{ cancellation.additional_notes }}</p>
                 </div>
                 {% endif %}
-
-
             </div>
         </div>
         {% endif %}
@@ -114,173 +148,496 @@
         <div class="flex flex-col lg:flex-row gap-6">
             <!-- Order Items -->
             <div class="lg:w-2/3">
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6 border-l-4 border-rose-300 animate__animated animate__fadeInUp animate__delay-1s">
-                    <h2 class="text-xl font-semibold mb-4 text-right text-rose-700">
-                        <span class="inline-block mr-2">🛍️</span>
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border-l-4 border-rose-300 animate__animated animate__fadeInUp animate__delay-1s">
+                    <h2 class="text-xl font-semibold mb-6 text-right text-rose-700">
+                        <i class="fas fa-shopping-basket ml-2"></i>
                         {% if LANGUAGE_CODE == 'ar' %}العناصر المطلوبة{% else %}Ordered Items{% endif %}
                     </h2>
 
-                    <div class="space-y-4">
+                    <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
-                            <tr class="border-b border-rose-100">
-                                <th class="text-right py-2 text-rose-600">{% if LANGUAGE_CODE == 'ar' %}المنتج{% else %}Product{% endif %}</th>
-                                <th class="text-center py-2 text-rose-600">{% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}</th>
-                                <th class="text-center py-2 text-rose-600">{% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Quantity{% endif %}</th>
-                                <th class="text-left py-2 text-rose-600">{% if LANGUAGE_CODE == 'ar' %}المجموع{% else %}Total{% endif %}</th>
+                            <tr class="border-b border-rose-100 bg-rose-50">
+                                <th class="text-right py-3 px-4 text-rose-700 font-semibold">
+                                    {% if LANGUAGE_CODE == 'ar' %}العنصر{% else %}Item{% endif %}
+                                </th>
+                                <th class="text-center py-3 px-4 text-rose-700 font-semibold">
+                                    {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
+                                </th>
+                                <th class="text-center py-3 px-4 text-rose-700 font-semibold">
+                                    {% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}
+                                </th>
+                                <th class="text-left py-3 px-4 text-rose-700 font-semibold">
+                                    {% if LANGUAGE_CODE == 'ar' %}المجموع{% else %}Total{% endif %}
+                                </th>
+                                {% if order.status in 'confirmed,completed' %}
+                                <th class="text-center py-3 px-4 text-rose-700 font-semibold">
+                                    {% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}
+                                </th>
+                                {% endif %}
                             </tr>
                             </thead>
                             <tbody>
+                            <!-- In order_details.html, update the table rows: -->
                             {% for item in order_items %}
-                            <tr class="border-b border-pink-50 hover:bg-pink-50 transition-colors duration-200">
-                                <td class="py-4 text-right">
-                                    {% if item.product %}
-                                    {{ item.product.title }}
-                                    {% elif item.service %}
-                                    {{ item.service.title }}
-                                    <span class="text-sm text-rose-500 ml-1">
-                                        {% if LANGUAGE_CODE == 'ar' %}(خدمة){% else %}(Service){% endif %}
-                                    </span>
-                                    {% endif %}
+                            <tr class="border-b border-rose-50 hover:bg-rose-50 transition-colors duration-200">
+                                <!-- Item Name -->
+                                <td class="py-4 px-4">
+                                    <div class="text-right">
+                                        <div class="font-medium text-gray-800">
+                                            {% if item.product %}
+                                            {{ item.product.title }}
+                                            <span class="text-sm text-rose-500 ml-1">
+                                                <i class="fas fa-box ml-1"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}(منتج){% else %}(Product){% endif %}
+                                            </span>
+                                            {% elif item.service %}
+                                            <!-- Check if it's from a package -->
+                                            {% if item.service_package %}
+                                            <div class="mb-2">
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-semibold">
+                                                    <i class="fas fa-gift ml-1"></i>
+                                                    {% if LANGUAGE_CODE == 'ar' %}باقة{% else %}Package{% endif %}
+                                                </span>
+                                            </div>
+                                            <div class="text-purple-700 font-semibold">
+                                                {{ item.service_package.title }}
+                                            </div>
+                                            <div class="text-sm text-gray-600 mt-1">
+                                                {{ item.service.title }}
+                                            </div>
+                                            {% else %}
+                                            {{ item.service.title }}
+                                            <span class="text-sm text-blue-500 ml-1">
+                                                <i class="fas fa-cogs ml-1"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}(خدمة){% else %}(Service){% endif %}
+                                            </span>
+                                            {% endif %}
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Package Details -->
+                                        {% if item.service_package %}
+                                        <div class="mt-2 text-xs text-gray-600 space-y-1">
+                                            {% if item.service_package.duration_days %}
+                                            <div>
+                                                <i class="far fa-calendar-alt ml-1"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}
+                                                مدة الباقة: {{ item.service_package.duration_days }} يوم
+                                                {% else %}
+                                                Duration: {{ item.service_package.duration_days }} days
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+
+                                            {% if item.service_package.total_sessions %}
+                                            <div>
+                                                <i class="far fa-clock ml-1"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}
+                                                عدد الجلسات: {{ item.service_package.total_sessions }}
+                                                {% else %}
+                                                Sessions: {{ item.service_package.total_sessions }}
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+
+                                            {% if item.service_package.sessions_per_week %}
+                                            <div>
+                                                <i class="fas fa-calendar-week ml-1"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}
+                                                جلسات أسبوعياً: {{ item.service_package.sessions_per_week }}
+                                                {% else %}
+                                                Sessions per week: {{ item.service_package.sessions_per_week }}
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+
+                                            {% if item.service_package.features_list %}
+                                            <div class="mt-1">
+                                                <details class="text-gray-700">
+                                                    <summary class="cursor-pointer hover:text-purple-600">
+                                                        <i class="fas fa-list ml-1"></i>
+                                                        {% if LANGUAGE_CODE == 'ar' %}مميزات الباقة{% else %}Package Features{% endif %}
+                                                    </summary>
+                                                    <ul class="mt-1 pr-4 space-y-1">
+                                                        {% for feature in item.service_package.features_list %}
+                                                        <li class="text-gray-600">• {{ feature }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </details>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        {% elif item.product and item.product.desc %}
+                                        <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ item.product.desc|truncatewords:10 }}</p>
+                                        {% elif item.service and item.service.desc %}
+                                        <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ item.service.desc|truncatewords:10 }}</p>
+                                        {% endif %}
+                                    </div>
                                 </td>
-                                {% if item.service %}
-                                <td class="py-4 text-center">
-                                    {% if item.service.discounted_price %}
-                                    {{ item.service.discounted_price }}
-                                    <span class="text-rose-500">
-                                        {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
-                                    <span class="block text-xs text-gray-500 line-through">
-                                        {{ item.service.price }}
-                                        {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
+
+                                <!-- Price -->
+                                <td class="py-4 px-4 text-center">
+                                    {% if item.service_package %}
+                                    <!-- Package Price -->
+                                    <div class="space-y-1">
+                                        {% if item.service_package.discounted_price %}
+                                        <div class="text-lg font-semibold text-purple-600">
+                                            {{ item.service_package.discounted_price|floatformat:2 }}
+                                            <span class="text-sm font-normal">{{ vat_settings.currency }}</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500 line-through">
+                                            {{ item.service_package.original_price|floatformat:2 }}
+                                            {{ vat_settings.currency }}
+                                        </div>
+                                        {% if item.service_package.discount_percentage > 0 %}
+                                        <div class="text-xs font-semibold text-green-600">
+                                            <i class="fas fa-percentage ml-1"></i>
+                                            {{ item.service_package.discount_percentage|floatformat:0 }}%
+                                            {% if LANGUAGE_CODE == 'ar' %}خصم{% else %}OFF{% endif %}
+                                        </div>
+                                        {% endif %}
+                                        {% else %}
+                                        <div class="text-lg font-semibold text-gray-800">
+                                            {{ item.service_package.original_price|floatformat:2 }}
+                                            <span class="text-sm font-normal text-gray-600">{{ vat_settings.currency }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    {% elif item.service and item.service.discounted_price %}
+                                    <!-- Service Discount -->
+                                    <div class="space-y-1">
+                                        <div class="text-lg font-semibold text-rose-600">
+                                            {{ item.service.discounted_price|floatformat:2 }}
+                                            <span class="text-sm font-normal">{{ vat_settings.currency }}</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500 line-through">
+                                            {{ item.service.price|floatformat:2 }}
+                                            {{ vat_settings.currency }}
+                                        </div>
+                                    </div>
                                     {% else %}
-                                    {{ item.service.price }}
-                                    <span class="text-rose-500">
-                                        {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
+                                    <!-- Regular Price -->
+                                    <div class="text-lg font-semibold">
+                                        {{ item.price|floatformat:2 }}
+                                        <span class="text-sm font-normal text-gray-600">{{ vat_settings.currency }}</span>
+                                    </div>
                                     {% endif %}
                                 </td>
-                                {% elif item.product %}
-                                <td class="py-4 text-center">{{ item.price }}
-                                    <span class="text-rose-500">
-                                        {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+
+                                <!-- Quantity -->
+                                <td class="py-4 px-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8
+                                        {% if item.service_package %}bg-purple-100 text-purple-700
+                                        {% else %}bg-rose-100 text-rose-700{% endif %}
+                                        rounded-full font-semibold">
+                                        {{ item.quantity }}
                                     </span>
+                                </td>
+
+                                <!-- Total -->
+                                <td class="py-4 px-4 text-left">
+                                    {% if item.service_package %}
+                                    <!-- Package Total -->
+                                    <div class="space-y-1">
+                                        {% if item.service_package.discounted_price %}
+                                        <div class="text-lg font-semibold text-purple-600">
+                                            {{ item.service_package.discounted_price|multiply:item.quantity|floatformat:2 }}
+                                            <span class="text-sm font-normal">{{ vat_settings.currency }}</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500 line-through">
+                                            {{ item.service_package.original_price|multiply:item.quantity|floatformat:2 }}
+                                            {{ vat_settings.currency }}
+                                        </div>
+                                        {% else %}
+                                        <div class="text-lg font-semibold text-gray-800">
+                                            {{ item.service_package.original_price|multiply:item.quantity|floatformat:2 }}
+                                            <span class="text-sm font-normal text-gray-600">{{ vat_settings.currency }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    {% elif item.service and item.service.discounted_price %}
+                                    <!-- Service Total with Discount -->
+                                    <div class="space-y-1">
+                                        <div class="text-lg font-semibold text-rose-600">
+                                            {{ item.service.discounted_price|multiply:item.quantity|floatformat:2 }}
+                                            <span class="text-sm font-normal">{{ vat_settings.currency }}</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500 line-through">
+                                            {{ item.service.price|multiply:item.quantity|floatformat:2 }}
+                                            {{ vat_settings.currency }}
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <!-- Regular Total -->
+                                    <div class="text-lg font-semibold">
+                                        {{ item.price|multiply:item.quantity|floatformat:2 }}
+                                        <span class="text-sm font-normal text-gray-600">{{ vat_settings.currency }}</span>
+                                    </div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Actions -->
+                                {% if order.status in 'confirmed,completed' %}
+                                <td class="py-4 px-4 text-center">
+                                    <div class="flex flex-col gap-2 items-center">
+                                        <!-- Review button (not for packages) -->
+                                        {% if not item.service_package %}
+                                        <a href="{% url 'create_review' order_item_id=item.id %}"
+                                           class="inline-flex items-center px-3 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-full text-sm transition duration-300">
+                                            <i class="fas fa-star ml-1"></i>
+                                            {% if LANGUAGE_CODE == 'ar' %}تقييم{% else %}Review{% endif %}
+                                        </a>
+                                        {% endif %}
+
+                                        <!-- Refund button (always available) -->
+                                        <a href="{% url 'create_refund_dispute' order_item_id=item.id %}"
+                                           class="inline-flex items-center px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm transition duration-300">
+                                            <i class="fas fa-undo-alt ml-1"></i>
+                                            {% if LANGUAGE_CODE == 'ar' %}استرداد{% else %}Refund{% endif %}
+                                        </a>
+
+                                        <!-- Package-specific actions -->
+                                        {% if item.service_package %}
+                                        <a href="{% url 'viewServicesSpecific' id=item.service.id %}"
+                                           class="inline-flex items-center px-3 py-1 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full text-sm transition duration-300">
+                                            <i class="fas fa-eye ml-1"></i>
+                                            {% if LANGUAGE_CODE == 'ar' %}عرض الباقة{% else %}View Package{% endif %}
+                                        </a>
+                                        {% endif %}
+                                    </div>
                                 </td>
                                 {% endif %}
-                                <td class="py-4 text-center">{{ item.quantity }}</td>
-                                <td class="py-4 text-left font-medium">
-                                    {% if item.service and item.service.discounted_price %}
-                                    {{ item.service.discounted_price|multiply:item.quantity }}
-                                    <span class="text-rose-500">
-                                        {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
-                                    <span class="block text-xs text-gray-500 line-through">
-                                        {{ item.service.price|multiply:item.quantity }}
-                                        {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
-                                    {% else %}
-                                    {{ item.price|multiply:item.quantity }}
-                                    <span class="text-rose-500">
-                                        {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
-                                    {% endif %}
-                                </td>
-                                <td class="py-4 text-center mr-4">
-                                    {% if item.product or item.service %}
-                                    {% if order.status == 'completed' or order.status == 'confirmed' %}
-                                    <a href="{% url 'create_review' order_item_id=item.id %}"
-                                       class="text-rose-600 hover:text-rose-800 text-sm">
-                                        {% if LANGUAGE_CODE == 'ar' %}تقييم{% else %}Review{% endif %}
-                                    </a>
-                                    <span class="mx-2">|</span>
-                                    <a href="{% url 'create_refund_dispute' order_item_id=item.id %}"
-                                       class="text-rose-600 hover:text-rose-800 text-sm">
-                                        {% if LANGUAGE_CODE == 'ar' %}طلب استرداد{% else %}Request Refund{% endif %}
-                                    </a>
-                                    {% endif %}
-                                    {% endif %}
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="py-8 text-center text-gray-500">
+                                    <i class="fas fa-shopping-cart text-3xl mb-2"></i>
+                                    <p>{% if LANGUAGE_CODE == 'ar' %}لا توجد عناصر{% else %}No items found{% endif %}</p>
                                 </td>
                             </tr>
                             {% endfor %}
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Package Savings Notice -->
+                    {% if package_savings > 0 %}
+                    <div class="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-gift text-purple-500 text-xl ml-3"></i>
+                                <div class="text-right">
+                                    <p class="text-purple-700 font-semibold">
+                                        <i class="fas fa-percentage ml-1"></i>
+                                        {% if LANGUAGE_CODE == 'ar' %}وفرت على باقاتك{% else %}You saved on packages{% endif %}
+                                    </p>
+                                    <p class="text-purple-600 text-sm">
+                                        {% if LANGUAGE_CODE == 'ar' %}خصم بقيمة{% else %}Discount of{% endif %}
+                                        {{ package_savings|floatformat:2 }} {{ vat_settings.currency}}
+                                    </p>
+                                </div>
+                            </div>
+                            {% if item.service_package and item.service_package.discount_percentage > 0 %}
+                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">
+                                {{ item.service_package.discount_percentage|floatformat:0 }}% OFF
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Service Savings Notice -->
+                    {% if service_savings > 0 %}
+                    <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-tag text-green-500 text-xl ml-3"></i>
+                                <div class="text-right">
+                                    <p class="text-green-700 font-semibold">
+                                        {% if LANGUAGE_CODE == 'ar' %}وفرت على خدماتك{% else %}You saved on services{% endif %}
+                                    </p>
+                                    <p class="text-green-600 text-sm">
+                                        {% if LANGUAGE_CODE == 'ar' %}خصم بقيمة{% else %}Discount of{% endif %}
+                                        {{ service_savings|floatformat:2 }} {{ vat_settings.currency }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
             <!-- Order Summary -->
             <div class="lg:w-1/3">
-                <div class="bg-white rounded-lg shadow-md p-6 sticky top-24 border-l-4 border-rose-400 animate__animated animate__fadeInUp animate__delay-2s">
-                    <h2 class="text-xl font-semibold mb-4 text-right text-rose-700">
-                        <span class="inline-block mr-2">📝</span>
-                        {% if LANGUAGE_CODE == 'ar' %}ملخص الطلب{% else %}Order Summary{% endif %}
+                <div class="bg-white rounded-xl shadow-lg p-6 sticky top-24 border-l-4 border-rose-400 animate__animated animate__fadeInUp animate__delay-2s">
+                    <h2 class="text-xl font-semibold mb-6 text-right text-rose-700">
+                        <i class="fas fa-receipt ml-2"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}ملخص الفاتورة{% else %}Invoice Summary{% endif %}
                     </h2>
 
-                    <div class="space-y-2 border-b border-pink-100 pb-4">
-                        <div class="flex justify-between">
-                            <span>{% if LANGUAGE_CODE == 'ar' %}الإجمالي الفرعي:{% else %}Subtotal:{% endif %}</span>
-                            <span>{{ order.subtotal }}
-                                <span class="text-rose-500">
-                                    {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                </span>
+                    <!-- Price Breakdown -->
+                    <div class="space-y-3 border-b border-rose-100 pb-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">{% if LANGUAGE_CODE == 'ar' %}الإجمالي الفرعي:{% else %}Subtotal:{% endif %}</span>
+                            <span class="font-medium">
+                                {{ order.subtotal|floatformat:2 }}
+                                <span class="text-gray-600 text-sm">{{ vat_settings.currency }}</span>
                             </span>
                         </div>
 
-                        {% if order.tax_amount > 0 %}
-                        <div class="flex justify-between">
-                            <span>{% if LANGUAGE_CODE == 'ar' %}الضريبة:{% else %}VAT:{% endif %}</span>
-                            <span>{{ order.tax_amount }}
-                                <span class="text-rose-500">
-                                    {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                </span>
+                        {% if order.discount_amount > 0 %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">{% if LANGUAGE_CODE == 'ar' %}الخصم:{% else %}Discount:{% endif %}</span>
+                            <span class="font-medium text-green-600">
+                                -{{ order.discount_amount|floatformat:2 }}
+                                <span class="text-gray-600 text-sm">{{ vat_settings.currency }}</span>
                             </span>
                         </div>
                         {% endif %}
-                        <div class="flex justify-between font-bold text-lg mt-2">
-                            <span>{% if LANGUAGE_CODE == 'ar' %}المجموع:{% else %}Total:{% endif %}</span>
-                            <span class="text-rose-600">{{ order.total_price }}
-                                <span>
-                                    {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                </span>
+
+                        {% if order.vat_amount > 0 %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">{% if LANGUAGE_CODE == 'ar' %}الضريبة{% else %}VAT{% endif %} ({{ order.vat_percentage|floatformat:2 }}%):</span>
+                            <span class="font-medium">
+                                {{ order.vat_amount|floatformat:2 }}
+                                <span class="text-gray-600 text-sm">{{ vat_settings.currency }}</span>
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        <div class="flex justify-between items-center pt-3 border-t border-rose-100">
+                            <span class="text-lg font-bold text-gray-800">{% if LANGUAGE_CODE == 'ar' %}المجموع:{% else %}Total:{% endif %}</span>
+                            <span class="text-xl font-bold text-rose-600">
+                                {{ order.total_price|floatformat:2 }}
+                                <span class="text-base">{{ vat_settings.currency }}</span>
                             </span>
                         </div>
                     </div>
 
-                    <div class="mt-4 space-y-4">
-                        <div class="text-right bg-pink-50 p-3 rounded-lg">
-                            <h3 class="font-semibold text-rose-700 mb-1">
-                                <span class="inline-block mr-2">💳</span>
+                    <!-- Payment & Customer Info -->
+                    <div class="mt-6 space-y-4">
+                        <!-- Payment Method -->
+                        <div class="bg-rose-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-rose-700 mb-2 text-right">
+                                <i class="fas fa-credit-card ml-2"></i>
                                 {% if LANGUAGE_CODE == 'ar' %}طريقة الدفع{% else %}Payment Method{% endif %}
                             </h3>
-                            <p>
-                                {% if order.payment_method == 'credit_card' %}
-                                <i class="far fa-credit-card text-rose-600 ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}بطاقة ائتمان{% else %}Credit Card{% endif %}
-                                {% elif order.payment_method == 'cash_on_delivery' %}
-                                <i class="fas fa-university text-rose-600 ml-2"></i>{% if LANGUAGE_CODE == 'ar' %}تحويل بنكي{% else %}Cash on Delivery{% endif %}
-                                {% endif %}
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">
+                                    {% if order.payment_method == 'credit_card' %}
+                                    <i class="far fa-credit-card text-rose-600 text-lg ml-2"></i>
+                                    {% elif order.payment_method == 'cash_on_delivery' %}
+                                    <i class="fas fa-university text-rose-600 text-lg ml-2"></i>
+                                    {% endif %}
+                                </span>
+                                <span class="font-medium text-gray-800">
+                                    {% if order.payment_method == 'credit_card' %}
+                                    {% if LANGUAGE_CODE == 'ar' %}بطاقة ائتمان{% else %}Credit Card{% endif %}
+                                    {% elif order.payment_method == 'cash_on_delivery' %}
+                                    {% if LANGUAGE_CODE == 'ar' %}الدفع عند الاستلام{% else %}Cash on Delivery{% endif %}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% if order.payment_date %}
+                            <p class="text-sm text-gray-600 mt-2 text-right">
+                                <i class="far fa-calendar-check ml-2"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}دفع للمدرب:{% else %}Paid to coach:{% endif %}
+                                {{ order.payment_date|date:"d M Y" }}
                             </p>
+                            {% endif %}
                         </div>
 
-                        <div class="text-right bg-pink-50 p-3 rounded-lg">
-                            <h3 class="font-semibold text-rose-700 mb-1">
-                                <span class="inline-block mr-2">👤</span>
+                        <!-- Customer Info -->
+                        <div class="bg-amber-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-amber-700 mb-3 text-right">
+                                <i class="fas fa-user-circle ml-2"></i>
                                 {% if LANGUAGE_CODE == 'ar' %}بيانات العميل{% else %}Customer Info{% endif %}
                             </h3>
-                            <p>{{ order.first_name }} {{ order.last_name }}</p>
-                            <p>{{ order.address }}</p>
-                            <p>{{ order.city }}، {{ order.region }}، {{ order.postal_code }}</p>
-                            <p>{{ order.phone }}</p>
+                            <div class="space-y-2 text-right">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-700 font-medium">
+                                        {{ order.first_name }} {{ order.last_name }}
+                                    </span>
+                                    <i class="fas fa-user text-amber-500"></i>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <a href="mailto:{{ order.email }}" class="text-gray-700 hover:text-rose-600 transition duration-300">
+                                        {{ order.email }}
+                                    </a>
+                                    <i class="fas fa-envelope text-amber-500"></i>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <a href="tel:{{ order.phone }}" class="text-gray-700 hover:text-rose-600 transition duration-300">
+                                        {{ order.phone }}
+                                    </a>
+                                    <i class="fas fa-phone text-amber-500"></i>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-amber-200">
+                                    <div class="text-gray-700">
+                                        <i class="fas fa-map-marker-alt text-amber-500 ml-2"></i>
+                                        {{ order.address }}, {{ order.city }}
+                                    </div>
+                                    <div class="text-gray-600 text-sm mt-1">
+                                        {{ order.region }}, {{ order.postal_code }}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Delivery Status -->
+                        {% if order.status in 'confirmed,completed' %}
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-green-700 mb-2 text-right">
+                                <i class="fas fa-truck ml-2"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}حالة التوصيل{% else %}Delivery Status{% endif %}
+                            </h3>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">
+                                    {% if order.status == 'confirmed' %}
+                                    <i class="fas fa-hourglass-half text-green-500 ml-2"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}قيد التجهيز{% else %}Processing{% endif %}
+                                    {% elif order.status == 'completed' %}
+                                    <i class="fas fa-check-circle text-green-500 ml-2"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}تم التسليم{% else %}Delivered{% endif %}
+                                    {% endif %}
+                                </span>
+                                <span class="text-sm text-gray-600">
+                                    {{ order.updated_at|date:"d M Y" }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
+
+                    <!-- Order Notes -->
+                    {% if order.notes %}
+                    <div class="mt-4 bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-700 mb-2 text-right">
+                            <i class="fas fa-sticky-note ml-2"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}ملاحظات الطلب{% else %}Order Notes{% endif %}
+                        </h3>
+                        <p class="text-gray-700 text-right">{{ order.notes }}</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add some animations -->
+<!-- Custom Styles -->
 <style>
+    .line-clamp-2 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
     @keyframes gentle-pulse {
         0% { transform: scale(1); }
         50% { transform: scale(1.03); }
@@ -291,21 +648,45 @@
         animation: gentle-pulse 1s infinite;
     }
 
+    .sticky {
+        position: -webkit-sticky;
+        position: sticky;
+    }
+
     @media print {
-    nav, .navbar, .sidebar, .footer, button, .print-hidden {
-        display: none !important;
-    }
-    body {
-        background: white;
-        color: black;
-    }
-    .shadow-md, .border-l-4 {
-        box-shadow: none !important;
-        border-left: none !important;
-    }
-    .min-h-screen {
-        min-height: auto;
-    }
+        nav, .navbar, .sidebar, .footer, button, .print-hidden {
+            display: none !important;
+        }
+        body {
+            background: white !important;
+            color: black !important;
+            font-size: 12pt !important;
+        }
+        .shadow-lg, .border-l-4, .bg-gradient-to-br {
+            box-shadow: none !important;
+            border-left: none !important;
+            background: white !important;
+        }
+        .min-h-screen {
+            min-height: auto !important;
+        }
+        .sticky {
+            position: static !important;
+        }
+        .text-rose-600, .text-rose-700 {
+            color: black !important;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f5f5f5 !important;
+        }
     }
 </style>
 

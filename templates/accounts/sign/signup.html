@@ -1,43 +1,47 @@
 {% extends "base_landing.html" %}
 
 {% block content %}
-<div class=" min-h-screen bg-indigo-50">
-  <div class=" px-4 py-28 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-    <div class="mx-auto w-full max-w-sm lg:w-96">
-      <h2 class="mt-6 text-3xl font-extrabold text-black">
-        {% if LANGUAGE_CODE == 'ar' %}
-        انشاء حساب جديد
-        {% else %}
-        Create New Account
-        {% endif %}
-      </h2>
-      <p class="mt-2 text-sm text-indigo-400">
-        {% if LANGUAGE_CODE == 'ar' %}
-        عندك حساب؟
-        {% else %}
-        Already have an account?
-        {% endif %}
-        <a href="/auth/signin" class="font-medium text-indigo-400 hover:text-indigo-300">
-          {% if LANGUAGE_CODE == 'ar' %}
-          سجل الدخول
-          {% else %}
-          Sign In
-          {% endif %}
-        </a>
-      </p>
+<main class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8 mt-20">
+  <div class="max-w-5xl mx-auto">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-8 md:p-12">
 
-      <div class="mt-8">
-        <!-- Tab Navigation -->
-        <div class="flex justify-center mb-4">
-          <div class="flex space-x-4 mb-4">
-            <button id="student-tab" class="tab-btn active-tab">
+      <!-- Header -->
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-slate-900 dark:text-white">
+          {% if LANGUAGE_CODE == 'ar' %}
+          انشاء حساب جديد
+          {% else %}
+          Create New Account
+          {% endif %}
+        </h2>
+        <p class="mt-3 text-slate-600 dark:text-slate-300">
+          {% if LANGUAGE_CODE == 'ar' %}
+          عندك حساب؟
+          {% else %}
+          Already have an account?
+          {% endif %}
+          <a href="/auth/signin" class="font-medium text-blue-500 hover:text-blue-600 transition duration-300 ml-1">
+            {% if LANGUAGE_CODE == 'ar' %}
+            سجل الدخول
+            {% else %}
+            Sign In
+            {% endif %}
+          </a>
+        </p>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="flex justify-center mb-8">
+        <div class="inline-flex rounded-full p-1 bg-slate-100 dark:bg-slate-700 shadow-sm">
+          <div class="flex space-x-1">
+            <button id="student-tab" class="tab-btn active-tab rounded-full px-6 py-2 text-sm font-medium transition-all duration-300">
               {% if LANGUAGE_CODE == 'ar' %}
               تسجيل عميل
               {% else %}
               Client Registration
               {% endif %}
             </button>
-            <button id="vendor-tab" class="tab-btn">
+            <button id="vendor-tab" class="tab-btn rounded-full px-6 py-2 text-sm font-medium transition-all duration-300">
               {% if LANGUAGE_CODE == 'ar' %}
               تسجيل بائع
               {% else %}
@@ -46,203 +50,325 @@
             </button>
           </div>
         </div>
+      </div>
 
+      <!-- Forms Container -->
+      <div class="mt-8">
         <!-- Student Form -->
-        <div id="student-form" class="tab-content ">
+        <div id="student-form" class="tab-content bg-slate-50 dark:bg-slate-900 rounded-xl p-6 md:p-8">
           <form class="space-y-6" method="post">
             {% csrf_token %}
             <input type="hidden" name="account_type" value="3">
 
             <div>
-              <label for="username" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 اسم المستخدم
                 {% else %}
                 Username
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="username" name="username" type="text" required class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="username" name="username" type="text" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
             </div>
 
             <div>
-              <label for="email" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 البريد الالكتروني
                 {% else %}
                 Email
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="email" name="email" type="email" required class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="email" name="email" type="email" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
             </div>
 
-            {{ student_form.as_p }}
+            <!-- Full Name Field -->
+    <div>
+      <label for="full_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        {% if LANGUAGE_CODE == 'ar' %}
+        الاسم الكامل
+        {% else %}
+        Full Name
+        {% endif %}
+      </label>
+      <div>
+        {{ student_form.full_name }}
+      </div>
+    </div>
+
+    <!-- Phone Field -->
+    <div>
+      <label for="phone" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        {% if LANGUAGE_CODE == 'ar' %}
+        رقم الهاتف
+        {% else %}
+        Phone Number
+        {% endif %}
+      </label>
+      <div>
+        {{ student_form.phone }}
+      </div>
+    </div>
+
+    <!-- Birthday Field -->
+    <div>
+      <label for="birthday" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        {% if LANGUAGE_CODE == 'ar' %}
+        تاريخ الميلاد
+        {% else %}
+        Birthday
+        {% endif %}
+      </label>
+      <div>
+        {{ student_form.birthday }}
+      </div>
+    </div>
+
+    <!-- Profile Image Field -->
+    <div>
+      <label for="profile_image_base64" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        {% if LANGUAGE_CODE == 'ar' %}
+        صورة الملف الشخصي
+        {% else %}
+        Profile Image
+        {% endif %}
+      </label>
+      <div>
+        {{ student_form.profile_image_base64 }}
+      </div>
+    </div>
 
             <div>
-              <label for="password" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 كلمة المرور
                 {% else %}
                 Password
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="password" name="password" type="password" required class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="password" name="password" type="password" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
             </div>
 
-            <div>
-              <button type="submit" class="submit-btn">{% if LANGUAGE_CODE == 'ar' %}
-                انشاء حساب لاعب
+            <div class="pt-4">
+              <button type="submit"
+                      class="w-full rounded-full bg-blue-500 px-6 py-3 text-lg font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                انشاء حساب عميل
                 {% else %}
                 Create Client Account
-                {% endif %}</button>
+                {% endif %}
+              </button>
             </div>
           </form>
         </div>
 
         <!-- Club Form (Director Sign-Up) -->
-        <div id="club-form" class="tab-content hidden">
+        <div id="club-form" class="tab-content hidden bg-slate-50 dark:bg-slate-900 rounded-xl p-6 md:p-8">
           <form class="space-y-6" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="account_type" value="2">
 
-            <h3>{% if LANGUAGE_CODE == 'ar' %}
-              معلومات المستخدم
-              {% else %}
-              User Information
-              {% endif %}</h3>
+            <div class="mb-6">
+              <h3 class="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                معلومات المستخدم
+                {% else %}
+                User Information
+                {% endif %}
+              </h3>
+            </div>
+
             <div>
-              <label for="username" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 اسم المستخدم
                 {% else %}
                 Username
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="username" name="username" type="text" required class="input-style" />
-              </div>
-            </div>
-            <div>
-              <label for="email" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                البريد الالكتروني
-                {% else %}
-                Email
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="email" name="email" type="email" required class="input-style" />
-              </div>
-            </div>
-            <div>
-              <label for="password" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                كلمة المرور
-                {% else %}
-                Password
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="password" name="password" type="password" required class="input-style" />
-              </div>
-            </div>
-            <div>
-              <label for="phone" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
-                رقم الهاتف
-                {% else %}
-                Phone Number
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="phone" name="phone" type="text" required class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="username" name="username" type="text" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
             </div>
 
-            <h3>{% if LANGUAGE_CODE == 'ar' %}
-              معلومات النادي
-              {% else %}
-              Salon Information
-              {% endif %}</h3>
             <div>
-              <label for="club_name" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                البريد الالكتروني
+                {% else %}
+                Email
+                {% endif %}
+              </label>
+              <div>
+                <input id="email" name="email" type="email" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
+              </div>
+            </div>
+
+            <div>
+              <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                كلمة المرور
+                {% else %}
+                Password
+                {% endif %}
+              </label>
+              <div>
+                <input id="password" name="password" type="password" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
+              </div>
+            </div>
+
+            <div>
+              <label for="phone" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                رقم الهاتف
+                {% else %}
+                Phone Number
+                {% endif %}
+              </label>
+              <div>
+                <input id="phone" name="phone" type="text" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
+              </div>
+            </div>
+
+            <div class="mb-6 pt-6">
+              <h3 class="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                معلومات النادي
+                {% else %}
+                Salon Information
+                {% endif %}
+              </h3>
+            </div>
+
+            <div>
+              <label for="club_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 اسم النادي
                 {% else %}
                 Salon Name
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="club_name" name="club_name" type="text" required class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="club_name" name="club_name" type="text" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
             </div>
+
             <div>
-              <label for="city" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="city" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 المدينة
                 {% else %}
                 City
-                {% endif %}</label>
-              <div class="mt-1">
+                {% endif %}
+              </label>
+              <div>
                 {% if director_form.city %}
                 {{ director_form.city }}
                 {% else %}
-                <p class="text-red-500 text-sm">{% if LANGUAGE_CODE == 'ar' %}
+                <p class="text-red-500 text-sm">
+                  {% if LANGUAGE_CODE == 'ar' %}
                   ⚠️ خطأ: لم يتم تحميل حقل المدينة بشكل صحيح.
                   {% else %}
                   ⚠️ Error: City field not loaded properly.
-                  {% endif %}</p>
+                  {% endif %}
+                </p>
                 {% endif %}
               </div>
             </div>
+
             <div>
-              <label for="street" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="street" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 الشارع
                 {% else %}
                 Street
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="street" name="street" type="text" required class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="street" name="street" type="text" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
             </div>
+
             <div>
-              <label for="desc" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="desc" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 وصف قصير
                 {% else %}
                 Short Description
-                {% endif %}</label>
-              <div class="mt-1">
-                <textarea id="desc" name="desc" rows="2" class="input-style"></textarea>
+                {% endif %}
+              </label>
+              <div>
+                <textarea id="desc" name="desc" rows="2"
+                          class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"></textarea>
               </div>
             </div>
+
             <div>
-              <label for="about" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="about" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 عن النادي
                 {% else %}
                 About the Salon
-                {% endif %}</label>
-              <div class="mt-1">
-                <textarea id="about" name="about" rows="3" class="input-style"></textarea>
+                {% endif %}
+              </label>
+              <div>
+                <textarea id="about" name="about" rows="3"
+                          class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"></textarea>
               </div>
             </div>
+
             <div>
-              <label for="club_logo" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="club_logo" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 شعار النادي
                 {% else %}
                 Salon Logo
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="club_logo" name="club_profile_image_base64" type="file" class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="club_logo" name="club_profile_image_base64" type="file"
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
               </div>
             </div>
-            <div>
-              <button type="submit" class="submit-btn">{% if LANGUAGE_CODE == 'ar' %}
+
+            <div class="pt-4">
+              <button type="submit"
+                      class="w-full rounded-full bg-blue-500 px-6 py-3 text-lg font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 إنشاء حساب نادي
                 {% else %}
                 Create Salon Account
-                {% endif %}</button>
+                {% endif %}
+              </button>
             </div>
           </form>
         </div>
 
         <!-- Vendor Form - Now redirects to multi-step process -->
-        <div id="vendor-form" class="tab-content hidden">
-          <div class="text-center space-y-6">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-              </svg>
+        <div id="vendor-form" class="tab-content hidden bg-slate-50 dark:bg-slate-900 rounded-xl p-8 text-center">
+          <div class="space-y-6">
+            <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto">
+              <div class="text-3xl text-blue-500">
+                <i class="fas fa-store"></i>
+              </div>
             </div>
 
-            <h3 class="text-xl font-semibold text-gray-900">
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
               {% if LANGUAGE_CODE == 'ar' %}
               تسجيل بائع
               {% else %}
@@ -250,7 +376,7 @@
               {% endif %}
             </h3>
 
-            <p class="text-gray-600">
+            <p class="text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto">
               {% if LANGUAGE_CODE == 'ar' %}
               نقدم لك تجربة تسجيل محسّنة مع خطوات واضحة ومنظمة لضمان دقة المعلومات وسرعة المراجعة
               {% else %}
@@ -259,247 +385,200 @@
             </p>
 
             <a href="{% url 'vendor_signup_step1' %}"
-               class="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+               class="inline-flex items-center gap-2 rounded-full bg-blue-500 px-8 py-4 text-lg font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition duration-300">
               {% if LANGUAGE_CODE == 'ar' %}
               ابدأ التسجيل كبائع
               {% else %}
               Start Vendor Registration
               {% endif %}
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-              </svg>
+              <i class="fas fa-arrow-left text-lg ml-2 {% if LANGUAGE_CODE == 'ar' %}rotate-180{% endif %}"></i>
             </a>
           </div>
         </div>
 
         <!-- Receptionist Form -->
-        <div id="receptionist-form" class="tab-content hidden">
+        <div id="receptionist-form" class="tab-content hidden bg-slate-50 dark:bg-slate-900 rounded-xl p-6 md:p-8">
           <form class="space-y-6" method="post">
             {% csrf_token %}
             <input type="hidden" name="account_type" value="5">
 
-            <h3>{% if LANGUAGE_CODE == 'ar' %}
-              معلومات المستخدم
-              {% else %}
-              User Information
-              {% endif %}</h3>
+            <div class="mb-6">
+              <h3 class="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                معلومات المستخدم
+                {% else %}
+                User Information
+                {% endif %}
+              </h3>
+            </div>
+
             <div>
-              <label for="username" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 اسم المستخدم
                 {% else %}
                 Username
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="username" name="username" type="text" required class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="username" name="username" type="text" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
             </div>
+
             <div>
-              <label for="email" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 البريد الالكتروني
                 {% else %}
                 Email
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="email" name="email" type="email" required class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="email" name="email" type="email" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
             </div>
+
             <div>
-              <label for="password" class="block text-sm font-medium text-black">{% if LANGUAGE_CODE == 'ar' %}
+              <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 كلمة المرور
                 {% else %}
                 Password
-                {% endif %}</label>
-              <div class="mt-1">
-                <input id="password" name="password" type="password" required class="input-style" />
+                {% endif %}
+              </label>
+              <div>
+                <input id="password" name="password" type="password" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
             </div>
 
             {{ receptionist_form.as_p }}
 
-            <div>
-              <button type="submit" class="submit-btn">{% if LANGUAGE_CODE == 'ar' %}
+            <div class="pt-4">
+              <button type="submit"
+                      class="w-full rounded-full bg-blue-500 px-6 py-3 text-lg font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {% if LANGUAGE_CODE == 'ar' %}
                 انشاء حساب موظف استقبال
                 {% else %}
                 Create Receptionist Account
-                {% endif %}</button>
+                {% endif %}
+              </button>
             </div>
           </form>
         </div>
       </div>
     </div>
   </div>
-</div>
+</main>
 
 <style>
-      .flex.justify-center.mb-4 {
-    margin-bottom: 2rem;
-  }
-
-  .flex.space-x-4.mb-4 {
-    display: flex;
-    gap: 0;
-    background-color: #e9eeff;
-    border-radius: 9999px;
-    padding: 4px;
-    width: fit-content;
-    margin: 0 auto;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-
-  .tab-btn {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 9999px;
-    font-weight: 500;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: transparent;
-    color: #6b7280;
-    min-width: 120px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .active-tab {
-    background-color: #4f46e5;
-    color: white;
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-  }
-
-  /* Form styling */
-  .tab-content.hidden {
-    display: none;
-  }
-
-  .input-style {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: border 0.3s ease;
-    background-color: white;
-  }
-
-  .input-style:focus {
-    outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
-  }
-
-  .submit-btn {
-    background-color: #4f46e5;
-    color: white;
-    padding: 12px;
-    width: 100%;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-    margin-top: 1rem;
-  }
-
-  .submit-btn:hover {
-    background-color: #4338ca;
-  }
-
-  /* Form containers */
-  .space-y-6 {
-    background-color: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
-
-  /* Form section titles */
-  h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #111827;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #f3f4f6;
-  }
-
-  /* Labels */
-  .block.text-sm.font-medium.text-black {
-    margin-bottom: 0.25rem;
-    display: block;
-    color: #374151;
-  }
-
-  /* Better spacing between form elements */
-  .mt-1 {
-    margin-top: 0.25rem;
-    margin-bottom: 1rem;
-  }
-
-  /* Checkbox styling */
-  .flex.items-center {
-    display: flex;
-    align-items: flex-start;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .flex.items-center input[type="checkbox"] {
-    margin-right: 0.5rem;
-    margin-top: 0.125rem;
-  }
-
-  /* Info box styling */
-  .bg-blue-50 {
-    background-color: #eff6ff;
-  }
-
-  .border-blue-200 {
-    border-color: #bfdbfe;
-  }
-
-  .text-blue-800 {
-    color: #1e40af;
-  }
-
-  .mt-1 small {
-  display: block;
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
-.input-style {
-  margin-bottom: 0.25rem;
-}
-
-/* Add some visual feedback for validation */
-.input-style:invalid {
-  border-color: #ef4444;
-}
-
-.input-style:valid {
-  border-color: #10b981;
-}
 .tab-btn {
-  @apply px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 transition-colors duration-200;
+  background: transparent;
+  color: #64748b;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.active-tab {
-  @apply text-indigo-600 border-indigo-600;
+.tab-btn.active-tab {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .tab-content {
-  @apply transition-all duration-300;
+  display: block;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-.input-style {
-  @apply w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500;
+.tab-content.hidden {
+  display: none;
 }
 
-.submit-btn {
-  @apply w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+/* Style form fields to match index.html */
+select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background-color: white;
+  color: #0f172a;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px;
+}
+
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Dark mode styles for form fields */
+.dark select {
+  background-color: #334155;
+  border-color: #475569;
+  color: #f1f5f9;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.dark textarea {
+  background-color: #334155;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+.dark textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Animation for tab switching */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Form labels styling */
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* File input styling */
+input[type="file"]::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+input[type="file"]::before {
+  content: 'Choose file';
+  display: inline-block;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .tab-btn {
+    padding: 10px 16px;
+    font-size: 0.875rem;
+  }
 }
 </style>
 
@@ -526,4 +605,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
-

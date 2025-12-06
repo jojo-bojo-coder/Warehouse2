@@ -34,37 +34,56 @@ def get_user_profile_image(user):
     except Exception:
         return None
 
-def get_user_full_name(user):
-    userprofile = user.userprofile
 
-    if userprofile.account_type == '2':
-        return userprofile.director_profile.full_name
-    elif user.userprofile.account_type == '3':
-        return userprofile.student_profile.full_name
-    elif user.userprofile.account_type == '4':
-        return userprofile.Coach_profile.full_name
-    elif user.userprofile.account_type == '5':
-        return userprofile.receptionist_profile.full_name
-    elif user.userprofile.account_type == '6':
-        return userprofile.administrator_profile.full_name
-    else:
-        return None
+def get_user_full_name(user):
+    try:
+        if not hasattr(user, 'userprofile'):
+            return user.username  # Fallback to username if no profile exists
+
+        userprofile = user.userprofile
+
+        if userprofile.account_type == '2' and hasattr(userprofile,
+                                                       'director_profile') and userprofile.director_profile:
+            return userprofile.director_profile.full_name
+        elif user.userprofile.account_type == '3' and hasattr(userprofile,
+                                                              'student_profile') and userprofile.student_profile:
+            return userprofile.student_profile.full_name
+        elif user.userprofile.account_type == '4' and hasattr(userprofile,
+                                                              'Coach_profile') and userprofile.Coach_profile:
+            return userprofile.Coach_profile.full_name
+        elif user.userprofile.account_type == '5' and hasattr(userprofile,
+                                                              'receptionist_profile') and userprofile.receptionist_profile:
+            return userprofile.receptionist_profile.full_name
+        elif user.userprofile.account_type == '6' and hasattr(userprofile,
+                                                              'administrator_profile') and userprofile.administrator_profile:
+            return userprofile.administrator_profile.full_name
+        else:
+            return user.username  # Fallback to username
+    except Exception:
+        return user.username  # Fallback to username in case of any error
+
 
 def get_user_capacity(user):
-    userprofile = user.userprofile
+    try:
+        if not hasattr(user, 'userprofile'):
+            return 'مستخدم'  # Default capacity if no profile exists
 
-    if userprofile.account_type == '2':
-        return 'أدمن'
-    elif user.userprofile.account_type == '3':
-        return 'لاعب'
-    elif user.userprofile.account_type == '4':
-        return 'مدرب'
-    elif user.userprofile.account_type == '5':
-        return 'استقبال'
-    elif user.userprofile.account_type == '6':
-        return 'مدير عام'
-    else:
-        return None
+        userprofile = user.userprofile
+
+        if userprofile.account_type == '2':
+            return 'مدير المنصة'
+        elif user.userprofile.account_type == '3':
+            return 'مستخدم'
+        elif user.userprofile.account_type == '4':
+            return 'تاجر'
+        elif user.userprofile.account_type == '5':
+            return 'دعم فني'
+        elif user.userprofile.account_type == '6':
+            return 'مدير عام'
+        else:
+            return 'مستخدم'  # Default
+    except Exception:
+        return 'مستخدم'  # Default in case of error
 
 def getUserClub(user):
     userprofile = user.userprofile

@@ -168,6 +168,7 @@ def viewStudentss(request):
     context = {}
     """Displays all students in the club."""
     club = get_user_club(request.user)
+    receptionist_profile = request.user.userprofile.receptionist_profile
 
     if not club:
         messages.error(request, "لم يتم تحديد نادٍ لهذا المستخدم.")
@@ -180,13 +181,14 @@ def viewStudentss(request):
 
     valid_students = [student for student in students if student.student_profile]
     context['LANGUAGE_CODE'] = translation.get_language()
-    return render(request, 'receptionist_dashboard/students/viewStudents.html', {'students': valid_students,'club': club})
+    return render(request, 'receptionist_dashboard/students/viewStudents.html', {'students': valid_students,'club': club,'receptionist':receptionist_profile,})
 
 
 def addStudent(request):
     context = {}
     """Adds a new student to the club."""
     club = get_user_club(request.user)
+    receptionist_profile = request.user.userprofile.receptionist_profile
 
     if not club:
         messages.error(request, "لم يتم تحديد نادٍ لهذا المستخدم.")
@@ -232,7 +234,7 @@ def addStudent(request):
         form.initial['club'] = club.id
 
     context['LANGUAGE_CODE'] = translation.get_language()
-    return render(request, 'receptionist_dashboard/students/addStudent.html', {'form': form, 'club': club})
+    return render(request, 'receptionist_dashboard/students/addStudent.html', {'form': form, 'club': club,'receptionist':receptionist_profile,})
 
 
 @login_required
@@ -240,6 +242,7 @@ def editStudentt(request, id):
     context = {}
     """Edits an existing student's details."""
     club = get_user_club(request.user)
+    receptionist_profile = request.user.userprofile.receptionist_profile
 
     if not club:
         messages.error(request, "لم يتم تحديد نادٍ لهذا المستخدم.")
@@ -263,7 +266,7 @@ def editStudentt(request, id):
             messages.error(request, "Username already exists.")
             return render(request, 'receptionist_dashboard/students/editStudent.html', {
                 'form': form,
-                'student': student
+                'student': student,
             })
 
         if User.objects.filter(email=new_email).exclude(id=student.id).exists():
@@ -300,7 +303,8 @@ def editStudentt(request, id):
     return render(request, 'receptionist_dashboard/students/editStudent.html', {
         'form': form,
         'student': student,
-        'club' : club
+        'club' : club,
+        'receptionist': receptionist_profile
     })
 
 
@@ -598,7 +602,7 @@ def receptionist_ticket_list(request):
 
     receptionist_profile = user_profile.receptionist_profile
     tickets = CoachReceptionistTicket.objects.filter(receptionist=receptionist_profile).order_by('-created_at')
-    return render(request, 'receptionist_dashboard/tickets/receptionist_ticket_list.html', {'tickets': tickets,'club': club})
+    return render(request, 'receptionist_dashboard/tickets/receptionist_ticket_list.html', {'tickets': tickets,'club': club,'receptionist': receptionist_profile})
 
 
 @login_required
@@ -633,6 +637,7 @@ from django.http import HttpResponseForbidden
 def receptionist_refund_list(request):
     """List of refund disputes assigned to receptionist"""
     user_profile = request.user.userprofile
+    receptionist_profile = user_profile.receptionist_profile
 
     # Verify receptionist access
     if not hasattr(user_profile, 'receptionist_profile'):
@@ -663,6 +668,7 @@ def receptionist_refund_list(request):
         'status_counts': status_counts,
         'status_filter': status_filter,
         'club': club,
+        'receptionist': receptionist_profile
     }
     return render(request, 'receptionist_dashboard/refunds/refund_list.html', context)
 
@@ -672,6 +678,7 @@ def receptionist_refund_detail(request, dispute_id):
     """Detailed view of a refund dispute for receptionist"""
     dispute = get_object_or_404(RefundDispute, id=dispute_id)
     user_profile = request.user.userprofile
+    receptionist_profile = user_profile.receptionist_profile
 
     # Verify receptionist access and club match
     if not (hasattr(user_profile, 'receptionist_profile') and
@@ -729,6 +736,7 @@ def receptionist_refund_detail(request, dispute_id):
         'can_message': dispute.current_stage in ['receptionist', 'director'],
         'time_remaining': (dispute.next_escalation_time - timezone.now()) if dispute.next_escalation_time else None,
         'club': user_profile.receptionist_profile.club,
+        'receptionist': receptionist_profile
     }
     return render(request, 'receptionist_dashboard/refunds/refund_detail.html', context)
 

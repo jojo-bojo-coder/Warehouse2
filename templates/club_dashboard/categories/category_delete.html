@@ -8,14 +8,26 @@
       animation: float 4s ease-in-out infinite;
   }
 
-  .animate-fade-in {
+  .animate-fadeIn {
       animation: fadeIn 0.6s ease-out forwards;
       opacity: 0;
   }
 
-  .animate-fade-in-up {
+  .animate-fadeInUp {
       animation: fadeInUp 0.8s ease-out forwards;
       opacity: 0;
+  }
+
+  /* Button Effects */
+  .btn-gradient {
+      background-size: 200% auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .btn-gradient:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   }
 
   /* Keyframes */
@@ -33,32 +45,26 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
   }
-
-  /* Background Animation */
-  .animated-bg {
-      animation: gradientBG 15s ease infinite;
-      background-size: 300% 300%;
-  }
-
-  @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-  }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden  dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
 
     <!-- Header -->
-    <div class="flex justify-between items-center py-8 animate-fade-in">
+    <div class="flex justify-between items-center py-8 animate-fadeIn">
         <div class="flex items-center gap-4">
             <a href="{% url 'category_list' %}" class="p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 dark:bg-gray-700 dark:hover:bg-gray-600">
                 <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    <!-- Right arrow for Arabic (points right) -->
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    {% else %}
+                    <!-- Left arrow for English (points left) -->
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    {% endif %}
                 </svg>
             </a>
-            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2 dark:text-white">
-                <div class="p-2 bg-red-100 rounded-full text-red-600 dark:bg-red-900/20 dark:text-red-300">
+            <h1 class="text-4xl font-bold text-red-800 dark:text-red-400 mb-2 flex items-center gap-2">
+                <div class="p-2 bg-red-100 rounded-full text-red-600 dark:bg-red-900 dark:text-red-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
@@ -69,28 +75,47 @@
     </div>
 
     <!-- Delete Confirmation -->
-    <div class="max-w-2xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s">
-        <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden dark:bg-gray-800/90 dark:border dark:border-gray-700">
-            <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
-                <h2 class="text-xl font-semibold text-white">{% if LANGUAGE_CODE == 'ar' %}تأكيد الحذف{% else %}Confirm Deletion{% endif %}</h2>
+    <div class="max-w-2xl mx-auto animate-fadeInUp" style="animation-delay: 0.2s">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="bg-gradient-to-r from-red-500 to-orange-500 px-6 py-4">
+                <h2 class="text-xl font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    {% if LANGUAGE_CODE == 'ar' %}تأكيد الحذف{% else %}Confirm Deletion{% endif %}
+                </h2>
             </div>
 
             <div class="p-6">
                 <div class="text-center">
-                    <svg class="mx-auto h-16 w-16 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
+                    <div class="mx-auto w-20 h-20 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center mb-4">
+                        <svg class="h-12 w-12 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </div>
                     <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد أنك تريد حذف هذه الفئة؟{% else %}Are you sure you want to delete this category?{% endif %}</h3>
                     <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
                         <p>{% if LANGUAGE_CODE == 'ar' %}سيتم حذف الفئة "{{ category.name }}" بشكل دائم.{% else %}The category "{{ category.name }}" will be permanently removed.{% endif %}</p>
                         {% if subcategory_count > 0 %}
-                        <p class="mt-2 font-medium text-red-600 dark:text-red-400">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                            تحذير: هذه الفئة تحتوي على {{ subcategory_count }} فئة فرعية. لا يمكن حذفها إلا بعد حذف أو نقل جميع الفئات الفرعية.
-                            {% else %}
-                            Warning: This category contains {{ subcategory_count }} subcategories. It can only be deleted after all subcategories are removed or moved.
-                            {% endif %}
-                        </p>
+                        <div class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-red-400 dark:text-red-300 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-red-800 dark:text-red-200">
+                                        {% if LANGUAGE_CODE == 'ar' %}تحذير{% else %}Warning{% endif %}
+                                    </h4>
+                                    <p class="mt-1 text-sm text-red-700 dark:text-red-300">
+                                        {% if LANGUAGE_CODE == 'ar' %}
+                                        هذه الفئة تحتوي على {{ subcategory_count }} فئة فرعية. لا يمكن حذفها إلا بعد حذف أو نقل جميع الفئات الفرعية.
+                                        {% else %}
+                                        This category contains {{ subcategory_count }} subcategories. It can only be deleted after all subcategories are removed or moved.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -101,7 +126,7 @@
                         {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
                     </a>
                     {% if subcategory_count == 0 %}
-                    <button type="submit" class="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 dark:from-red-600 dark:to-red-700 dark:hover:from-red-700 dark:hover:to-red-800">
+                    <button type="submit" class="ripple btn-gradient px-6 py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg hover:from-red-600 hover:to-orange-600 transition-all duration-300 transform hover:-translate-y-1">
                         {% if LANGUAGE_CODE == 'ar' %}نعم، احذف الفئة{% else %}Yes, Delete Category{% endif %}
                     </button>
                     {% endif %}
@@ -150,5 +175,49 @@
         }, 5000);
       }
     });
+
+    // Ripple effect for buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.ripple')) {
+            const button = e.target.closest('.ripple');
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple-effect');
+
+            button.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+    });
+
+    // Add ripple effect styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 {% endblock %}

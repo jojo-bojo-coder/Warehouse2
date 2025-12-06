@@ -1,7 +1,7 @@
 {% extends "base_club_dashboard.html" %}
 {% load custom_filters %}
 {% block content %}
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden">
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 dark:via-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden">
     <!-- Enhanced Header with Floating Animation -->
     <div class="flex justify-between items-center py-8 animate-fadeInDown">
         <h1 class="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
@@ -14,7 +14,7 @@
         </h1>
         <a href="{% url 'commission_list' %}" class="group bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm px-4 py-2 rounded-lg text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-600 font-medium flex items-center transition-all duration-300 shadow-md hover:shadow-lg border border-blue-200 dark:border-gray-600">
             {% if LANGUAGE_CODE == 'ar' %} العودة إلى القائمة {% else %} Back to List {% endif %}
-            <svg class="w-4 h-4 ml-2 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
         </a>

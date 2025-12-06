@@ -1,6 +1,51 @@
 {% extends "base_club_dashboard.html" %}
 {% block content %}
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden">
+<style>
+  /* Animation Classes */
+  .animate-float {
+      animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-fadeInUp {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+  }
+
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Button Effects */
+  .btn-gradient {
+      background-size: 200% auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .btn-gradient:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+</style>
+
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden">
     <!-- Back button and title -->
     <div class="flex items-center py-8 gap-4">
         <a href="{% url 'manage_products' %}" class="p-2 bg-white dark:bg-gray-700 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200">
@@ -14,7 +59,7 @@
     </div>
 
     <!-- Product Card -->
-    <div class="bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden mb-8">
+    <div class="animate-[fadeInUp_0.6s_ease-out_0.1s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100 dark:border-gray-700">
         <div class="p-6">
             <div class="flex flex-col md:flex-row gap-8">
                 <!-- Product Images -->
@@ -143,12 +188,12 @@
 
         <!-- Approval Section -->
         {% if product.approval_status == 'pending' %}
-        <div class="bg-gray-50 dark:bg-gray-600 px-6 py-4 border-t border-gray-200 dark:border-gray-500">
+        <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
             <div class="flex justify-end gap-4">
-                <button onclick="showApprovalModal({{ product.id }}, '{{ product.title|escapejs }}')" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-green-300/40">
+                <button onclick="showApprovalModal({{ product.id }}, '{{ product.title|escapejs }}')" class="btn-gradient bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-green-300/40">
                     {% if LANGUAGE_CODE == 'ar' %} قبول المنتج {% else %} Approve Product {% endif %}
                 </button>
-                <button onclick="showRejectionModal({{ product.id }}, '{{ product.title|escapejs }}')" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-red-300/40">
+                <button onclick="showRejectionModal({{ product.id }}, '{{ product.title|escapejs }}')" class="btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-red-300/40">
                     {% if LANGUAGE_CODE == 'ar' %} رفض المنتج {% else %} Reject Product {% endif %}
                 </button>
             </div>
@@ -158,7 +203,7 @@
 
     <!-- Approval Notes (if approved/rejected) -->
     {% if product.approval_status != 'pending' %}
-    <div class="bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden mb-8">
+    <div class="animate-[fadeInUp_0.6s_ease-out_0.2s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100 dark:border-gray-700">
         <div class="p-6">
             <h2 class="text-lg font-medium text-gray-800 dark:text-white mb-4">
                 {% if product.approval_status == 'approved' %}
@@ -167,7 +212,7 @@
                 {% if LANGUAGE_CODE == 'ar' %} سبب الرفض {% else %} Rejection Reason {% endif %}
                 {% endif %}
             </h2>
-            <div class="bg-gray-50 dark:bg-gray-600 p-4 rounded-lg">
+            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-gray-700 dark:text-gray-300">{{ product.approval_notes|default:"No notes provided" }}</p>
             </div>
             <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
@@ -183,7 +228,7 @@
 
 <!-- Approval Modal -->
 <div id="approvalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white dark:bg-gray-700 rounded-xl shadow-2xl max-w-md w-full mx-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4 border border-gray-100 dark:border-gray-700">
         <div class="p-6">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
                 {% if LANGUAGE_CODE == 'ar' %} قبول المنتج {% else %} Approve Product {% endif %}
@@ -198,13 +243,13 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {% if LANGUAGE_CODE == 'ar' %} ملاحظات (اختياري) {% else %} Notes (optional) {% endif %}
                     </label>
-                    <textarea name="approval_notes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white" rows="3"></textarea>
+                    <textarea name="approval_notes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" rows="3"></textarea>
                 </div>
                 <div class="flex justify-end gap-4">
                     <button type="button" onclick="hideModal('approvalModal')" class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-all duration-200">
                         {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
+                    <button type="submit" class="btn-gradient bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200">
                         {% if LANGUAGE_CODE == 'ar' %} تأكيد القبول {% else %} Confirm Approval {% endif %}
                     </button>
                 </div>
@@ -215,7 +260,7 @@
 
 <!-- Rejection Modal -->
 <div id="rejectionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white dark:bg-gray-700 rounded-xl shadow-2xl max-w-md w-full mx-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4 border border-gray-100 dark:border-gray-700">
         <div class="p-6">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
                 {% if LANGUAGE_CODE == 'ar' %} رفض المنتج {% else %} Reject Product {% endif %}
@@ -230,13 +275,13 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {% if LANGUAGE_CODE == 'ar' %} سبب الرفض {% else %} Reason for rejection {% endif %}
                     </label>
-                    <textarea name="rejection_reason" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white" rows="3" required></textarea>
+                    <textarea name="rejection_reason" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" rows="3" required></textarea>
                 </div>
                 <div class="flex justify-end gap-4">
                     <button type="button" onclick="hideModal('rejectionModal')" class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-all duration-200">
                         {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200">
+                    <button type="submit" class="btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200">
                         {% if LANGUAGE_CODE == 'ar' %} تأكيد الرفض {% else %} Confirm Rejection {% endif %}
                     </button>
                 </div>

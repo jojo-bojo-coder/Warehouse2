@@ -47,3 +47,28 @@ def language_context(request):
     return {
         'LANGUAGE_CODE': translation.get_language(),
     }
+
+
+from .models import ClubContact
+from accounts.models import ClubsModel
+
+
+def club_contact_info(request):
+    """Add club contact info to all templates - properly retrieves the club contact for the single club system"""
+    context = {
+        'contact_info': None,
+        'club': None,
+    }
+
+    # Since you have a single club system, get the first and only club
+    try:
+        club = ClubsModel.objects.first()
+        if club:
+            context['club'] = club
+            # Get or create the contact info for this club
+            contact_info, created = ClubContact.objects.get_or_create(club=club)
+            context['contact_info'] = contact_info
+    except Exception as e:
+        print(f"Error in club_contact_info context processor: {e}")
+
+    return context

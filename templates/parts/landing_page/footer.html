@@ -1,0 +1,114 @@
+<footer class="bg-gray-900 text-white pt-12 pb-8">
+    <div class="container mx-auto px-4">
+        <!-- Check if contact_info exists -->
+        {% if contact_info %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Logo and Description -->
+            <div class="space-y-4">
+                {% if contact_info.footer_logo %}
+                    <img src="{{ contact_info.footer_logo.url }}"
+                         alt="{{ club.name }} Logo"
+                         class="h-12 w-auto">
+                {% else %}
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl font-bold text-blue-400">{{ club.name }}</span>
+                    </div>
+                {% endif %}
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    {{ club.desc|truncatechars:150 }}
+                </p>
+
+                <!-- Social Media Links -->
+                {% with contact_info.get_social_links as social_links %}
+                {% if social_links %}
+                <div class="flex space-x-4">
+                    {% for social_name, social_icon, social_url, social_name_ar, social_name_en in social_links %}
+                    <a href="{{ social_url }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="bg-gray-800 hover:bg-blue-600 text-white p-2 rounded-full transition-all duration-300 transform hover:scale-110"
+                       title="{% if LANGUAGE_CODE == 'ar' %}{{ social_name_ar }}{% else %}{{ social_name_en }}{% endif %}">
+                        <i class="{{ social_icon }}"></i>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <!-- Contact Info -->
+            <div>
+                <h3 class="text-lg font-semibold mb-6 border-b border-blue-600 pb-2">
+                    {% if LANGUAGE_CODE == 'ar' %}معلومات الاتصال{% else %}Contact Info{% endif %}
+                </h3>
+                <div class="space-y-4">
+                    {% if contact_info.address %}
+                    <div class="flex items-start">
+                        <i class="fas fa-map-marker-alt text-blue-400 mt-1 {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                        <p class="text-gray-400 text-sm">{{ contact_info.address }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if contact_info.phone %}
+                    <div class="flex items-center">
+                        <i class="fas fa-phone text-blue-400 {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                        <a href="tel:{{ contact_info.phone }}"
+                           class="text-gray-400 hover:text-blue-400 transition-colors duration-300">
+                            {{ contact_info.phone }}
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if contact_info.email %}
+                    <div class="flex items-center">
+                        <i class="fas fa-envelope text-blue-400 {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                        <a href="mailto:{{ contact_info.email }}"
+                           class="text-gray-400 hover:text-blue-400 transition-colors duration-300">
+                            {{ contact_info.email }}
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if contact_info.whatsapp %}
+                    <div class="flex items-center">
+                        <i class="fab fa-whatsapp text-green-400 {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                        <a href="https://wa.me/{{ contact_info.whatsapp }}"
+                           target="_blank"
+                           class="text-gray-400 hover:text-green-400 transition-colors duration-300">
+                            {% if LANGUAGE_CODE == 'ar' %}تواصل عبر واتساب{% else %}Chat on WhatsApp{% endif %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Working Hours -->
+            {% if contact_info.working_hours %}
+            <div>
+                <h3 class="text-lg font-semibold mb-6 border-b border-blue-600 pb-2">
+                    {% if LANGUAGE_CODE == 'ar' %}ساعات العمل{% else %}Working Hours{% endif %}
+                </h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    {{ contact_info.working_hours|linebreaksbr }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Copyright -->
+        <div class="mt-12 pt-8 border-t border-gray-800 text-center">
+            <p class="text-gray-500 text-sm">
+                {% if contact_info and contact_info.footer_text %}
+                    {{ contact_info.footer_text|safe }}
+                {% else %}
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    © {% now "Y" %} {{ club.name }}. جميع الحقوق محفوظة.
+                    {% else %}
+                    © {% now "Y" %} {{ club.name }}. All rights reserved.
+                    {% endif %}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</footer>

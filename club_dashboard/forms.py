@@ -149,6 +149,7 @@ from club_dashboard.models import  Commission
 class CoachProfileForm(forms.ModelForm):
     vendor_classification = forms.ChoiceField(
         choices=[],
+        required=True,
         widget=forms.Select(attrs={
             'class': 'w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50 transition-all duration-300 hover:bg-blue-50 hover:border-blue-400'
         }),
@@ -160,7 +161,7 @@ class CoachProfileForm(forms.ModelForm):
         fields = [
             'full_name', 'phone', 'email', 'activity_type',
             'business_name_en', 'business_name_ar', 'number_of_branches',
-            'description', 'city', 'district', 'street',
+            'description', 'region', 'city', 'district', 'street',
             'profile_image_base64', 'vendor_classification'
         ]
 
@@ -198,6 +199,9 @@ class CoachProfileForm(forms.ModelForm):
                 'placeholder': 'وصف الخدمة',
                 'rows': 3
             }),
+            'region': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50 transition-all duration-300 hover:bg-blue-50 hover:border-blue-400 dark:bg-gray-700 dark:text-white dark:hover:border-blue-500 dark:border-gray-600',
+            }),
             'city': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50 transition-all duration-300 hover:bg-blue-50 hover:border-blue-400 dark:bg-gray-700 dark:text-white dark:hover:border-blue-500 dark:border-gray-600',
                 'placeholder': 'المدينة'
@@ -226,6 +230,7 @@ class CoachProfileForm(forms.ModelForm):
             'full_name': 'الاسم الكامل' if language == 'ar' else 'Full Name',
             'phone': 'رقم الهاتف' if language == 'ar' else 'Phone Number',
             'description': 'وصف الخدمة' if language == 'ar' else 'Service description',
+            'region': 'المنطقة' if language == 'ar' else 'Region',
             'city': 'المدينة' if language == 'ar' else 'City',
             'district': 'الحي' if language == 'ar' else 'District',
             'street': 'الشارع' if language == 'ar' else 'Street',
@@ -248,7 +253,6 @@ class CoachProfileForm(forms.ModelForm):
             # Create choices with Arabic labels
             classification_choices = []
             for classification, name in classifications:
-                # You can customize these labels based on your needs
                 if classification == 'gold':
                     label = f"ذهبي - {name}"
                 elif classification == 'silver':
@@ -286,6 +290,57 @@ class CoachProfileForm(forms.ModelForm):
             raise ValidationError(
                 "اسم المدينة يمكن أن يحتوي فقط على أحرف عربية وإنجليزية / City name can only contain Arabic and English letters")
         return city
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+
+        if not phone:
+            raise ValidationError("رقم الهاتف مطلوب / Phone number is required")
+
+        # Remove any non-digit characters except +
+        cleaned_phone = re.sub(r'[^\d+]', '', phone)
+
+        if not re.match(r'^\+?[0-9]+$', cleaned_phone):
+            raise ValidationError(
+                "رقم الهاتف يمكن أن يحتوي فقط على أرقام ورمز + / Phone number can only contain numbers and + symbol"
+            )
+
+        # More flexible international validation
+        # At least 10 digits (including country code)
+        if len(cleaned_phone) < 10:
+            raise ValidationError(
+                "رقم الهاتف قصير جداً / Phone number is too short"
+            )
+
+        return phone
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        if not email:
+            raise ValidationError("البريد الإلكتروني مطلوب / Email is required")
+
+        # Basic email format validation
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+        if not re.match(email_pattern, email):
+            raise ValidationError(
+                "البريد الإلكتروني غير صالح. يرجى إدخال بريد إلكتروني صحيح / Invalid email address. Please enter a valid email"
+            )
+
+        # Check for disposable email domains (optional)
+        disposable_domains = [
+            'tempmail.com', 'guerrillamail.com', 'mailinator.com',
+            'throwawaymail.com', '10minutemail.com', 'yopmail.com'
+        ]
+
+        domain = email.split('@')[1].lower() if '@' in email else ''
+        if domain in disposable_domains:
+            raise ValidationError(
+                "لا يمكن استخدام بريد إلكتروني مؤقت / Disposable email addresses are not allowed"
+            )
+
+        return email
 
     def clean_district(self):
         district = self.cleaned_data.get('district')
@@ -362,7 +417,7 @@ class ServicesModelForm(forms.ModelForm):
 
     class Meta:
         model = ServicesModel
-        fields = ['title', 'desc', 'price', 'pricing_period_months', 'discounted_price',
+        fields = ['title', 'desc', 'price', 'discounted_price',
                   'subcategory', 'is_enabled']
         widgets = {
             'title': forms.TextInput(attrs={
@@ -373,8 +428,6 @@ class ServicesModelForm(forms.ModelForm):
             'price': forms.NumberInput(attrs={
                 'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500',
                 'step': '0.01'}),
-            'pricing_period_months': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'}),
             'subcategory': forms.Select(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300'}),
             'is_enabled': forms.CheckboxInput(
@@ -388,6 +441,109 @@ class ServicesClassificationModelForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'class': 'w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'})
         }
+
+from students.models import ServicePackage
+class ServicePackageForm(forms.ModelForm):
+    class Meta:
+        model = ServicePackage
+        fields = [
+            'title', 'description', 'duration_days', 'sessions_per_week',
+            'total_sessions', 'original_price', 'discounted_price',
+            'is_popular', 'features', 'is_active'
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'عنوان الباقة...'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'rows': 3,
+                'placeholder': 'وصف الباقة...'
+            }),
+            'duration_days': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'min': 1
+            }),
+            'sessions_per_week': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'min': 1
+            }),
+            'total_sessions': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'min': 1
+            }),
+            'original_price': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'step': '0.01',
+                'min': '0'
+            }),
+            'discounted_price': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'step': '0.01',
+                'min': '0'
+            }),
+            'features': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'rows': 4,
+                'placeholder': 'أدخل الميزات (واحدة لكل سطر)...'
+            }),
+            'is_popular': forms.CheckboxInput(attrs={
+                'class': 'h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
+            }),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        duration_days = cleaned_data.get('duration_days')
+        sessions_per_week = cleaned_data.get('sessions_per_week')
+        total_sessions = cleaned_data.get('total_sessions')
+        original_price = cleaned_data.get('original_price')
+        discounted_price = cleaned_data.get('discounted_price')
+
+        # Validate sessions consistency
+        if sessions_per_week and duration_days:
+            if sessions_per_week > duration_days:
+                raise forms.ValidationError("Sessions per week cannot exceed duration in days")
+
+        if total_sessions and sessions_per_week and duration_days:
+            max_sessions = sessions_per_week * (duration_days / 7) if duration_days >= 7 else sessions_per_week
+            if total_sessions > max_sessions:
+                raise forms.ValidationError(
+                    f"Total sessions cannot exceed {max_sessions} based on duration and sessions per week")
+
+        # Validate pricing
+        if original_price and discounted_price:
+            if discounted_price >= original_price:
+                raise forms.ValidationError("Discounted price must be less than original price")
+
+        return cleaned_data
+
+
+class BulkPackageActionForm(forms.Form):
+    """Form for bulk actions on service packages"""
+    ACTION_CHOICES = [
+        ('activate', 'تفعيل'),
+        ('deactivate', 'تعطيل'),
+        ('mark_popular', 'تحديد كـ الأكثر شيوعاً'),
+        ('unmark_popular', 'إلغاء التحديد كـ الأكثر شيوعاً'),
+        ('delete', 'حذف'),
+    ]
+
+    action = forms.ChoiceField(
+        choices=ACTION_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg'
+        })
+    )
+
+    package_ids = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False
+    )
 
 
 class ProductsModelForm(forms.ModelForm):
@@ -629,11 +785,16 @@ from .models import Category, SubCategory
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['name', 'description', 'image', 'is_active']
+        fields = ['name_en', 'name_ar', 'description', 'image', 'is_active']
         widgets = {
-            'name': forms.TextInput(attrs={
+            'name_en': forms.TextInput(attrs={
                 'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5',
-                'placeholder': 'Enter category name'
+                'placeholder': 'Enter category name in English'
+            }),
+            'name_ar': forms.TextInput(attrs={
+                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5',
+                'placeholder': 'أدخل اسم الفئة بالعربية',
+                'dir': 'rtl'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5',
@@ -649,40 +810,72 @@ class CategoryForm(forms.ModelForm):
             })
         }
         labels = {
-            'name': 'Category Name',
+            'name_en': 'Category Name (English)',
+            'name_ar': 'Category Name (Arabic)',
             'description': 'Description',
             'image': 'Category Image',
             'is_active': 'Active'
         }
 
-    def clean_name(self):
-        name = self.cleaned_data.get('name')
-        if name:
-            name = name.strip()
-            # Check for duplicate names (exclude current instance if editing)
-            queryset = Category.objects.filter(name__iexact=name)
+    def clean(self):
+        cleaned_data = super().clean()
+        name_en = cleaned_data.get('name_en')
+        name_ar = cleaned_data.get('name_ar')
+
+        # Check if at least one name is provided
+        if not name_en and not name_ar:
+            raise forms.ValidationError('Please provide at least one name (English or Arabic).')
+
+        # Check for duplicate English names
+        if name_en:
+            queryset = Category.objects.filter(name_en__iexact=name_en.strip())
             if self.instance and self.instance.pk:
                 queryset = queryset.exclude(pk=self.instance.pk)
-
             if queryset.exists():
-                raise forms.ValidationError('A category with this name already exists.')
-        return name
+                raise forms.ValidationError('A category with this English name already exists.')
+
+        # Check for duplicate Arabic names
+        if name_ar:
+            queryset = Category.objects.filter(name_ar__iexact=name_ar.strip())
+            if self.instance and self.instance.pk:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise forms.ValidationError('A category with this Arabic name already exists.')
+
+        return cleaned_data
+
+    def clean_name_en(self):
+        name_en = self.cleaned_data.get('name_en')
+        if name_en:
+            return name_en.strip()
+        return name_en
+
+    def clean_name_ar(self):
+        name_ar = self.cleaned_data.get('name_ar')
+        if name_ar:
+            return name_ar.strip()
+        return name_ar
 
 
 class SubCategoryForm(forms.ModelForm):
     class Meta:
         model = SubCategory
-        fields = ['category', 'name', 'description', 'image', 'is_active']
+        fields = ['category', 'name_en', 'name_ar', 'description', 'image', 'is_active']
         widgets = {
             'category': forms.Select(attrs={
-                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
+                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5'
             }),
-            'name': forms.TextInput(attrs={
-                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5',
-                'placeholder': 'Enter subcategory name'
+            'name_en': forms.TextInput(attrs={
+                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5',
+                'placeholder': 'Enter subcategory name in English'
+            }),
+            'name_ar': forms.TextInput(attrs={
+                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5',
+                'placeholder': 'أدخل اسم الفئة الفرعية بالعربية',
+                'dir': 'rtl'
             }),
             'description': forms.Textarea(attrs={
-                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5',
+                'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5',
                 'placeholder': 'Enter subcategory description',
                 'rows': 4
             }),
@@ -691,39 +884,69 @@ class SubCategoryForm(forms.ModelForm):
                 'accept': 'image/*'
             }),
             'is_active': forms.CheckboxInput(attrs={
-                'class': 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2'
+                'class': 'w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2'
             })
-        }
-        labels = {
-            'category': 'Parent Category',
-            'name': 'Subcategory Name',
-            'description': 'Description',
-            'image': 'Subcategory Image',
-            'is_active': 'Active'
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Only show active categories in the dropdown
-        self.fields['category'].queryset = Category.objects.filter(is_active=True).order_by('name')
-        self.fields['category'].empty_label = "Select a category"
+        self.fields['category'].queryset = Category.objects.filter(is_active=True).order_by('name_en')
+
+        # Set empty label based on language
+        from django.utils.translation import get_language
+        if get_language() == 'ar':
+            self.fields['category'].empty_label = "اختر فئة"
+            self.fields['is_active'].label = "مفعل"
+        else:
+            self.fields['category'].empty_label = "Select a category"
+            self.fields['is_active'].label = "Active"
 
     def clean(self):
         cleaned_data = super().clean()
         category = cleaned_data.get('category')
-        name = cleaned_data.get('name')
+        name_en = cleaned_data.get('name_en')
+        name_ar = cleaned_data.get('name_ar')
 
-        if category and name:
-            name = name.strip()
-            # Check for duplicate subcategory names within the same category
-            queryset = SubCategory.objects.filter(category=category, name__iexact=name)
+        # Check if at least one name is provided
+        if not name_en and not name_ar:
+            raise forms.ValidationError('Please provide at least one name (English or Arabic).')
+
+        # Check for duplicate English names within the same category
+        if category and name_en:
+            name_en = name_en.strip()
+            queryset = SubCategory.objects.filter(category=category, name_en__iexact=name_en)
             if self.instance and self.instance.pk:
                 queryset = queryset.exclude(pk=self.instance.pk)
 
             if queryset.exists():
-                raise forms.ValidationError(f'A subcategory with the name "{name}" already exists in the "{category.name}" category.')
+                raise forms.ValidationError(
+                    f'A subcategory with the English name "{name_en}" already exists in the "{category.name}" category.')
+
+        # Check for duplicate Arabic names within the same category
+        if category and name_ar:
+            name_ar = name_ar.strip()
+            queryset = SubCategory.objects.filter(category=category, name_ar__iexact=name_ar)
+            if self.instance and self.instance.pk:
+                queryset = queryset.exclude(pk=self.instance.pk)
+
+            if queryset.exists():
+                raise forms.ValidationError(
+                    f'A subcategory with the Arabic name "{name_ar}" already exists in the "{category.name}" category.')
 
         return cleaned_data
+
+    def clean_name_en(self):
+        name_en = self.cleaned_data.get('name_en')
+        if name_en:
+            return name_en.strip()
+        return name_en
+
+    def clean_name_ar(self):
+        name_ar = self.cleaned_data.get('name_ar')
+        if name_ar:
+            return name_ar.strip()
+        return name_ar
 
 
 from django import forms
@@ -835,24 +1058,57 @@ class CommissionForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'أدخل الوصف'
+                'placeholder': 'أدخل الوصف',
+                'style': '''
+                            border: 2px solid #e9ecef;
+                            border-radius: 8px;
+                            padding: 12px 15px;
+                            font-size: 14px;
+                            transition: all 0.3s ease;
+                            background-color: #fff;
+                        '''
             }),
             'commission_type': forms.Select(attrs={
                 'class': 'form-control',
-                'id': 'commission_type'
+                'id': 'commission_type',
+
             }),
             'commission_rate': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'أدخل نسبة العمولة',
                 'min': '0',
                 'max': '100',
-                'step': '0.01'
+                'step': '0.01',
+                'style': '''
+                            border: 2px solid #e9ecef;
+                            border-radius: 8px;
+                            padding: 12px 15px;
+                            font-size: 14px;
+                            transition: all 0.3s ease;
+                            background-color: #fff;
+                            text-align: left;
+                            direction: ltr;
+                        '''
             }),
             'vendor_classification': forms.TextInput(attrs={
                 'class': 'form-control',
                 'id': 'vendor_classification',
                 'placeholder': 'أدخل تصنيف البائع (مثال: silver, gold, platinum)',
-                'list': 'classification_list'  # For datalist suggestions
+                'list': 'classification_list',
+                'style': '''
+                           border: 2px solid #e9ecef;
+                           border-radius: 8px;
+                           padding: 12px 15px;
+                           font-size: 14px;
+                           transition: all 0.3s ease;
+                           background-color: #fff;
+                           text-transform: lowercase;
+                           background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+                           background-position: right 0.5rem center;
+                           background-repeat: no-repeat;
+                           background-size: 1.5em 1.5em;
+                           padding-right: 2.5rem;
+                       '''
             }),
             'start_date': forms.DateInput(attrs={
                 'class': 'form-control',
@@ -1660,33 +1916,68 @@ class RefundSearchForm(forms.Form):
 
 
 from django import forms
-from .models import CustomRole
 
+from .models import CustomRole
+from django.utils.translation import get_language
 
 class CustomRoleForm(forms.ModelForm):
     class Meta:
         model = CustomRole
-        fields = ['name']
+        fields = ['name_en', 'name_ar']
 
     def __init__(self, *args, **kwargs):
+        self.language_code = kwargs.pop('language_code', get_language())
         super().__init__(*args, **kwargs)
+
+        # Update field labels based on language
+        if self.language_code == 'ar':
+            self.fields['name_en'].label = 'اسم الدور (الإنجليزية)'
+            self.fields['name_ar'].label = 'اسم الدور (العربية)'
+        else:
+            self.fields['name_en'].label = 'Role Name (English)'
+            self.fields['name_ar'].label = 'Role Name (Arabic)'
+
+        # Update placeholders
+        self.fields['name_en'].widget.attrs['placeholder'] = 'Enter role name in English'
+        self.fields['name_ar'].widget.attrs['placeholder'] = 'أدخل اسم الدور بالعربية'
+
+        if self.language_code == 'ar':
+            self.fields['name_en'].widget.attrs['placeholder'] = 'أدخل اسم الدور بالإنجليزية'
+            self.fields['name_ar'].widget.attrs['placeholder'] = 'أدخل اسم الدور بالعربية'
 
         # Get current permissions as a list
         current_permissions = self.instance.permissions if self.instance.permissions else []
 
-        for perm_code, perm_name in CustomRole.PERMISSION_CHOICES:
+        # Get permission choices based on language
+        permission_choices = CustomRole.get_permission_choices(self.language_code)
+
+        for perm_code, perm_name in permission_choices:
             self.fields[f'perm_{perm_code}'] = forms.BooleanField(
                 label=perm_name,
                 required=False,
-                initial=perm_code in current_permissions  # Check if permission code is in the list
+                initial=perm_code in current_permissions
             )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        name_en = cleaned_data.get('name_en')
+        name_ar = cleaned_data.get('name_ar')
+
+        # Validate that at least one name is provided
+        if not name_en and not name_ar:
+            raise forms.ValidationError("Please provide at least one role name (English or Arabic).")
+
+        return cleaned_data
 
     def save(self, commit=True):
         instance = super().save(commit=False)
 
         # Store only the selected permissions as a list
         permissions = []
-        for perm_code, _ in CustomRole.PERMISSION_CHOICES:
+        # Use any language version to get the codes (they're the same)
+        permission_choices = CustomRole.get_permission_choices('en')
+
+        for perm_code, _ in permission_choices:
             if self.cleaned_data.get(f'perm_{perm_code}', False):
                 permissions.append(perm_code)
 
@@ -1702,3 +1993,329 @@ class CustomRoleProfileForm(forms.ModelForm):
     class Meta:
         model = CustomRoleProfile
         fields = ['full_name', 'phone', 'email', 'about']
+
+
+from .models import LandingPageContent, LandingPageFeature, LandingPageBanner, LandingPageFAQ, NavItem
+
+class LandingPageContentForm(forms.ModelForm):
+    class Meta:
+        model = LandingPageContent
+        exclude = ['club', 'created_at', 'updated_at']
+        widgets = {
+            'hero_title_en': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'Enter hero title in English'
+            }),
+            'hero_title_ar': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'أدخل العنوان الرئيسي بالعربية'
+            }),
+            'hero_subtitle_en': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'Enter hero subtitle in English'
+            }),
+            'hero_subtitle_ar': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'أدخل العنوان الفرعي بالعربية'
+            }),
+            'hero_description_en': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 3,
+                'placeholder': 'Enter hero description in English'
+            }),
+            'hero_description_ar': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 3,
+                'placeholder': 'أدخل الوصف الرئيسي بالعربية'
+            }),
+            'hero_image': forms.FileInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'accept': 'image/*'
+            }),
+            'about_title_en': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'about_title_ar': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'about_description_en': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 3
+            }),
+            'about_description_ar': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 3
+            }),
+            'features_title_en': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'features_title_ar': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'cta_title_en': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'cta_title_ar': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'cta_description_en': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 3
+            }),
+            'cta_description_ar': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 3
+            }),
+        }
+
+
+class LandingPageFeatureForm(forms.ModelForm):
+    class Meta:
+        model = LandingPageFeature
+        exclude = ['landing_content']
+        widgets = {
+            'icon': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': 'e.g., fa-shopping-cart'
+            }),
+            'title_en': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'title_ar': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'description_en': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 3
+            }),
+            'description_ar': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 3
+            }),
+            'order': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+            }),
+        }
+
+
+class LandingPageBannerForm(forms.ModelForm):
+    class Meta:
+        model = LandingPageBanner
+        exclude = ['landing_content']
+        widgets = {
+            'title_en': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'title_ar': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'accept': 'image/*'
+            }),
+            'order': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+            }),
+        }
+
+
+class LandingPageFAQForm(forms.ModelForm):
+    class Meta:
+        model = LandingPageFAQ
+        exclude = ['landing_content']
+        widgets = {
+            'question_en': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'question_ar': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'answer_en': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 4
+            }),
+            'answer_ar': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'rows': 4
+            }),
+            'order': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+            }),
+        }
+
+
+class NavItemForm(forms.ModelForm):
+    class Meta:
+        model = NavItem
+        exclude = ['landing_content']
+        widgets = {
+            'name_en': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'name_ar': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'href': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+                'placeholder': '#about'
+            }),
+            'order': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white',
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+            }),
+        }
+
+
+from .models import ClubContact
+import re
+
+
+class ClubContactForm(forms.ModelForm):
+    class Meta:
+        model = ClubContact
+        exclude = ['club']
+        widgets = {
+            'phone': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'placeholder': '+966 5X XXX XXXX'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'placeholder': 'info@example.com'
+            }),
+            'address_en': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'rows': 3,
+                'placeholder': '123 Street, City, Country'
+            }),
+            'address_ar': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'rows': 3,
+                'placeholder': '123 شارع، المدينة، الدولة'
+            }),
+            'working_hours_en': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'rows': 3,
+                'placeholder': 'Mon-Fri: 9AM - 6PM, Sat: 9AM - 2PM'
+            }),
+            'working_hours_ar': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'rows': 3,
+                'placeholder': 'الإثنين-الجمعة: 9 صباحاً - 6 مساءً، السبت: 9 صباحاً - 2 ظهراً'
+            }),
+            'facebook': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'placeholder': 'https://facebook.com/yourpage'
+            }),
+            'twitter': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'placeholder': 'https://twitter.com/yourprofile'
+            }),
+            'instagram': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'placeholder': 'https://instagram.com/yourprofile'
+            }),
+            'linkedin': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'placeholder': 'https://linkedin.com/company/yourcompany'
+            }),
+            'youtube': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'placeholder': 'https://youtube.com/c/yourchannel'
+            }),
+            'whatsapp': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'placeholder': 'https://wa.me/9665XXXXXXXX'
+            }),
+            'footer_text_en': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'rows': 2,
+                'placeholder': '© 2024 Your Company. All rights reserved.'
+            }),
+            'footer_text_ar': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                'rows': 2,
+                'placeholder': '© 2024 شركتك. جميع الحقوق محفوظة.'
+            }),
+            'footer_logo': forms.FileInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+            }),
+        }
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        if phone:
+            # Remove all non-digit characters except +
+            phone = re.sub(r'[^\d+]', '', phone)
+        return phone
+
+    def clean_whatsapp(self):
+        """
+        Clean WhatsApp field - now accepts full URL format
+        If user enters just a phone number, convert it to WhatsApp URL
+        """
+        whatsapp = self.cleaned_data.get('whatsapp')
+        if whatsapp:
+            # If it's already a valid WhatsApp URL, return it
+            if whatsapp.startswith('https://wa.me/'):
+                return whatsapp
+
+            # If it's just a phone number, convert to WhatsApp URL
+            # Remove all non-digit characters
+            phone_number = re.sub(r'[^\d]', '', whatsapp)
+            if phone_number:
+                return f'https://wa.me/{phone_number}'
+
+        return whatsapp
+
+from django import forms
+from .models import VATSettings
+
+
+class VATSettingsForm(forms.ModelForm):
+    """Form for managing VAT settings."""
+    class Meta:
+        model = VATSettings
+        fields = ['is_enabled', 'percentage', 'currency']
+        widgets = {
+            'is_enabled': forms.CheckboxInput(attrs={
+                'class': 'w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500'
+            }),
+            'percentage': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': '15.00',
+                'step': '0.01',
+                'min': '0',
+                'max': '100'
+            }),
+            'currency': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'SAR',
+                'maxlength': '10'
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set bilingual labels for each field
+        self.fields['is_enabled'].label = 'VAT Enabled / تفعيل ضريبة القيمة المضافة'
+        self.fields['percentage'].label = 'VAT Percentage / نسبة ضريبة القيمة المضافة'
+        self.fields['currency'].label = 'Currency / العملة'
+
+        # Update placeholders to be bilingual
+        self.fields['percentage'].widget.attrs['placeholder'] = '15.00'
+        self.fields['currency'].widget.attrs['placeholder'] = 'SAR / ر.س'
+
+

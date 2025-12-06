@@ -67,57 +67,109 @@
     .card-shadow {
       box-shadow: 0 4px 12px rgba(213, 63, 140, 0.1);
     }
+
     /* Modal styles */
-#renewalModal {
-    transition: opacity 0.3s ease;
-}
+    #renewalModal {
+        transition: opacity 0.3s ease;
+    }
+
+    /* Service image container fix */
+    .service-main-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    /* Package styling improvements */
+    .package-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .package-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .popular-badge {
+        position: absolute;
+        top: 12px;
+        left: 80px;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255,255,255,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        display: none;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #d53f8c;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 
 <div class="bg-gradient-to-br from-rose-50 to-amber-50 min-h-screen py-8">
     <div class="container mx-auto px-4">
+        <!-- Loading overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+        </div>
+
         <!-- Breadcrumb Navigation -->
         <div class="mb-6 flex items-center text-sm text-pink-700">
-            <a href="{% url 'studentViewServices' %}" class="hover:text-pink-600">{% if LANGUAGE_CODE == 'ar' %}
-                الخدمات
-                {% else %}
-                Services
-                {% endif %}</a>
+            <a href="{% url 'studentViewServices' %}" class="hover:text-pink-600">
+                {% if LANGUAGE_CODE == 'ar' %}الخدمات{% else %}Services{% endif %}
+            </a>
             <span class="mx-2">/</span>
             <span class="text-pink-600">{{ service.title }}</span>
         </div>
 
         <!-- Main Service Details Card -->
         <div class="bg-white rounded-lg card-shadow overflow-hidden mb-10 border border-pink-100">
-            <div class="flex flex-col md:flex-row">
-
+            <div class="flex flex-col lg:flex-row">
                 <!-- Image Section -->
-                {% if service.image %}
-                <img src="{{ service.image.url }}" alt="{{ service.title }}" class="w-full h-full object-cover">
-                {% else %}
-                <div class="w-full h-full flex items-center justify-center bg-pink-50 text-pink-400 text-sm">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                    لا توجد صورة متاحة
-                    {% else %}
-                    No image available
-                    {% endif %}
+                <div class="lg:w-1/2 p-6">
+                    <div class="service-image-container h-full">
+                        {% if service.image %}
+                        <img src="{{ service.image.url }}" alt="{{ service.title }}" class="service-main-image">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-pink-50 text-pink-400 text-sm">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                            لا توجد صورة متاحة
+                            {% else %}
+                            No image available
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                {% endif %}
 
                 <!-- Service Details Section -->
-                <div class="md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
+                <div class="lg:w-1/2 p-6 lg:p-8 flex flex-col justify-center">
                     <div class="mb-6">
                         <h1 class="text-3xl font-bold mb-2 text-right text-pink-700">{{ service.title }}</h1>
-
-                        <div class="mb-4">
-                            <!--
-                            {% if service.classification %}
-                            <span class="inline-block bg-pink-100 text-pink-700 text-sm font-semibold px-3 py-1 rounded-full">
-                              {{ service.classification.title }}
-                            </span>
-                            {% endif %}
-                            -->
-                        </div>
-
                         <p class="text-gray-600 mb-6 text-right leading-relaxed">{{ service.desc }}</p>
                     </div>
 
@@ -125,14 +177,14 @@
                     <div class="bg-pink-50 rounded-lg p-4 mb-6">
                         <div class="grid grid-cols-2 gap-4 text-right">
                             <div>
-                                <p class="text-pink-500 text-sm">{% if LANGUAGE_CODE == 'ar' %}
-                                    السعر
-                                    {% else %}
-                                    Price
-                                    {% endif %}</p>
+                                <p class="text-pink-500 text-sm">
+                                    {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
+                                </p>
                                 <p class="font-bold text-xl text-pink-600">
                                     {% if service.discounted_price %}
-                                    <span class="line-through text-gray-500 text-lg mr-2">{{ service.price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}</span>
+                                    <span class="line-through text-gray-500 text-lg ml-2">
+                                        {{ service.price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                    </span>
                                     {{ service.discounted_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
                                     {% else %}
                                     {{ service.price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
@@ -142,128 +194,142 @@
 
                             {% if service.duration %}
                             <div>
-                                <p class="text-pink-500 text-sm">{% if LANGUAGE_CODE == 'ar' %}
-                                    المدة
-                                    {% else %}
-                                    Duration
-                                    {% endif %}</p>
+                                <p class="text-pink-500 text-sm">
+                                    {% if LANGUAGE_CODE == 'ar' %}المدة{% else %}Duration{% endif %}
+                                </p>
                                 <p class="font-bold text-xl text-pink-600">
                                     {% if service.duration >= 60 %}
-                                    {% with hours=service.duration|divisibleby:1|div:60 minutes=service.duration|modulo:60 %}
-                                    {% if LANGUAGE_CODE == 'ar' %}
-                                    {% if hours > 0 %}{{ hours }} ساعة {% endif %}{% if minutes > 0 %}{{ minutes }} دقيقة{% endif %}
+                                        {% with hours=service.duration|divisibleby:60|floatformat:0 %}
+                                            {% with minutes=service.duration|modulo:60 %}
+                                                {% if LANGUAGE_CODE == 'ar' %}
+                                                    {% if hours != "0" %}{{ hours }} ساعة {% endif %}
+                                                    {% if minutes != "0" %}{{ minutes }} دقيقة{% endif %}
+                                                {% else %}
+                                                    {% if hours != "0" %}{{ hours }}h {% endif %}
+                                                    {% if minutes != "0" %}{{ minutes }}m{% endif %}
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endwith %}
                                     {% else %}
-                                    {% if hours > 0 %}{{ hours }}h {% endif %}{% if minutes > 0 %}{{ minutes }}m{% endif %}
+                                        {% if LANGUAGE_CODE == 'ar' %}
+                                            {{ service.duration }} دقيقة
+                                        {% else %}
+                                            {{ service.duration }}m
+                                        {% endif %}
                                     {% endif %}
-                                    {% endwith %}
-                                    {% else %}
-                                    {% if LANGUAGE_CODE == 'ar' %}
-                                    {{ service.duration }} دقيقة
-                                    {% else %}
-                                    {{ service.duration }}m
-                                    {% endif %}
-                                    {% endif %}
-
                                 </p>
                             </div>
                             {% endif %}
 
-                            {% if service.is_enabled != None %}
                             <div>
-                                <p class="text-pink-500 text-sm mb-2">{% if LANGUAGE_CODE == 'ar' %}
-                                    الحالة
-                                    {% else %}
-                                    Status
-                                    {% endif %}</p>
+                                <p class="text-pink-500 text-sm mb-2">
+                                    {% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}
+                                </p>
                                 <p class="font-bold">
                                     {% if service.is_enabled %}
-                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm">{% if LANGUAGE_CODE == 'ar' %}
-                        متاح
-                      {% else %}
-                        Available
-                      {% endif %}</span>
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+                                        {% if LANGUAGE_CODE == 'ar' %}متاح{% else %}Available{% endif %}
+                                    </span>
                                     {% else %}
-                                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-sm">{% if LANGUAGE_CODE == 'ar' %}
-                        غير متاح
-                      {% else %}
-                        Not Available
-                      {% endif %}</span>
+                                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-sm">
+                                        {% if LANGUAGE_CODE == 'ar' %}غير متاح{% else %}Not Available{% endif %}
+                                    </span>
                                     {% endif %}
                                 </p>
                             </div>
-                            {% endif %}
 
                             <div>
-                                <p class="text-pink-500 text-sm">{% if LANGUAGE_CODE == 'ar' %}
-                                    رمز الخدمة
-                                    {% else %}
-                                    Service Code
-                                    {% endif %}</p>
+                                <p class="text-pink-500 text-sm">
+                                    {% if LANGUAGE_CODE == 'ar' %}رمز الخدمة{% else %}Service Code{% endif %}
+                                </p>
                                 <p class="font-bold text-gray-700">{{ service.id }}</p>
                             </div>
                         </div>
-                        {% if service.coaches.all %}
-                        {% for coach in service.coaches.all %}
-                        <div class="flex items-center bg-gray-50 p-3 rounded-lg mt-4">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
-                            <div>
-                                <div class="text-gray-500 text-xs">
-                                    {% if LANGUAGE_CODE == 'ar' %}التاجر{% else %}Vendor{% endif %}
-                                </div>
-                                <div class="font-medium text-gray-700">{{ coach.full_name }}</div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                        <!-- Subscription Period Badge -->
-                        <div class="mb-3 mt-4 mr-2">
-                        <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                فترة الاشتراك: {{ service.pricing_period_months }}
-                                {% if service.pricing_period_months == 1 %}شهر{% else %}أشهر{% endif %}
-                            {% else %}
-                                {% for period_value, period_label in PRICING_PERIOD_CHOICES %}
-                                    {% if period_value == service.pricing_period_months %}{{ period_label }}{% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        </span>
-                        </div>
+
                         <!-- Display Classifications -->
                         {% if service.classification.all %}
-                        <div class="mb-3 mt-4 mr-2">
-                            {% for classification in service.classification.all %}
-                            <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                           {% if LANGUAGE_CODE == 'ar' %}التصنيف: {% else %}Category: {% endif %}{{ classification.title }}
-                        </span>
-                            {% endfor %}
+                        <div class="mt-4 ml-2">
+                            <p class="text-pink-500 text-sm mb-2">
+                                {% if LANGUAGE_CODE == 'ar' %}التصنيفات{% else %}Categories{% endif %}
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                {% for classification in service.classification.all %}
+                                <span class="inline-block bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full">
+                                    {{ classification.title }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Subscription Period Badge -->
+                        {% if service.pricing_period_months %}
+                        <div class="mt-4 ml-2">
+                            <p class="text-pink-500 text-sm mb-2">
+                                {% if LANGUAGE_CODE == 'ar' %}فترة الاشتراك{% else %}Subscription Period{% endif %}
+                            </p>
+                            <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                    {{ service.pricing_period_months }}
+                                    {% if service.pricing_period_months == 1 %}شهر{% else %}أشهر{% endif %}
+                                {% else %}
+                                    {% for period_value, period_label in PRICING_PERIOD_CHOICES %}
+                                        {% if period_value == service.pricing_period_months %}{{ period_label }}{% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        <!-- Display Coaches -->
+                        {% if service.coaches.all %}
+                        <div class="mt-4">
+                            <p class="text-pink-500 text-sm mb-2">
+                                {% if LANGUAGE_CODE == 'ar' %}التجار{% else %}Vendors{% endif %}
+                            </p>
+                            <div class="space-y-2">
+                                {% for coach in service.coaches.all %}
+                                <div class="flex items-center bg-gray-50 p-3 rounded-lg">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center ml-3">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-700">{{ coach.full_name }}</div>
+                                        <div class="text-gray-500 text-xs">{{ coach.specialization|default:"مدرب" }}</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                         {% endif %}
                     </div>
 
-                    <!-- Booking Section (now correctly placed under the table) -->
-                    <div class="mt-4">
+                    <!-- Booking Section -->
+                    <div class="mt-6">
                         <div class="flex flex-col sm:flex-row gap-4 items-center">
                             <form method="POST" action="{% url 'add_service_to_cart' %}" class="w-full" id="addToCartForm">
                                 {% csrf_token %}
                                 <input type="hidden" name="service_id" value="{{ service.id }}">
                                 <input type="hidden" name="quantity" value="1">
                                 <button type="submit"
+                                        id="addToCartBtn"
                                         class="w-full py-3 px-8 rounded-full transition duration-300 transform focus:outline-none focus:ring-2 focus:ring-opacity-50
-               {% if service.is_enabled %}
-               bg-pink-600 text-white hover:bg-pink-700 hover:scale-105 focus:ring-pink-500
-               {% else %}
-               bg-gray-300 text-gray-500 cursor-not-allowed
-               {% endif %}"
+                                           {% if service.is_enabled %}
+                                           bg-pink-600 text-white hover:bg-pink-700 hover:scale-105 focus:ring-pink-500
+                                           {% else %}
+                                           bg-gray-300 text-gray-500 cursor-not-allowed
+                                           {% endif %}
+                                           flex items-center justify-center"
                                         {% if not service.is_enabled %} disabled {% endif %}
                                 >
-                                    <i class="fas fa-calendar-alt mr-2"></i>
-                                    <span>{% if LANGUAGE_CODE == 'ar' %}
-            اشترك في هذه خدمتك الآن
-          {% else %}
-            Book Your Appointment Now
-          {% endif %}</span>
+                                    <i class="fas fa-shopping-cart ml-2"></i>
+                                    <span>
+                                        {% if LANGUAGE_CODE == 'ar' %}
+                                        أضف إلى السلة
+                                        {% else %}
+                                        Add to Cart
+                                        {% endif %}
+                                    </span>
                                 </button>
                             </form>
                         </div>
@@ -272,13 +338,135 @@
             </div>
         </div>
 
+        <!-- Service Packages Section -->
+        {% if packages %}
+        <div class="bg-white rounded-lg card-shadow overflow-hidden mb-10 border border-purple-100">
+            <div class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-6">
+                <h2 class="text-2xl font-bold mb-2">
+                    <i class="fas fa-boxes ml-2"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}باقات الخدمة{% else %}Service Packages{% endif %}
+                </h2>
+                <p class="text-purple-100">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    اختر الباقة المناسبة لك من بين عروضنا المميزة
+                    {% else %}
+                    Choose the perfect package from our exclusive offers
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for package in packages %}
+                    <div class="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 package-card {% if package.is_popular %}border-2 border-purple-500 relative{% else %}border-gray-200{% endif %}">
+                        {% if package.is_popular %}
+                        <div class="popular-badge">
+                            <span class="bg-purple-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg">
+                                <i class="fas fa-crown ml-1"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}الأكثر شيوعاً{% else %}Most Popular{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        <div class="p-6 pt-{% if package.is_popular %}8{% else %}6{% endif %}">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">{{ package.title }}</h3>
+
+                            {% if package.description %}
+                            <p class="text-gray-600 mb-4 text-sm">{{ package.description }}</p>
+                            {% endif %}
+
+                            <!-- Package Details -->
+                            <div class="space-y-3 mb-6">
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-calendar text-blue-500 ml-2"></i>
+                                    <span>{{ package.duration_days }} {% if LANGUAGE_CODE == 'ar' %}يوم{% else %}days{% endif %}</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-dumbbell text-green-500 ml-2"></i>
+                                    <span>{{ package.sessions_per_week }} {% if LANGUAGE_CODE == 'ar' %}جلسة/أسبوع{% else %}sessions/week{% endif %}</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-chart-line text-orange-500 ml-2"></i>
+                                    <span>{{ package.total_sessions }} {% if LANGUAGE_CODE == 'ar' %}جلسة إجمالية{% else %}total sessions{% endif %}</span>
+                                </div>
+                            </div>
+
+                            <!-- Package Features -->
+                            {% if package.features_list %}
+                            <div class="mb-6">
+                                <h4 class="font-bold text-gray-700 mb-2">
+                                    <i class="fas fa-star text-yellow-500 ml-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}المميزات{% else %}Features{% endif %}
+                                </h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                    {% for feature in package.features_list|slice:":3" %}
+                                    <li>{{ feature }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+
+                            <!-- Pricing -->
+                            <div class="mb-6">
+                                {% if package.discounted_price %}
+                                <div class="text-sm text-gray-500 line-through mb-1">
+                                    {{ package.original_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                </div>
+                                <div class="text-2xl font-bold text-purple-600">
+                                    {{ package.discounted_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                </div>
+                                <div class="text-sm text-green-600 font-bold mt-1">
+                                    <i class="fas fa-percentage ml-1"></i>
+                                    {{ package.discount_percentage }}% {% if LANGUAGE_CODE == 'ar' %}توفير{% else %}OFF{% endif %}
+                                </div>
+                                {% else %}
+                                <div class="text-2xl font-bold text-gray-800">
+                                    {{ package.original_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                </div>
+                                {% endif %}
+
+                                <div class="text-sm text-gray-500 mt-1">
+                                    {% if package.price_per_session %}
+                                    {{ package.price_per_session|floatformat:2 }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                    {% if LANGUAGE_CODE == 'ar' %}للجلسة{% else %}/session{% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Add to Cart Button -->
+                            <form method="POST" action="{% url 'add_package_to_cart' %}" class="package-form" data-package-id="{{ package.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="package_id" value="{{ package.id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit"
+                                        class="w-full py-3 rounded-lg transition duration-300 package-add-btn
+                                               {% if package.is_popular %}
+                                               bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700
+                                               {% else %}
+                                               bg-purple-500 hover:bg-purple-600
+                                               {% endif %}
+                                               text-white font-bold">
+                                    <i class="fas fa-shopping-cart ml-2"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                        أضف الباقة إلى السلة
+                                    {% else %}
+                                        Add Package to Cart
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Related Services -->
         <div class="mb-10">
-            <h2 class="text-2xl font-bold mb-6 text-right text-pink-700">{% if LANGUAGE_CODE == 'ar' %}
-                خدمات ذات صلة
-                {% else %}
-                Related Services
-                {% endif %}</h2>
+            <h2 class="text-2xl font-bold mb-6 text-right text-pink-700">
+                {% if LANGUAGE_CODE == 'ar' %}خدمات ذات صلة{% else %}Related Services{% endif %}
+            </h2>
             {% if services|length == 0 %}
             <div class="text-center text-gray-500 py-8">
                 {% if LANGUAGE_CODE == 'ar' %}
@@ -312,11 +500,9 @@
                         </div>
                     </div>
                     <div class="bg-pink-500 hover:bg-pink-600 text-white w-full py-2 text-center transition-colors duration-300">
-                        <a href="{% url 'viewServicesSpecific' related_service.id %}" class="block w-full h-full text-white">{% if LANGUAGE_CODE == 'ar' %}
-                            عرض التفاصيل
-                            {% else %}
-                            View Details
-                            {% endif %}</a>
+                        <a href="{% url 'viewServicesSpecific' related_service.id %}" class="block w-full h-full text-white">
+                            {% if LANGUAGE_CODE == 'ar' %}عرض التفاصيل{% else %}View Details{% endif %}
+                        </a>
                     </div>
                 </div>
                 {% endif %}
@@ -329,39 +515,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-<script>
-    // Initialize Swiper
-    var swiper = new Swiper(".swiper-container", {
-      pagination: {
-        el: ".swiper-pagination",
-        clickable: true,
-      },
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
-    });
-
-    // Handle session selection
-    document.getElementById('sessions')?.addEventListener('change', function() {
-      const basePrice = {{ service.discounted_price|default:service.price }};
-      const sessions = parseInt(this.value);
-      const totalPrice = basePrice * sessions;
-
-      // If you want to update the price display based on number of sessions
-      // Uncomment and implement this
-      /*
-      const priceElement = document.getElementById('total-price');
-      if(priceElement) {
-        priceElement.textContent = totalPrice + ' {{ request.user.userprofile.student_profile.club.vat_settings.currency }}';
-      }
-      */
-    });
-</script>
 <!-- Confirmation Modal -->
 <div id="renewalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full">
-        <h3 class="text-xl font-bold text-pink-700 mb-4">{% if LANGUAGE_CODE == 'ar' %}تجديد الاشتراك{% else %}Subscription Renewal{% endif %}</h3>
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-xl font-bold text-pink-700 mb-4">
+            {% if LANGUAGE_CODE == 'ar' %}تجديد الاشتراك{% else %}Subscription Renewal{% endif %}
+        </h3>
         <p id="modalMessage" class="mb-6 text-gray-700"></p>
         <div class="flex justify-end">
             <button onclick="hideModal()" class="ml-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
@@ -375,21 +534,38 @@
 </div>
 
 <script>
-    // Global variable to store service ID for confirmation
+    // Global variables
     let pendingServiceId = null;
+    let pendingPackageId = null;
+    let isProcessing = false;
 
+    // Show loading overlay
+    function showLoading() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        isProcessing = true;
+    }
+
+    // Hide loading overlay
+    function hideLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+        isProcessing = false;
+    }
+
+    // Show confirmation modal
     function showModal(message) {
         document.getElementById('modalMessage').textContent = message;
         document.getElementById('renewalModal').classList.remove('hidden');
     }
 
+    // Hide confirmation modal
     function hideModal() {
         document.getElementById('renewalModal').classList.add('hidden');
+        hideLoading();
     }
 
+    // Confirm renewal for service
     function confirmRenewal() {
         if (pendingServiceId) {
-            // Submit the form again with confirmation
             const formData = new FormData();
             formData.append('service_id', pendingServiceId);
             formData.append('quantity', 1);
@@ -403,24 +579,69 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = "{% url 'cart' %}";
+                    // Show success message
+                    showNotification(data.message || '{% if LANGUAGE_CODE == "ar" %}تمت الإضافة بنجاح{% else %}Added successfully{% endif %}', 'success');
+                    // Redirect to cart after a short delay
+                    setTimeout(() => {
+                        window.location.href = "{% url 'cart' %}";
+                    }, 1000);
                 } else {
-                    alert(data.message || 'حدث خطأ ما');
+                    showNotification(data.message || '{% if LANGUAGE_CODE == "ar" %}حدث خطأ ما{% else %}An error occurred{% endif %}', 'error');
                 }
+                hideModal();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء معالجة طلبك{% else %}Error processing your request{% endif %}', 'error');
                 hideModal();
             });
         }
     }
 
-    // Modify the form submission to handle AJAX
-    document.querySelector('form[action="{% url 'add_service_to_cart' %}"]')?.addEventListener('submit', function(e) {
+    // Show notification
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg ${
+            type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
+            'bg-red-100 text-red-800 border border-red-200'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Handle service form submission
+    document.getElementById('addToCartForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
 
+        if (isProcessing) return;
+
         const formData = new FormData(this);
+        const serviceId = '{{ service.id }}';
+        const addToCartBtn = document.getElementById('addToCartBtn');
+
+        // Show loading
+        showLoading();
+        addToCartBtn.disabled = true;
+        addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {% if LANGUAGE_CODE == "ar" %}جاري المعالجة...{% else %}Processing...{% endif %}';
 
         fetch(this.action, {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         })
         .then(response => response.json())
         .then(data => {
@@ -428,32 +649,123 @@
                 pendingServiceId = data.service_id;
                 showModal(data.message);
             } else if (data.success) {
-                window.location.href = "{% url 'cart' %}";
+                showNotification(data.message || '{% if LANGUAGE_CODE == "ar" %}تمت إضافة الخدمة إلى السلة{% else %}Service added to cart{% endif %}', 'success');
+                // Update cart count in navbar
+                updateCartCount(data.cart_count || 1);
+                // Redirect to cart after a short delay
+                setTimeout(() => {
+                    window.location.href = "{% url 'cart' %}";
+                }, 1500);
             } else {
-                alert(data.message || 'حدث خطأ ما');
+                showNotification(data.message || '{% if LANGUAGE_CODE == "ar" %}حدث خطأ ما{% else %}An error occurred{% endif %}', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('حدث خطأ أثناء معالجة طلبك');
-        });
-    });
-</script>
-<script>
-    // Track when a service is viewed
-document.addEventListener('DOMContentLoaded', function() {
-    // Track clicks on service cards
-    document.querySelectorAll('.service-card').forEach(card => {
-        card.addEventListener('click', function() {
-            const serviceId = this.dataset.id || this.querySelector('a').href.split('/').slice(-2, -1)[0];
-            trackServiceClick(serviceId, 'view');
+            showNotification('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء معالجة طلبك{% else %}Error processing your request{% endif %}', 'error');
+        })
+        .finally(() => {
+            hideLoading();
+            addToCartBtn.disabled = false;
+            addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i> {% if LANGUAGE_CODE == "ar" %}أضف إلى السلة{% else %}Add to Cart{% endif %}';
         });
     });
 
-    // Track when "Book Now" is clicked
-    document.querySelector('form[action="{% url 'add_service_to_cart' %}"]')?.addEventListener('submit', function() {
-        const serviceId = this.querySelector('input[name="service_id"]').value;
-        trackServiceClick(serviceId, 'cart');
+    // Handle package form submissions
+    document.querySelectorAll('.package-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (isProcessing) return;
+
+            const formData = new FormData(this);
+            const packageId = this.dataset.packageId;
+            const button = this.querySelector('.package-add-btn');
+
+            // Show loading
+            showLoading();
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {% if LANGUAGE_CODE == "ar" %}جاري المعالجة...{% else %}Processing...{% endif %}';
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.needs_confirmation) {
+                    pendingPackageId = packageId;
+                    showModal(data.message);
+                } else if (data.success) {
+                    showNotification(data.message || '{% if LANGUAGE_CODE == "ar" %}تمت إضافة الباقة إلى السلة{% else %}Package added to cart{% endif %}', 'success');
+                    // Update cart count in navbar
+                    updateCartCount(data.cart_count || 1);
+                    // Redirect to cart after a short delay
+                    setTimeout(() => {
+                        window.location.href = "{% url 'cart' %}";
+                    }, 1500);
+                } else {
+                    showNotification(data.message || '{% if LANGUAGE_CODE == "ar" %}حدث خطأ ما{% else %}An error occurred{% endif %}', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء معالجة طلبك{% else %}Error processing your request{% endif %}', 'error');
+            })
+            .finally(() => {
+                hideLoading();
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i> {% if LANGUAGE_CODE == "ar" %}أضف الباقة إلى السلة{% else %}Add Package to Cart{% endif %}';
+            });
+        });
+    });
+
+    // Update cart count in navbar
+    function updateCartCount(count) {
+        const cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = count;
+            if (count > 0) {
+                cartCountElement.classList.remove('hidden');
+                // Add animation
+                cartCountElement.classList.add('animate-pulse');
+                setTimeout(() => {
+                    cartCountElement.classList.remove('animate-pulse');
+                }, 500);
+            }
+        }
+    }
+
+    // Initialize Swiper for image gallery if needed
+    // var swiper = new Swiper(".swiper-container", {
+    //     pagination: {
+    //         el: ".swiper-pagination",
+    //         clickable: true,
+    //     },
+    //     navigation: {
+    //         nextEl: ".swiper-button-next",
+    //         prevEl: ".swiper-button-prev",
+    //     },
+    // });
+
+    // Track service clicks
+    document.addEventListener('DOMContentLoaded', function() {
+        // Track clicks on service cards
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const serviceId = this.dataset.id || this.querySelector('a').href.split('/').slice(-2, -1)[0];
+                trackServiceClick(serviceId, 'view');
+            });
+        });
+
+        // Track when service is viewed
+        const serviceId = '{{ service.id }}';
+        if (serviceId) {
+            trackServiceClick(serviceId, 'view');
+        }
     });
 
     function trackServiceClick(serviceId, source) {
@@ -467,6 +779,5 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData
         }).catch(error => console.error('Error tracking click:', error));
     }
-});
 </script>
 {% endblock %}

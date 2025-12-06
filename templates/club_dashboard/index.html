@@ -118,7 +118,7 @@
   <div class="bg-white dark:bg-gray-800 shadow-md py-3 px-6 flex items-center justify-between sticky top-0 z-10">
     <!-- Club Logo and Name -->
     <div class="flex items-center">
-      <img class="h-10 w-10 rounded-full {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}" src="data:image/jpeg;base64,{{ club.club_profile_image_base64|safe }}" alt="Warehouse Logo">
+      <img class="h-10 w-10 rounded-full {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}" src="data:image/jpeg;base64,{{ club.club_profile_image_base64|safe }}" alt="Club Logo">
       <h1 class="text-xl font-bold text-gray-800 dark:text-white">{{ club.name }}</h1>
     </div>
 

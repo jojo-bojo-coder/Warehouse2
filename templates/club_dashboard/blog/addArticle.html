@@ -229,7 +229,7 @@
   }
 </style>
 
-<div class="animated-bg bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}  dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900">
+<div id="main-content" class="transition-all duration-300 bg-gray-50 dark:bg-gray-900 min-h-screen {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}  ">
   <section class="container mx-auto px-4 pt-8">
     <h1 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3 animate-fadeIn dark:text-white">
       <div class="p-2 bg-blue-100 rounded-full text-blue-600 animate-float dark:bg-blue-900 dark:text-blue-300">
@@ -251,7 +251,12 @@
             </svg>
             {% if LANGUAGE_CODE == 'ar' %}عنوان المقال{% else %}Article Title{% endif %}
           </label>
-          {{ form.title }}
+          <input type="text"
+                 name="title"
+                 id="id_title"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                 placeholder="{% if LANGUAGE_CODE == 'ar' %}أدخل عنوان المقال...{% else %}Enter article title...{% endif %}"
+                 value="{{ form.title.value|default:'' }}">
           {% if form.title.errors %}
           <div class="text-red-600 text-sm mt-1 dark:text-red-400">{{ form.title.errors }}</div>
           {% endif %}
@@ -265,7 +270,12 @@
             </svg>
             {% if LANGUAGE_CODE == 'ar' %}الوصف{% else %}Description{% endif %}
           </label>
-          {{ form.desc }}
+          <input type="text"
+                 name="desc"
+                 id="id_desc"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                 placeholder="{% if LANGUAGE_CODE == 'ar' %}وصف مختصر للمقال...{% else %}Brief description of the article...{% endif %}"
+                 value="{{ form.desc.value|default:'' }}">
           {% if form.desc.errors %}
           <div class="text-red-600 text-sm mt-1 dark:text-red-400">{{ form.desc.errors }}</div>
           {% endif %}

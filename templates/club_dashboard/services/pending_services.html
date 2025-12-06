@@ -1,6 +1,49 @@
 {% extends "base_club_dashboard.html" %}
 {% block content %}
 <style>
+  /* Animation Classes */
+  .animate-float {
+      animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-fadeInUp {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+  }
+
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Button Effects */
+  .btn-gradient {
+      background-size: 200% auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .btn-gradient:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
   /* Dark mode overrides */
   .dark .bg-gradient-to-br {
     background: linear-gradient(to bottom right, var(--tw-gradient-stops));
@@ -85,10 +128,10 @@
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
-    <!-- Title and main button -->
-    <div class="flex justify-between items-center py-8 animate-fade-in">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2 transform transition-all duration-500 opacity-0 animate-title">
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+    <!-- Header Section -->
+    <div class="py-8">
+        <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2 flex items-center gap-3">
             <div class="p-2 bg-amber-100 dark:bg-amber-900 rounded-full text-amber-600 dark:text-amber-300">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -96,15 +139,17 @@
             </div>
             {% if LANGUAGE_CODE == 'ar' %} الخدمات قيد المراجعة {% else %} Pending Services {% endif %}
         </h1>
-        <div class="flex space-x-2">
-            <button onclick="toggleBulkActions()" class="ml-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 transform opacity-0 animate-button shadow-md hover:shadow-purple-300/40 dark:from-purple-600 dark:to-purple-700 dark:hover:from-purple-700 dark:hover:to-purple-800">
-                {% if LANGUAGE_CODE == 'ar' %} إجراءات متعددة {% else %} Bulk Actions {% endif %}
-            </button>
-        </div>
+        <p class="text-gray-600 dark:text-gray-400">
+            {% if LANGUAGE_CODE == 'ar' %}
+                إدارة ومراجعة الخدمات المعلقة
+            {% else %}
+                Manage and review pending services
+            {% endif %}
+        </p>
     </div>
 
     <!-- Filter and Search Section -->
-    <div class="mb-6 opacity-0 animate-fade-in" style="animation-delay: 0.4s">
+    <div class="animate-[fadeIn_0.8s_ease-out_0.5s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
         <form method="GET" class="flex flex-wrap gap-4 items-end">
             <!-- Search -->
             <div class="flex-1 min-w-64">
@@ -128,14 +173,14 @@
             </div>
 
             <!-- Filter Button -->
-            <button type="submit" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2.5 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-blue-300/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800">
+            <button type="submit" class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2.5 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-blue-300/40 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800">
                 {% if LANGUAGE_CODE == 'ar' %} تصفية {% else %} Filter {% endif %}
             </button>
         </form>
     </div>
 
     <!-- Bulk Actions Bar (Hidden by default) -->
-    <div id="bulkActionsBar" class="hidden mb-6 bg-blue-50/80 dark:bg-blue-900/80 backdrop-blur-sm border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+    <div id="bulkActionsBar" class="animate-[fadeIn_0.8s_ease-out_0.6s_both] hidden mb-6 bg-blue-50/80 dark:bg-blue-900/80 backdrop-blur-sm border border-blue-200 dark:border-blue-700 rounded-lg p-4">
         <form id="bulkActionForm" method="POST">
             {% csrf_token %}
             <div class="flex items-center justify-between">
@@ -163,85 +208,87 @@
     </div>
 
     <!-- Services Table -->
-    <div class="bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden transition-all duration-500 opacity-0 animate-table transform translate-y-5 hover:shadow-xl dark:hover:shadow-gray-800/50">
-        <table class="w-full text-sm text-gray-700 dark:text-gray-300" id="servicesTable">
-            <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-800">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                    <input type="checkbox" id="selectAll" onchange="toggleAllServices()" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
-                </th>
-                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} الخدمة {% else %} Service {% endif %}</th>
-                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} التاجر {% else %} Vendor {% endif %}</th>
-                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} السعر {% else %} Price {% endif %}</th>
-                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} الحالة {% else %} Status {% endif %}</th>
-                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} التاريخ {% else %} Date {% endif %}</th>
-                <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{% if LANGUAGE_CODE == 'ar' %} الإجراءات {% else %} Actions {% endif %}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for service in services %}
-            <tr class="bg-white/80 dark:bg-gray-700/80 border-b border-gray-100 dark:border-gray-600 hover:bg-gray-50/60 dark:hover:bg-gray-600/60 transition-all duration-200 opacity-0 animate-row" style="animation-delay: {{ forloop.counter|add:2 }}00ms">
-                <td class="px-6 py-4">
-                    <input type="checkbox" name="service_ids" value="{{ service.id }}" onchange="updateBulkSelection()" class="service-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
-                </td>
-                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
-                    <div class="flex items-center space-x-3">
-                        {% if service.image %}
-                        <img src="{{ service.image.url }}" alt="{{ service.title }}" class="ml-2 w-12 h-12 rounded-lg object-cover">
-                        {% else %}
-                        <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-600 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 3H11V13H13V3ZM17.83 5.17L16.41 6.59C17.99 7.86 19 9.81 19 12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12C5 9.81 6.01 7.86 7.58 6.58L6.17 5.17C4.23 6.82 3 9.26 3 12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12C21 9.26 19.77 6.82 17.83 5.17Z"/>
-                            </svg>
+    <div class="animate-[fadeIn_0.8s_ease-out_0.7s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="servicesTable">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <input type="checkbox" id="selectAll" onchange="toggleAllServices()" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %} الخدمة {% else %} Service {% endif %}</th>
+                    <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %} التاجر {% else %} Vendor {% endif %}</th>
+                    <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %} السعر {% else %} Price {% endif %}</th>
+                    <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %} الحالة {% else %} Status {% endif %}</th>
+                    <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %} التاريخ {% else %} Date {% endif %}</th>
+                    <th scope="col" class="px-6 py-3 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %} الإجراءات {% else %} Actions {% endif %}</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {% for service in services %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                        <input type="checkbox" name="service_ids" value="{{ service.id }}" onchange="updateBulkSelection()" class="service-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center space-x-3">
+                            {% if service.image %}
+                            <img src="{{ service.image.url }}" alt="{{ service.title }}" class="ml-2 w-12 h-12 rounded-lg object-cover">
+                            {% else %}
+                            <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-600 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 3H11V13H13V3ZM17.83 5.17L16.41 6.59C17.99 7.86 19 9.81 19 12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12C5 9.81 6.01 7.86 7.58 6.58L6.17 5.17C4.23 6.82 3 9.26 3 12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12C21 9.26 19.77 6.82 17.83 5.17Z"/>
+                                </svg>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ service.title }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ service.classification.first.name|default:"غير مصنف" }}</div>
+                            </div>
                         </div>
-                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                         <div>
-                            <div class="font-medium">{{ service.title }}</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ service.classification.first.name|default:"غير مصنف" }}</div>
+                            <div class="font-medium text-gray-900 dark:text-white">{{ service.creator.userprofile.Coach_profile.business_name|default:service.creator.userprofile.Coach_profile.full_name }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ service.creator.email }}</div>
                         </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
-                    <div>
-                        <div class="font-medium">{{ service.creator.userprofile.Coach_profile.business_name|default:service.creator.userprofile.Coach_profile.full_name }}</div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ service.creator.email }}</div>
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{{ service.price }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
-                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
-                    <span class="px-2 py-1 text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full">
-                        {% if LANGUAGE_CODE == 'ar' %} قيد المراجعة {% else %} Pending {% endif %}
-                    </span>
-                </td>
-                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{{ service.creation_date|date:"d M Y" }}</td>
-                <td class="px-6 py-4 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
-                    <div class="flex space-x-2">
-                        <a href="{% url 'service_detail' service.id %}" class="ml-2 font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-200">
-                            {% if LANGUAGE_CODE == 'ar' %} عرض {% else %} View {% endif %}
-                        </a>
-                        <button onclick="showApprovalModal({{ service.id }}, '{{ service.title|escapejs }}')" class="font-medium text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-all duration-200">
-                            {% if LANGUAGE_CODE == 'ar' %} قبول {% else %} Approve {% endif %}
-                        </button>
-                        <button onclick="showRejectionModal({{ service.id }}, '{{ service.title|escapejs }}')" class="font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-all duration-200">
-                            {% if LANGUAGE_CODE == 'ar' %} رفض {% else %} Reject {% endif %}
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr class="bg-white/80 dark:bg-gray-700/80 border-b border-gray-100 dark:border-gray-600 opacity-0 animate-fade-in" style="animation-delay: 300ms">
-                <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                    {% if LANGUAGE_CODE == 'ar' %} 🚫 لا توجد خدمات قيد المراجعة حالياً {% else %} 🚫 No pending services available currently {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ service.price }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                            {% if LANGUAGE_CODE == 'ar' %} قيد المراجعة {% else %} Pending {% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ service.creation_date|date:"d M Y" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'service_detail' service.id %}" class="ml-2 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200">
+                                {% if LANGUAGE_CODE == 'ar' %} عرض {% else %} View {% endif %}
+                            </a>
+                            <button onclick="showApprovalModal({{ service.id }}, '{{ service.title|escapejs }}')" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors duration-200">
+                                {% if LANGUAGE_CODE == 'ar' %} قبول {% else %} Approve {% endif %}
+                            </button>
+                            <button onclick="showRejectionModal({{ service.id }}, '{{ service.title|escapejs }}')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
+                                {% if LANGUAGE_CODE == 'ar' %} رفض {% else %} Reject {% endif %}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                        {% if LANGUAGE_CODE == 'ar' %} 🚫 لا توجد خدمات قيد المراجعة حالياً {% else %} 🚫 No pending services available currently {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Pagination -->
     {% if services.has_other_pages %}
-    <div class="flex justify-center mt-8 opacity-0 animate-fade-in" style="animation-delay: 0.6s">
+    <div class="animate-[fadeIn_0.8s_ease-out_0.8s_both] flex justify-center mt-8">
         <nav class="flex space-x-2">
             {% if services.has_previous %}
             <a href="?page={{ services.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-2 bg-white/90 dark:bg-gray-700/90 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200">
@@ -366,9 +413,10 @@
       modal.classList.remove('hidden');
     }
 
-    // Hide any modal
+    // Hide modal
     function hideModal(modalId) {
-      document.getElementById(modalId).classList.add('hidden');
+      const modal = document.getElementById(modalId);
+      modal.classList.add('hidden');
     }
 
     // Toggle bulk actions bar
@@ -377,7 +425,7 @@
       bulkActionsBar.classList.toggle('hidden');
     }
 
-    // Select all services
+    // Toggle all services selection
     function toggleAllServices() {
       const selectAll = document.getElementById('selectAll');
       const checkboxes = document.querySelectorAll('.service-checkbox');
@@ -391,30 +439,38 @@
 
     // Update bulk selection count
     function updateBulkSelection() {
-      const selectedCount = document.querySelectorAll('.service-checkbox:checked').length;
-      document.getElementById('selectedCount').textContent = selectedCount;
+      const checkboxes = document.querySelectorAll('.service-checkbox');
+      const selectedCount = document.getElementById('selectedCount');
+      const selected = Array.from(checkboxes).filter(cb => cb.checked).length;
+
+      selectedCount.textContent = selected;
     }
 
     // Cancel bulk selection
     function cancelBulkSelection() {
       const checkboxes = document.querySelectorAll('.service-checkbox');
+      const selectAll = document.getElementById('selectAll');
+      const bulkActionsBar = document.getElementById('bulkActionsBar');
+
       checkboxes.forEach(checkbox => {
         checkbox.checked = false;
       });
-      document.getElementById('selectAll').checked = false;
+      selectAll.checked = false;
+
+      bulkActionsBar.classList.add('hidden');
       updateBulkSelection();
-      toggleBulkActions();
     }
 
-    // Initialize animations
-    document.addEventListener('DOMContentLoaded', () => {
-      const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-title, .animate-button, .animate-table, .animate-row');
+    // Close modals when clicking outside
+    document.addEventListener('DOMContentLoaded', function() {
+      const modals = document.querySelectorAll('[id$="Modal"]');
 
-      animatedElements.forEach(element => {
-        element.classList.remove('opacity-0');
-        if (element.classList.contains('animate-title')) {
-          element.classList.add('opacity-100');
-        }
+      modals.forEach(modal => {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            hideModal(modal.id);
+          }
+        });
       });
     });
 </script>

@@ -1,0 +1,304 @@
+{% extends "base_club_dashboard.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    /* Animation Classes */
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Keyframes */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Button Effects */
+    .btn-gradient {
+        background-size: 200% auto;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .btn-gradient:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Toggle Switch */
+    .toggle-checkbox:checked {
+        right: 0;
+        border-color: #10b981;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+        background-color: #10b981;
+    }
+</style>
+
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+    <!-- Header Section -->
+    <div class="py-8">
+        <div class="flex flex-wrap justify-between items-center w-full gap-4">
+            <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2 flex items-center gap-3">
+                <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
+                </div>
+                {% if LANGUAGE_CODE == 'ar' %} إدارة ضريبة القيمة المضافة {% else %} VAT Management {% endif %}
+            </h1>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- VAT Status Card -->
+        <div class="animate-[fadeInUp_0.6s_ease-out_0.1s_both] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-blue-100">
+                    {% if LANGUAGE_CODE == 'ar' %} حالة الضريبة {% else %} VAT Status {% endif %}
+                </h2>
+                <div class="p-3 rounded-full bg-blue-400/20">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex justify-center items-center h-24">
+                {% if vat_settings.is_enabled %}
+                    <span class="text-3xl font-bold">
+                        {% if LANGUAGE_CODE == 'ar' %} مفعّلة {% else %} Enabled {% endif %}
+                    </span>
+                {% else %}
+                    <span class="text-3xl font-bold">
+                        {% if LANGUAGE_CODE == 'ar' %} معطّلة {% else %} Disabled {% endif %}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- VAT Percentage Card -->
+        <div class="animate-[fadeInUp_0.6s_ease-out_0.2s_both] bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-green-100">
+                    {% if LANGUAGE_CODE == 'ar' %} نسبة الضريبة {% else %} VAT Percentage {% endif %}
+                </h2>
+                <div class="p-3 rounded-full bg-green-400/20">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex justify-center items-center h-24">
+                <p class="text-5xl font-bold">{{ vat_settings.percentage }}%</p>
+            </div>
+        </div>
+
+        <!-- Currency Card -->
+<!--        <div class="animate-[fadeInUp_0.6s_ease-out_0.3s_both] bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">-->
+<!--            <div class="flex items-center justify-between mb-4">-->
+<!--                <h2 class="text-xl font-semibold text-purple-100">-->
+<!--                    {% if LANGUAGE_CODE == 'ar' %} العملة {% else %} Currency {% endif %}-->
+<!--                </h2>-->
+<!--                <div class="p-3 rounded-full bg-purple-400/20">-->
+<!--                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">-->
+<!--                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>-->
+<!--                    </svg>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="flex justify-center items-center h-24">-->
+<!--                <p class="text-5xl font-bold">{{ vat_settings.currency }}</p>-->
+<!--            </div>-->
+<!--        </div>-->
+    </div>
+
+    <!-- VAT Settings Form -->
+    <div class="animate-[fadeIn_0.8s_ease-out_0.4s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-100 dark:border-gray-700 mb-6">
+        <div class="flex items-center mb-6">
+            <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300 mr-3">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+                {% if LANGUAGE_CODE == 'ar' %} إعدادات ضريبة القيمة المضافة {% else %} VAT Settings {% endif %}
+            </h2>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Enable/Disable VAT Toggle -->
+            <!-- Alternative toggle with more explicit styling -->
+<!-- Enable/Disable VAT Toggle -->
+<div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border-2 border-blue-200 dark:border-blue-700">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex-1">
+            <label for="{{ form.is_enabled.id_for_label }}" class="block text-lg font-bold text-gray-800 dark:text-white mb-2 cursor-pointer">
+                <i class="fas fa-toggle-on {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-blue-600"></i>
+                {{ form.is_enabled.label }}
+            </label>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{ form.is_enabled.help_text }}
+            </p>
+        </div>
+        <div class="relative inline-block">
+            <!-- Hide the actual checkbox with hidden class -->
+            <div class="hidden">
+                {{ form.is_enabled }}
+            </div>
+
+            <!-- Custom toggle switch -->
+            <label for="{{ form.is_enabled.id_for_label }}"
+                   class="block w-16 h-8 cursor-pointer">
+                <!-- Toggle container -->
+                <div class="relative w-full h-full">
+                    <!-- Toggle track -->
+                    <div class="absolute top-1 left-0 w-full h-6 bg-gray-300 dark:bg-gray-600 rounded-full transition-all duration-300
+                                {% if form.is_enabled.value %}bg-green-500 dark:bg-green-600{% endif %}"></div>
+
+                    <!-- Toggle knob -->
+                    <div class="absolute top-0 left-0 w-8 h-8 bg-white dark:bg-gray-300 rounded-full shadow-lg transform transition-all duration-300
+                                {% if form.is_enabled.value %}translate-x-8{% endif %}"></div>
+
+                    <!-- Icons -->
+                    <div class="absolute top-1.5 left-2 text-xs text-gray-500 dark:text-gray-400
+                                {% if form.is_enabled.value %}opacity-0{% else %}opacity-100{% endif %} transition-opacity duration-300">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <div class="absolute top-1.5 right-2 text-xs text-green-600 dark:text-green-400
+                                {% if form.is_enabled.value %}opacity-100{% else %}opacity-0{% endif %} transition-opacity duration-300">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+            </label>
+        </div>
+    </div>
+</div>
+
+            <!-- VAT Percentage Input -->
+            <div>
+                <label for="{{ form.percentage.id_for_label }}" class="block text-lg font-bold text-gray-800 dark:text-white mb-2">
+                    <i class="fas fa-percentage {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-green-600"></i>
+                    {{ form.percentage.label }}
+                </label>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    {{ form.percentage.help_text }}
+                </p>
+                {{ form.percentage }}
+                {% if form.percentage.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.percentage.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Currency Input -->
+<!--            <div>-->
+<!--                <label for="{{ form.currency.id_for_label }}" class="block text-lg font-bold text-gray-800 dark:text-white mb-2">-->
+<!--                    <i class="fas fa-money-bill-wave {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-purple-600"></i>-->
+<!--                    {{ form.currency.label }}-->
+<!--                </label>-->
+<!--                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">-->
+<!--                    {{ form.currency.help_text }}-->
+<!--                </p>-->
+<!--                {{ form.currency }}-->
+<!--                {% if form.currency.errors %}-->
+<!--                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.currency.errors.0 }}</p>-->
+<!--                {% endif %}-->
+<!--            </div>-->
+
+            <!-- Submit Button -->
+            <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-600">
+                <a href="{% url 'club_dashboard_index' %}"
+                   class="px-6 py-3 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 font-medium">
+                    <i class="fas fa-times {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                    {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+                </a>
+                <button type="submit"
+                        class="btn-gradient bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-blue-300/40 dark:hover:shadow-blue-700/40 font-medium">
+                    <i class="fas fa-save {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                    {% if LANGUAGE_CODE == 'ar' %} حفظ الإعدادات {% else %} Save Settings {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Information Card -->
+    <div class="animate-[fadeIn_0.8s_ease-out_0.5s_both] bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded-lg p-6">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3 {% if LANGUAGE_CODE == 'ar' %}mr-3 text-right{% else %}text-left{% endif %}">
+                <h3 class="text-lg font-bold text-blue-800 dark:text-blue-300 mb-2">
+                    {% if LANGUAGE_CODE == 'ar' %} ملاحظة مهمة {% else %} Important Note {% endif %}
+                </h3>
+                <p class="text-blue-700 dark:text-blue-300 leading-relaxed">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        عند تفعيل ضريبة القيمة المضافة، سيتم إضافة النسبة المحددة إلى أسعار جميع المنتجات والخدمات تلقائياً. سيتم عرض السعر النهائي شاملاً الضريبة للعملاء في سلة التسوق وعند الدفع.
+                    {% else %}
+                        When VAT is enabled, the specified percentage will be automatically added to all product and service prices. The final price including VAT will be displayed to customers in the shopping cart and at checkout.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const vatCheckbox = document.getElementById('{{ form.is_enabled.id_for_label }}');
+    const toggleTrack = document.querySelector('.bg-gray-300');
+    const toggleKnob = document.querySelector('.bg-white');
+    const xIcon = document.querySelector('.fa-times').parentElement;
+    const checkIcon = document.querySelector('.fa-check').parentElement;
+
+    if (vatCheckbox) {
+        vatCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                toggleTrack.classList.add('bg-green-500', 'dark:bg-green-600');
+                toggleTrack.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+                toggleKnob.classList.add('translate-x-8');
+                xIcon.classList.add('opacity-0');
+                xIcon.classList.remove('opacity-100');
+                checkIcon.classList.add('opacity-100');
+                checkIcon.classList.remove('opacity-0');
+            } else {
+                toggleTrack.classList.remove('bg-green-500', 'dark:bg-green-600');
+                toggleTrack.classList.add('bg-gray-300', 'dark:bg-gray-600');
+                toggleKnob.classList.remove('translate-x-8');
+                xIcon.classList.remove('opacity-0');
+                xIcon.classList.add('opacity-100');
+                checkIcon.classList.remove('opacity-100');
+                checkIcon.classList.add('opacity-0');
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

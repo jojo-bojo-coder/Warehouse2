@@ -1,0 +1,653 @@
+{% extends 'base_coach_dashboard.html' %}
+{% load static %}
+{% block links %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+{% block content %}
+<div class="bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
+    <!-- Header Section -->
+    <div class="py-8 animate__animated animate__fadeIn">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+                <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full text-yellow-600 dark:text-yellow-400">
+                    <i class="fas fa-edit"></i>
+                </div>
+                {% if LANGUAGE_CODE == 'ar' %}تعديل الباقة{% else %}Edit Package{% endif %}
+            </h1>
+
+            <div class="flex items-center gap-3">
+                <a href="{% url 'view_service_packages' package.service.id %}"
+                   class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 text-sm font-medium flex items-center gap-2">
+                    <i class="bi bi-arrow-left"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}رجوع{% else %}Back{% endif %}
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        {% if LANGUAGE_CODE == 'ar' %}الخدمة:{% else %}Service:{% endif %}
+                        <span class="font-medium text-gray-800 dark:text-white">{{ package.service.title }}</span>
+                    </p>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        {% if LANGUAGE_CODE == 'ar' %}تاريخ الإنشاء:{% else %}Created:{% endif %}
+                        <span class="font-medium">{{ package.created_at|date:"Y/m/d" }}</span>
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="px-3 py-1 text-sm font-medium rounded-full {% if package.is_active %}bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300{% else %}bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300{% endif %}">
+                        {% if package.is_active %}
+                            <i class="bi bi-check-circle mr-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}نشط{% else %}Active{% endif %}
+                        {% else %}
+                            <i class="bi bi-x-circle mr-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}غير نشط{% else %}Inactive{% endif %}
+                        {% endif %}
+                    </span>
+
+                    {% if package.is_popular %}
+                    <span class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 text-sm font-medium rounded-full">
+                        <i class="bi bi-star-fill mr-1"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}الأكثر شيوعاً{% else %}Most Popular{% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="animate-[fadeIn_0.8s_ease-out_0.2s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mx-2 md:mx-0 mb-8">
+        <form method="post" class="w-full">
+            {% csrf_token %}
+
+            <!-- Package Info Alert -->
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <i class="bi bi-info-circle text-blue-500 text-lg"></i>
+                    <div>
+                        <h4 class="font-medium text-blue-700 dark:text-blue-300">
+                            {% if LANGUAGE_CODE == 'ar' %}معلومات الباقة{% else %}Package Information{% endif %}
+                        </h4>
+                        <p class="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                            {% if LANGUAGE_CODE == 'ar' %}يمكنك تعديل جميع تفاصيل الباقة. سيتم تحديث التغييرات فور حفظها.{% else %}You can edit all package details. Changes will be updated immediately upon saving.{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div class="space-y-6">
+                    <!-- Package Title -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {% if LANGUAGE_CODE == 'ar' %}عنوان الباقة{% else %}Package Title{% endif %} *
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-red-600 text-sm mt-1 flex items-center gap-1">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ form.title.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Package Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {% if LANGUAGE_CODE == 'ar' %}وصف الباقة{% else %}Package Description{% endif %}
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-red-600 text-sm mt-1 flex items-center gap-1">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ form.description.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Duration & Sessions -->
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="bi bi-calendar-event"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}المدة والجلسات{% else %}Duration & Sessions{% endif %}
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    {% if LANGUAGE_CODE == 'ar' %}المدة (أيام){% else %}Duration (Days){% endif %} *
+                                </label>
+                                {{ form.duration_days }}
+                                {% if form.duration_days.errors %}
+                                <div class="text-red-600 text-sm mt-1 flex items-center gap-1">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ form.duration_days.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    {% if LANGUAGE_CODE == 'ar' %}جلسات/أسبوع{% else %}Sessions/Week{% endif %} *
+                                </label>
+                                {{ form.sessions_per_week }}
+                                {% if form.sessions_per_week.errors %}
+                                <div class="text-red-600 text-sm mt-1 flex items-center gap-1">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ form.sessions_per_week.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                {% if LANGUAGE_CODE == 'ar' %}إجمالي الجلسات{% else %}Total Sessions{% endif %} *
+                            </label>
+                            {{ form.total_sessions }}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {% if LANGUAGE_CODE == 'ar' %}إجمالي عدد الجلسات في هذه الباقة{% else %}Total number of sessions in this package{% endif %}
+                            </p>
+                            {% if form.total_sessions.errors %}
+                            <div class="text-red-600 text-sm mt-1 flex items-center gap-1">
+                                <i class="bi bi-exclamation-circle"></i>
+                                {{ form.total_sessions.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Pricing -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg p-4 border border-blue-100 dark:border-blue-800">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="bi bi-currency-dollar"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}التسعير{% else %}Pricing{% endif %}
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    {% if LANGUAGE_CODE == 'ar' %}السعر الأصلي{% else %}Original Price{% endif %} *
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">{{ currency }}</span>
+                                    {{ form.original_price }}
+                                </div>
+                                {% if form.original_price.errors %}
+                                <div class="text-red-600 text-sm mt-1 flex items-center gap-1">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ form.original_price.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    {% if LANGUAGE_CODE == 'ar' %}السعر المخفض{% else %}Discounted Price{% endif %} (اختياري)
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">{{ currency }}</span>
+                                    {{ form.discounted_price }}
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}اتركه فارغاً إذا لم يكن هناك خصم{% else %}Leave empty if there is no discount{% endif %}
+                                </p>
+                                {% if form.discounted_price.errors %}
+                                <div class="text-red-600 text-sm mt-1 flex items-center gap-1">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ form.discounted_price.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Discount Calculator -->
+                            <div id="discount-calculator" class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                                        {% if LANGUAGE_CODE == 'ar' %}نسبة الخصم:{% else %}Discount Percentage:{% endif %}
+                                    </span>
+                                    <span id="discount-percentage" class="font-semibold text-green-600 dark:text-green-400">0%</span>
+                                </div>
+                                <div class="flex items-center justify-between mt-2">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                                        {% if LANGUAGE_CODE == 'ar' %}قيمة الخصم:{% else %}Discount Amount:{% endif %}
+                                    </span>
+                                    <span id="discount-amount" class="font-semibold text-blue-600 dark:text-blue-400">0 {{ currency }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {% if LANGUAGE_CODE == 'ar' %}مميزات الباقة{% else %}Package Features{% endif %}
+                        </label>
+                        {{ form.features }}
+                        <div class="flex items-center justify-between mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                {% if LANGUAGE_CODE == 'ar' %}أدخل كل ميزة في سطر جديد{% else %}Enter each feature on a new line{% endif %}
+                            </p>
+                            <span id="features-count" class="text-xs text-gray-500 dark:text-gray-400">
+                                {% if LANGUAGE_CODE == 'ar' %}0 ميزات{% else %}0 features{% endif %}
+                            </span>
+                        </div>
+                        {% if form.features.errors %}
+                        <div class="text-red-600 text-sm mt-1 flex items-center gap-1">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ form.features.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Options -->
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                            {% if LANGUAGE_CODE == 'ar' %}خيارات الباقة{% else %}Package Options{% endif %}
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                                {{ form.is_popular }}
+                                <label for="{{ form.is_popular.id_for_label }}" class="mr-3 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}تحديد كـ الباقة الأكثر شيوعاً{% else %}Mark as Most Popular Package{% endif %}
+                                </label>
+                                <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full">
+                                    <i class="bi bi-star text-yellow-600 dark:text-yellow-300"></i>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                                {{ form.is_active }}
+                                <label for="{{ form.is_active.id_for_label }}" class="mr-3 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}تفعيل الباقة{% else %}Activate Package{% endif %}
+                                </label>
+                                <div class="p-2 {% if package.is_active %}bg-green-100 dark:bg-green-900{% else %}bg-red-100 dark:bg-red-900{% endif %} rounded-full">
+                                    <i class="bi {% if package.is_active %}bi-toggle-on text-green-600 dark:text-green-300{% else %}bi-toggle-off text-red-600 dark:text-red-300{% endif %}"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div id="preview-section" class="mt-8 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-lg p-6 border border-green-200 dark:border-green-800">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="bi bi-eye"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}معاينة الباقة{% else %}Package Preview{% endif %}
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-medium text-gray-700 dark:text-gray-300" id="preview-title">
+                                {{ package.title }}
+                            </h4>
+                            <span id="preview-duration-badge" class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs font-medium rounded-full">
+                                {{ package.duration_days }} {% if LANGUAGE_CODE == 'ar' %}يوم{% else %}Days{% endif %}
+                            </span>
+                        </div>
+
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4" id="preview-description">
+                            {{ package.description|truncatechars:80 }}
+                        </p>
+
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">
+                                    <i class="bi bi-calendar-week text-blue-500 mr-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}الجلسات/أسبوع:{% else %}Sessions/Week:{% endif %}
+                                </span>
+                                <span id="preview-sessions-week" class="font-medium">{{ package.sessions_per_week }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">
+                                    <i class="bi bi-clock-history text-green-500 mr-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}إجمالي الجلسات:{% else %}Total Sessions:{% endif %}
+                                </span>
+                                <span id="preview-total-sessions" class="font-medium">{{ package.total_sessions }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                        <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-3">
+                            {% if LANGUAGE_CODE == 'ar' %}التسعير{% else %}Pricing{% endif %}
+                        </h4>
+
+                        <div id="preview-pricing" class="space-y-2 mb-3">
+                            <!-- سيتم تحديثه بواسطة JavaScript -->
+                        </div>
+
+                        <div class="pt-3 border-t border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400 text-sm">
+                                    <i class="bi bi-calculator text-purple-500 mr-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}السعر/جلسة:{% else %}Price/Session:{% endif %}
+                                </span>
+                                <span id="preview-price-session" class="font-medium text-lg text-purple-600 dark:text-purple-400">
+                                    {{ package.price_per_session|floatformat:2 }} {{ currency }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Preview -->
+                <div class="mt-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-3">
+                        {% if LANGUAGE_CODE == 'ar' %}المميزات{% else %}Features{% endif %}
+                        <span id="preview-features-count" class="text-sm text-gray-500">(0)</span>
+                    </h4>
+                    <div id="preview-features" class="text-sm text-gray-600 dark:text-gray-300">
+                        <!-- سيتم تحديثه بواسطة JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 mt-8">
+                <div class="flex gap-3">
+                    <a href="{% url 'toggle_package_status' package.id %}"
+                       onclick="return confirm('{% if package.is_active %}{% if LANGUAGE_CODE == "ar" %}هل تريد تعطيل هذه الباقة؟{% else %}Do you want to deactivate this package?{% endif %}{% else %}{% if LANGUAGE_CODE == "ar" %}هل تريد تفعيل هذه الباقة؟{% else %}Do you want to activate this package?{% endif %}{% endif %}')"
+                       class="px-4 py-2 {% if package.is_active %}bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800{% else %}bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800{% endif %} rounded-lg transition-colors duration-300 text-sm font-medium">
+                        <i class="bi {% if package.is_active %}bi-toggle-off{% else %}bi-toggle-on{% endif %} mr-1"></i>
+                        {% if package.is_active %}
+                            {% if LANGUAGE_CODE == 'ar' %}تعطيل{% else %}Deactivate{% endif %}
+                        {% else %}
+                            {% if LANGUAGE_CODE == 'ar' %}تفعيل{% else %}Activate{% endif %}
+                        {% endif %}
+                    </a>
+
+                    <a href="{% url 'toggle_package_popular' package.id %}"
+                       onclick="return confirm('{% if package.is_popular %}{% if LANGUAGE_CODE == "ar" %}هل تريد إلغاء تحديد هذه الباقة كـ الأكثر شيوعاً؟{% else %}Do you want to unmark this package as most popular?{% endif %}{% else %}{% if LANGUAGE_CODE == "ar" %}هل تريد تحديد هذه الباقة كـ الأكثر شيوعاً؟{% else %}Do you want to mark this package as most popular?{% endif %}{% endif %}')"
+                       class="px-4 py-2 {% if package.is_popular %}bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% else %}bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-800{% endif %} rounded-lg transition-colors duration-300 text-sm font-medium">
+                        <i class="bi bi-star{% if package.is_popular %}-fill{% endif %} mr-1"></i>
+                        {% if package.is_popular %}
+                            {% if LANGUAGE_CODE == 'ar' %}إلغاء التحديد{% else %}Unmark Popular{% endif %}
+                        {% else %}
+                            {% if LANGUAGE_CODE == 'ar' %}تحديد شائع{% else %}Mark Popular{% endif %}
+                        {% endif %}
+                    </a>
+                </div>
+
+                <div class="flex gap-3">
+                    <a href="{% url 'view_service_packages' package.service.id %}"
+                       class="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 font-medium">
+                        {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                    </a>
+                    <button type="submit"
+                            class="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg flex items-center gap-2">
+                        <i class="bi bi-save"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}حفظ التعديلات{% else %}Save Changes{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const previewSection = document.getElementById('preview-section');
+
+    // Update preview function
+    function updatePreview() {
+        const title = document.getElementById('id_title').value || '{{ package.title }}';
+        const description = document.getElementById('id_description').value || '{{ package.description }}';
+        const duration = document.getElementById('id_duration_days').value || {{ package.duration_days }};
+        const sessionsWeek = document.getElementById('id_sessions_per_week').value || {{ package.sessions_per_week }};
+        const totalSessions = document.getElementById('id_total_sessions').value || {{ package.total_sessions }};
+        const originalPrice = document.getElementById('id_original_price').value || {{ package.original_price }};
+        const discountedPrice = document.getElementById('id_discounted_price').value;
+        const features = document.getElementById('id_features').value;
+        const isPopular = document.getElementById('id_is_popular').checked;
+        const currency = '{{ currency }}';
+
+        // Always show preview
+        previewSection.style.display = 'block';
+
+        // Update basic info
+        document.getElementById('preview-title').textContent = title || '{% if LANGUAGE_CODE == "ar" %}عنوان الباقة{% else %}Package Title{% endif %}';
+        document.getElementById('preview-description').textContent = description ?
+            (description.length > 80 ? description.substring(0, 80) + '...' : description) :
+            '{% if LANGUAGE_CODE == "ar" %}وصف الباقة{% else %}Package description{% endif %}';
+        document.getElementById('preview-duration-badge').textContent = duration + ' {% if LANGUAGE_CODE == "ar" %}يوم{% else %}Days{% endif %}';
+        document.getElementById('preview-sessions-week').textContent = sessionsWeek;
+        document.getElementById('preview-total-sessions').textContent = totalSessions;
+
+        // Update pricing
+        const pricingDiv = document.getElementById('preview-pricing');
+        const effectivePrice = discountedPrice && discountedPrice < originalPrice ? discountedPrice : originalPrice;
+
+        if (discountedPrice && discountedPrice < originalPrice) {
+            const discount = ((originalPrice - discountedPrice) / originalPrice * 100).toFixed(1);
+            pricingDiv.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-gray-400">{% if LANGUAGE_CODE == "ar" %}السعر الأصلي:{% else %}Original:{% endif %}</span>
+                    <span class="line-through text-gray-500 text-sm">${originalPrice} ${currency}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-gray-400">{% if LANGUAGE_CODE == "ar" %}السعر المخفض:{% else %}Discounted:{% endif %}</span>
+                    <span class="text-green-600 dark:text-green-400 font-bold text-lg">${discountedPrice} ${currency}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-gray-400">{% if LANGUAGE_CODE == "ar" %}وفر:{% else %}You Save:{% endif %}</span>
+                    <span class="text-red-600 dark:text-red-400 font-semibold">
+                        ${discount}% (${(originalPrice - discountedPrice).toFixed(2)} ${currency})
+                    </span>
+                </div>
+            `;
+
+            // Update discount calculator
+            document.getElementById('discount-percentage').textContent = discount + '%';
+            document.getElementById('discount-amount').textContent = (originalPrice - discountedPrice).toFixed(2) + ' ' + currency;
+        } else {
+            pricingDiv.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-gray-400">{% if LANGUAGE_CODE == "ar" %}السعر:{% else %}Price:{% endif %}</span>
+                    <span class="text-gray-800 dark:text-white font-bold text-lg">${originalPrice} ${currency}</span>
+                </div>
+            `;
+
+            // Reset discount calculator
+            document.getElementById('discount-percentage').textContent = '0%';
+            document.getElementById('discount-amount').textContent = '0 ' + currency;
+        }
+
+        // Update price per session
+        const pricePerSession = totalSessions > 0 ? (effectivePrice / totalSessions).toFixed(2) : effectivePrice;
+        document.getElementById('preview-price-session').textContent = pricePerSession + ' ' + currency;
+
+        // Update features
+        const featuresDiv = document.getElementById('preview-features');
+        const featuresCount = document.getElementById('preview-features-count');
+        if (features) {
+            const featuresArray = features.split('\n').filter(f => f.trim());
+            featuresCount.textContent = '(' + featuresArray.length + ')';
+
+            if (featuresArray.length > 0) {
+                let featuresHtml = '<div class="space-y-2">';
+                featuresArray.slice(0, 5).forEach(feature => {
+                    featuresHtml += `
+                        <div class="flex items-start gap-2">
+                            <i class="bi bi-check-circle text-green-500 mt-0.5"></i>
+                            <span>${feature.trim()}</span>
+                        </div>
+                    `;
+                });
+
+                if (featuresArray.length > 5) {
+                    featuresHtml += `<div class="text-gray-500 text-sm">
+                        + ${featuresArray.length - 5} {% if LANGUAGE_CODE == "ar" %}ميزات أخرى{% else %}more features{% endif %}
+                    </div>`;
+                }
+
+                featuresHtml += '</div>';
+                featuresDiv.innerHTML = featuresHtml;
+            } else {
+                featuresDiv.innerHTML = '<p class="text-gray-500 italic">{% if LANGUAGE_CODE == "ar" %}لا توجد مميزات محددة{% else %}No features specified{% endif %}</p>';
+                featuresCount.textContent = '(0)';
+            }
+        } else {
+            featuresDiv.innerHTML = '<p class="text-gray-500 italic">{% if LANGUAGE_CODE == "ar" %}لا توجد مميزات محددة{% else %}No features specified{% endif %}</p>';
+            featuresCount.textContent = '(0)';
+        }
+
+        // Update features count in form
+        document.getElementById('features-count').textContent =
+            (features ? features.split('\n').filter(f => f.trim()).length : 0) +
+            ' {% if LANGUAGE_CODE == "ar" %}ميزات{% else %}features{% endif %}';
+
+        // Update popular badge preview
+        if (isPopular) {
+            document.getElementById('preview-title').innerHTML = `
+                ${title || '{% if LANGUAGE_CODE == "ar" %}عنوان الباقة{% else %}Package Title{% endif %}'}
+                <span class="ml-2 px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 text-xs rounded-full">
+                    <i class="bi bi-star-fill mr-1"></i>{% if LANGUAGE_CODE == "ar" %}الأكثر شيوعاً{% else %}Most Popular{% endif %}
+                </span>
+            `;
+        }
+    }
+
+    // Add event listeners to form inputs
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.addEventListener('input', updatePreview);
+        input.addEventListener('change', updatePreview);
+    });
+
+    // Add validation for discounted price
+    const discountedPriceInput = document.getElementById('id_discounted_price');
+    const originalPriceInput = document.getElementById('id_original_price');
+
+    function validateDiscount() {
+        const discounted = parseFloat(discountedPriceInput.value);
+        const original = parseFloat(originalPriceInput.value);
+
+        if (!isNaN(discounted) && !isNaN(original)) {
+            if (discounted >= original) {
+                discountedPriceInput.style.borderColor = '#ef4444';
+                discountedPriceInput.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.2)';
+            } else {
+                discountedPriceInput.style.borderColor = '';
+                discountedPriceInput.style.boxShadow = '';
+            }
+        }
+    }
+
+    if (discountedPriceInput) {
+        discountedPriceInput.addEventListener('input', validateDiscount);
+    }
+    if (originalPriceInput) {
+        originalPriceInput.addEventListener('input', validateDiscount);
+    }
+
+    // Initialize preview
+    updatePreview();
+});
+</script>
+
+<style>
+/* Form styling */
+#id_title, #id_description, #id_duration_days, #id_sessions_per_week,
+#id_total_sessions, #id_original_price, #id_discounted_price, #id_features {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+    background-color: #f8fafc;
+    color: #1f2937;
+    font-size: 0.875rem;
+}
+
+.dark #id_title, .dark #id_description, .dark #id_duration_days,
+.dark #id_sessions_per_week, .dark #id_total_sessions,
+.dark #id_original_price, .dark #id_discounted_price,
+.dark #id_features {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+}
+
+#id_original_price, #id_discounted_price {
+    padding-left: 2.5rem;
+}
+
+#id_description, #id_features {
+    min-height: 100px;
+    resize: vertical;
+}
+
+#id_is_popular, #id_is_active {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+}
+
+.dark #id_is_popular, .dark #id_is_active {
+    border-color: #4b5563;
+}
+
+#id_is_popular:checked, #id_is_active:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* Focus states */
+#id_title:focus, #id_description:focus, #id_duration_days:focus,
+#id_sessions_per_week:focus, #id_total_sessions:focus,
+#id_original_price:focus, #id_discounted_price:focus,
+#id_features:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    background-color: white;
+}
+
+.dark #id_title:focus, .dark #id_description:focus, .dark #id_duration_days:focus,
+.dark #id_sessions_per_week:focus, .dark #id_total_sessions:focus,
+.dark #id_original_price:focus, .dark #id_discounted_price:focus,
+.dark #id_features:focus {
+    background-color: #1f2937;
+}
+
+/* Error states */
+input:invalid, textarea:invalid {
+    border-color: #ef4444;
+}
+
+/* Preview styling */
+#preview-section {
+    transition: all 0.3s ease;
+}
+
+#preview-pricing .line-through {
+    text-decoration-color: #9ca3af;
+}
+
+/* Animation for updates */
+@keyframes highlight {
+    0% { background-color: rgba(59, 130, 246, 0.1); }
+    100% { background-color: transparent; }
+}
+
+.highlight {
+    animation: highlight 1s ease;
+}
+</style>
+{% endblock %}

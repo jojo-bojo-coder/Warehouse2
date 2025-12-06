@@ -3,314 +3,339 @@
 
 {% block content %}
 <style>
-    /* Button Effects */
-    .btn-gradient {
-        background-size: 200% auto;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
+  /* Animation Classes */
+  .animate-float {
+      animation: float 4s ease-in-out infinite;
+  }
 
-    .btn-gradient:hover {
-        background-position: right center;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    }
+  .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+  }
 
-    /* Table Row Effects */
-    .table-row:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    }
+  .animate-fadeInUp {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+  }
 
-    /* Dark mode table row hover */
-    .dark .table-row:hover {
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-    }
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+  }
 
-    /* Background Animation */
-    .animated-bg {
-        animation: gradientBG 15s ease infinite;
-        background-size: 300% 300%;
-    }
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
 
-    @keyframes gradientBG {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
 
-    /* Search Box Styles */
-    .search-container {
-        position: relative;
-        max-width: 300px;
-    }
+  /* Button Effects */
+  .btn-gradient {
+      background-size: 200% auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
 
-    .search-input {
-        padding-left: 40px;
-        padding-right: 12px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        height: 40px;
-        width: 300px;
-        transition: all 0.3s;
-    }
+  .btn-gradient:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
 
-    .dark .search-input {
-        background-color: #374151;
-        border-color: #4b5563;
-        color: #f3f4f6;
-    }
+  /* Table Row Effects */
+  .table-row:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  }
 
-    .search-input:focus {
-        outline: none;
-        border-color: #6366f1;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-    }
+  /* Dark mode table row hover */
+  .dark .table-row:hover {
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  }
 
-    .dark .search-input:focus {
-        border-color: #818cf8;
-        box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.3);
-    }
+  /* Search Box Styles */
+  .search-container {
+      position: relative;
+      max-width: 300px;
+  }
 
-    .search-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #64748b;
-    }
+  .search-input {
+      padding-left: 40px;
+      padding-right: 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      height: 40px;
+      width: 300px;
+      transition: all 0.3s;
+  }
 
-    .dark .search-icon {
-        color: #9ca3af;
-    }
+  .dark .search-input {
+      background-color: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+  }
 
-    /* Dark mode modal styles */
-    .dark #orderModalBox,
-    .dark #cancellationModalBox {
-        background-color: #1f2937;
-        border-color: #374151;
-    }
+  .search-input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
 
-    .dark #orderDetailsModal h3,
-    .dark #cancellationModal h3 {
-        color: #f3f4f6;
-    }
+  .dark .search-input:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.3);
+  }
 
-    .dark #closeModal,
-    .dark #closeCancellationModal {
-        color: #9ca3af;
-    }
+  .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+  }
 
-    .dark #closeModal:hover,
-    .dark #closeCancellationModal:hover {
-        color: #d1d5db;
-    }
+  .dark .search-icon {
+      color: #9ca3af;
+  }
 
-    /* Dark mode table styles */
-    .dark table {
-        background-color: #1f2937;
-        border-color: #374151;
-    }
+  /* Dark mode modal styles */
+  .dark #orderModalBox,
+  .dark #cancellationModalBox {
+      background-color: #1f2937;
+      border-color: #374151;
+  }
 
-    .dark thead {
-        background-color: #111827;
-    }
+  .dark #orderDetailsModal h3,
+  .dark #cancellationModal h3 {
+      color: #f3f4f6;
+  }
 
-    .dark thead th {
-        color: #e5e7eb;
-    }
+  .dark #closeModal,
+  .dark #closeCancellationModal {
+      color: #9ca3af;
+  }
 
-    .dark tbody tr {
-        background-color: #1f2937;
-        border-color: #374151;
-    }
+  .dark #closeModal:hover,
+  .dark #closeCancellationModal:hover {
+      color: #d1d5db;
+  }
 
-    .dark tbody tr:hover {
-        background-color: #374151;
-    }
+  /* Dark mode table styles */
+  .dark table {
+      background-color: #1f2937;
+      border-color: #374151;
+  }
 
-    .dark tbody td {
-        color: #e5e7eb;
-    }
+  .dark thead {
+      background-color: #111827;
+  }
 
-    /* Dark mode status badges */
-    .dark .bg-blue-100 { background-color: #1e3a8a; }
-    .dark .text-blue-800 { color: #bfdbfe; }
-    .dark .bg-green-100 { background-color: #166534; }
-    .dark .text-green-800 { color: #bbf7d0; }
-    .dark .bg-yellow-100 { background-color: #854d0e; }
-    .dark .text-yellow-800 { color: #fef08a; }
-    .dark .bg-purple-100 { background-color: #5b21b6; }
-    .dark .text-purple-800 { color: #ddd6fe; }
-    .dark .bg-red-100 { background-color: #991b1b; }
-    .dark .text-red-800 { color: #fecaca; }
+  .dark thead th {
+      color: #e5e7eb;
+  }
 
-    /* Dark mode empty state */
-    .dark .text-gray-500 {
-        color: #9ca3af;
-    }
+  .dark tbody tr {
+      background-color: #1f2937;
+      border-color: #374151;
+  }
 
-    /* Dark mode buttons */
-    .dark .bg-gray-200 {
-        background-color: #374151;
-    }
+  .dark tbody tr:hover {
+      background-color: #374151;
+  }
 
-    .dark .text-gray-600 {
-        color: #d1d5db;
-    }
+  .dark tbody td {
+      color: #e5e7eb;
+  }
 
-    .dark .hover\:bg-gray-300:hover {
-        background-color: #4b5563;
-    }
+  /* Dark mode status badges */
+  .dark .bg-blue-100 { background-color: #1e3a8a; }
+  .dark .text-blue-800 { color: #bfdbfe; }
+  .dark .bg-green-100 { background-color: #166534; }
+  .dark .text-green-800 { color: #bbf7d0; }
+  .dark .bg-yellow-100 { background-color: #854d0e; }
+  .dark .text-yellow-800 { color: #fef08a; }
+  .dark .bg-purple-100 { background-color: #5b21b6; }
+  .dark .text-purple-800 { color: #ddd6fe; }
+  .dark .bg-red-100 { background-color: #991b1b; }
+  .dark .text-red-800 { color: #fecaca; }
+
+  /* Dark mode empty state */
+  .dark .text-gray-500 {
+      color: #9ca3af;
+  }
+
+  /* Dark mode buttons */
+  .dark .bg-gray-200 {
+      background-color: #374151;
+  }
+
+  .dark .text-gray-600 {
+      color: #d1d5db;
+  }
+
+  .dark .hover\:bg-gray-300:hover {
+      background-color: #4b5563;
+  }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 ">
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
     <!-- Header Section -->
-    <div class="flex flex-col items-{% if LANGUAGE_CODE == 'ar' %}start{% else %}start{% endif %} py-8 gap-2 animate-fadeIn">
-        <div class="flex flex-wrap justify-between items-center w-full gap-4">
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2 animate-fadeInUp">
-                <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300 animate-float">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+    <div class="py-8">
+        <div class="flex flex-col items-{% if LANGUAGE_CODE == 'ar' %}start{% else %}start{% endif %} gap-4">
+            <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2 flex items-center gap-3 animate-[fadeIn_0.6s_ease-out_0.1s_both]">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
                         <path d="M7 12h2v5H7v-5zm4-7h2v12h-2V5zm4 4h2v8h-2v-8z"/>
                     </svg>
                 </div>
                 {% if LANGUAGE_CODE == 'ar' %}إدارة الطلبات{% else %}Order Management{% endif %}
-            </h2>
+            </h1>
 
-            <!-- Search Box -->
-            <div class="search-container animate-fadeInUp">
-                <div class="relative">
-                    <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                    <input type="text" id="orderSearch" class="search-input" placeholder="{% if LANGUAGE_CODE == 'ar' %}ابحث برقم الطلب أو اسم العميل...{% else %}Search by order ID or customer...{% endif %}">
+            <div class="flex flex-wrap justify-between items-center w-full gap-4">
+                <!-- Search Box -->
+                <div class="search-container animate-[fadeIn_0.6s_ease-out_0.2s_both]">
+                    <div class="relative">
+                        <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input type="text" id="orderSearch" class="search-input" placeholder="{% if LANGUAGE_CODE == 'ar' %}ابحث برقم الطلب أو اسم العميل...{% else %}Search by order ID or customer...{% endif %}">
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Update the filter buttons section -->
-        <div class="flex flex-wrap gap-2 animate-stagger">
-            <a href="{% url 'club_orders' %}?status=all" class="btn-gradient bg-gradient-to-r {% if status_filter == 'all' %}from-blue-500 to-blue-600{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                {% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}
-            </a>
-            <a href="{% url 'club_orders' %}?status=delivered" class="btn-gradient bg-gradient-to-r {% if status_filter == 'delivered' %}from-yellow-500 to-yellow-600{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                {% if LANGUAGE_CODE == 'ar' %}تم التسليم{% else %}Delivered{% endif %}
-            </a>
-            <a href="{% url 'club_orders' %}?status=confirmed" class="btn-gradient bg-gradient-to-r {% if status_filter == 'confirmed' %}from-purple-500 to-purple-600{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                {% if LANGUAGE_CODE == 'ar' %}تم التأكيد{% else %}Confirmed{% endif %}
-            </a>
-            <a href="{% url 'club_orders' %}?status=completed" class="btn-gradient bg-gradient-to-r {% if status_filter == 'completed' %}from-green-500 to-green-600{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                {% if LANGUAGE_CODE == 'ar' %}مكتمل{% else %}Completed{% endif %}
-            </a>
-            <a href="{% url 'club_orders' %}?status=cancelled" class="btn-gradient bg-gradient-to-r {% if status_filter == 'cancelled' %}from-red-500 to-red-600{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                {% if LANGUAGE_CODE == 'ar' %}ملغي{% else %}Cancelled{% endif %}
-            </a>
+            <!-- Filter buttons -->
+            <div class="flex flex-wrap gap-2 animate-[fadeIn_0.6s_ease-out_0.3s_both]">
+                <a href="{% url 'club_orders' %}?status=all" class="btn-gradient bg-gradient-to-r {% if status_filter == 'all' %}from-blue-500 to-indigo-500{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                    {% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}
+                </a>
+                <a href="{% url 'club_orders' %}?status=delivered" class="btn-gradient bg-gradient-to-r {% if status_filter == 'delivered' %}from-yellow-500 to-amber-500{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                    {% if LANGUAGE_CODE == 'ar' %}تم التسليم{% else %}Delivered{% endif %}
+                </a>
+                <a href="{% url 'club_orders' %}?status=confirmed" class="btn-gradient bg-gradient-to-r {% if status_filter == 'confirmed' %}from-purple-500 to-indigo-500{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                    {% if LANGUAGE_CODE == 'ar' %}تم التأكيد{% else %}Confirmed{% endif %}
+                </a>
+                <a href="{% url 'club_orders' %}?status=completed" class="btn-gradient bg-gradient-to-r {% if status_filter == 'completed' %}from-green-500 to-emerald-500{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                    {% if LANGUAGE_CODE == 'ar' %}مكتمل{% else %}Completed{% endif %}
+                </a>
+                <a href="{% url 'club_orders' %}?status=cancelled" class="btn-gradient bg-gradient-to-r {% if status_filter == 'cancelled' %}from-red-500 to-pink-500{% else %}from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600{% endif %} text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                    {% if LANGUAGE_CODE == 'ar' %}ملغي{% else %}Cancelled{% endif %}
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Orders Table -->
     {% if orders %}
-    <div class="overflow-x-auto animate-fadeInUp">
-        <table class="min-w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700" id="ordersTable">
-            <thead class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm">
-            <tr>
-                <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}</th>
-                <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Customer{% endif %}</th>
-                <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}المبلغ{% else %}Amount{% endif %}</th>
-                <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}طريقة الدفع{% else %}Payment Method{% endif %}</th>
-                <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
-                <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</th>
-                <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
-            </tr>
-            </thead>
-            <tbody class="text-gray-700 dark:text-gray-300 text-sm">
-            {% for order in orders %}
-            <tr class="table-row border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-300 animate-[fadeInUp_0.6s_ease-out_{{ forloop.counter|add:0.1 }}s_both]" data-order-id="{{ order.id }}" data-customer-name="{{ order.first_name }} {{ order.last_name }}">
-                <td class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-medium">#{{ order.id }}</td>
-                <td class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{{ order.first_name }} {{ order.last_name }}</td>
-                <td class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{{ order.total_price }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
-                <td class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
-                    {% if order.payment_method == 'credit_card' %}
-                    <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-xs">
+    <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-100 dark:border-gray-700">
+        <div class="overflow-x-auto">
+            <table class="min-w-full" id="ordersTable">
+                <thead class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm">
+                <tr>
+                    <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}</th>
+                    <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Customer{% endif %}</th>
+                    <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}المبلغ{% else %}Amount{% endif %}</th>
+                    <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}طريقة الدفع{% else %}Payment Method{% endif %}</th>
+                    <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
+                    <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+                    <th class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
+                </tr>
+                </thead>
+                <tbody class="text-gray-700 dark:text-gray-300 text-sm">
+                {% for order in orders %}
+                <tr class="table-row border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-300 " data-order-id="{{ order.id }}" data-customer-name="{{ order.first_name }} {{ order.last_name }}">
+                    <td class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-medium">#{{ order.id }}</td>
+                    <td class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{{ order.first_name }} {{ order.last_name }}</td>
+                    <td class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} font-semibold">{{ order.total_price }} {{ request.user.userprofile.director_profile.club.vat_settings.currency }}</td>
+                    <td class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                        {% if order.payment_method == 'credit_card' %}
+                        <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-xs">
                             {% if LANGUAGE_CODE == 'ar' %}بطاقة ائتمان{% else %}Credit Card{% endif %}
                         </span>
-                    {% elif order.payment_method == 'cash_on_delivery' %}
-                    <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs">
+                        {% elif order.payment_method == 'cash_on_delivery' %}
+                        <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs">
                             {% if LANGUAGE_CODE == 'ar' %}تحويل بنكي{% else %}Bank transfer{% endif %}
                         </span>
-                    {% endif %}
-                </td>
-                <td class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{{ order.created_at|date:"d M Y" }}</td>
-                <td class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
-                    {% if order.status == 'delivered' %}
-                    <span class="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-3 py-1 rounded-full text-xs">
-                        {% if LANGUAGE_CODE == 'ar' %}تم التسليم{% else %}Delivered{% endif %}
-                    </span>
-                    {% elif order.status == 'confirmed' %}
-                    <span class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-3 py-1 rounded-full text-xs">
-                        {% if LANGUAGE_CODE == 'ar' %}تم التأكيد{% else %}Confirmed{% endif %}
-                    </span>
-                    {% elif order.status == 'cancelled' %}
-                    <span class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-3 py-1 rounded-full text-xs">
-                        {% if LANGUAGE_CODE == 'ar' %}ملغي{% else %}Cancelled{% endif %}
-                    </span>
-                    {% elif order.status == 'completed' %}
-                    <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs">
-                        {% if LANGUAGE_CODE == 'ar' %}مكتمل{% else %}Completed{% endif %}
-                    </span>
-                    {% endif %}
-                </td>
-                <td class="py-3 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
-                    <div class="flex flex-wrap justify-{% if LANGUAGE_CODE == 'ar' %}end{% else %}start{% endif %} gap-2">
-                        <a href="{% url 'order_full_details' order.id %}" class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-md text-xs flex items-center gap-2">
-                            {% if LANGUAGE_CODE == 'ar' %}عرض التفاصيل{% else %}View Details{% endif %}
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
-                        {% if order.status == 'delivered' %}
-                        <button class="confirm-order btn-gradient bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-1 rounded-md text-xs flex items-center gap-2" data-id="{{ order.id }}">
-                            {% if LANGUAGE_CODE == 'ar' %}تأكيد{% else %}Confirm{% endif %}
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </button>
-                        <button class="cancel-order btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-md text-xs flex items-center gap-2" data-id="{{ order.id }}">
-                            {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                        {% elif order.status == 'confirmed' %}
-                        <button class="complete-order btn-gradient bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-md text-xs flex items-center gap-2" data-id="{{ order.id }}">
-                            {% if LANGUAGE_CODE == 'ar' %}تحديث إلى مكتمل{% else %}Mark as Completed{% endif %}
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </button>
-                        <button class="cancel-order btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-md text-xs flex items-center gap-2" data-id="{{ order.id }}">
-                            {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
                         {% endif %}
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                    </td>
+                    <td class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">{{ order.created_at|date:"d M Y" }}</td>
+                    <td class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                        {% if order.status == 'delivered' %}
+                        <span class="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-3 py-1 rounded-full text-xs">
+                            {% if LANGUAGE_CODE == 'ar' %}تم التسليم{% else %}Delivered{% endif %}
+                        </span>
+                        {% elif order.status == 'confirmed' %}
+                        <span class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-3 py-1 rounded-full text-xs">
+                            {% if LANGUAGE_CODE == 'ar' %}تم التأكيد{% else %}Confirmed{% endif %}
+                        </span>
+                        {% elif order.status == 'cancelled' %}
+                        <span class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-3 py-1 rounded-full text-xs">
+                            {% if LANGUAGE_CODE == 'ar' %}ملغي{% else %}Cancelled{% endif %}
+                        </span>
+                        {% elif order.status == 'completed' %}
+                        <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs">
+                            {% if LANGUAGE_CODE == 'ar' %}مكتمل{% else %}Completed{% endif %}
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-6 text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %}">
+                        <div class="flex flex-wrap justify-{% if LANGUAGE_CODE == 'ar' %}end{% else %}start{% endif %} gap-2">
+                            <a href="{% url 'order_full_details' order.id %}" class="btn-gradient bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                                {% if LANGUAGE_CODE == 'ar' %}عرض التفاصيل{% else %}View Details{% endif %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                            {% if order.status == 'delivered' %}
+                            <button class="confirm-order btn-gradient bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2" data-id="{{ order.id }}">
+                                {% if LANGUAGE_CODE == 'ar' %}تأكيد{% else %}Confirm{% endif %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <button class="cancel-order btn-gradient bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2" data-id="{{ order.id }}">
+                                {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                            {% elif order.status == 'confirmed' %}
+                            <button class="complete-order btn-gradient bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2" data-id="{{ order.id }}">
+                                {% if LANGUAGE_CODE == 'ar' %}تحديث إلى مكتمل{% else %}Mark as Completed{% endif %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <button class="cancel-order btn-gradient bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2" data-id="{{ order.id }}">
+                                {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
     {% else %}
-    <div class="text-center py-8 text-gray-500 dark:text-gray-400 animate-fadeInUp">
-        <div class="flex flex-col items-center justify-center">
-            <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <p class="text-lg">
-                {% if LANGUAGE_CODE == 'ar' %}لا توجد طلبات متاحة{% if status_filter != 'all' %} بهذه الحالة{% endif %}{% else %}No orders available{% if status_filter != 'all' %} with this status{% endif %}{% endif %}
-            </p>
+    <div class="animate-[fadeInUp_0.6s_ease-out_0.4s_both] bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+        <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div class="flex flex-col items-center justify-center">
+                <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-lg">
+                    {% if LANGUAGE_CODE == 'ar' %}لا توجد طلبات متاحة{% if status_filter != 'all' %} بهذه الحالة{% endif %}{% else %}No orders available{% if status_filter != 'all' %} with this status{% endif %}{% endif %}
+                </p>
+            </div>
         </div>
     </div>
     {% endif %}
@@ -319,8 +344,13 @@
     <div id="orderDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
         <div id="orderModalBox" class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto scale-95 opacity-0 transition-all duration-300 border border-gray-100 dark:border-gray-700">
             <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+                        <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
                         {% if LANGUAGE_CODE == 'ar' %}تفاصيل الطلب{% else %}Order Details{% endif %}
                         <span id="modalOrderId"></span>
                     </h3>
@@ -346,8 +376,15 @@
     <div id="cancellationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
         <div id="cancellationModalBox" class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full opacity-0 scale-95 transition-all duration-300 border border-gray-100 dark:border-gray-700">
             <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}إلغاء الطلب{% else %}Cancel Order{% endif %}</h3>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+                        <div class="p-2 bg-red-100 dark:bg-red-900 rounded-full text-red-600 dark:text-red-300">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        {% if LANGUAGE_CODE == 'ar' %}إلغاء الطلب{% else %}Cancel Order{% endif %}
+                    </h3>
                     <button id="closeCancellationModal" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-transform hover:scale-110">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -355,14 +392,14 @@
                     </button>
                 </div>
 
-                <div class="mb-4">
-                    <p class="text-gray-600 dark:text-gray-300 mb-4">{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من أنك تريد إلغاء الطلب{% else %}Are you sure you want to cancel order{% endif %} <span id="cancelOrderId" class="font-semibold">#1001</span>?</p>
+                <div class="mb-6">
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من أنك تريد إلغاء الطلب{% else %}Are you sure you want to cancel order{% endif %} <span id="cancelOrderId" class="font-semibold text-gray-800 dark:text-white">#1001</span>?</p>
 
                     <div class="mb-4">
                         <label for="cancellationReason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             {% if LANGUAGE_CODE == 'ar' %}سبب الإلغاء{% else %}Reason for cancellation{% endif %} <span class="text-red-500">*</span>
                         </label>
-                        <select id="cancellationReason" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                        <select id="cancellationReason" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                             <option value="">{% if LANGUAGE_CODE == 'ar' %}اختر السبب{% else %}Select a reason{% endif %}</option>
                             <option value="customer_request">{% if LANGUAGE_CODE == 'ar' %}طلب العميل للإلغاء{% else %}Customer requested cancellation{% endif %}</option>
                             <option value="payment_failed">{% if LANGUAGE_CODE == 'ar' %}فشل الدفع{% else %}Payment failed{% endif %}</option>
@@ -378,22 +415,22 @@
                         <label for="customReason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             {% if LANGUAGE_CODE == 'ar' %}يرجى التوضيح{% else %}Please specify{% endif %}
                         </label>
-                        <textarea id="customReason" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors resize-none bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300" placeholder="{% if LANGUAGE_CODE == 'ar' %}يرجى تقديم المزيد من التفاصيل...{% else %}Please provide more details...{% endif %}"></textarea>
+                        <textarea id="customReason" rows="3" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors resize-none bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300" placeholder="{% if LANGUAGE_CODE == 'ar' %}يرجى تقديم المزيد من التفاصيل...{% else %}Please provide more details...{% endif %}"></textarea>
                     </div>
 
                     <div class="mb-4">
                         <label for="additionalNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             {% if LANGUAGE_CODE == 'ar' %}ملاحظات إضافية (اختيارية){% else %}Additional notes (optional){% endif %}
                         </label>
-                        <textarea id="additionalNotes" rows="2" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors resize-none bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300" placeholder="{% if LANGUAGE_CODE == 'ar' %}أي معلومات إضافية...{% else %}Any additional information...{% endif %}"></textarea>
+                        <textarea id="additionalNotes" rows="2" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors resize-none bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300" placeholder="{% if LANGUAGE_CODE == 'ar' %}أي معلومات إضافية...{% else %}Any additional information...{% endif %}"></textarea>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-3">
-                    <button id="cancelCancellation" class="px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    <button id="cancelCancellation" class="px-6 py-2 text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                         {% if LANGUAGE_CODE == 'ar' %}الاحتفاظ بالطلب{% else %}Keep Order{% endif %}
                     </button>
-                    <button id="confirmCancellation" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button id="confirmCancellation" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         {% if LANGUAGE_CODE == 'ar' %}إلغاء الطلب{% else %}Cancel Order{% endif %}
                     </button>
                 </div>
@@ -750,16 +787,16 @@
         function createReceiptModal() {
             const modalHTML = `
                 <div id="receiptModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl max-h-full overflow-auto">
-                        <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center">
-                            <h3 class="text-lg font-semibold dark:text-white">Transfer Receipt</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl max-w-4xl max-h-full overflow-auto border border-gray-100 dark:border-gray-700">
+                        <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
+                            <h3 class="text-xl font-semibold dark:text-white">Transfer Receipt</h3>
                             <button onclick="closeReceiptModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </button>
                         </div>
-                        <div class="p-4">
+                        <div class="p-6">
                             <img id="receiptImage" src="" alt="Transfer Receipt" class="max-w-full h-auto rounded-lg shadow-lg">
                         </div>
                     </div>

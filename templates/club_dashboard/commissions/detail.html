@@ -1,85 +1,74 @@
 {% extends "base_club_dashboard.html" %}
+{% load custom_filters %}
 {% block content %}
 <style>
-  /* Dark mode overrides for commission details */
-  .dark .bg-gradient-to-br {
-    background: linear-gradient(to bottom right, var(--tw-gradient-from), var(--tw-gradient-to);
+  /* Animation Classes */
+  .animate-float {
+      animation: float 4s ease-in-out infinite;
   }
-  .dark .from-blue-50 {
-    --tw-gradient-from: #1e293b var(--tw-gradient-from-position);
-    --tw-gradient-to: transparent var(--tw-gradient-to-position);
+
+  .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
   }
-  .dark .to-purple-50 {
-    --tw-gradient-to: #1e1b4b var(--tw-gradient-to-position);
+
+  .animate-fadeInUp {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
   }
-  .dark .bg-white {
-    background-color: #1f2937;
+
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
   }
-  .dark .bg-white\/90 {
-    background-color: rgba(31, 41, 55, 0.9);
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
   }
-  .dark .text-gray-800 {
-    color: #f3f4f6;
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
   }
-  .dark .text-gray-500 {
-    color: #9ca3af;
+
+  /* Button Effects */
+  .btn-gradient {
+      background-size: 200% auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
-  .dark .text-gray-700 {
-    color: #d1d5db;
+
+  .btn-gradient:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   }
-  .dark .border-gray-200 {
-    border-color: #374151;
+
+  /* Dark mode toggle styles */
+  .toggle-checkbox:checked {
+    border-color: #68D391;
+    transform: translateX(100%);
   }
-  .dark .bg-gray-50 {
-    background-color: #374151;
+  .toggle-checkbox:checked + .toggle-label {
+    background-color: #4B5563;
   }
-  .dark .hover\:bg-gray-50:hover {
-    background-color: #374151;
+
+  .toggle-checkbox {
+    left: 0;
+    transition: all 0.3s ease-in-out;
   }
-  .dark .text-blue-600 {
-    color: #93c5fd;
-  }
-  .dark .hover\:text-blue-800:hover {
-    color: #bfdbfe;
-  }
-  .dark .bg-blue-100 {
-    background-color: #1e3a8a;
-  }
-  .dark .text-blue-600 {
-    color: #93c5fd;
-  }
-  .dark .bg-green-100 {
-    background-color: #166534;
-  }
-  .dark .text-green-800 {
-    color: #bbf7d0;
-  }
-  .dark .bg-red-100 {
-    background-color: #991b1b;
-  }
-  .dark .text-red-800 {
-    color: #fecaca;
-  }
-  .dark .bg-amber-500 {
-    background-color: #b45309;
-  }
-  .dark .hover\:bg-amber-600:hover {
-    background-color: #92400e;
-  }
-  .dark .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-  }
-  .dark .border-b {
-    border-bottom-color: #374151;
+  .toggle-label {
+    transition: background-color 0.3s ease-in-out;
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gradient-to-br from-blue-50 to-purple-50 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden  dark:from-gray-800 dark:to-gray-900">
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
     <!-- Title and back button -->
     <div class="flex justify-between items-center py-8">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+        <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2 flex items-center gap-3">
+            <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
             </div>
@@ -87,73 +76,141 @@
         </h1>
         <a href="{% url 'commission_list' %}" class="group bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm px-4 py-2 rounded-lg text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-600 font-medium flex items-center transition-all duration-300 shadow-md hover:shadow-lg border border-blue-200 dark:border-gray-600">
             {% if LANGUAGE_CODE == 'ar' %} العودة إلى القائمة {% else %} Back to List {% endif %}
-            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
         </a>
     </div>
 
+    <!-- Commission Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Commission Rate Card -->
+        <div class="animate-[fadeInUp_0.6s_ease-out_0.1s_both] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-blue-100">{% if LANGUAGE_CODE == 'ar' %}نسبة العمولة{% else %}Commission Rate{% endif %}</h2>
+                <div class="p-3 rounded-full bg-blue-400/20">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex justify-center items-center h-24">
+                <p class="text-5xl font-bold">{{ commission.commission_rate }}%</p>
+            </div>
+        </div>
+
+        <!-- Status Card -->
+        <div class="animate-[fadeInUp_0.6s_ease-out_0.2s_both] bg-gradient-to-r
+            {% if commission.is_active %}from-green-500 to-emerald-500{% else %}from-red-500 to-orange-500{% endif %}
+            rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold
+                    {% if commission.is_active %}text-green-100{% else %}text-red-100{% endif %}">
+                    {% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}
+                </h2>
+                <div class="p-3 rounded-full
+                    {% if commission.is_active %}bg-green-400/20{% else %}bg-red-400/20{% endif %}">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        {% if commission.is_active %}
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        {% else %}
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        {% endif %}
+                    </svg>
+                </div>
+            </div>
+            <div class="flex justify-center items-center h-24">
+                <p class="text-3xl font-bold text-center">
+                    {% if commission.is_active %}
+                        {% if LANGUAGE_CODE == 'ar' %}نشط{% else %}Active{% endif %}
+                    {% else %}
+                        {% if LANGUAGE_CODE == 'ar' %}غير نشط{% else %}Inactive{% endif %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Type Specific Card -->
+        <div class="animate-[fadeInUp_0.6s_ease-out_0.3s_both] bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-purple-100">
+                    {% if commission.commission_type == 'vendor' %}
+                        {% if LANGUAGE_CODE == 'ar' %}البائعين المخصصين{% else %}Assigned Vendors{% endif %}
+                    {% else %}
+                        {% if LANGUAGE_CODE == 'ar' %}الأيام المتبقية{% else %}Days Remaining{% endif %}
+                    {% endif %}
+                </h2>
+                <div class="p-3 rounded-full bg-purple-400/20">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        {% if commission.commission_type == 'vendor' %}
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                        {% else %}
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                        {% endif %}
+                    </svg>
+                </div>
+            </div>
+            <div class="flex justify-center items-center h-24">
+                <p class="text-5xl font-bold">
+                    {% if commission.commission_type == 'vendor' %}
+                        {{ assigned_vendors.count }}
+                    {% else %}
+                        {{ commission.end_date|timeuntil:commission.start_date|split:","|first }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Commission Details Card -->
-    <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg max-w-3xl mx-auto dark:bg-gray-800/90 dark:border dark:border-gray-700">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Basic Info -->
+    <div class="animate-[fadeIn_0.8s_ease-out_0.5s_both] bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 mb-8 border border-gray-100 dark:border-gray-700">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Basic Information -->
             <div>
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 border-b pb-2 dark:border-gray-700">
+                <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
+                    <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
                     {% if LANGUAGE_CODE == 'ar' %}المعلومات الأساسية{% else %}Basic Information{% endif %}
                 </h2>
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}الوصف{% else %}Commission Name{% endif %}</p>
-                        <p class="font-medium dark:text-gray-300">{{ commission.name }}</p>
+                <div class="space-y-6">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}الوصف{% else %}Commission Name{% endif %}</p>
+                        <p class="text-lg font-semibold text-gray-800 dark:text-white">{{ commission.name }}</p>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}نوع العمولة{% else %}Commission Type{% endif %}</p>
-                        <p class="font-medium dark:text-gray-300">{{ commission.get_commission_type_display }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}نسبة العمولة{% else %}Commission Rate{% endif %}</p>
-                        <p class="font-medium text-blue-600 dark:text-blue-400">{{ commission.commission_rate }}%</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</p>
-                        <span class="px-2 py-1 text-xs rounded-full bg-{% if commission.is_active %}green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% else %}red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
-                            {% if commission.is_active %}
-                                {% if LANGUAGE_CODE == 'ar' %}نشط{% else %}Active{% endif %}
-                            {% else %}
-                                {% if LANGUAGE_CODE == 'ar' %}غير نشط{% else %}Inactive{% endif %}
-                            {% endif %}
-                        </span>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}نوع العمولة{% else %}Commission Type{% endif %}</p>
+                        <p class="text-lg font-semibold text-gray-800 dark:text-white">{{ commission.get_commission_type_display }}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Type-Specific Info -->
+            <!-- Type-Specific Details -->
             <div>
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 border-b pb-2 dark:border-gray-700">
+                <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
+                    <div class="p-2 bg-green-100 dark:bg-green-900 rounded-full text-green-600 dark:text-green-300">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
                     {% if LANGUAGE_CODE == 'ar' %}تفاصيل إضافية{% else %}Additional Details{% endif %}
                 </h2>
-                <div class="space-y-4">
+                <div class="space-y-6">
                     {% if commission.commission_type == 'vendor' %}
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}تصنيف البائع{% else %}Vendor Classification{% endif %}</p>
-                        <p class="font-medium dark:text-gray-300">{{ commission.vendor_classification }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}عدد البائعين المخصصين{% else %}Assigned Vendors{% endif %}</p>
-                        <p class="font-medium dark:text-gray-300">{{ assigned_vendors.count }}</p>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}تصنيف البائع{% else %}Vendor Classification{% endif %}</p>
+                        <p class="text-lg font-semibold text-gray-800 dark:text-white">{{ commission.vendor_classification|capfirst }}</p>
                     </div>
                     {% else %}
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}تاريخ البداية{% else %}Start Date{% endif %}</p>
-                        <p class="font-medium dark:text-gray-300">{{ commission.start_date }}</p>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}تاريخ البداية{% else %}Start Date{% endif %}</p>
+                        <p class="text-lg font-semibold text-gray-800 dark:text-white">{{ commission.start_date }}</p>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}تاريخ النهاية{% else %}End Date{% endif %}</p>
-                        <p class="font-medium dark:text-gray-300">{{ commission.end_date }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{% if LANGUAGE_CODE == 'ar' %}عدد الأيام المتبقية{% else %}Days Remaining{% endif %}</p>
-                        <p class="font-medium dark:text-gray-300">{{ commission.end_date|timeuntil:commission.start_date }}</p>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{% if LANGUAGE_CODE == 'ar' %}تاريخ النهاية{% else %}End Date{% endif %}</p>
+                        <p class="text-lg font-semibold text-gray-800 dark:text-white">{{ commission.end_date }}</p>
                     </div>
                     {% endif %}
                 </div>
@@ -162,25 +219,36 @@
 
         <!-- Assigned Vendors Section (for vendor commissions) -->
         {% if commission.commission_type == 'vendor' and assigned_vendors %}
-        <div class="mt-8">
-            <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 border-b pb-2 dark:border-gray-700">
+        <div class="mt-12">
+            <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
+                <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-full text-purple-600 dark:text-purple-300">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                    </svg>
+                </div>
                 {% if LANGUAGE_CODE == 'ar' %}البائعين المخصصين{% else %}Assigned Vendors{% endif %}
             </h2>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-gray-700 dark:text-gray-300">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left">{% if LANGUAGE_CODE == 'ar' %}اسم البائع{% else %}Vendor Name{% endif %}</th>
-                        <th scope="col" class="px-6 py-3 text-left">{% if LANGUAGE_CODE == 'ar' %}نوع النشاط{% else %}Activity Type{% endif %}</th>
-                        <th scope="col" class="px-6 py-3 text-left">{% if LANGUAGE_CODE == 'ar' %}تاريخ التخصيص{% else %}Assignment Date{% endif %}</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {% if LANGUAGE_CODE == 'ar' %}اسم البائع{% else %}Vendor Name{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {% if LANGUAGE_CODE == 'ar' %}نوع النشاط{% else %}Activity Type{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {% if LANGUAGE_CODE == 'ar' %}تاريخ التخصيص{% else %}Assignment Date{% endif %}
+                        </th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {% for assignment in assigned_vendors %}
-                    <tr class="bg-white border-b hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                        <td class="px-6 py-4 font-medium dark:text-white">{{ assignment.vendor.full_name }}</td>
-                        <td class="px-6 py-4 dark:text-gray-300">{{ assignment.vendor.get_activity_type_display }}</td>
-                        <td class="px-6 py-4 dark:text-gray-300">{{ assignment.assigned_at|date:"Y-m-d" }}</td>
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ assignment.vendor.full_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ assignment.vendor.activity_type }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ assignment.assigned_at|date:"Y-m-d" }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -191,21 +259,31 @@
 
         <!-- Active Time Period Commissions (for reference) -->
         {% if commission.commission_type == 'time_period' and active_time_commissions %}
-        <div class="mt-8">
-            <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 border-b pb-2 dark:border-gray-700">
+        <div class="mt-12">
+            <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
+                <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full text-yellow-600 dark:text-yellow-300">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
                 {% if LANGUAGE_CODE == 'ar' %}العمولات النشطة حالياً{% else %}Currently Active Commissions{% endif %}
             </h2>
-            <div class="space-y-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {% for active_commission in active_time_commissions %}
                 {% if active_commission.id != commission.id %}
-                <div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center dark:bg-gray-700 dark:border dark:border-gray-600">
-                    <div>
-                        <p class="font-medium dark:text-white">{{ active_commission.name }}</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">{{ active_commission.start_date }} - {{ active_commission.end_date }}</p>
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-semibold text-gray-800 dark:text-white">{{ active_commission.name }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ active_commission.start_date }} - {{ active_commission.end_date }}</p>
+                        </div>
+                        <a href="{% url 'commission_detail' active_commission.id %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1">
+                            {% if LANGUAGE_CODE == 'ar' %}عرض{% else %}View{% endif %}
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
                     </div>
-                    <a href="{% url 'commission_detail' active_commission.id %}" class="text-blue-600 hover:text-blue-800 text-sm dark:text-blue-400 dark:hover:text-blue-300">
-                        {% if LANGUAGE_CODE == 'ar' %}عرض{% else %}View{% endif %}
-                    </a>
                 </div>
                 {% endif %}
                 {% endfor %}
@@ -214,11 +292,14 @@
         {% endif %}
 
         <!-- Action Buttons -->
-        <div class="mt-8 flex justify-end space-x-3">
-            <a href="{% url 'commission_edit' commission.id %}" class="ml-2 px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors dark:bg-amber-600 dark:hover:bg-amber-700">
+        <div class="mt-12 flex justify-end space-x-4 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <a href="{% url 'commission_edit' commission.id %}" class="ml-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 text-white rounded-lg hover:from-yellow-600 hover:to-amber-600 transition-all duration-300 font-medium shadow-sm hover:shadow-md">
                 {% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}
             </a>
-            <button onclick="toggleCommissionStatus({{ commission.id }})" class="px-6 py-2 bg-{% if commission.is_active %}red-500{% else %}green-500{% endif %} text-white rounded-lg hover:bg-{% if commission.is_active %}red-600{% else %}green-600{% endif %} transition-colors dark:bg-{% if commission.is_active %}red-600 hover:bg-red-700{% else %}green-600 hover:bg-green-700{% endif %}">
+            <button onclick="toggleCommissionStatus({{ commission.id }})" class="px-6 py-3 bg-gradient-to-r
+                {% if commission.is_active %}from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600
+                {% else %}from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600{% endif %}
+                text-white rounded-lg transition-all duration-300 font-medium shadow-sm hover:shadow-md">
                 {% if commission.is_active %}
                 {% if LANGUAGE_CODE == 'ar' %}تعطيل{% else %}Deactivate{% endif %}
                 {% else %}
@@ -245,5 +326,40 @@
             }
         });
     }
+
+    // Toggle dark mode - Fixed version
+    function toggleDarkMode() {
+        const html = document.documentElement;
+        const toggle = document.getElementById('toggle');
+
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark');
+            toggle.checked = false;
+            // Store preference in session/cookie instead of localStorage
+            document.cookie = "darkMode=false; path=/; max-age=31536000"; // 1 year
+        } else {
+            html.classList.add('dark');
+            toggle.checked = true;
+            document.cookie = "darkMode=true; path=/; max-age=31536000"; // 1 year
+        }
+    }
+
+    // Check for saved dark mode preference on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get dark mode preference from cookie
+        const darkModeCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('darkMode='));
+
+        const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+
+        // Also check system preference if no cookie exists
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('toggle').checked = true;
+        }
+    });
 </script>
 {% endblock %}

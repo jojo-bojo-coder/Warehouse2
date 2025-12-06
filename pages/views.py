@@ -12,48 +12,53 @@ from django.utils import translation
 BASE_DIR = settings.BASE_DIR
 import os
 from accountant_dashboard.models import Banner
-
-
+from club_dashboard.models import LandingPageContent
+from accounts.models import CoachProfile
 def index(request):
     """
     Load the index page with dynamic data from CMS
     """
     try:
-        # Get club-specific content if available
-        club = None
-        if request.user.is_authenticated and hasattr(request.user, 'userprofile'):
-            if hasattr(request.user.userprofile, 'accountant_profile'):
-                club = request.user.userprofile.accountant_profile.club
-            elif hasattr(request.user.userprofile, 'director_profile'):
-                club = request.user.userprofile.director_profile.club
+        landing_content = LandingPageContent.objects.first()
+    except:
+        landing_content = None
 
-        if club:
-            try:
-                cms_content = club.landing_page_content
-                context = {
-                    "hero_title": cms_content.hero_title,
-                    "hero_subtitle": cms_content.hero_subtitle,
-                    "about_title": cms_content.about_title,
-                    "about_description": cms_content.about_description,
-                    "features_title": cms_content.features_title,
-                    "plans_title": cms_content.plans_title,
-                    "cta_title": cms_content.cta_title,
-                    "cta_description": cms_content.cta_description,
-                }
-            except club.LandingPageContent.DoesNotExist:
-                # Fallback to default content
-                context = get_default_landing_content()
-        else:
-            # For non-logged in users or users without club association
-            context = get_default_landing_content()
+    if landing_content:
+        features = landing_content.features.filter(is_active=True)
+        banners = landing_content.banners.filter(is_active=True)
+        faqs = landing_content.faqs.filter(is_active=True)
+        nav_items = landing_content.nav_items.filter(is_active=True)
+    else:
+        features = []
+        banners = []
+        faqs = []
+        nav_items = []
 
-    except Exception as e:
-        # Fallback to default data if any error occurs
-        context = get_default_landing_content()
+    featured_coaches = CoachProfile.objects.filter(
+        approval_status='approved',
+    ).order_by('-created_at')[:6]
 
-    banners = Banner.objects.all()
-    context['LANGUAGE_CODE'] = translation.get_language()
-    context['banners'] = banners
+    club = ClubsModel.objects.first()
+
+    # Get or create contact info for the club
+    contact_info = None
+    if club:
+        try:
+            contact_info, created = ClubContact.objects.get_or_create(club=club)
+        except:
+            pass
+
+    context = {
+        'landing_content': landing_content,
+        'features': features,
+        'banners': banners,
+        'faqs': faqs,
+        'nav_items': nav_items,
+        'featured_coaches': featured_coaches,
+        'club': club,
+        'contact_info': contact_info,
+        'LANGUAGE_CODE': translation.get_language(),
+    }
     return render(request, 'pages/index.html', context)
 
 
@@ -109,12 +114,49 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import translation
-
+from club_dashboard.models import ClubContact
+from club_dashboard.forms import ClubContactForm
+from .models import ClubSecuritySettings
+from .forms import ClubSecuritySettingsForm
 def ViewClubProfile(request, id):
     user = request.user
     userprofile = UserProfile.objects.get(user=user)
 
     club = ClubsModel.objects.get(id=id)
+
+    security_settings, created = ClubSecuritySettings.objects.get_or_create(
+        club=club,
+        defaults={
+            'enable_otp_verification': True,
+            'enable_recaptcha': True,
+            'otp_method': 'both',
+            'otp_expiry_minutes': 5
+        }
+    )
+
+    security_form = ClubSecuritySettingsForm(instance=security_settings)
+
+    if request.method == 'POST':
+        # Handle security settings update
+        if 'update_security_settings' in request.POST:
+            security_form = ClubSecuritySettingsForm(request.POST, instance=security_settings)
+            if security_form.is_valid():
+                security_form.save()
+                messages.success(request, 'تم تحديث إعدادات الأمان بنجاح!')
+                return redirect('ViewClubProfile', id=club.id)
+
+    contact_info, created = ClubContact.objects.get_or_create()
+
+    if request.method == 'POST':
+        form = ClubContactForm(request.POST, request.FILES, instance=contact_info)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Contact information updated successfully!')
+            return redirect('ViewClubProfile', club_id=club.id)
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ClubContactForm(instance=contact_info)
 
     # Load pricing data from JSON file
     json_file_path = os.path.join(settings.BASE_DIR, 'pages/index.json')
@@ -221,10 +263,14 @@ def ViewClubProfile(request, id):
         'pricing': pricing,
         'current_plan': current_plan,
         'current_subscription': current_subscription,
-        'LANGUAGE_CODE': translation.get_language()
+        'LANGUAGE_CODE': translation.get_language(),
+        'contact_info': contact_info,
+        'security_settings': security_settings,
+        'security_form': security_form,
     }
 
     return render(request, 'accounts/profiles/Club/ViewClubProfile.html', context)
+
 
 
 from django.http import JsonResponse

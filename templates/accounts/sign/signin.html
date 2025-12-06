@@ -6,41 +6,44 @@
     color: #dc3545;
     font-size: 0.875rem;
     margin-top: 0.25rem;
-}
+  }
 </style>
-<div class="flex min-h-screen items-center justify-center bg-indigo-50 px-4 sm:px-6 lg:px-8">
-  <div class="w-full max-w-md space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-black">
-        {% if LANGUAGE_CODE == 'ar' %}
-        مرحبًا بعودتك
-        {% else %}
-        Welcome back
-        {% endif %}
-      </h2>
-      <p class="mt-2 text-center text-sm text-indigo-400">
-        {% if LANGUAGE_CODE == 'ar' %}
-        ليس لديك حساب؟
-        {% else %}
-        Don't have an account?
-        {% endif %}
-        <a
-                href="/auth/signup"
-                class="font-medium text-indigo-600 hover:text-indigo-800"
-        >
+
+<main class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-md">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-slate-900 dark:text-white">
           {% if LANGUAGE_CODE == 'ar' %}
-          إنشاء حساب جديد
+          مرحبًا بعودتك
           {% else %}
-          Sign up
+          Welcome back
           {% endif %}
-        </a>
-      </p>
-    </div>
-    <form class="mt-8 space-y-6" method="post" id="signin-form">
-      {% csrf_token %}
-      <div class="-space-y-px rounded-md shadow-sm">
+        </h2>
+        <p class="mt-2 text-slate-600 dark:text-slate-300">
+          {% if LANGUAGE_CODE == 'ar' %}
+          ليس لديك حساب؟
+          {% else %}
+          Don't have an account?
+          {% endif %}
+          <a href="/auth/signup" class="font-medium text-blue-500 hover:text-blue-600 transition duration-300">
+            {% if LANGUAGE_CODE == 'ar' %}
+            إنشاء حساب جديد
+            {% else %}
+            Sign up
+            {% endif %}
+          </a>
+        </p>
+      </div>
+
+      <!-- Form -->
+      <form class="space-y-6" method="post" id="signin-form">
+        {% csrf_token %}
+
+        <!-- Email Field -->
         <div>
-          <label for="email-address" class="sr-only">
+          <label for="email-address" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             {% if LANGUAGE_CODE == 'ar' %}
             البريد الإلكتروني
             {% else %}
@@ -48,16 +51,18 @@
             {% endif %}
           </label>
           <input
-                  id="email-address"
-                  name="email"
-                  type="email"
-                  required
-                  class=" relative block w-full appearance-none rounded-none rounded-t-md border border-indigo-200 px-3 py-2 text-black placeholder-indigo-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                  placeholder="{% if LANGUAGE_CODE == 'ar' %} البريد الإلكتروني أو اسم المستخدم{% else %}Email Address or username{% endif %}"
+            id="email-address"
+            name="email"
+            type="email"
+            required
+            class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+            placeholder="{% if LANGUAGE_CODE == 'ar' %} البريد الإلكتروني أو اسم المستخدم{% else %}Email Address or username{% endif %}"
           />
         </div>
+
+        <!-- Password Field -->
         <div>
-          <label for="password" class="sr-only">
+          <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             {% if LANGUAGE_CODE == 'ar' %}
             كلمة المرور
             {% else %}
@@ -65,24 +70,23 @@
             {% endif %}
           </label>
           <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  class=" relative block w-full appearance-none rounded-none rounded-b-md border border-indigo-200 px-3 py-2 text-black placeholder-indigo-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                  placeholder="{% if LANGUAGE_CODE == 'ar' %}كلمة المرور{% else %}Password{% endif %}"            />
+            id="password"
+            name="password"
+            type="password"
+            required
+            class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+            placeholder="{% if LANGUAGE_CODE == 'ar' %}كلمة المرور{% else %}Password{% endif %}"
+          />
         </div>
-      </div>
 
-      <!-- Add reCAPTCHA widget -->
-      <div class="g-recaptcha" data-sitekey="{{ RECAPTCHA_PUBLIC_KEY }}"></div>
+        {% if show_recaptcha %}
+        <!-- reCAPTCHA -->
+        <div class="g-recaptcha" data-sitekey="{{ RECAPTCHA_PUBLIC_KEY }}"></div>
+        {% endif %}
 
-      <div class="flex items-center justify-center">
-        <div class="text-sm">
-          <a
-                  href="{% url 'forgot_password' %}"
-                  class="font-medium text-indigo-400 hover:text-indigo-300"
-          >
+        <!-- Forgot Password -->
+        <div class="text-center">
+          <a href="{% url 'forgot_password' %}" class="text-sm font-medium text-blue-500 hover:text-blue-600 transition duration-300">
             {% if LANGUAGE_CODE == 'ar' %}
             نسيت كلمة السر؟
             {% else %}
@@ -90,31 +94,37 @@
             {% endif %}
           </a>
         </div>
-      </div>
 
-      <div>
-        <button
-                type="submit"
-                class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        >
-          {% if LANGUAGE_CODE == 'ar' %}
-          تسجيل الدخول
-          {% else %}
-          Sign In
-          {% endif %}
-        </button>
-      </div>
-    </form>
+        <!-- Submit Button -->
+        <div>
+          <button
+            type="submit"
+            class="w-full rounded-full bg-blue-500 px-6 py-3 text-lg font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            {% if LANGUAGE_CODE == 'ar' %}
+            تسجيل الدخول
+            {% else %}
+            Sign In
+            {% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
+</main>
 
-<script>
-document.getElementById('signin-form').addEventListener('submit', function(e) {
-    if(grecaptcha.getResponse() == '') {
-        e.preventDefault();
-        alert('Please complete the reCAPTCHA');
-    }
-});
-</script>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% if show_recaptcha %}
+    <!-- reCAPTCHA -->
+    <div class="g-recaptcha" data-sitekey="{{ RECAPTCHA_PUBLIC_KEY }}"></div>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+    <script>
+    document.getElementById('signin-form').addEventListener('submit', function(e) {
+        if(grecaptcha.getResponse() == '') {
+            e.preventDefault();
+            alert('Please complete the reCAPTCHA');
+        }
+    });
+    </script>
+{% endif %}
 {% endblock content %}

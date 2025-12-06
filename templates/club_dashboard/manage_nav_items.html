@@ -1,0 +1,153 @@
+{% extends "base_club_dashboard.html" %}
+{% load static %}
+{% block content %}
+
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+
+  <!-- Header Section -->
+  <div class="py-8">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
+          {% if LANGUAGE_CODE == 'ar' %}إدارة عناصر التنقل{% else %}Manage Navigation Items{% endif %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          {% if LANGUAGE_CODE == 'ar' %}
+            إضافة وتعديل وحذف عناصر قائمة التنقل
+          {% else %}
+            Add, edit, and delete navigation menu items
+          {% endif %}
+        </p>
+      </div>
+      <a href="{% url 'edit_landing_content' %}" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2">
+        <i class="fas fa-arrow-left"></i>
+        {% if LANGUAGE_CODE == 'ar' %}رجوع{% else %}Back{% endif %}
+      </a>
+    </div>
+  </div>
+
+  <!-- Add New Navigation Item Form -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 mb-8 border border-gray-100 dark:border-gray-700">
+    <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
+      <div class="p-2 bg-teal-100 dark:bg-teal-900 rounded-full text-teal-600 dark:text-teal-300">
+        <i class="fas fa-plus"></i>
+      </div>
+      {% if LANGUAGE_CODE == 'ar' %}إضافة عنصر تنقل جديد{% else %}Add New Navigation Item{% endif %}
+    </h2>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}الاسم (إنجليزي){% else %}Name (English){% endif %}
+          </label>
+          {{ form.name_en }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}الاسم (عربي){% else %}Name (Arabic){% endif %}
+          </label>
+          {{ form.name_ar }}
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}الرابط (Href){% else %}Link (Href){% endif %}
+          </label>
+          {{ form.href }}
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {% if LANGUAGE_CODE == 'ar' %}
+              يمكن أن يكون رابط خارجي (https://example.com) أو رابط داخلي (#section)
+            {% else %}
+              Can be external link (https://example.com) or internal anchor (#section)
+            {% endif %}
+          </p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}الترتيب{% else %}Order{% endif %}
+          </label>
+          {{ form.order }}
+        </div>
+        <div class="flex items-center">
+          {{ form.is_active }}
+          <label class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
+            {% if LANGUAGE_CODE == 'ar' %}نشط{% else %}Active{% endif %}
+          </label>
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button type="submit" class="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-200 flex items-center gap-2">
+          <i class="fas fa-plus"></i>
+          {% if LANGUAGE_CODE == 'ar' %}إضافة عنصر{% else %}Add Item{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Navigation Items List -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+    <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
+      <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+        <i class="fas fa-bars"></i>
+      </div>
+      {% if LANGUAGE_CODE == 'ar' %}عناصر التنقل الحالية{% else %}Current Navigation Items{% endif %}
+    </h2>
+
+    {% if nav_items %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="px-6 py-3">{% if LANGUAGE_CODE == 'ar' %}الترتيب{% else %}Order{% endif %}</th>
+            <th scope="col" class="px-6 py-3">{% if LANGUAGE_CODE == 'ar' %}الاسم (إنجليزي){% else %}Name (English){% endif %}</th>
+            <th scope="col" class="px-6 py-3">{% if LANGUAGE_CODE == 'ar' %}الاسم (عربي){% else %}Name (Arabic){% endif %}</th>
+            <th scope="col" class="px-6 py-3">{% if LANGUAGE_CODE == 'ar' %}الرابط{% else %}Link{% endif %}</th>
+            <th scope="col" class="px-6 py-3">{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+            <th scope="col" class="px-6 py-3">{% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in nav_items %}
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">#{{ item.order }}</td>
+            <td class="px-6 py-4">{{ item.name_en }}</td>
+            <td class="px-6 py-4">{{ item.name_ar }}</td>
+            <td class="px-6 py-4">
+              <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                {{ item.href }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 text-xs font-medium rounded-full {% if item.is_active %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
+                {% if item.is_active %}
+                  {% if LANGUAGE_CODE == 'ar' %}نشط{% else %}Active{% endif %}
+                {% else %}
+                  {% if LANGUAGE_CODE == 'ar' %}غير نشط{% else %}Inactive{% endif %}
+                {% endif %}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <a href="{% url 'delete_nav_item' item.id %}" onclick="return confirm('{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من حذف هذا العنصر؟{% else %}Are you sure you want to delete this item?{% endif %}')" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-200 text-sm flex items-center gap-1">
+                <i class="fas fa-trash text-xs"></i>
+                {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12 text-gray-400 dark:text-gray-500">
+      <i class="fas fa-inbox text-5xl mb-4"></i>
+      <p class="text-lg">
+        {% if LANGUAGE_CODE == 'ar' %}لا توجد عناصر تنقل حالياً{% else %}No navigation items yet{% endif %}
+      </p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}

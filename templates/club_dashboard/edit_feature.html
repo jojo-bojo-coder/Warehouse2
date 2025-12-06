@@ -1,0 +1,105 @@
+{% extends "base_club_dashboard.html" %}
+{% load static %}
+{% block content %}
+
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+
+  <!-- Header Section -->
+  <div class="py-8">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
+          {% if LANGUAGE_CODE == 'ar' %}تعديل الميزة{% else %}Edit Feature{% endif %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          {% if LANGUAGE_CODE == 'ar' %}
+            تعديل تفاصيل ميزة المنصة
+          {% else %}
+            Edit platform feature details
+          {% endif %}
+        </p>
+      </div>
+      <a href="{% url 'manage_features' %}" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2">
+        <i class="fas fa-arrow-left"></i>
+        {% if LANGUAGE_CODE == 'ar' %}رجوع إلى الميزات{% else %}Back to Features{% endif %}
+      </a>
+    </div>
+  </div>
+
+  <!-- Edit Feature Form -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 mb-8 border border-gray-100 dark:border-gray-700">
+    <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
+      <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+        <i class="fas fa-edit"></i>
+      </div>
+      {% if feature %}
+        {% if LANGUAGE_CODE == 'ar' %}تعديل: {{ feature.title_ar }}{% else %}Edit: {{ feature.title_en }}{% endif %}
+      {% else %}
+        {% if LANGUAGE_CODE == 'ar' %}تعديل الميزة{% else %}Edit Feature{% endif %}
+      {% endif %}
+    </h2>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}أيقونة (Font Awesome){% else %}Icon (Font Awesome){% endif %}
+          </label>
+          {{ form.icon }}
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {% if LANGUAGE_CODE == 'ar' %}مثال: fas fa-shopping-cart{% else %}Example: fas fa-shopping-cart{% endif %}
+          </p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}الترتيب{% else %}Order{% endif %}
+          </label>
+          {{ form.order }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}العنوان (إنجليزي){% else %}Title (English){% endif %}
+          </label>
+          {{ form.title_en }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}العنوان (عربي){% else %}Title (Arabic){% endif %}
+          </label>
+          {{ form.title_ar }}
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}الوصف (إنجليزي){% else %}Description (English){% endif %}
+          </label>
+          {{ form.description_en }}
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}الوصف (عربي){% else %}Description (Arabic){% endif %}
+          </label>
+          {{ form.description_ar }}
+        </div>
+        <div class="md:col-span-2 flex items-center">
+          {{ form.is_active }}
+          <label class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
+            {% if LANGUAGE_CODE == 'ar' %}نشط{% else %}Active{% endif %}
+          </label>
+        </div>
+      </div>
+      <div class="flex justify-end gap-4">
+        <a href="{% url 'manage_features' %}" class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+          {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+        </a>
+        <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
+          <i class="fas fa-save"></i>
+          {% if LANGUAGE_CODE == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}

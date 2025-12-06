@@ -24,6 +24,7 @@ from django.utils import timezone
 from django.utils import translation
 from django.contrib import messages
 from django.http import JsonResponse
+import pywhatkit as kit
 import random
 import string
 from datetime import datetime, timedelta
@@ -44,6 +45,53 @@ def get_main_club():
 def generate_otp():
     return str(random.randint(100000, 999999))
 
+
+def send_whatsapp_otp(phone_number, otp_code, user_name):
+    """Send OTP via WhatsApp using pywhatkit"""
+    try:
+        # Clean the phone number - remove all non-digit characters
+        cleaned_number = ''.join(filter(str.isdigit, phone_number))
+
+        # Format the phone number for WhatsApp
+        if cleaned_number.startswith('0'):
+            # Handle local numbers (e.g., Egypt)
+            formatted_number = '+20' + cleaned_number[1:]  # Egyptian country code
+        elif cleaned_number.startswith('966'):
+            # Handle Saudi numbers
+            formatted_number = '+' + cleaned_number
+        elif not cleaned_number.startswith('+'):
+            # Default to Saudi if no country code
+            formatted_number = '+966' + cleaned_number
+
+        # Remove any remaining non-digit characters except +
+        formatted_number = '+' + ''.join(filter(str.isdigit, formatted_number[1:]))
+
+        # Validate the final number length
+        if len(formatted_number) < 10 or len(formatted_number) > 15:
+            return False, "رقم الهاتف غير صالح"
+
+        # Arabic message
+        message = f"""
+🔐 رمز التحقق الخاص بك
+
+مرحباً {user_name}،
+رمز التحقق الخاص بك هو: *{otp_code}*
+
+⏰ صالح لمدة 5 دقائق فقط
+🚫 لا تشارك هذا الرمز مع أي شخص
+
+شكراً لك
+فريق المنصة
+        """
+
+        # Send immediately using pywhatkit
+        now = datetime.now()
+        kit.sendwhatmsg(formatted_number, message, now.hour, now.minute + 1, 15, True, 2)
+
+        return True, "تم إرسال رمز التحقق عبر الواتساب بنجاح"
+
+    except Exception as e:
+        return False, f"خطأ في إرسال رسالة الواتساب: {str(e)}"
 
 
 def send_email_otp(email, otp_code, user_name):
@@ -78,103 +126,232 @@ def send_email_otp(email, otp_code, user_name):
 
 import requests
 from django.conf import settings
+from pages.models import ClubSecuritySettings
+
 def signin(request):
-    """Step 1: Verify email/username & password, then choose OTP method"""
+    """Step 1: Verify email/username & password, then check security settings"""
 
     context = {}
+    context['LANGUAGE_CODE'] = translation.get_language()
+    context['RECAPTCHA_PUBLIC_KEY'] = settings.RECAPTCHA_PUBLIC_KEY
+
+    # Default to showing reCAPTCHA
+    context['show_recaptcha'] = True
+
+    # Check if user is already authenticated
+    if request.user.is_authenticated:
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+            account_type = user_profile.account_type
+
+            # Redirect based on account type
+            if account_type == '1':
+                return redirect('adminIndex')
+            elif account_type == '2':
+                return redirect('club_dashboard_index')
+            elif account_type == '3':
+                return redirect('studentIndex')
+            elif account_type == '4':
+                return redirect('coachIndex')
+            elif account_type == '5':
+                return redirect('receptionistIndex')
+            elif account_type == '7':
+                return redirect('accountant_dashboard')
+            else:
+                return redirect('home')
+        except UserProfile.DoesNotExist:
+            pass
+
     if request.method == 'POST':
-        recaptcha_response = request.POST.get('g-recaptcha-response')
-        data = {
-            'secret': settings.RECAPTCHA_PRIVATE_KEY,
-            'response': recaptcha_response
-        }
-        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-        result = r.json()
+        email_or_username = request.POST.get('email', '').strip().lower()
+        password = request.POST.get('password', '')
 
-        if not result.get('success'):
-            return render(request, 'accounts/sign/signin.html',
-                          {"error": "الرجاء إكمال التحقق من reCAPTCHA."})
-
-
-        email_or_username = request.POST.get('email').strip().lower()
-        password = request.POST.get('password')
-
-        # Try to find user by email first, then by username
+        # Find user by email or username
         user = User.objects.filter(email=email_or_username).first()
         if not user:
             user = User.objects.filter(username=email_or_username).first()
 
-        if user:
-            user = authenticate(username=user.username, password=password)
-            if user:
-                # Check if user is admin (account_type '1') - skip OTP for admin
-                try:
-                    if user.userprofile.account_type == '1':
-                        login(request, user)
-                        return redirect('adminIndex')
-                    elif user.userprofile.account_type == '2':
-                        login(request, user)
-                        return redirect('club_dashboard_index')
-                    elif user.userprofile.account_type == '4':
-                        login(request, user)
-                        return redirect('coachIndex')
-                    elif user.userprofile.account_type == '7':
-                        login(request, user)
-                        return redirect('accountant_dashboard')
-                    elif user.userprofile.account_type == '5':
-                        login(request, user)
-                        return redirect('receptionistIndex')
-                    elif user.userprofile.account_type == '3':
-                        login(request, user)
-                        return redirect('studentIndex')
-                except UserProfile.DoesNotExist:
-                    pass
-            if user:
-                try:
-                    user_profile = UserProfile.objects.get(user=user)
+        if not user:
+            return render(request, 'accounts/sign/signin.html',
+                          {"error": "البريد الإلكتروني أو كلمة المرور غير صحيحة."})
 
-                    # Check if user has phone number for WhatsApp option
-                    phone_number = None
-                    if hasattr(user_profile, 'student_profile') and user_profile.student_profile:
-                        phone_number = user_profile.student_profile.phone
-                    elif hasattr(user_profile, 'director_profile') and user_profile.director_profile:
-                        phone_number = user_profile.director_profile.phone
-                    elif hasattr(user_profile, 'Coach_profile') and user_profile.Coach_profile:
-                        coach_profile = user_profile.Coach_profile
-                        phone_number = coach_profile.phone
-                        activity_name = coach_profile.activity_type.name if coach_profile.activity_type else "غير محدد"
-                    elif hasattr(user_profile, 'receptionist_profile') and user_profile.receptionist_profile:
-                        phone_number = user_profile.receptionist_profile.phone
-                    elif hasattr(user_profile, 'administrator_profile') and user_profile.administrator_profile:
-                        phone_number = user_profile.administrator_profile.phone
-                    elif hasattr(user_profile, 'accountant_profile') and user_profile.accountant_profile:
-                        phone_number = user_profile.accountant_profile.phone
-                    # Add other profile types as needed
+        # Check if this user belongs to a club (director, receptionist, etc.)
+        club = None
+        user_profile = None
+        security_settings = None
 
+        try:
+            user_profile = UserProfile.objects.get(user=user)
 
+            # Check if this is a club user (director, receptionist, etc.)
+            if user_profile.account_type in ['2','3', '5', '6', '7', '8', '9']:
+                # Get the club associated with this user
+                if hasattr(user_profile, 'director_profile') and user_profile.director_profile:
+                    club = user_profile.director_profile.club
+                elif hasattr(user_profile, 'receptionist_profile') and user_profile.receptionist_profile:
+                    club = user_profile.receptionist_profile.club
+                elif hasattr(user_profile, 'administrative_profile') and user_profile.administrative_profile:
+                    club = user_profile.administrative_profile.club
+                elif hasattr(user_profile, 'accountant_profile') and user_profile.accountant_profile:
+                    club = user_profile.accountant_profile.club
+                elif hasattr(user_profile, 'student_profile') and user_profile.student_profile:
+                    club = user_profile.student_profile.club
 
-                    # Store user info in session for OTP method selection
-                    request.session['otp_user_id'] = user.id
-                    request.session['user_phone'] = phone_number
-                    request.session['user_email'] = user.email
-                    request.session['user_name'] = user.get_full_name() or user.username
+                # Get security settings for the club
+                if club:
+                    try:
+                        security_settings = ClubSecuritySettings.objects.get(club=club)
+                    except ClubSecuritySettings.DoesNotExist:
+                        # Create default security settings if they don't exist
+                        security_settings = ClubSecuritySettings.objects.create(
+                            club=club,
+                            enable_otp_verification=True,
+                            enable_recaptcha=True,
+                            otp_method='both',
+                            otp_expiry_minutes=5
+                        )
+        except UserProfile.DoesNotExist:
+            pass
 
-                    # If user has phone number, show OTP method selection
-                    if phone_number:
-                        return redirect('select_otp_method')
-                    else:
-                        # No phone number, send OTP via email directly
-                        return redirect('send_otp_email')
+        # Check reCAPTCHA if enabled for this club
+        if security_settings and security_settings.enable_recaptcha:
+            recaptcha_response = request.POST.get('g-recaptcha-response')
 
-                except UserProfile.DoesNotExist:
-                    return render(request, 'accounts/sign/signin.html',
-                                  {"error": "ملف المستخدم غير موجود."})
+            if not recaptcha_response:
+                return render(request, 'accounts/sign/signin.html',
+                              {"error": "الرجاء إكمال التحقق من reCAPTCHA."})
 
-        return render(request, 'accounts/sign/signin.html',
-                      {"error": "البريد الإلكتروني أو كلمة المرور غير صحيحة."})
+            data = {
+                'secret': settings.RECAPTCHA_PRIVATE_KEY,
+                'response': recaptcha_response
+            }
+            r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+            result = r.json()
 
+            if not result.get('success'):
+                return render(request, 'accounts/sign/signin.html',
+                              {"error": "الرجاء إكمال التحقق من reCAPTCHA."})
+
+        # Authenticate user
+        user = authenticate(username=user.username, password=password)
+
+        if not user:
+            return render(request, 'accounts/sign/signin.html',
+                          {"error": "البريد الإلكتروني أو كلمة المرور غير صحيحة."})
+
+        # Check if OTP is required for this user
+        otp_required = True
+
+        # Admin always skips OTP
+        if user_profile and user_profile.account_type == '1':
+            otp_required = False
+        # Check club security settings
+        elif security_settings and not security_settings.enable_otp_verification:
+            otp_required = False
+            # Also skip OTP for club users if OTP is disabled
+            if user_profile and user_profile.account_type in ['2', '3','5', '6', '7', '8', '9']:
+                otp_required = False
+
+        # If OTP is not required, log in directly
+        if not otp_required:
+            login(request, user)
+
+            # Redirect based on account type
+            try:
+                user_profile = UserProfile.objects.get(user=user)
+                account_type = user_profile.account_type
+
+                if account_type == '1':
+                    return redirect('adminIndex')
+                elif account_type == '2':
+                    return redirect('club_dashboard_index')
+                elif account_type == '3':
+                    return redirect('studentIndex')
+                elif account_type == '4':
+                    # Check if coach needs to select subcategories
+                    coach_profile = user_profile.Coach_profile
+                    if coach_profile and not coach_profile.subcategories.exists():
+                        return redirect('select_subcategories')
+                    return redirect('coachIndex')
+                elif account_type == '5':
+                    return redirect('receptionistIndex')
+                elif account_type == '6':
+                    return redirect('administrator_dashboard_index')
+                elif account_type == '7':
+                    return redirect('accountant_dashboard')
+                elif account_type == '8':
+                    return redirect('club_dashboard_index')
+                elif account_type == '9':
+                    return redirect('club_dashboard_index')
+                else:
+                    return redirect('home')
+            except UserProfile.DoesNotExist:
+                return redirect('home')
+
+        # OTP is required - proceed with OTP flow
+        try:
+            user_profile = UserProfile.objects.get(user=user)
+
+            # Check if user has phone number for WhatsApp option
+            phone_number = None
+            if hasattr(user_profile, 'student_profile') and user_profile.student_profile:
+                phone_number = user_profile.student_profile.phone
+            elif hasattr(user_profile, 'director_profile') and user_profile.director_profile:
+                phone_number = user_profile.director_profile.phone
+            elif hasattr(user_profile, 'Coach_profile') and user_profile.Coach_profile:
+                coach_profile = user_profile.Coach_profile
+                phone_number = coach_profile.phone
+            elif hasattr(user_profile, 'receptionist_profile') and user_profile.receptionist_profile:
+                phone_number = user_profile.receptionist_profile.phone
+            elif hasattr(user_profile, 'administrator_profile') and user_profile.administrator_profile:
+                phone_number = user_profile.administrator_profile.phone
+            elif hasattr(user_profile, 'accountant_profile') and user_profile.accountant_profile:
+                phone_number = user_profile.accountant_profile.phone
+
+            # Store user info in session for OTP method selection
+            request.session['otp_user_id'] = user.id
+            request.session['user_phone'] = phone_number
+            request.session['user_email'] = user.email
+            request.session['user_name'] = user.get_full_name() or user.username
+
+            # Store club security settings in session for OTP handling
+            if security_settings:
+                request.session['otp_expiry_minutes'] = security_settings.otp_expiry_minutes
+                request.session['otp_method'] = security_settings.otp_method
+
+            # Check OTP method from security settings
+            if security_settings and security_settings.otp_method == 'whatsapp':
+                if phone_number:
+                    return redirect('send_otp_whatsapp')
+                else:
+                    # If WhatsApp is required but no phone number, fall back to email
+                    return redirect('send_otp_email')
+            elif security_settings and security_settings.otp_method == 'email':
+                return redirect('send_otp_email')
+            elif security_settings and security_settings.otp_method == 'both':
+                # If both methods allowed, show selection if user has phone
+                if phone_number:
+                    return redirect('select_otp_method')
+                else:
+                    return redirect('send_otp_email')
+            else:
+                # Default behavior for users without security settings
+                if phone_number:
+                    return redirect('select_otp_method')
+                else:
+                    return redirect('send_otp_email')
+
+        except UserProfile.DoesNotExist:
+            return render(request, 'accounts/sign/signin.html',
+                          {"error": "ملف المستخدم غير موجود."})
+
+    # GET request - render login page
     context['LANGUAGE_CODE'] = translation.get_language()
     context['RECAPTCHA_PUBLIC_KEY'] = settings.RECAPTCHA_PUBLIC_KEY
+
+    # Default to showing reCAPTCHA
+    context['show_recaptcha'] = True
+
     return render(request, 'accounts/sign/signin.html', context)
 
 
@@ -194,11 +371,55 @@ def select_otp_method(request):
         method = request.POST.get('otp_method')
 
         if method == 'whatsapp':
-            return redirect('send_otp_email')
+            return redirect('send_otp_whatsapp')
         elif method == 'email':
             return redirect('send_otp_email')
 
     return render(request, 'accounts/sign/select_otp_method.html', context)
+
+
+def send_otp_whatsapp(request):
+    """Step 3a: Send OTP via WhatsApp"""
+
+    if 'otp_user_id' not in request.session:
+        return redirect('signin')
+
+    try:
+        user_id = request.session['otp_user_id']
+        user = User.objects.get(id=user_id)
+        phone_number = request.session.get('user_phone')
+        user_name = request.session.get('user_name')
+
+        if not phone_number:
+            messages.error(request, "رقم الهاتف غير متوفر")
+            return redirect('select_otp_method')
+
+        # Generate and save OTP
+        otp_code = generate_otp()
+        OTP.objects.update_or_create(
+            user=user,
+            defaults={
+                "otp_code": otp_code,
+                "created_at": timezone.now(),
+                "delivery_method": "whatsapp"
+            }
+        )
+
+        # Send WhatsApp message in a separate thread to avoid blocking
+        def send_whatsapp_async():
+            success, message = send_whatsapp_otp(phone_number, otp_code, user_name)
+            # You can log the result or handle it as needed
+            print(f"WhatsApp OTP Status: {success}, Message: {message}")
+
+        thread = threading.Thread(target=send_whatsapp_async)
+        thread.start()
+
+        messages.success(request, "تم إرسال رمز التحقق عبر الواتساب. يرجى التحقق من رسائل الواتساب الخاصة بك.")
+        return redirect('verify_otp')
+
+    except Exception as e:
+        messages.error(request, f"خطأ في إرسال رمز التحقق: {str(e)}")
+        return redirect('select_otp_method')
 
 
 def send_otp_email(request):

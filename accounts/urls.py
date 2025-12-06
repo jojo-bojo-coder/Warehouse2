@@ -13,6 +13,7 @@ def set_language_redirect(request, language):
 urlpatterns = [
     path('signin/', views.signin, name='signin'),
     path('select-otp-method/', views.select_otp_method, name='select_otp_method'),
+    path('send-otp-whatsapp/', views.send_otp_whatsapp, name='send_otp_whatsapp'),
     path('send-otp-email/', views.send_otp_email, name='send_otp_email'),
     path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('resend-otp/', views.resend_otp, name='resend_otp'),

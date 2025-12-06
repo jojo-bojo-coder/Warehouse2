@@ -3,20 +3,70 @@
 {% load permission_tags %}
 
 {% block content %}
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[13%]{% else %}xl:pl-[13%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full min-h-screen pb-12 dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
+<style>
+  /* Animation Classes */
+  .animate-float {
+      animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+  }
+
+  .animate-fadeInUp {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+  }
+
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Button Effects */
+  .btn-gradient {
+      background-size: 200% auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .btn-gradient:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
 
   <!-- Main Content -->
   <div class="px-4 md:px-8 pt-6">
     <!-- Header Section -->
-    <div class="py-6 text-center animate-fadeIn">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+    <div class="py-8">
+      <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
         {% if LANGUAGE_CODE == 'ar' %}
         تحليل المصروفات
         {% else %}
         Expense Analytics
         {% endif %}
       </h1>
-      <p class="text-gray-600 dark:text-gray-300 mt-2">
+      <p class="text-gray-600 dark:text-gray-400">
         {% if LANGUAGE_CODE == 'ar' %}
         تحليل وتتبع مصروفات المنصة
         {% else %}
@@ -28,17 +78,19 @@
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       <!-- Total Expenses Card -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.1s_both] stat-card flex flex-col gap-4 rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700">
+      <div class="animate-[fadeInUp_0.6s_ease-out_0.1s_both] bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}إجمالي المصروفات{% else %}Total Expenses{% endif %}</h2>
-          <div class="p-3 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 shadow-inner">
+          <h2 class="text-xl font-semibold text-red-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي المصروفات{% else %}Total Expenses{% endif %}</h2>
+          <div class="p-3 rounded-full bg-red-400/20">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
             </svg>
           </div>
         </div>
-        <p class="text-4xl font-bold text-gray-800 dark:text-white text-center">{{ total_expenses }} {{ club.vat_settings.currency }}</p>
-        <div class="mt-auto flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+        <div class="flex justify-center items-center h-24">
+          <p class="text-5xl font-bold">{{ total_expenses }} {{ club.vat_settings.currency }}</p>
+        </div>
+        <div class="mt-auto flex items-center justify-between text-sm text-red-100">
           <span>
             {% if LANGUAGE_CODE == 'ar' %}
             آخر {{ time_period }}
@@ -47,23 +99,25 @@
             {% endif %}
           </span>
           <div class="flex items-center gap-2">
-            <a href="?period=7d" class="{% if time_period == '7d' %}text-blue-600 font-medium{% else %}hover:text-blue-500{% endif %}">7d</a>
-            <a href="?period=30d" class="{% if time_period == '30d' %}text-blue-600 font-medium{% else %}hover:text-blue-500{% endif %}">30d</a>
-            <a href="?period=90d" class="{% if time_period == '90d' %}text-blue-600 font-medium{% else %}hover:text-blue-500{% endif %}">90d</a>
-            <a href="?period=12m" class="{% if time_period == '12m' %}text-blue-600 font-medium{% else %}hover:text-blue-500{% endif %}">12m</a>
+            <a href="?period=7d" class="{% if time_period == '7d' %}text-white font-bold{% else %}text-red-200 hover:text-white{% endif %} transition-colors">7d</a>
+            <a href="?period=30d" class="{% if time_period == '30d' %}text-white font-bold{% else %}text-red-200 hover:text-white{% endif %} transition-colors">30d</a>
+            <a href="?period=90d" class="{% if time_period == '90d' %}text-white font-bold{% else %}text-red-200 hover:text-white{% endif %} transition-colors">90d</a>
+            <a href="?period=12m" class="{% if time_period == '12m' %}text-white font-bold{% else %}text-red-200 hover:text-white{% endif %} transition-colors">12m</a>
           </div>
         </div>
       </div>
 
       <!-- Top Categories Card -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.2s_both] stat-card flex flex-col gap-4 rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}أعلى الفئات{% else %}Top Categories{% endif %}</h2>
-          <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 shadow-inner">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-            </svg>
-          </div>
+      <div class="animate-[fadeInUp_0.6s_ease-out_0.2s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:transform hover:-translate-y-1 flex flex-col h-full">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+            <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-full text-purple-600 dark:text-purple-300">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+              </svg>
+            </div>
+            {% if LANGUAGE_CODE == 'ar' %}أعلى الفئات{% else %}Top Categories{% endif %}
+          </h2>
         </div>
         <div class="h-48">
           <canvas id="expenseCategoryChart"></canvas>
@@ -71,14 +125,16 @@
       </div>
 
       <!-- Top Coaches Card -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.3s_both] stat-card flex flex-col gap-4 rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">{% if LANGUAGE_CODE == 'ar' %}أعلى التجار{% else %}Top Vendors{% endif %}</h2>
-          <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 shadow-inner">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-            </svg>
-          </div>
+      <div class="animate-[fadeInUp_0.6s_ease-out_0.3s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:transform hover:-translate-y-1 flex flex-col h-full">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+            <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full text-yellow-600 dark:text-yellow-300">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            {% if LANGUAGE_CODE == 'ar' %}أعلى التجار{% else %}Top Vendors{% endif %}
+          </h2>
         </div>
         <div class="h-48">
           <canvas id="expenseCoachChart"></canvas>
@@ -89,13 +145,15 @@
     <!-- Expense Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- Expense Trend Chart -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+      <div class="animate-[fadeIn_0.8s_ease-out_0.4s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
         <div class="flex justify-between items-start mb-6">
           <div>
             <h2 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-              <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-              </svg>
+              <div class="p-2 bg-red-100 dark:bg-red-900 rounded-full text-red-600 dark:text-red-300">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                </svg>
+              </div>
               {% if LANGUAGE_CODE == 'ar' %}اتجاه المصروفات{% else %}Expense Trend{% endif %}
             </h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -113,13 +171,15 @@
       </div>
 
       <!-- Expense Breakdown Chart -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+      <div class="animate-[fadeIn_0.8s_ease-out_0.5s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
         <div class="flex justify-between items-start mb-6">
           <div>
             <h2 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-              <svg class="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-              </svg>
+              <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-full text-purple-600 dark:text-purple-300">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                </svg>
+              </div>
               {% if LANGUAGE_CODE == 'ar' %}توزيع المصروفات{% else %}Expense Breakdown{% endif %}
             </h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -140,143 +200,214 @@
 </div>
 
 <script>
+  // Dark mode toggle - Fixed version
+  function toggleDarkMode() {
+    const html = document.documentElement;
+    const toggle = document.getElementById('toggle');
+
+    if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        if(toggle) toggle.checked = false;
+        document.cookie = "darkMode=false; path=/; max-age=31536000";
+    } else {
+        html.classList.add('dark');
+        if(toggle) toggle.checked = true;
+        document.cookie = "darkMode=true; path=/; max-age=31536000";
+    }
+  }
+
+  // Check for saved dark mode preference on page load
   document.addEventListener('DOMContentLoaded', function() {
-      // Expense Trend Chart
-      const expenseTrendCtx = document.getElementById('expenseTrendChart');
-      if (expenseTrendCtx) {
-          new Chart(expenseTrendCtx.getContext('2d'), {
-              type: 'line',
-              data: {
-                  labels: JSON.parse('{{ expense_dates|safe }}'),
-                  datasets: [{
-                      label: '{% if LANGUAGE_CODE == "ar" %}المصروفات{% else %}Expenses{% endif %}',
-                      data: JSON.parse('{{ expense_amounts|safe }}'),
-                      borderColor: '#EF4444',
-                      backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                      borderWidth: 2,
-                      tension: 0.4,
-                      fill: true
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: { legend: { display: false } },
-                  scales: {
-                      y: {
-                          beginAtZero: true,
-                          ticks: {
-                              callback: function(value) {
-                                  return value + ' {{ club.vat_settings.currency }}';
-                              }
-                          }
-                      }
-                  }
-              }
-          });
-      }
+    const darkModeCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('darkMode='));
 
-      // Expense Category Chart
-      const expenseCategoryCtx = document.getElementById('expenseCategoryChart');
-      if (expenseCategoryCtx) {
-          new Chart(expenseCategoryCtx.getContext('2d'), {
-              type: 'bar',
-              data: {
-                  labels: JSON.parse('{{ category_labels|safe }}'),
-                  datasets: [{
-                      data: JSON.parse('{{ category_data|safe }}'),
-                      backgroundColor: ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B'],
-                      borderWidth: 0
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: { 
-                      legend: { display: false },
-                      tooltip: {
-                          callbacks: {
-                              label: function(context) {
-                                  return context.raw + ' {{ club.vat_settings.currency }}';
-                              }
-                          }
-                      }
-                  },
-                  scales: {
-                      y: {
-                          beginAtZero: true,
-                          ticks: {
-                              callback: function(value) {
-                                  return value + ' {{ club.vat_settings.currency }}';
-                              }
-                          }
-                      }
-                  }
-              }
-          });
-      }
+    const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-      // Expense Coach Chart
-      const expenseCoachCtx = document.getElementById('expenseCoachChart');
-      if (expenseCoachCtx) {
-          new Chart(expenseCoachCtx.getContext('2d'), {
-              type: 'bar',
-              data: {
-                  labels: JSON.parse('{{ coach_labels|safe }}'),
-                  datasets: [{
-                      data: JSON.parse('{{ coach_data|safe }}'),
-                      backgroundColor: ['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6'],
-                      borderWidth: 0
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: { 
-                      legend: { display: false },
-                      tooltip: {
-                          callbacks: {
-                              label: function(context) {
-                                  return context.raw + ' {{ club.vat_settings.currency }}';
-                              }
-                          }
-                      }
-                  },
-                  scales: {
-                      y: {
-                          beginAtZero: true,
-                          ticks: {
-                              callback: function(value) {
-                                  return value + ' {{ club.vat_settings.currency }}';
-                              }
-                          }
-                      }
-                  }
-              }
-          });
-      }
+    if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+        const toggle = document.getElementById('toggle');
+        if(toggle) toggle.checked = true;
+    }
 
-      // Expense Breakdown Chart
-      const expenseBreakdownCtx = document.getElementById('expenseBreakdownChart');
-      if (expenseBreakdownCtx) {
-          new Chart(expenseBreakdownCtx.getContext('2d'), {
-              type: 'doughnut',
-              data: {
-                  labels: JSON.parse('{{ category_labels|safe }}'),
-                  datasets: [{
-                      data: JSON.parse('{{ category_data|safe }}'),
-                      backgroundColor: ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B'],
-                      borderWidth: 0
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: { legend: { position: 'right' } },
-                  cutout: '70%'
-              }
-          });
-      }
+    // Initialize charts
+    initializeCharts();
   });
+
+  // Initialize charts
+  function initializeCharts() {
+    // Expense Trend Chart
+    const expenseTrendCtx = document.getElementById('expenseTrendChart');
+    if (expenseTrendCtx) {
+        new Chart(expenseTrendCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: JSON.parse('{{ expense_dates|safe }}'),
+                datasets: [{
+                    label: '{% if LANGUAGE_CODE == "ar" %}المصروفات{% else %}Expenses{% endif %}',
+                    data: JSON.parse('{{ expense_amounts|safe }}'),
+                    borderColor: '#EF4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#EF4444',
+                    pointRadius: 3,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' {{ club.vat_settings.currency }}';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' {{ club.vat_settings.currency }}';
+                            }
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // Expense Category Chart
+    const expenseCategoryCtx = document.getElementById('expenseCategoryChart');
+    if (expenseCategoryCtx) {
+        new Chart(expenseCategoryCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ category_labels|safe }}'),
+                datasets: [{
+                    data: JSON.parse('{{ category_data|safe }}'),
+                    backgroundColor: ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B'],
+                    borderWidth: 0,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + ' {{ club.vat_settings.currency }}';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' {{ club.vat_settings.currency }}';
+                            }
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // Expense Coach Chart
+    const expenseCoachCtx = document.getElementById('expenseCoachChart');
+    if (expenseCoachCtx) {
+        new Chart(expenseCoachCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ coach_labels|safe }}'),
+                datasets: [{
+                    data: JSON.parse('{{ coach_data|safe }}'),
+                    backgroundColor: ['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6'],
+                    borderWidth: 0,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + ' {{ club.vat_settings.currency }}';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' {{ club.vat_settings.currency }}';
+                            }
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // Expense Breakdown Chart
+    const expenseBreakdownCtx = document.getElementById('expenseBreakdownChart');
+    if (expenseBreakdownCtx) {
+        new Chart(expenseBreakdownCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: JSON.parse('{{ category_labels|safe }}'),
+                datasets: [{
+                    data: JSON.parse('{{ category_data|safe }}'),
+                    backgroundColor: ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 20
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+  }
 </script>
 {% endblock %}

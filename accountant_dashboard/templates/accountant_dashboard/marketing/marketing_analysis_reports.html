@@ -4,7 +4,7 @@
 
 {% block content %}
 <style>
-  /* Reuse styles from index.html */
+  /* Animation Classes */
   .animate-float {
       animation: float 4s ease-in-out infinite;
   }
@@ -19,9 +19,20 @@
       opacity: 0;
   }
 
-  .animate-stagger > * {
-      animation: fadeInUp 0.6s ease-out forwards;
-      opacity: 0;
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
   }
 
   /* Button Effects */
@@ -36,73 +47,70 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   }
 
-  /* Card Effects */
-  .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Dark mode specific styles */
-  .dark .bg-white {
-      background-color: #1f2937 !important;
-  }
-
-  .dark .text-gray-800 {
-      color: #e5e7eb !important;
-  }
-
-  .dark .border-gray-200 {
-      border-color: #374151 !important;
-  }
-
-  .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
-      border-color: #374151 !important;
-  }
-
-  .dark .text-gray-500 {
-      color: #9ca3af !important;
-  }
-
-  .dark .bg-gray-50 {
-      background-color: #111827 !important;
-  }
-
-  /* Custom styles for this page */
-  .report-filter-card {
+  .filter-section {
+      background-color: white;
       border-radius: 0.75rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+  }
+
+  .dark .filter-section {
+      background-color: #1f2937;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+      border-color: #374151;
   }
 
   .filter-label {
-      font-weight: 500;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: block;
       color: #4b5563;
   }
 
   .dark .filter-label {
-      color: #9ca3af;
+      color: #d1d5db;
   }
 
-  .export-btn {
-      transition: all 0.2s ease-in-out;
+  .filter-select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid #d1d5db;
+      background-color: white;
+      color: #374151;
+      transition: all 0.2s;
   }
 
-  .export-btn:hover {
-      transform: translateY(-1px);
+  .dark .filter-select {
+      background-color: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+  }
+
+  .filter-select:focus {
+      outline: none;
+      ring: 2px;
+      ring-color: #3b82f6;
+      border-color: #3b82f6;
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[13%]{% else %}xl:pl-[13%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full min-h-screen pb-12 dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
+
+  <!-- Main Content -->
   <div class="px-4 md:px-8 pt-6">
     <!-- Header Section -->
-    <div class="py-6 text-center ">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+    <div class="py-8">
+      <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
         {% if LANGUAGE_CODE == 'ar' %}
         تحليل التسويق والتقارير
         {% else %}
         Marketing Analysis & Reports
         {% endif %}
       </h1>
-      <p class="text-gray-600 dark:text-gray-300 mt-2">
+      <p class="text-gray-600 dark:text-gray-400">
         {% if LANGUAGE_CODE == 'ar' %}
         تصدير تقارير تحليل التسويق بتنسيق CSV
         {% else %}
@@ -111,16 +119,16 @@
       </p>
     </div>
 
-    <!-- Filter Card -->
-    <div class="bg-white dark:bg-gray-800 report-filter-card p-6 mb-8 border border-gray-200 dark:border-gray-700 ">
+    <!-- Filter Section -->
+    <div class="animate-[fadeIn_0.8s_ease-out_0.2s_both] filter-section">
       <form method="get" action="{% url 'accountant_marketing_reports' %}">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <!-- Report Type -->
           <div>
-            <label class="filter-label block text-sm font-medium mb-2 dark:text-gray-300">
+            <label class="filter-label">
               {% if LANGUAGE_CODE == 'ar' %}نوع التقرير{% else %}Report Type{% endif %}
             </label>
-            <select name="report_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <select name="report_type" class="filter-select">
               <option value="clicks" {% if report_type == 'clicks' %}selected{% endif %}>
                 {% if LANGUAGE_CODE == 'ar' %}نقرات المنتجات/الخدمات{% else %}Product/Service Clicks{% endif %}
               </option>
@@ -129,10 +137,10 @@
 
           <!-- Time Period -->
           <div>
-            <label class="filter-label block text-sm font-medium mb-2 dark:text-gray-300">
+            <label class="filter-label">
               {% if LANGUAGE_CODE == 'ar' %}الفترة الزمنية{% else %}Time Period{% endif %}
             </label>
-            <select name="period" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <select name="period" class="filter-select">
               <option value="7d" {% if period == '7d' %}selected{% endif %}>
                 {% if LANGUAGE_CODE == 'ar' %}آخر 7 أيام{% else %}Last 7 Days{% endif %}
               </option>
@@ -153,10 +161,10 @@
 
           <!-- Coach Filter -->
           <div>
-            <label class="filter-label block text-sm font-medium mb-2 dark:text-gray-300">
+            <label class="filter-label">
               {% if LANGUAGE_CODE == 'ar' %}التاجر{% else %}Vendor{% endif %}
             </label>
-            <select name="coach" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <select name="coach" class="filter-select">
               <option value="">{% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}</option>
               {% for coach in coaches %}
               <option value="{{ coach.id }}" {% if coach_id == coach.id|stringformat:"s" %}selected{% endif %}>
@@ -168,10 +176,10 @@
 
           <!-- Category Filter -->
           <div>
-            <label class="filter-label block text-sm font-medium mb-2 dark:text-gray-300">
+            <label class="filter-label">
               {% if LANGUAGE_CODE == 'ar' %}الفئة{% else %}Category{% endif %}
             </label>
-            <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <select name="category" class="filter-select">
               <option value="">{% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}</option>
               {% for category in categories %}
               <option value="{{ category.id }}" {% if category_id == category.id|stringformat:"s" %}selected{% endif %}>
@@ -182,14 +190,23 @@
           </div>
         </div>
 
-        <div class="mt-6 flex justify-end space-x-4 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
-          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors">
+        <div class="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+          <button type="submit" class="btn-gradient bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
+            </svg>
             {% if LANGUAGE_CODE == 'ar' %}تطبيق الفلاتر{% else %}Apply Filters{% endif %}
           </button>
-          <a href="{% url 'accountant_marketing_reports' %}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800 transition-colors">
+          <a href="{% url 'accountant_marketing_reports' %}" class="btn-gradient bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
             {% if LANGUAGE_CODE == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
           </a>
-          <a href="{% url 'accountant_marketing_reports' %}?{{ request.GET.urlencode }}&format=csv" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors export-btn">
+          <a href="{% url 'accountant_marketing_reports' %}?{{ request.GET.urlencode }}&format=csv" class="btn-gradient bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
             {% if LANGUAGE_CODE == 'ar' %}تصدير CSV{% else %}Export CSV{% endif %}
           </a>
         </div>
@@ -197,9 +214,14 @@
     </div>
 
     <!-- Report Summary -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-200 dark:border-gray-700 ">
+    <div class="animate-[fadeIn_0.8s_ease-out_0.4s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
+        <h2 class="text-2xl font-semibold text-gray-800 dark:text-white flex items-center gap-3">
+          <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+            </svg>
+          </div>
           {% if LANGUAGE_CODE == 'ar' %}ملخص التقرير{% else %}Report Summary{% endif %}
         </h2>
         <div class="text-sm text-gray-500 dark:text-gray-400">
@@ -211,61 +233,60 @@
         </div>
       </div>
 
+      <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Total Clicks Card -->
-        <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-4">
+        <div class="animate-[fadeInUp_0.6s_ease-out_0.5s_both] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-blue-800 dark:text-blue-200">
-              {% if LANGUAGE_CODE == 'ar' %}إجمالي النقرات{% else %}Total Clicks{% endif %}
-            </h3>
-            <div class="p-2 rounded-full bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-300">
+            <h3 class="text-xl font-semibold text-blue-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي النقرات{% else %}Total Clicks{% endif %}</h3>
+            <div class="p-3 rounded-full bg-blue-400/20">
               <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
               </svg>
             </div>
           </div>
-          <p class="text-3xl font-bold text-blue-600 dark:text-blue-300 mt-2">
-            {{ total_clicks|default:"0" }}
-          </p>
+          <div class="flex justify-center items-center h-24">
+            <p class="text-5xl font-bold">{{ total_clicks|default:"0" }}</p>
+          </div>
         </div>
 
         <!-- Total Orders Card -->
-        <div class="bg-green-50 dark:bg-green-900 rounded-lg p-4">
+        <div class="animate-[fadeInUp_0.6s_ease-out_0.6s_both] bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-green-800 dark:text-green-200">
-              {% if LANGUAGE_CODE == 'ar' %}إجمالي الطلبات{% else %}Total Orders{% endif %}
-            </h3>
-            <div class="p-2 rounded-full bg-green-100 dark:bg-green-800 text-green-600 dark:text-green-300">
+            <h3 class="text-xl font-semibold text-green-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي الطلبات{% else %}Total Orders{% endif %}</h3>
+            <div class="p-3 rounded-full bg-green-400/20">
               <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/>
               </svg>
             </div>
           </div>
-          <p class="text-3xl font-bold text-green-600 dark:text-green-300 mt-2">
-            {{ total_orders|default:"0" }}
-          </p>
+          <div class="flex justify-center items-center h-24">
+            <p class="text-5xl font-bold">{{ total_orders|default:"0" }}</p>
+          </div>
         </div>
 
         <!-- Conversion Rate Card -->
-        <div class="bg-purple-50 dark:bg-purple-900 rounded-lg p-4">
+        <div class="animate-[fadeInUp_0.6s_ease-out_0.7s_both] bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-purple-800 dark:text-purple-200">
-              {% if LANGUAGE_CODE == 'ar' %}معدل التحويل{% else %}Conversion Rate{% endif %}
-            </h3>
-            <div class="p-2 rounded-full bg-purple-100 dark:bg-purple-800 text-purple-600 dark:text-purple-300">
+            <h3 class="text-xl font-semibold text-purple-100">{% if LANGUAGE_CODE == 'ar' %}معدل التحويل{% else %}Conversion Rate{% endif %}</h3>
+            <div class="p-3 rounded-full bg-purple-400/20">
               <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
             </div>
           </div>
-          <p class="text-3xl font-bold text-purple-600 dark:text-purple-300 mt-2">
-            {{ conversion_rate|default:"0" }}%
-          </p>
+          <div class="flex justify-center items-center h-24">
+            <p class="text-5xl font-bold">{{ conversion_rate|default:"0" }}%</p>
+          </div>
         </div>
       </div>
 
-      <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-        <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
+      <!-- Notes Section -->
+      <div class="animate-[fadeIn_0.8s_ease-out_0.8s_both] bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
           {% if LANGUAGE_CODE == 'ar' %}ملاحظات{% else %}Notes{% endif %}
         </h3>
         <ul class="list-disc pl-5 space-y-2 text-gray-600 dark:text-gray-300">
@@ -288,4 +309,38 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Dark mode toggle - Fixed version
+  function toggleDarkMode() {
+    const html = document.documentElement;
+    const toggle = document.getElementById('toggle');
+
+    if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        if(toggle) toggle.checked = false;
+        document.cookie = "darkMode=false; path=/; max-age=31536000";
+    } else {
+        html.classList.add('dark');
+        if(toggle) toggle.checked = true;
+        document.cookie = "darkMode=true; path=/; max-age=31536000";
+    }
+  }
+
+  // Check for saved dark mode preference on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const darkModeCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('darkMode='));
+
+    const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+        const toggle = document.getElementById('toggle');
+        if(toggle) toggle.checked = true;
+    }
+  });
+</script>
 {% endblock %}

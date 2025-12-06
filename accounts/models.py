@@ -433,6 +433,13 @@ class CoachProfile(models.Model):
         help_text="عدد الفروع"
     )
 
+    branches = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name="فروع النشاط التجاري",
+        help_text="معلومات عن فروع النشاط التجاري"
+    )
+
     # Location fields
     region = models.CharField(
         max_length=50,
@@ -526,6 +533,32 @@ class CoachProfile(models.Model):
                 raise ValidationError(
                     f"المدينة {self.city} غير موجودة في المنطقة {self.region}"
                 )
+
+        if self.number_of_branches > 1 and not self.branches:
+            raise ValidationError(
+                "يجب إضافة معلومات الفروع عندما يكون عدد الفروع أكثر من واحد"
+            )
+
+        if self.branches and len(self.branches) != self.number_of_branches:
+            raise ValidationError(
+                f"عدد الفروع المضافة ({len(self.branches)}) لا يتطابق مع العدد المحدد ({self.number_of_branches})"
+            )
+
+    def get_branches_display(self):
+        """Get formatted branch information"""
+        if not self.branches:
+            return []
+
+        return [
+            {
+                'number': i + 1,
+                'city': branch.get('city', ''),
+                'district': branch.get('district', ''),
+                'street': branch.get('street', ''),
+                'full_address': f"{branch.get('street', '')}, {branch.get('district', '')}, {branch.get('city', '')}"
+            }
+            for i, branch in enumerate(self.branches)
+        ]
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.vendor_classification:

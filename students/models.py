@@ -2,13 +2,13 @@ from django.db import models
 from accounts.models import ClubsModel
 from django.contrib.auth.models import User
 from django.utils import timezone
-from accounts.models import UserProfile, CoachProfile
+from accounts.models import UserProfile,CoachProfile
 
 
 # Create your models here.
 
 
-# Products
+#Products
 class ProductsClassificationModel(models.Model):
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -18,8 +18,6 @@ class ProductsClassificationModel(models.Model):
 
 
 from decimal import Decimal
-
-
 class ProductsModel(models.Model):
     APPROVAL_STATUS_CHOICES = [
         ('pending', 'قيد المراجعة'),
@@ -181,13 +179,11 @@ class ProductsModel(models.Model):
         verbose_name_plural = "المنتجات"
         ordering = ['-creation_date']
 
-
 class ProductsImage(models.Model):
     product = models.ForeignKey('ProductsModel', on_delete=models.CASCADE)
     img = models.ImageField(upload_to="Products/imgs/%Y/%m/%d", blank=True, null=True)
     img_base64 = models.TextField(blank=True, null=True)
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
-
 
 class ProductsRate(models.Model):
     product = models.ForeignKey('ProductsModel', on_delete=models.CASCADE)
@@ -197,7 +193,10 @@ class ProductsRate(models.Model):
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
 
 
-# Services
+
+
+
+#Services
 class ServicesClassificationModel(models.Model):
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -210,14 +209,6 @@ class ServicesClassificationModel(models.Model):
 
 
 class ServicesModel(models.Model):
-    PRICING_PERIOD_CHOICES = [
-        (1, '1 Month'),
-        (2, '2 Months'),
-        (3, '3 Months'),
-        (6, '6 Months'),
-        (12, '12 Months'),
-    ]
-
     APPROVAL_STATUS_CHOICES = [
         ('pending', 'قيد المراجعة'),
         ('approved', 'مقبول'),
@@ -262,11 +253,6 @@ class ServicesModel(models.Model):
 
     # Pricing fields
     price = models.DecimalField(max_digits=6, decimal_places=2, help_text="Price for the specified pricing period")
-    pricing_period_months = models.IntegerField(
-        choices=PRICING_PERIOD_CHOICES,
-        default=1,
-        help_text="Number of months this price covers"
-    )
     discounted_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
 
     subcategory = models.ForeignKey(
@@ -287,24 +273,31 @@ class ServicesModel(models.Model):
         return self.title
 
     @property
-    def monthly_price(self):
-        """Calculate the monthly price based on the pricing period"""
-        current_price = self.discounted_price if self.discounted_price else self.price
-        return current_price / self.pricing_period_months
-
-    @property
-    def total_subscription_days(self):
-        """Calculate total subscription days based on pricing period"""
-        return self.pricing_period_months * 30  # Approximate days per month
-
-    def get_price_for_months(self, months):
-        """Calculate price for a specific number of months"""
-        monthly_rate = self.monthly_price
-        return monthly_rate * months
-
-    @property
     def effective_price(self):
         return self.discounted_price if self.discounted_price else self.price
+
+    @property
+    def has_packages(self):
+        """Check if service has packages"""
+        return self.packages.filter(is_active=True).exists()
+
+    @property
+    def active_packages(self):
+        """Get active packages"""
+        return self.packages.filter(is_active=True)
+
+    @property
+    def popular_package(self):
+        """Get popular package if exists"""
+        return self.packages.filter(is_active=True, is_popular=True).first()
+
+    @property
+    def monthly_price(self):
+        """Calculate monthly price based on subscription_days"""
+        if self.subscription_days and self.subscription_days > 0:
+            # Convert to monthly rate
+            return (float(self.price) / self.subscription_days) * 30
+        return float(self.price)
 
     def approve(self, approved_by_user, notes=""):
         """Approve the product"""
@@ -382,15 +375,14 @@ class ServicesModel(models.Model):
         verbose_name_plural = "الخدمات"
         ordering = ['-creation_date']
 
-
 class ServicesImage(models.Model):
     product = models.ForeignKey('ServicesModel', on_delete=models.CASCADE)
     img = models.ImageField(upload_to="Services/imgs/%Y/%m/%d", blank=True, null=True)
     img_base64 = models.TextField(blank=True, null=True)
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
 
-
 class ServicesRate(models.Model):
+    
     product = models.ForeignKey('ServicesModel', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     msg = models.TextField()
@@ -398,7 +390,91 @@ class ServicesRate(models.Model):
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
 
 
-# Blog
+class ServicePackage(models.Model):
+    """Model for service packages"""
+    service = models.ForeignKey(ServicesModel, on_delete=models.CASCADE, related_name='packages')
+    title = models.CharField(max_length=254, verbose_name="Package Title")
+    description = models.TextField(null=True, blank=True, verbose_name="Package Description")
+
+    # Package duration and frequency
+    duration_days = models.IntegerField(default=1, help_text="Duration of package in days")
+    sessions_per_week = models.IntegerField(default=1, help_text="Number of sessions per week")
+    total_sessions = models.IntegerField(default=1, help_text="Total sessions in package")
+
+    # Pricing
+    original_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Original Price")
+    discounted_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Discounted Price"
+    )
+
+    # Additional details
+    is_popular = models.BooleanField(default=False, verbose_name="Mark as Popular Package")
+    features = models.TextField(null=True, blank=True, help_text="List of package features (one per line)")
+
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Service Package"
+        verbose_name_plural = "Service Packages"
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.service.title} - {self.title}"
+
+    @property
+    def effective_price(self):
+        """Get the effective price (discounted if available)"""
+        return self.discounted_price if self.discounted_price else self.original_price
+
+    @property
+    def discount_percentage(self):
+        """Calculate discount percentage"""
+        if self.discounted_price and self.original_price > 0:
+            discount = ((self.original_price - self.discounted_price) / self.original_price) * 100
+            return round(discount, 1)
+        return 0
+
+    @property
+    def price_per_session(self):
+        """Calculate price per session"""
+        if self.total_sessions > 0:
+            return self.effective_price / self.total_sessions
+        return self.effective_price
+
+    @property
+    def features_list(self):
+        """Convert features text to list"""
+        if self.features:
+            return [feature.strip() for feature in self.features.split('\n') if feature.strip()]
+        return []
+
+
+class ServicePackageCartItem(models.Model):
+    """Model for service packages in cart"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    service_package = models.ForeignKey(ServicePackage, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.service_package.title} ({self.quantity})"
+
+    @property
+    def total_price(self):
+        return self.quantity * self.service_package.effective_price
+
+    class Meta:
+        verbose_name = "Service Package Cart Item"
+        verbose_name_plural = "Service Package Cart Items"
+        unique_together = ['user', 'service_package']
+
+#Blog
 class BlogClassificationModel(models.Model):
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -406,11 +482,9 @@ class BlogClassificationModel(models.Model):
     title = models.CharField(max_length=254, null=True)
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
 
-
 from django.db import models
 from django.contrib.auth.models import User
 from ckeditor_uploader.fields import RichTextUploadingField
-
 
 class Blog(models.Model):
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE, null=True)
@@ -427,10 +501,11 @@ class Blog(models.Model):
         return self.title or "Untitled Article"
 
 
+
 class ServiceOrderModel(models.Model):
     service = models.ForeignKey(ServicesModel, on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    price = models.DecimalField(max_digits = 6, decimal_places = 2)
     is_complited = models.BooleanField(default=False)
     end_datetime = models.DateTimeField()
     creation_date = models.DateTimeField(null=True, verbose_name="تاريخ الانشاء")
@@ -453,7 +528,6 @@ class CartItem(models.Model):
     @property
     def total_price(self):
         return self.quantity * self.product.price
-
 
 class ServiceCartItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -499,7 +573,7 @@ class Order(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     club = models.ForeignKey(ClubsModel, on_delete=models.CASCADE, related_name='orders', null=True)
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
@@ -507,14 +581,20 @@ class Order(models.Model):
     vat_percentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        default=0,
-        verbose_name="VAT Percentage"
+        default=Decimal('0.00'),
+        verbose_name='VAT Percentage Applied'
     )
     vat_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        default=0,
-        verbose_name="VAT Amount"
+        default=Decimal('0.00'),
+        verbose_name='VAT Amount'
+    )
+    subtotal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name='Subtotal (before VAT)'
     )
 
     first_name = models.CharField(max_length=100)
@@ -527,8 +607,7 @@ class Order(models.Model):
     postal_code = models.CharField(max_length=20)
     notes = models.TextField(blank=True, null=True)
 
-    transfer_receipt = models.ImageField(upload_to='transfer_receipts/', null=True, blank=True,
-                                         verbose_name="إثبات التحويل")
+    transfer_receipt = models.ImageField(upload_to='transfer_receipts/', null=True, blank=True, verbose_name="إثبات التحويل")
     transfer_uploaded_at = models.DateTimeField(null=True, blank=True, verbose_name="تاريخ رفع إثبات التحويل")
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -642,7 +721,7 @@ class Order(models.Model):
             print(f"Updated total vendor commission: {commission_data['total_vendor_commission']}")
 
         # Calculate club revenue (total - commissions)
-        commission_data['club_revenue'] = commission_data['total_vendor_commission']
+        commission_data['club_revenue'] =  commission_data['total_vendor_commission']
         print(f"\nFinal calculations:")
         print(f"Total order amount: {self.total_price}")
         print(f"Total vendor commission: {commission_data['total_vendor_commission']}")
@@ -738,10 +817,12 @@ class OrderVendorCommission(models.Model):
         return f"Commission for {self.vendor.business_name} - Order #{self.order.id}"
 
 
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(ProductsModel, on_delete=models.SET_NULL, null=True, blank=True)
     service = models.ForeignKey(ServicesModel, on_delete=models.SET_NULL, null=True, blank=True)
+    service_package = models.ForeignKey('ServicePackage', on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -750,10 +831,17 @@ class OrderItem(models.Model):
             return f"{self.product.title} ({self.quantity})"
         elif self.service:
             return f"{self.service.title} ({self.quantity})"
+        elif self.service_package:  # NEW
+            return f"{self.service_package.title} ({self.quantity})"
         return f"Order Item #{self.id}"
 
     def get_total(self):
         return self.price * self.quantity
+
+    @property
+    def is_package(self):
+        """Check if this item is a package"""
+        return self.service_package is not None
 
     @property
     def vendor_commission_info(self):
@@ -797,6 +885,30 @@ class OrderItem(models.Model):
             return 'unknown'
 
     @property
+    def get_item_type(self):
+        """Get the type of item"""
+        if self.product:
+            return 'product'
+        elif self.service:
+            return 'service'
+        elif self.service_package:
+            return 'package'
+        return 'unknown'
+
+    @property
+    def get_item_type_display(self):
+        """Get the display name for the item type"""
+
+        item_type = self.get_item_type
+        if item_type == 'product':
+            return 'منتج'
+        elif item_type == 'service':
+            return 'خدمة'
+        elif item_type == 'package':
+            return 'باقة'
+        return 'غير معروف'
+
+    @property
     def get_order_type_display(self):
         """Returns the display name for the order type in Arabic"""
         order_type = self.get_order_type
@@ -808,7 +920,6 @@ class OrderItem(models.Model):
             return 'منتجات وخدمات'
         else:
             return 'غير معروف'
-
 
 class OrderCancellation(models.Model):
     CANCELLATION_REASONS = [
@@ -907,13 +1018,11 @@ class Review(models.Model):
         """Determine if review should be visible based on order status"""
         return self.order.status in ['confirmed', 'completed']
 
-
 class ProductClick(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(ProductsModel, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     source = models.CharField(max_length=50)
-
 
 class ServiceClick(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

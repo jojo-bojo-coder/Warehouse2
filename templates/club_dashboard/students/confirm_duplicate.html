@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-white min-h-screen px-4 pt-8 dark:bg-gray-900">
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-white min-h-screen px-4 pt-8 dark:bg-gray-900">
   <div class="container mx-auto max-w-2xl">
     <h1 class="text-2xl font-bold text-red-600 mb-6 dark:text-red-400">
       <i class="fas fa-exclamation-triangle mr-2"></i>

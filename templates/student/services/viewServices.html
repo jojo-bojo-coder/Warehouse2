@@ -30,7 +30,7 @@
 
         <!-- Search and Filter Controls -->
         <div class="flex flex-col md:flex-row gap-4 mb-6">
-            <div class="md:w-1/5">
+            <div class="md:w-1/4">
                 <div class="relative">
                     <select id="sort-services" class="w-full p-2 border border-pink-200 rounded-md appearance-none pr-8 focus:border-pink-400 focus:ring focus:ring-pink-200 focus:ring-opacity-50 transition-all duration-300">
                         <option value="name">{% if LANGUAGE_CODE == 'ar' %}
@@ -54,13 +54,13 @@
                             Sort by Subscription Period
                             {% endif %}</option>
                     </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
                         <i class="fas fa-chevron-down text-pink-400"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="md:w-1/5">
+            <div class="md:w-1/4">
                 <div class="relative">
                     <select id="filter-classification" class="w-full p-2 border border-pink-200 rounded-md appearance-none pr-8 focus:border-pink-400 focus:ring focus:ring-pink-200 focus:ring-opacity-50 transition-all duration-300">
                         <option value="all">{% if LANGUAGE_CODE == 'ar' %}
@@ -75,31 +75,13 @@
                         {% endfor %}
                         {% endfor %}
                     </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
                         <i class="fas fa-filter text-pink-400"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="md:w-1/5">
-                <div class="relative">
-                    <select id="filter-pricing-period" class="w-full p-2 border border-pink-200 rounded-md appearance-none pr-8 focus:border-pink-400 focus:ring focus:ring-pink-200 focus:ring-opacity-50 transition-all duration-300">
-                        <option value="all">{% if LANGUAGE_CODE == 'ar' %}
-                            جميع فترات الاشتراك
-                            {% else %}
-                            All Subscription Periods
-                            {% endif %}</option>
-                        {% for period_value, period_label in PRICING_PERIOD_CHOICES %}
-                        <option value="{{ period_value }}">{{ period_label }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                        <i class="fas fa-calendar text-pink-400"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="md:w-1/5">
+            <div class="md:w-1/4">
                 <div class="relative">
                     <select id="filter-price" class="w-full p-2 border border-pink-200 rounded-md appearance-none pr-8 focus:border-pink-400 focus:ring focus:ring-pink-200 focus:ring-opacity-50 transition-all duration-300">
                         <option value="all">{% if LANGUAGE_CODE == 'ar' %}
@@ -123,13 +105,13 @@
                             Over 100 SAR/month
                             {% endif %}</option>
                     </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
                         <i class="fas fa-tags text-pink-400"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="md:w-1/5">
+            <div class="md:w-1/4">
                 <input
                         type="text"
                         id="search-services"
@@ -145,7 +127,7 @@
             <div class="mb-8 bg-white rounded-lg shadow-lg overflow-hidden service-card transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl {% if service.is_promoted %}promoted-service promoted-item{% endif %}"
                  data-total-price="{{ service.discounted_price|default:service.price }}"
                  data-monthly-price="{{ service.monthly_price }}"
-                 data-pricing-period="{{ service.pricing_period_months }}"
+                 data-subscription-period="{{ service.subscription_days|default:0 }}"
                  data-classifications="{% for classification in service.classification.all %}{{ classification.id }}{% if not forloop.last %},{% endif %}{% endfor %}"
                  data-title="{{ service.title|lower }}"
                  data-description="{{ service.desc|default:''|lower }}">
@@ -170,21 +152,6 @@
                     </div>
                     {% endif %}
                     <h3 class="text-pink-600 text-xl font-bold mb-2 service-title">{{ service.title }}</h3>
-
-
-                    <!-- Subscription Period Badge -->
-                    <div class="mb-3">
-                        <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium">
-                            {% if LANGUAGE_CODE == 'ar' %}
-                                فترة الاشتراك: {{ service.pricing_period_months }}
-                                {% if service.pricing_period_months == 1 %}شهر{% else %}أشهر{% endif %}
-                            {% else %}
-                                {% for period_value, period_label in PRICING_PERIOD_CHOICES %}
-                                    {% if period_value == service.pricing_period_months %}{{ period_label }}{% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        </span>
-                    </div>
 
                     {% if service.duration %}
                     <div class="flex justify-center items-center gap-2 mb-2">

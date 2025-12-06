@@ -3,7 +3,7 @@
 {% load permission_tags %}
 {% block content %}
 <style>
-  /* Reuse the same styles from revenue_analytics.html */
+  /* Animation Classes */
   .animate-float {
       animation: float 4s ease-in-out infinite;
   }
@@ -23,6 +23,23 @@
       opacity: 0;
   }
 
+  /* Keyframes */
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Button Effects */
   .btn-gradient {
       background-size: 200% auto;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -39,18 +56,26 @@
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
 
-  /* Form section styles */
+  /* Form section styles - updated to match index.html design */
   .form-section {
-      background-color: rgba(255, 255, 255, 0.9);
+      background-color: white;
       border-radius: 0.75rem;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+      transition: all 0.3s ease;
   }
 
   .dark .form-section {
-      background-color: rgba(31, 41, 55, 0.9);
+      background-color: #1f2937;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+      border-color: #374151;
+  }
+
+  .form-section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
 
   .form-label {
@@ -66,11 +91,12 @@
 
   .form-control {
       width: 100%;
-      padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
       border: 1px solid #d1d5db;
       background-color: white;
       color: #374151;
+      transition: all 0.2s ease;
   }
 
   .dark .form-control {
@@ -79,18 +105,29 @@
       color: #f3f4f6;
   }
 
-  /* Tab styles */
+  .form-control:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Tab styles - updated to match index.html design */
   .tab-container {
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
   }
 
   .tab-buttons {
       display: flex;
       border-bottom: 1px solid #e5e7eb;
+      background-color: white;
+      border-radius: 0.75rem 0.75rem 0 0;
+      padding: 0.5rem 0.5rem 0 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .dark .tab-buttons {
       border-color: #4b5563;
+      background-color: #1f2937;
   }
 
   .tab-button {
@@ -99,20 +136,34 @@
       border-bottom: 2px solid transparent;
       font-weight: 600;
       color: #6b7280;
+      border-radius: 0.5rem 0.5rem 0 0;
+      transition: all 0.2s ease;
   }
 
   .dark .tab-button {
       color: #9ca3af;
   }
 
+  .tab-button:hover {
+      color: #374151;
+      background-color: #f9fafb;
+  }
+
+  .dark .tab-button:hover {
+      color: #f3f4f6;
+      background-color: #374151;
+  }
+
   .tab-button.active {
       color: #3b82f6;
       border-bottom-color: #3b82f6;
+      background-color: #f0f9ff;
   }
 
   .dark .tab-button.active {
       color: #60a5fa;
       border-bottom-color: #60a5fa;
+      background-color: #1e3a5f;
   }
 
   .tab-content {
@@ -124,251 +175,283 @@
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full min-h-screen pb-12 dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
+<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
 
-  <!-- Main Content -->
-  <div class="px-4 md:px-8 pt-6">
-    <!-- Header Section -->
-    <div class="py-6 text-center">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+  <!-- Header Section - matching index.html style -->
+  <div class="py-8">
+    <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
+      {% if LANGUAGE_CODE == 'ar' %}
+      إدارة محتوى الموقع
+      {% else %}
+      Website Content Management
+      {% endif %}
+    </h1>
+    <p class="text-gray-600 dark:text-gray-400">
+      {% if LANGUAGE_CODE == 'ar' %}
+      تعديل محتوى الصفحة الرئيسية وشروط وأحكام الموقع
+      {% else %}
+      Edit landing page content and terms & conditions
+      {% endif %}
+    </p>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-container">
+    <div class="tab-buttons">
+      <button class="tab-button active animate-[fadeIn_0.6s_ease-out_0.1s_both]" data-tab="landing">
         {% if LANGUAGE_CODE == 'ar' %}
-        إدارة محتوى الموقع
+        الصفحة الرئيسية
         {% else %}
-        Website Content Management
+        Landing Page
         {% endif %}
-      </h1>
-      <p class="text-gray-600 dark:text-gray-300 mt-2">
+      </button>
+      <button class="tab-button animate-[fadeIn_0.6s_ease-out_0.2s_both]" data-tab="terms">
         {% if LANGUAGE_CODE == 'ar' %}
-        تعديل محتوى الصفحة الرئيسية وشروط وأحكام الموقع
+        الشروط والأحكام
         {% else %}
-        Edit landing page content and terms & conditions
+        Terms & Conditions
         {% endif %}
-      </p>
+      </button>
     </div>
+  </div>
 
-    <!-- Tab Navigation -->
-    <div class="tab-container">
-      <div class="tab-buttons">
-        <button class="tab-button active" data-tab="landing">
+  <!-- Landing Page Form -->
+  <div id="landing-tab" class="tab-content active">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="form_type" value="landing">
+
+      <!-- Hero Section -->
+      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.3s_both]">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+            </svg>
+          </div>
           {% if LANGUAGE_CODE == 'ar' %}
-          الصفحة الرئيسية
+          قسم البطل (Hero Section)
           {% else %}
-          Landing Page
+          Hero Section
+          {% endif %}
+        </h2>
+
+        <div class="grid grid-cols-1 gap-6 mb-6">
+          <div>
+            <label for="{{ landing_form.hero_title.id_for_label }}" class="form-label">
+              {% if LANGUAGE_CODE == 'ar' %}
+              العنوان الرئيسي
+              {% else %}
+              Main Title
+              {% endif %}
+            </label>
+            {{ landing_form.hero_title }}
+          </div>
+
+          <div>
+            <label for="{{ landing_form.hero_subtitle.id_for_label }}" class="form-label">
+              {% if LANGUAGE_CODE == 'ar' %}
+              العنوان الفرعي
+              {% else %}
+              Subtitle
+              {% endif %}
+            </label>
+            {{ landing_form.hero_subtitle }}
+          </div>
+        </div>
+      </div>
+
+      <!-- About Section -->
+      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.4s_both]">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <div class="p-2 bg-green-100 dark:bg-green-900 rounded-full text-green-600 dark:text-green-300">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          {% if LANGUAGE_CODE == 'ar' %}
+          قسم عن المنصة
+          {% else %}
+          About Section
+          {% endif %}
+        </h2>
+
+        <div class="grid grid-cols-1 gap-6 mb-6">
+          <div>
+            <label for="{{ landing_form.about_title.id_for_label }}" class="form-label">
+              {% if LANGUAGE_CODE == 'ar' %}
+              عنوان القسم
+              {% else %}
+              Section Title
+              {% endif %}
+            </label>
+            {{ landing_form.about_title }}
+          </div>
+
+          <div>
+            <label for="{{ landing_form.about_description.id_for_label }}" class="form-label">
+              {% if LANGUAGE_CODE == 'ar' %}
+              وصف القسم
+              {% else %}
+              Section Description
+              {% endif %}
+            </label>
+            {{ landing_form.about_description }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Features Section -->
+      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.5s_both]">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-full text-purple-600 dark:text-purple-300">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          {% if LANGUAGE_CODE == 'ar' %}
+          قسم المميزات
+          {% else %}
+          Features Section
+          {% endif %}
+        </h2>
+
+        <div class="grid grid-cols-1 gap-6 mb-6">
+          <div>
+            <label for="{{ landing_form.features_title.id_for_label }}" class="form-label">
+              {% if LANGUAGE_CODE == 'ar' %}
+              عنوان القسم
+              {% else %}
+              Section Title
+              {% endif %}
+            </label>
+            {{ landing_form.features_title }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing Section -->
+      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.6s_both]">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full text-yellow-600 dark:text-yellow-300">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          {% if LANGUAGE_CODE == 'ar' %}
+          قسم الباقات
+          {% else %}
+          Pricing Section
+          {% endif %}
+        </h2>
+
+        <div class="grid grid-cols-1 gap-6 mb-6">
+          <div>
+            <label for="{{ landing_form.plans_title.id_for_label }}" class="form-label">
+              {% if LANGUAGE_CODE == 'ar' %}
+              عنوان القسم
+              {% else %}
+              Section Title
+              {% endif %}
+            </label>
+            {{ landing_form.plans_title }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Call to Action Section -->
+      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.7s_both]">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <div class="p-2 bg-red-100 dark:bg-red-900 rounded-full text-red-600 dark:text-red-300">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          {% if LANGUAGE_CODE == 'ar' %}
+          قسم الدعوة للعمل
+          {% else %}
+          Call to Action Section
+          {% endif %}
+        </h2>
+
+        <div class="grid grid-cols-1 gap-6 mb-6">
+          <div>
+            <label for="{{ landing_form.cta_title.id_for_label }}" class="form-label">
+              {% if LANGUAGE_CODE == 'ar' %}
+              عنوان القسم
+              {% else %}
+              Section Title
+              {% endif %}
+            </label>
+            {{ landing_form.cta_title }}
+          </div>
+
+          <div>
+            <label for="{{ landing_form.cta_description.id_for_label }}" class="form-label">
+              {% if LANGUAGE_CODE == 'ar' %}
+              وصف القسم
+              {% else %}
+              Section Description
+              {% endif %}
+            </label>
+            {{ landing_form.cta_description }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button for Landing Page -->
+      <div class="mt-6 flex justify-end animate-[fadeIn_0.8s_ease-out_0.8s_both]">
+        <button type="submit" class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition duration-300 font-semibold">
+          {% if LANGUAGE_CODE == 'ar' %}
+          حفظ تغييرات الصفحة الرئيسية
+          {% else %}
+          Save Landing Page Changes
           {% endif %}
         </button>
-        <button class="tab-button" data-tab="terms">
+      </div>
+    </form>
+  </div>
+
+  <!-- Terms & Conditions Form -->
+  <div id="terms-tab" class="tab-content">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="form_type" value="terms">
+
+      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.3s_both]">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H6z" clip-rule="evenodd"/>
+            </svg>
+          </div>
           {% if LANGUAGE_CODE == 'ar' %}
           الشروط والأحكام
           {% else %}
           Terms & Conditions
           {% endif %}
+        </h2>
+
+        <div class="grid grid-cols-1 gap-6 mb-6">
+          <div>
+            {{ terms_form.content }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button for Terms & Conditions -->
+      <div class="mt-6 flex justify-end animate-[fadeIn_0.8s_ease-out_0.4s_both]">
+        <button type="submit" class="btn-gradient bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition duration-300 font-semibold">
+          {% if LANGUAGE_CODE == 'ar' %}
+          حفظ الشروط والأحكام
+          {% else %}
+          Save Terms & Conditions
+          {% endif %}
         </button>
       </div>
-    </div>
-
-    <!-- Landing Page Form -->
-    <div id="landing-tab" class="tab-content active">
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="hidden" name="form_type" value="landing">
-
-        <div class="form-section">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-            {% if LANGUAGE_CODE == 'ar' %}
-            قسم البطل (Hero Section)
-            {% else %}
-            Hero Section
-            {% endif %}
-          </h2>
-
-          <div class="grid grid-cols-1 gap-6 mb-6">
-            <div>
-              <label for="{{ landing_form.hero_title.id_for_label }}" class="form-label">
-                {% if LANGUAGE_CODE == 'ar' %}
-                العنوان الرئيسي
-                {% else %}
-                Main Title
-                {% endif %}
-              </label>
-              {{ landing_form.hero_title }}
-            </div>
-
-            <div>
-              <label for="{{ landing_form.hero_subtitle.id_for_label }}" class="form-label">
-                {% if LANGUAGE_CODE == 'ar' %}
-                العنوان الفرعي
-                {% else %}
-                Subtitle
-                {% endif %}
-              </label>
-              {{ landing_form.hero_subtitle }}
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-            {% if LANGUAGE_CODE == 'ar' %}
-            قسم عن المنصة
-            {% else %}
-            About Section
-            {% endif %}
-          </h2>
-
-          <div class="grid grid-cols-1 gap-6 mb-6">
-            <div>
-              <label for="{{ landing_form.about_title.id_for_label }}" class="form-label">
-                {% if LANGUAGE_CODE == 'ar' %}
-                عنوان القسم
-                {% else %}
-                Section Title
-                {% endif %}
-              </label>
-              {{ landing_form.about_title }}
-            </div>
-
-            <div>
-              <label for="{{ landing_form.about_description.id_for_label }}" class="form-label">
-                {% if LANGUAGE_CODE == 'ar' %}
-                وصف القسم
-                {% else %}
-                Section Description
-                {% endif %}
-              </label>
-              {{ landing_form.about_description }}
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-            {% if LANGUAGE_CODE == 'ar' %}
-            قسم المميزات
-            {% else %}
-            Features Section
-            {% endif %}
-          </h2>
-
-          <div class="grid grid-cols-1 gap-6 mb-6">
-            <div>
-              <label for="{{ landing_form.features_title.id_for_label }}" class="form-label">
-                {% if LANGUAGE_CODE == 'ar' %}
-                عنوان القسم
-                {% else %}
-                Section Title
-                {% endif %}
-              </label>
-              {{ landing_form.features_title }}
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-            {% if LANGUAGE_CODE == 'ar' %}
-            قسم الباقات
-            {% else %}
-            Pricing Section
-            {% endif %}
-          </h2>
-
-          <div class="grid grid-cols-1 gap-6 mb-6">
-            <div>
-              <label for="{{ landing_form.plans_title.id_for_label }}" class="form-label">
-                {% if LANGUAGE_CODE == 'ar' %}
-                عنوان القسم
-                {% else %}
-                Section Title
-                {% endif %}
-              </label>
-              {{ landing_form.plans_title }}
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-            {% if LANGUAGE_CODE == 'ar' %}
-            قسم الدعوة للعمل
-            {% else %}
-            Call to Action Section
-            {% endif %}
-          </h2>
-
-          <div class="grid grid-cols-1 gap-6 mb-6">
-            <div>
-              <label for="{{ landing_form.cta_title.id_for_label }}" class="form-label">
-                {% if LANGUAGE_CODE == 'ar' %}
-                عنوان القسم
-                {% else %}
-                Section Title
-                {% endif %}
-              </label>
-              {{ landing_form.cta_title }}
-            </div>
-
-            <div>
-              <label for="{{ landing_form.cta_description.id_for_label }}" class="form-label">
-                {% if LANGUAGE_CODE == 'ar' %}
-                وصف القسم
-                {% else %}
-                Section Description
-                {% endif %}
-              </label>
-              {{ landing_form.cta_description }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Submit Button for Landing Page -->
-        <div class="mt-6 flex justify-end">
-          <button type="submit" class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition duration-300">
-            {% if LANGUAGE_CODE == 'ar' %}
-            حفظ تغييرات الصفحة الرئيسية
-            {% else %}
-            Save Landing Page Changes
-            {% endif %}
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Terms & Conditions Form -->
-    <div id="terms-tab" class="tab-content">
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="hidden" name="form_type" value="terms">
-
-        <div class="form-section">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-            {% if LANGUAGE_CODE == 'ar' %}
-            الشروط والأحكام
-            {% else %}
-            Terms & Conditions
-            {% endif %}
-          </h2>
-
-          <div class="grid grid-cols-1 gap-6 mb-6">
-            <div>
-              {{ terms_form.content }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Submit Button for Terms & Conditions -->
-        <div class="mt-6 flex justify-end">
-          <button type="submit" class="btn-gradient bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition duration-300">
-            {% if LANGUAGE_CODE == 'ar' %}
-            حفظ الشروط والأحكام
-            {% else %}
-            Save Terms & Conditions
-            {% endif %}
-          </button>
-        </div>
-      </form>
-    </div>
-
+    </form>
   </div>
+
 </div>
 
 <script>
@@ -390,27 +473,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Dark mode toggle (reused from revenue_analytics.html)
+    // Dark mode toggle (reused from index.html)
     function toggleDarkMode() {
         const html = document.documentElement;
+        const toggle = document.getElementById('toggle');
+
         if (html.classList.contains('dark')) {
             html.classList.remove('dark');
+            if(toggle) toggle.checked = false;
             document.cookie = "darkMode=false; path=/; max-age=31536000";
         } else {
             html.classList.add('dark');
+            if(toggle) toggle.checked = true;
             document.cookie = "darkMode=true; path=/; max-age=31536000";
         }
     }
 
-    // Initialize dark mode based on cookie
+    // Check for saved dark mode preference on page load
     const darkModeCookie = document.cookie
         .split('; ')
         .find(row => row.startsWith('darkMode='));
+
     const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
         document.documentElement.classList.add('dark');
+        const toggle = document.getElementById('toggle');
+        if(toggle) toggle.checked = true;
     }
 });
 </script>

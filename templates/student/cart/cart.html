@@ -3,94 +3,213 @@
 {% load static %}
 {% block content %}
 
-<div class="bg-gradient-to-br from-rose-50 to-amber-50 min-h-screen py-8 ">
-    <div class="max-w-5xl mx-auto px-4">
+<style>
+    /* Custom styles for cart */
+    .cart-item-animation {
+        transition: all 0.3s ease;
+    }
+
+    .cart-item-removing {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    .quantity-btn {
+        transition: all 0.2s ease;
+    }
+
+    .quantity-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .empty-cart-animation {
+        animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .price-highlight {
+        animation: highlight 1s ease;
+    }
+
+    @keyframes highlight {
+        0% { background-color: #fce7f3; }
+        100% { background-color: transparent; }
+    }
+
+    .sticky-summary {
+        position: sticky;
+        top: 100px;
+    }
+
+    .coupon-success {
+        border-color: #10b981;
+        background-color: #ecfdf5;
+    }
+
+    .coupon-error {
+        border-color: #ef4444;
+        background-color: #fef2f2;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="bg-gradient-to-br from-rose-50 to-amber-50 min-h-screen py-8">
+    <div class="max-w-6xl mx-auto px-4">
         <!-- Breadcrumbs -->
-        <div class=" items-center mb-6 text-gray-600 flex-row-reverse">
-            <a href="{% url 'studentIndex' %}" class="hover:text-pink-600">
-                {% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Home{% endif %}
-            </a>
-            <span class="mx-2">/</span>
-            <span class="text-pink-600">
-                {% if LANGUAGE_CODE == 'ar' %}سلة التسوق{% else %}Shopping Cart{% endif %}
-            </span>
-        </div>
+        <nav class="mb-8" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 text-sm {% if LANGUAGE_CODE == 'en' %}flex-row-reverse space-x-reverse{% endif %}">
+                <li>
+                    <a href="{% url 'studentIndex' %}" class="ml-2 text-gray-600 hover:text-pink-600 transition-colors">
+                        <i class="fas fa-home {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Home{% endif %}
+                    </a>
+                </li>
+                <li class="text-gray-400">
+                    <i class="fas fa-chevron-{% if LANGUAGE_CODE == 'ar' %}left{% else %}right{% endif %}"></i>
+                </li>
+                <li class="text-pink-600 font-medium">
+                    <i class="mr-2 fas fa-shopping-cart {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}سلة التسوق{% else %}Shopping Cart{% endif %}
+                </li>
+            </ol>
+        </nav>
 
         <h1 class="text-3xl font-bold text-pink-800 mb-8 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
             <i class="fas fa-shopping-cart {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
             {% if LANGUAGE_CODE == 'ar' %}سلة التسوق{% else %}Shopping Cart{% endif %}
+            {% if product_items or service_items or package_items %}
+            <span class="text-lg text-gray-600 font-normal">
+                 ({{ total_count }} {% if LANGUAGE_CODE == 'ar' %}عنصر{% else %}items{% endif %})
+            </span>
+            {% endif %}
         </h1>
 
-        {% if product_items or service_items %}
-        <div class="flex flex-col lg:flex-row gap-6 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %} mb-12">
-            <!-- Cart Items -->
-            <div class="lg:w-2/3">
+        {% if product_items or service_items or package_items %}
+        <div class="flex flex-col lg:flex-row gap-8 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %} mb-24">
+            <!-- Cart Items Section -->
+            <div class="lg:w-2/3 space-y-6">
                 <!-- Products Section -->
                 {% if product_items %}
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6 border-l-4 border-pink-400 transition-all hover:shadow-lg">
-                    <h2 class="text-xl font-semibold mb-4 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-pink-700">
-                        <i class="fas fa-box-open {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
-                        {% if LANGUAGE_CODE == 'ar' %}المنتجات ({{ product_items|length }}){% else %}Products ({{ product_items|length }}){% endif %}
-                    </h2>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-pink-500">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-pink-700 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
+                            <i class="fas fa-box-open {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}المنتجات{% else %}Products{% endif %}
+                            <span class="text-pink-500 ml-2">({{ product_items|length }})</span>
+                        </h2>
+                        {% if product_items|length > 0 %}
+                        <button onclick="clearAllProducts()"
+                                class="text-sm text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors">
+                            <i class="fas fa-trash-alt {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}إزالة الكل{% else %}Clear All{% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
 
-                    <div class="flex flex-col space-y-4">
+                    <div class="space-y-4">
                         {% for item in product_items %}
-                        <div id="product-item-{{ item.id }}" class="flex flex-col md:flex-row border-b pb-4 last:border-0 hover:bg-pink-50 p-2 rounded-lg transition-all {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                            <!-- Product Image -->
-                            <div class="md:w-1/4 mb-4 md:mb-0">
-                                {% if item.product.product_images.all %}
-                                <img src="{{ item.product.product_images.first.img.url }}"
-                                     alt="{{ item.product.title }}"
-                                     class="w-full h-24 object-contain rounded-md shadow-sm">
-                                {% else %}
-                                <div class="h-24 w-full bg-pink-100 flex items-center justify-center rounded-md">
-                                    <span class="text-pink-400"><i class="fas fa-image text-2xl"></i></span>
-                                </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Product Details -->
-                            <div class="md:w-3/4 md:pr-4 flex flex-col justify-between">
-                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-2 md:space-y-0 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                                    <div class="{% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
-                                        <h3 class="font-semibold text-lg text-pink-800">{{ item.product.title }}</h3>
-                                        <p class="text-gray-600 text-sm">
-                                            {{ item.product.price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                        </p>
+                        <div id="product-item-{{ item.id }}" class="cart-item-animation bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                            <div class="flex flex-col md:flex-row {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %} items-center gap-4">
+                                <!-- Product Image -->
+                                <div class="md:w-24">
+                                    {% if item.product.product_images.all %}
+                                    <img src="{{ item.product.product_images.first.img.url }}"
+                                         alt="{{ item.product.title }}"
+                                         class="w-24 h-24 object-cover rounded-lg shadow-sm">
+                                    {% else %}
+                                    <div class="w-24 h-24 bg-pink-100 flex items-center justify-center rounded-lg">
+                                        <span class="text-pink-400 text-3xl"><i class="fas fa-box"></i></span>
                                     </div>
-
-                                    <!-- Quantity Control -->
-                                    <div class="flex items-center">
-                                        <button class="update-cart-btn bg-pink-100 text-pink-700 px-3 py-1 {% if LANGUAGE_CODE == 'ar' %}rounded-r-md{% else %}rounded-l-md{% endif %} hover:bg-pink-200 transition-colors"
-                                                data-id="{{ item.id }}"
-                                                data-action="decrease"
-                                                data-type="product">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                        <span class="px-4 py-1 bg-pink-50 text-center product-quantity font-medium" data-id="{{ item.id }}">
-                                            {{ item.quantity }}
-                                        </span>
-                                        <button class="update-cart-btn bg-pink-100 text-pink-700 px-3 py-1 {% if LANGUAGE_CODE == 'ar' %}rounded-l-md{% else %}rounded-r-md{% endif %} hover:bg-pink-200 transition-colors"
-                                                data-id="{{ item.id }}"
-                                                data-action="increase"
-                                                data-type="product">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
+                                    {% endif %}
                                 </div>
 
-                                <div class="flex justify-between items-center mt-4 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                                    <form action="{% url 'delete_product_from_cart' item.id %}" method="post" style="display:inline;">
-                                        {% csrf_token %}
-                                    <button class="update-cart-btn text-red-500 hover:text-red-700 transition-colors flex items-center"
-                                            type="submit">
-                                        <i class="fas fa-trash-alt {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                                        {% if LANGUAGE_CODE == 'ar' %}إزالة{% else %}Remove{% endif %}
-                                    </button>
-                                    </form>
-                                    <p class="font-semibold text-lg text-pink-600 product-total" data-id="{{ item.id }}">
-                                        {{ item.total_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </p>
+                                <!-- Product Details -->
+                                <div class="flex-1">
+                                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                                        <div class="{% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
+                                            <h3 class="font-bold text-lg text-gray-800 mb-1">{{ item.product.title }}</h3>
+                                            {% if item.product.desc %}
+                                            <p class="text-gray-600 text-sm mb-2 line-clamp-1">{{ item.product.desc }}</p>
+                                            {% endif %}
+                                            <div class="flex items-center text-sm text-gray-500">
+                                                <i class="fas fa-tag {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                                <span>{{ item.product.price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}</span>
+                                                {% if item.product.discounted_price %}
+                                                <span class="text-green-600 ml-2">
+                                                    <i class="fas fa-badge-percent"></i>
+                                                    {% if LANGUAGE_CODE == 'ar' %}خصم{% else %}Discount{% endif %}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Quantity Control -->
+                                        <div class="flex items-center bg-gray-50 rounded-lg">
+                                            <button onclick="updateProductCart({{ item.id }}, 'decrease')"
+                                                    class="quantity-btn w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-l-lg transition-colors">
+                                                <i class="fas fa-minus text-sm"></i>
+                                            </button>
+                                            <span id="product-quantity-{{ item.id }}"
+                                                  class="px-4 py-2 bg-white text-center font-bold min-w-[60px]">
+                                                {{ item.quantity }}
+                                            </span>
+                                            <button onclick="updateProductCart({{ item.id }}, 'increase')"
+                                                    class="quantity-btn w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-r-lg transition-colors"
+                                                    {% if item.quantity >= item.product.stock %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
+                                                <i class="fas fa-plus text-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stock and Actions -->
+                                    <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                                        <div>
+                                            {% if item.product.stock < 10 and item.product.stock > 0 %}
+                                            <span class="text-amber-600 text-sm">
+                                                <i class="fas fa-exclamation-triangle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}كمية محدودة{% else %}Low stock{% endif %} ({{ item.product.stock }})
+                                            </span>
+                                            {% elif item.product.stock == 0 %}
+                                            <span class="text-red-600 text-sm">
+                                                <i class="fas fa-times-circle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}غير متوفر{% else %}Out of stock{% endif %}
+                                            </span>
+                                            {% else %}
+                                            <span class="text-green-600 text-sm">
+                                                <i class="fas fa-check-circle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}متوفر{% else %}In stock{% endif %}
+                                            </span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="flex items-center gap-4">
+                                            <span id="product-total-{{ item.id }}" class="font-bold text-lg text-pink-600">
+                                                {{ item.total_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                            </span>
+                                            <button onclick="updateProductCart({{ item.id }}, 'remove')"
+                                                    class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors flex items-center">
+                                                <i class="fas fa-trash-alt {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Remove{% endif %}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -101,91 +220,109 @@
 
                 <!-- Services Section -->
                 {% if service_items %}
-                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-pink-400 transition-all hover:shadow-lg">
-                    <h2 class="text-xl font-semibold mb-4 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-pink-700">
-                        <i class="fas fa-concierge-bell {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
-                        {% if LANGUAGE_CODE == 'ar' %}الخدمات ({{ service_items|length }}){% else %}Services ({{ service_items|length }}){% endif %}
-                    </h2>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-blue-700 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
+                            <i class="fas fa-concierge-bell {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}الخدمات{% else %}Services{% endif %}
+                            <span class="text-blue-500 ml-2">({{ service_items|length }})</span>
+                        </h2>
+                        {% if service_items|length > 0 %}
+                        <button onclick="clearAllServices()"
+                                class="text-sm text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors">
+                            <i class="fas fa-trash-alt {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}إزالة الكل{% else %}Clear All{% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
 
-                    <div class="flex flex-col space-y-4">
+                    <div class="space-y-4">
                         {% for item in service_items %}
-                        <div id="service-item-{{ item.id }}" class="flex flex-col md:flex-row border-b pb-4 last:border-0 hover:bg-pink-50 p-2 rounded-lg transition-all {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                            <!-- Service Image -->
-                            <div class="md:w-1/4 mb-4 md:mb-0">
-                                {% if item.service.image %}
-                                <img src="{{ item.service.image.url }}"
-                                     alt="{{ item.service.title }}"
-                                     class="w-full h-24 object-contain rounded-md shadow-sm">
-                                {% else %}
-                                <div class="h-24 w-full bg-pink-100 flex items-center justify-center rounded-md">
-                                    <span class="text-pink-400"><i class="fas fa-spa text-2xl"></i></span>
-                                </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Service Details -->
-                            <div class="md:w-3/4 md:pr-4 flex flex-col justify-between">
-                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-2 md:space-y-0 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                                    <div class="{% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
-                                        <h3 class="font-semibold text-lg text-pink-800">{{ item.service.title }}</h3>
-
-
+                        <div id="service-item-{{ item.id }}" class="cart-item-animation bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                            <div class="flex flex-col md:flex-row {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %} items-center gap-4">
+                                <!-- Service Image -->
+                                <div class="md:w-24">
+                                    {% if item.service.image %}
+                                    <img src="{{ item.service.image.url }}"
+                                         alt="{{ item.service.title }}"
+                                         class="w-24 h-24 object-cover rounded-lg shadow-sm">
+                                    {% else %}
+                                    <div class="w-24 h-24 bg-blue-100 flex items-center justify-center rounded-lg">
+                                        <span class="text-blue-400 text-3xl"><i class="fas fa-spa"></i></span>
                                     </div>
-
-                                    <div class="mt-2 text-xs text-gray-600 bg-pink-50 p-2 rounded-md border border-pink-100 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
-                                        <p>
-                                            <i class="far fa-clock {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                                            {% if LANGUAGE_CODE == 'ar' %}مدة الخدمة: {{ item.service.duration }} دقيقة{% else %}Duration: {{ item.service.duration }} mins{% endif %}
-                                        </p>
-                                        <p>
-                                            <i class="far fa-calendar-alt {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                                            {% if LANGUAGE_CODE == 'ar' %}تاريخ الحجز: {% now "Y-m-d" %}{% else %}Booking Date: {% now "Y-m-d" %}{% endif %}
-                                        </p>
-                                        {% if item.appointment_date %}
-                                        <p>
-                                            <i class="far fa-calendar-check {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                                            {% if LANGUAGE_CODE == 'ar' %}تاريخ الموعد: {{ item.appointment_date }}{% else %}Appointment Date: {{ item.appointment_date }}{% endif %}
-                                        </p>
-                                        {% else %}
-                                        <p class="text-amber-600">
-                                            <i class="fas fa-exclamation-circle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                                            {% if LANGUAGE_CODE == 'ar' %}عند استكمال عملية الدفع سيتم تفعيل اشتراكك في الخدمة لمدة {{ item.service.pricing_period_months }} {% if service.pricing_period_months == 1 %}شهر{% else %}أشهر{% endif %}{% else %}Appointment will be canceled if not paid at least one day in advance{% endif %}
-                                        </p>
-                                        {% endif %}
-                                    </div>
+                                    {% endif %}
                                 </div>
 
-                                <div class="flex justify-between items-center mt-4 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                                    <button class="update-cart-btn text-red-500 hover:text-red-700 transition-colors flex items-center"
-                                            data-id="{{ item.id }}"
-                                            data-action="remove"
-                                            data-type="service">
-                                        <i class="fas fa-trash-alt {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                                        {% if LANGUAGE_CODE == 'ar' %}إزالة{% else %}Remove{% endif %}
-                                    </button>
+                                <!-- Service Details -->
+                                <div class="flex-1">
+                                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                                        <div class="{% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
+                                            <h3 class="font-bold text-lg text-gray-800 mb-1">{{ item.service.title }}</h3>
+                                            {% if item.service.desc %}
+                                            <p class="text-gray-600 text-sm mb-2 line-clamp-1">{{ item.service.desc }}</p>
+                                            {% endif %}
+                                            <div class="flex items-center text-sm text-gray-500">
+                                                <i class="fas fa-clock {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                                <span>{{ item.service.duration }} {% if LANGUAGE_CODE == 'ar' %}دقيقة{% else %}mins{% endif %}</span>
+                                            </div>
+                                        </div>
 
-                                    <!-- Price Display -->
-                                    <div class="flex items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse justify-end{% else %}justify-start{% endif %}">
-                                        {% if item.service.discounted_price and item.service.discounted_price != item.service.price %}
-                                        <span class="font-semibold text-lg text-green-600 service-total" data-id="{{ item.id }}">
-                                            {{ item.total_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                        </span>
-                                        <div class="flex flex-col {% if LANGUAGE_CODE == 'ar' %}items-start mr-2{% else %}items-end ml-2{% endif %}">
-                                            <span class="text-xs text-gray-500 line-through">
-                                                {% widthratio item.service.price 1 1 as original_price %}
-                                                {{ original_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                            </span>
-                                            <span class="text-xs text-green-600 font-medium">
-                                                {% if LANGUAGE_CODE == 'ar' %}توفير{% else %}Save{% endif %}
-                                                {% widthratio item.service.price|sub:item.service.discounted_price 1 1 as savings %}
-                                                {{ savings }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                        <!-- Price Display -->
+                                        <div class="flex flex-col items-end">
+                                            {% if item.service.discounted_price and item.service.discounted_price != item.service.price %}
+                                            <div class="text-right mb-1">
+                                                <span class="text-sm text-gray-500 line-through">
+                                                    {{ item.service.price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                                </span>
+                                                <div class="text-green-600 text-xs font-bold">
+                                                    <i class="fas fa-percentage mr-1"></i>
+                                                    {% widthratio item.service.price|sub:item.service.discounted_price 1 100 as discount_percent %}
+                                                    {% widthratio discount_percent item.service.price 1 %}%
+                                                    {% if LANGUAGE_CODE == 'ar' %}توفير{% else %}OFF{% endif %}
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            <span class="font-bold text-lg {% if item.service.discounted_price %}text-green-600{% else %}text-blue-600{% endif %}">
+                                                {{ item.service.effective_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
                                             </span>
                                         </div>
-                                        {% else %}
-                                        <span class="font-semibold text-lg text-pink-600 service-total" data-id="{{ item.id }}">
-                                            {{ item.total_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                        </span>
-                                        {% endif %}
+                                    </div>
+
+                                    <!-- Service Info and Actions -->
+                                    <div class="mt-4 pt-4 border-t border-gray-100">
+                                        <!-- Service Details -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                            <div class="text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
+                                                <i class="fas {% if item.service.is_enabled %}fa-check-circle text-green-500{% else %}fa-times-circle text-red-500{% endif %} {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                                {% if item.service.is_enabled %}
+                                                    {% if LANGUAGE_CODE == 'ar' %}متاح{% else %}Available{% endif %}
+                                                {% else %}
+                                                    {% if LANGUAGE_CODE == 'ar' %}غير متاح{% else %}Not Available{% endif %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Actions -->
+                                        <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                                            <div class="text-sm text-gray-500">
+                                                <i class="fas fa-info-circle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}
+                                                    سيتم تفعيل اشتراكك بعد الدفع
+                                                {% else %}
+                                                    Subscription activates after payment
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <span id="service-total-{{ item.id }}" class="font-bold text-lg text-blue-600">
+                                                    {{ item.total_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                                </span>
+                                                <button onclick="updateServiceCart({{ item.id }}, 'remove')"
+                                                        class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors flex items-center">
+                                                    <i class="fas fa-trash-alt {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                                    {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Remove{% endif %}
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -194,139 +331,386 @@
                     </div>
                 </div>
                 {% endif %}
+
+                <!-- Packages Section -->
+                {% if package_items %}
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-purple-700 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
+                            <i class="fas fa-boxes {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}الباقات{% else %}Packages{% endif %}
+                            <span class="text-purple-500 ml-2">({{ package_items|length }})</span>
+                        </h2>
+                        {% if package_items|length > 0 %}
+                        <button onclick="clearAllPackages()"
+                                class="text-sm text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors">
+                            <i class="fas fa-trash-alt {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}إزالة الكل{% else %}Clear All{% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-4">
+                        {% for item in package_items %}
+                        <div id="package-item-{{ item.id }}" class="cart-item-animation bg-white border border-purple-100 rounded-xl p-4 hover:shadow-md transition-shadow">
+                            <div class="flex flex-col md:flex-row {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %} items-center gap-4">
+                                <!-- Package Icon -->
+                                <div class="md:w-24">
+                                    <div class="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center rounded-lg">
+                                        <span class="text-purple-500 text-3xl"><i class="fas fa-gift"></i></span>
+                                    </div>
+                                </div>
+
+                                <!-- Package Details -->
+                                <div class="flex-1">
+                                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                                        <div class="{% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
+                                            <h3 class="font-bold text-lg text-gray-800 mb-1">{{ item.service_package.title }}</h3>
+                                            <p class="text-gray-600 text-sm mb-2">{{ item.service_package.service.title }}</p>
+                                            <div class="flex flex-wrap gap-2">
+                                                <span class="inline-flex items-center text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                                                    <i class="fas fa-calendar ml-1"></i>
+                                                    {{ item.service_package.duration_days }} {% if LANGUAGE_CODE == 'ar' %}يوم{% else %}days{% endif %}
+                                                </span>
+                                                <span class="inline-flex items-center text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                                    <i class="fas fa-dumbbell ml-1"></i>
+                                                    {{ item.service_package.total_sessions }} {% if LANGUAGE_CODE == 'ar' %}جلسة{% else %}sessions{% endif %}
+                                                </span>
+                                                {% if item.service_package.is_popular %}
+                                                <span class="inline-flex items-center text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+                                                    <i class="fas fa-crown ml-1"></i>
+                                                    {% if LANGUAGE_CODE == 'ar' %}الأكثر شيوعاً{% else %}Popular{% endif %}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Price and Quantity -->
+                                        <div class="flex items-center gap-6">
+                                            <!-- Quantity Control -->
+                                            <div class="flex items-center bg-gray-50 rounded-lg">
+                                                <button onclick="updatePackageCart({{ item.id }}, 'decrease')"
+                                                        class="quantity-btn w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-l-lg transition-colors">
+                                                    <i class="fas fa-minus text-sm"></i>
+                                                </button>
+                                                <span id="package-quantity-{{ item.id }}"
+                                                      class="px-4 py-2 bg-white text-center font-bold min-w-[60px]">
+                                                    {{ item.quantity }}
+                                                </span>
+                                                <button onclick="updatePackageCart({{ item.id }}, 'increase')"
+                                                        class="quantity-btn w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-r-lg transition-colors">
+                                                    <i class="fas fa-plus text-sm"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Price -->
+                                            <div class="text-right">
+                                                {% if item.service_package.discounted_price %}
+                                                <div class="text-sm text-gray-500 line-through mb-1">
+                                                    {{ item.service_package.original_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                                </div>
+                                                <div class="font-bold text-lg text-purple-600">
+                                                    {{ item.service_package.discounted_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                                </div>
+                                                <div class="text-xs text-green-600 font-bold">
+                                                    <i class="fas fa-percentage mr-1"></i>
+                                                    {{ item.service_package.discount_percentage }}% OFF
+                                                </div>
+                                                {% else %}
+                                                <div class="font-bold text-lg text-gray-800">
+                                                    {{ item.service_package.original_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Features and Actions -->
+                                    {% if item.service_package.features_list %}
+                                    <div class="mt-4 pt-4 border-t border-gray-100">
+                                        <h4 class="font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-star text-yellow-500 {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
+                                            {% if LANGUAGE_CODE == 'ar' %}المميزات{% else %}Features{% endif %}
+                                        </h4>
+                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                            {% for feature in item.service_package.features_list|slice:":3" %}
+                                            <li>{{ feature }}</li>
+                                            {% endfor %}
+                                            {% if item.service_package.features_list|length > 3 %}
+                                            <li class="text-purple-600">
+                                                {% if LANGUAGE_CODE == 'ar' %}والمزيد...{% else %}And more...{% endif %}
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Actions -->
+                                    <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                                        <div class="text-sm text-gray-500">
+                                            <i class="fas fa-info-circle {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
+                                            {% if LANGUAGE_CODE == 'ar' %}
+                                                {{ item.service_package.sessions_per_week }} جلسة/أسبوع
+                                            {% else %}
+                                                {{ item.service_package.sessions_per_week }} sessions/week
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <span id="package-total-{{ item.id }}" class="font-bold text-lg text-purple-600">
+                                                {{ item.total_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                            </span>
+                                            <button onclick="updatePackageCart({{ item.id }}, 'remove')"
+                                                    class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors flex items-center">
+                                                <i class="fas fa-trash-alt {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                                {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Remove{% endif %}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        {% if has_package_discounts %}
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
+                            <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                                <span class="text-purple-700 font-medium">
+                                    <i class="fas fa-tag {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}إجمالي توفير الباقات{% else %}Total Package Savings{% endif %}
+                                </span>
+                                <span class="font-bold text-lg text-purple-600">
+                                    -{{ total_package_savings|floatformat:2 }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Summary Section -->
-            <div class="lg:w-1/3 mb-6">
-                <div class="bg-white rounded-lg shadow-md p-6 sticky top-24 border-t-4 border-pink-400 transition-all hover:shadow-lg">
-                    <h2 class="text-xl font-semibold mb-4 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-pink-700">
-                        <i class="fas fa-receipt {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+            <div class="lg:w-1/3">
+                <div class="sticky-summary bg-white rounded-xl shadow-lg p-6 border-t-4 border-pink-500">
+                    <h2 class="text-xl font-bold text-pink-700 mb-6 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
+                        <i class="fas fa-receipt {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
                         {% if LANGUAGE_CODE == 'ar' %}ملخص الطلب{% else %}Order Summary{% endif %}
                     </h2>
 
-                    <div class="space-y-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
+                    <!-- Order Details -->
+                    <div class="space-y-4 mb-6">
                         {% if product_items %}
-                        <div class="flex justify-between border-b border-pink-100 pb-3 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                            <span class="font-semibold text-gray-700">
-                                {% if LANGUAGE_CODE == 'ar' %}عدد المنتجات:{% else %}Number of Products:{% endif %}
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-100 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                            <span class="text-gray-700">
+                                <i class="fas fa-box {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}المنتجات{% else %}Products{% endif %}
                             </span>
-                            <span id="total-products-count" class="text-pink-600 font-medium">{{ product_items|length }}</span>
-                        </div>
-                        <div class="flex justify-between border-b border-pink-100 pb-3 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                            <span class="font-semibold text-gray-700">
-                                {% if LANGUAGE_CODE == 'ar' %}إجمالي المنتجات:{% else %}Product Total:{% endif %}
-                            </span>
-                            <span id="total-products-price" class="text-pink-600 font-medium">
+                            <span class="font-semibold text-gray-800">
                                 {{ product_total }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
                             </span>
                         </div>
                         {% endif %}
 
                         {% if service_items %}
-                        <div class="flex justify-between border-b border-pink-100 pb-3 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                            <span class="font-semibold text-gray-700">
-                                {% if LANGUAGE_CODE == 'ar' %}عدد الخدمات:{% else %}Number of Services:{% endif %}
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-100 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                            <span class="text-gray-700">
+                                <i class="fas fa-concierge-bell {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}الخدمات{% else %}Services{% endif %}
                             </span>
-                            <span id="total-services-count" class="text-pink-600 font-medium">{{ service_items|length }}</span>
-                        </div>
-
-                        <!-- Service Total Display -->
-                        <div class="border-b border-pink-100 pb-3">
-                            <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                                <span class="font-semibold text-gray-700">
-                                    {% if LANGUAGE_CODE == 'ar' %}إجمالي الخدمات:{% else %}Service Total:{% endif %}
+                            <div class="flex flex-col items-end {% if LANGUAGE_CODE == 'ar' %}items-start{% endif %}">
+                                <span class="font-semibold {% if has_service_discounts %}text-green-600{% else %}text-gray-800{% endif %}">
+                                    {{ service_total }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
                                 </span>
-                                <div class="flex flex-col {% if LANGUAGE_CODE == 'ar' %}items-start{% else %}items-end{% endif %}">
-                                    <span id="total-services-price" class="text-green-600 font-semibold">
-                                        {{ service_total }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
-                                    {% if has_service_discounts and original_service_total %}
-                                    <span class="text-xs text-gray-500 line-through">
-                                        {{ original_service_total }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
-                                    <span class="text-xs text-green-600 font-medium">
-                                        {% if LANGUAGE_CODE == 'ar' %}توفير{% else %}You Save{% endif %}
-                                        {{ total_service_savings }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
-                                    {% endif %}
-                                </div>
+                                {% if has_service_discounts %}
+                                <span class="text-xs text-green-600">
+                                    <i class="fas fa-percentage mr-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}وفرت{% else %}Saved{% endif %}
+                                    {{ total_service_savings }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                </span>
+                                {% endif %}
                             </div>
                         </div>
+                        {% endif %}
 
-                        <!-- Total Price Display -->
-                        <div class="pt-2 bg-gradient-to-r from-pink-50 to-rose-50 p-3 rounded-lg border border-pink-200">
-                            <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                                <span class="font-semibold text-gray-800 text-lg">
-                                    {% if LANGUAGE_CODE == 'ar' %}إجمالي السعر:{% else %}Total Price:{% endif %}
+                        {% if package_items %}
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-100 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                            <span class="text-gray-700">
+                                <i class="fas fa-boxes {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}الباقات{% else %}Packages{% endif %}
+                            </span>
+                            <div class="flex flex-col items-end {% if LANGUAGE_CODE == 'ar' %}items-start{% endif %}">
+                                <span class="font-semibold {% if has_package_discounts %}text-purple-600{% else %}text-gray-800{% endif %}">
+                                    {{ package_total }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
                                 </span>
-                                <div class="flex flex-col {% if LANGUAGE_CODE == 'ar' %}items-start{% else %}items-end{% endif %}">
-                                    <span id="total-price" class="text-pink-600 font-bold text-xl">
-                                        {{ total_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                    </span>
-                                    {% if total_savings %}
-                                    <div class="flex items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %} mt-1">
-                                        <i class="fas fa-tag text-green-500 text-xs {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                                        <span class="text-xs text-green-600 font-medium">
-                                            {% if LANGUAGE_CODE == 'ar' %}إجمالي التوفير:{% else %}Total Saved:{% endif %}
-                                            {{ total_savings }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
-                                        </span>
-                                    </div>
-                                    {% endif %}
-                                </div>
+                                {% if has_package_discounts %}
+                                <span class="text-xs text-purple-600">
+                                    <i class="fas fa-percentage mr-1"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}وفرت{% else %}Saved{% endif %}
+                                    {{ total_package_savings|floatformat:2 }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if total_savings and total_savings > 0 %}
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                                <span class="text-green-700 font-medium">
+                                    <i class="fas fa-piggy-bank {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                    {% if LANGUAGE_CODE == 'ar' %}إجمالي التوفير{% else %}Total Savings{% endif %}
+                                </span>
+                                <span class="font-bold text-lg text-green-700">
+                                    -{{ total_savings }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                </span>
                             </div>
                         </div>
                         {% endif %}
                     </div>
 
-                    <div class="mt-6">
-                        <div class="mt-4 p-4 bg-pink-50 rounded-lg border border-pink-200">
-                            <h3 class="text-lg font-semibold mb-2 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-pink-700">
-                                <i class="fas fa-tag {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
-                                {% if LANGUAGE_CODE == 'ar' %}كود الخصم{% else %}Coupon Code{% endif %}
-                            </h3>
+                    <!-- Subtotal -->
+                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                        <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                            <span class="text-gray-700 font-medium">
+                                <i class="fas fa-calculator {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}المجموع الفرعي{% else %}Subtotal{% endif %}
+                            </span>
+                            <span id="subtotal-amount" class="font-semibold text-gray-800">
+                                {{ subtotal }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                            </span>
+                        </div>
+                    </div>
 
-                            <div class="flex {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                                <input type="text" id="coupon-code" placeholder="{% if LANGUAGE_CODE == 'ar' %}أدخل كود الخصم{% else %}Enter coupon code{% endif %}"
-                                       class="flex-1 px-4 py-2 border border-pink-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 {% if LANGUAGE_CODE == 'ar' %}text-right{% endif %}">
-                                <button id="apply-coupon" class="bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700 ml-2 {% if LANGUAGE_CODE == 'ar' %}mr-2 ml-0{% endif %}">
-                                    {% if LANGUAGE_CODE == 'ar' %}تطبيق{% else %}Apply{% endif %}
-                                </button>
+                    <!-- VAT Section (only show if VAT is enabled) -->
+                    {% if request.user.userprofile.student_profile.club.vat_settings.is_enabled %}
+                    <div class="bg-blue-50 p-4 rounded-lg mb-3 border border-blue-200">
+                        <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                            <span class="text-blue-700 font-medium">
+                                <i class="fas fa-percent {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                    ضريبة القيمة المضافة ({{ request.user.userprofile.student_profile.club.vat_settings.percentage }}%)
+                                {% else %}
+                                    VAT ({{ request.user.userprofile.student_profile.club.vat_settings.percentage }}%)
+                                {% endif %}
+                            </span>
+                            <span id="vat-amount" class="font-semibold text-blue-700">
+                                {{ vat_amount }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Total After VAT -->
+                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-xl border-2 border-pink-300 mb-6 shadow-sm">
+                        <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
+                            <span class="text-gray-800 font-bold text-lg">
+                                <i class="fas fa-receipt {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}الإجمالي النهائي{% else %}Total{% endif %}
+                            </span>
+                            <div class="flex flex-col items-end {% if LANGUAGE_CODE == 'ar' %}items-start{% endif %}">
+                                {% if original_total_price and original_total_price > total_price %}
+                                <span class="text-sm text-gray-500 line-through">
+                                    {{ original_total_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                </span>
+                                {% endif %}
+                                <span id="cart-total" class="text-2xl font-bold text-pink-600">
+                                    {{ total_price }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
+                                </span>
+                                {% if request.user.userprofile.student_profile.club.vat_settings.is_enabled %}
+                                <span class="text-xs text-gray-600 mt-1">
+                                    {% if LANGUAGE_CODE == 'ar' %}شامل الضريبة{% else %}VAT included{% endif %}
+                                </span>
+                                {% endif %}
                             </div>
+                        </div>
+                    </div>
+                    <!-- Coupon Section -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-gray-700 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
+                            <i class="fas fa-tag {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}كود الخصم{% else %}Coupon Code{% endif %}
+                        </h3>
 
-                            <div id="coupon-message" class="mt-2 text-sm hidden"></div>
-
-                            <div id="coupon-details" class="hidden mt-3 p-3 bg-white rounded-md border border-green-200">
-                                <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                                    <span class="font-medium text-green-700">
-                                        <i class="fas fa-check-circle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
-                                        <span id="coupon-name"></span>
+                        <div id="coupon-container">
+                            {% if applied_coupon %}
+                            <!-- Applied Coupon -->
+                            <div id="coupon-applied" class="coupon-success p-3 rounded-lg border mb-3">
+                                <div class="flex justify-between items-center {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %} mb-2">
+                                    <div>
+                                        <span class="font-medium text-green-700">
+                                            <i class="fas fa-check-circle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                                            {{ applied_coupon.code }}
+                                        </span>
+                                        <span class="text-xs text-gray-600 block mt-1">
+                                            {% if applied_coupon.discount_type == 'percentage' %}
+                                            {{ applied_coupon.discount_value }}% {% if LANGUAGE_CODE == 'ar' %}خصم{% else %}discount{% endif %}
+                                            {% else %}
+                                            {{ applied_coupon.discount_value }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }} {% if LANGUAGE_CODE == 'ar' %}خصم{% else %}discount{% endif %}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <span class="font-bold text-green-700">
+                                        -{{ discount_amount }} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}
                                     </span>
-                                    <span id="coupon-value" class="font-bold text-green-700"></span>
                                 </div>
-                                <button id="remove-coupon" class="text-red-500 text-xs mt-2 hover:text-red-700 {% if LANGUAGE_CODE == 'ar' %}text-right block w-full{% endif %}">
+                                <button id="remove-coupon-btn"
+                                        class="text-sm text-red-500 hover:text-red-700 w-full text-center pt-2 border-t border-green-200">
                                     <i class="fas fa-times {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
                                     {% if LANGUAGE_CODE == 'ar' %}إزالة الخصم{% else %}Remove coupon{% endif %}
                                 </button>
                             </div>
+                            {% else %}
+                            <!-- Coupon Input -->
+                            <div class="flex {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %} mb-3">
+                                <input type="text"
+                                       id="coupon-code-input"
+                                       placeholder="{% if LANGUAGE_CODE == 'ar' %}أدخل كود الخصم{% else %}Enter coupon code{% endif %}"
+                                       class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent {% if LANGUAGE_CODE == 'ar' %}text-right rounded-r-none rounded-l-lg border-r-0{% else %}rounded-l-lg rounded-r-none border-l-0{% endif %}">
+                                <button id="apply-coupon-btn"
+                                        class="bg-pink-600 text-white px-4 py-3 rounded-lg hover:bg-pink-700 transition-colors {% if LANGUAGE_CODE == 'ar' %}rounded-l-none rounded-r-lg{% else %}rounded-r-none rounded-l-lg{% endif %}">
+                                    {% if LANGUAGE_CODE == 'ar' %}تطبيق{% else %}Apply{% endif %}
+                                </button>
+                            </div>
+                            {% endif %}
+
+                            <!-- Coupon Message -->
+                            <div id="coupon-message" class="text-sm mt-2 hidden"></div>
                         </div>
+                    </div>
 
-                        <a href="{% url 'checkout' %}"
-                           class="block w-full bg-pink-600 text-white text-center py-3 rounded-md hover:bg-pink-700 transition-colors font-semibold transform hover:scale-105 transition-transform duration-200">
-                            <i class="fas fa-credit-card {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
-                            {% if LANGUAGE_CODE == 'ar' %}متابعة عملية الشراء{% else %}Proceed to Checkout{% endif %}
+                    <!-- Checkout Button -->
+                    <a href="{% url 'checkout' %}"
+                       id="checkout-btn"
+                       class="block w-full bg-gradient-to-r from-pink-600 to-rose-600 text-white text-center py-4 rounded-xl hover:from-pink-700 hover:to-rose-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mb-4">
+                        <i class="fas fa-credit-card {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}متابعة إلى الدفع{% else %}Proceed to Checkout{% endif %}
+                    </a>
+
+                    <!-- Continue Shopping -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="{% url 'StudentViewProducts' %}"
+                           class="block text-center py-3 text-pink-600 hover:text-pink-800 border border-pink-300 rounded-lg hover:bg-pink-50 transition-all hover:border-pink-400">
+                            <i class="fas fa-box {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}منتجات{% else %}Products{% endif %}
                         </a>
+                        <a href="{% url 'studentViewServices' %}"
+                           class="block text-center py-3 text-pink-600 hover:text-pink-800 border border-pink-300 rounded-lg hover:bg-pink-50 transition-all hover:border-pink-400">
+                            <i class="fas fa-spa {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}خدمات{% else %}Services{% endif %}
+                        </a>
+                    </div>
 
-                        <div class="flex gap-2 mt-3 {% if LANGUAGE_CODE == 'ar' %}flex-row-reverse{% endif %}">
-                            <a href="{% url 'StudentViewProducts' %}"
-                               class="block w-1/2 text-center py-3 text-pink-600 hover:text-pink-800 border border-pink-400 rounded-md hover:bg-pink-50 transition-colors">
-                                <i class="fas fa-box {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                                {% if LANGUAGE_CODE == 'ar' %}تصفح المنتجات{% else %}Browse Products{% endif %}
-                            </a>
-                            <a href="{% url 'studentViewServices' %}"
-                               class="block w-1/2 text-center py-3 text-pink-600 hover:text-pink-800 border border-pink-400 rounded-md hover:bg-pink-50 transition-colors">
-                                <i class="fas fa-spa {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                                {% if LANGUAGE_CODE == 'ar' %}تصفح الخدمات{% else %}Browse Services{% endif %}
-                            </a>
+                    <!-- Security Info -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <div class="flex items-center justify-center text-sm text-gray-500">
+                            <i class="fas fa-shield-alt text-green-500 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
+                            <span>
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                دفع آمن ومحمي
+                                {% else %}
+                                Secure & Protected Payment
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -334,29 +718,38 @@
         </div>
         {% else %}
         <!-- Empty Cart -->
-        <div class="bg-white rounded-lg shadow-md p-12 text-center border-2 border-dashed border-pink-200">
-            <div class="animate-bounce mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto w-6 h-6 mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.2 6M17 13l1.2 6M6 19a2 2 0 104 0 2 2 0 00-4 0zm10 0a2 2 0 104 0 2 2 0 00-4 0z" />
-                </svg>
-            </div>
-            <h2 class="text-2xl font-semibold mb-2 text-pink-700">
-                {% if LANGUAGE_CODE == 'ar' %}سلة التسوق فارغة{% else %}Your cart is empty{% endif %}
-            </h2>
-            <p class="text-gray-500 mb-6">
-                {% if LANGUAGE_CODE == 'ar' %}ابدأ بإضافة منتجات وخدمات إلى سلة التسوق{% else %}Start adding products and services to your cart{% endif %}
-            </p>
-            <div class="flex gap-4 justify-center">
-                <a href="{% url 'StudentViewProducts' %}"
-                   class="px-8 py-3 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition-colors transform hover:scale-105 transition-transform duration-200">
-                    <i class="fas fa-box {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                    {% if LANGUAGE_CODE == 'ar' %}تصفح المنتجات{% else %}Browse Products{% endif %}
-                </a>
-                <a href="{% url 'studentViewServices' %}"
-                   class="px-8 py-3 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition-colors transform hover:scale-105 transition-transform duration-200">
-                    <i class="fas fa-spa {% if LANGUAGE_CODE == 'ar' %}ml-1{% else %}mr-1{% endif %}"></i>
-                    {% if LANGUAGE_CODE == 'ar' %}تصفح الخدمات{% else %}Browse Services{% endif %}
-                </a>
+        <div class="max-w-md mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-12 text-center border-2 border-dashed border-pink-300">
+                <div class="mb-8">
+                    <div class="empty-cart-animation inline-block mb-4">
+                        <div class="w-24 h-24 bg-gradient-to-br from-pink-100 to-rose-100 rounded-full flex items-center justify-center mx-auto">
+                            <i class="fas fa-shopping-cart text-4xl text-pink-500"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-3 text-gray-800">
+                        {% if LANGUAGE_CODE == 'ar' %}سلة التسوق فارغة{% else %}Your cart is empty{% endif %}
+                    </h2>
+                    <p class="text-gray-600 mb-8">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        ابدأ بإضافة منتجات وخدمات إلى سلة التسوق
+                        {% else %}
+                        Start adding products and services to your cart
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="space-y-4">
+                    <a href="{% url 'StudentViewProducts' %}"
+                       class="block w-full px-8 py-4 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-xl hover:from-pink-700 hover:to-rose-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <i class="fas fa-box {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}تصفح المنتجات{% else %}Browse Products{% endif %}
+                    </a>
+                    <a href="{% url 'studentViewServices' %}"
+                       class="block w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <i class="fas fa-spa {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}تصفح الخدمات{% else %}Browse Services{% endif %}
+                    </a>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -364,317 +757,432 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Update cart functionality
-        const updateCartButtons = document.querySelectorAll('.update-cart-btn');
-        const applyCouponBtn = document.getElementById('apply-coupon');
-        const removeCouponBtn = document.getElementById('remove-coupon');
-        const couponCodeInput = document.getElementById('coupon-code');
-        const couponMessage = document.getElementById('coupon-message');
-        const couponDetails = document.getElementById('coupon-details');
-        const couponName = document.getElementById('coupon-name');
-        const couponValue = document.getElementById('coupon-value');
+// Global variables
+let isProcessing = false;
 
-        updateCartButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const itemId = this.dataset.id;
-                const action = this.dataset.action;
-                const itemType = this.dataset.type; // 'product' or 'service'
+// Show notification
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg ${
+        type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
+        'bg-red-100 text-red-800 border border-red-200'
+    }`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
 
-                // Add button press animation
-                this.classList.add('animate-pulse');
-                setTimeout(() => {
-                    this.classList.remove('animate-pulse');
-                }, 300);
+    document.body.appendChild(notification);
 
-                let url = '{% url "update_cart" %}';
-                if (itemType === 'service') {
-                    url = '{% url "update_service_cart" %}';
-                }
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
 
-                // Get the current quantity element
-                const quantityClass = itemType === 'product' ? 'product-quantity' : 'service-quantity';
-                const quantityElement = document.querySelector(`.${quantityClass}[data-id="${itemId}"]`);
-                // Default to 1 for services that don't have quantity displayed
-                let currentQuantity = quantityElement ? parseInt(quantityElement.textContent) : 1;
+// Update product cart
+async function updateProductCart(itemId, action) {
+    if (isProcessing) return;
 
-                // And later in the optimistic UI update, check if element exists
-                if (quantityElement && action === 'increase') {
-                    currentQuantity += 1;
-                    quantityElement.textContent = currentQuantity;
-                    // Add highlight animation
-                    quantityElement.classList.add('bg-pink-200');
-                    setTimeout(() => {
-                        quantityElement.classList.remove('bg-pink-200');
-                    }, 300);
-                } else if (quantityElement && action === 'decrease' && currentQuantity > 1) {
-                    currentQuantity -= 1;
-                    quantityElement.textContent = currentQuantity;
-                    // Add highlight animation
-                    quantityElement.classList.add('bg-pink-200');
-                    setTimeout(() => {
-                        quantityElement.classList.remove('bg-pink-200');
-                    }, 300);
-                }
+    isProcessing = true;
+    const itemElement = document.getElementById(`product-item-${itemId}`);
+    const quantityElement = document.getElementById(`product-quantity-${itemId}`);
+    const totalElement = document.getElementById(`product-total-${itemId}`);
 
-                // AJAX request to update cart
-                const formData = new FormData();
-                formData.append('item_id', itemId);
-                formData.append('action', action);
-                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    // Optimistic UI update
+    let currentQuantity = parseInt(quantityElement.textContent);
+    let price = parseFloat('{{ item.product.price }}'.replace(',', ''));
 
-                fetch(url, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update cart count in navbar
-                        updateNavbarCartCount(data.cart_count);
+    if (action === 'increase') {
+        currentQuantity += 1;
+        quantityElement.textContent = currentQuantity;
+        totalElement.textContent = (currentQuantity * price).toFixed(2);
+        totalElement.classList.add('price-highlight');
+    } else if (action === 'decrease' && currentQuantity > 1) {
+        currentQuantity -= 1;
+        quantityElement.textContent = currentQuantity;
+        totalElement.textContent = (currentQuantity * price).toFixed(2);
+        totalElement.classList.add('price-highlight');
+    } else if (action === 'remove') {
+        itemElement.classList.add('cart-item-removing');
+    }
 
-                        // Handle item removal
-                        if (action === 'remove') {
-                            const cartItemId = `${itemType}-item-${itemId}`;
-                            const cartItem = document.getElementById(cartItemId);
+    // Send request
+    try {
+        const formData = new FormData();
+        formData.append('item_id', itemId);
+        formData.append('action', action);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
-                            // Add fade-out animation
-                            cartItem.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-                            setTimeout(() => {
-                                cartItem.remove();
-
-                                // Update summary - check if elements exist before updating
-                                const productCountElement = document.getElementById('total-products-count');
-                                const serviceCountElement = document.getElementById('total-services-count');
-                                const productPriceElement = document.getElementById('total-products-price');
-                                const servicePriceElement = document.getElementById('total-services-price');
-
-                                // Update product counts if applicable
-                                if (itemType === 'product' && productCountElement) {
-                                    const remainingProducts = document.querySelectorAll('[id^="product-item-"]').length;
-                                    productCountElement.textContent = remainingProducts;
-
-                                    if (remainingProducts === 0 && productPriceElement) {
-                                        productPriceElement.parentElement.remove();
-                                    }
-                                }
-
-                                // Update service counts if applicable
-                                if (itemType === 'service' && serviceCountElement) {
-                                    const remainingServices = document.querySelectorAll('[id^="service-item-"]').length;
-                                    serviceCountElement.textContent = remainingServices;
-
-                                    if (remainingServices === 0 && servicePriceElement) {
-                                        servicePriceElement.parentElement.remove();
-                                    }
-                                }
-
-                                // Update total price with animation
-                                const totalPriceElement = document.getElementById('total-price');
-                                if (totalPriceElement) {
-                                    totalPriceElement.classList.add('text-pink-400');
-                                    totalPriceElement.textContent = `${data.total_price} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}`;
-                                    setTimeout(() => {
-                                        totalPriceElement.classList.remove('text-pink-400');
-                                    }, 300);
-                                }
-
-                                // If no items left, reload page to show empty cart
-                                const hasProducts = document.querySelectorAll('[id^="product-item-"]').length > 0;
-                                const hasServices = document.querySelectorAll('[id^="service-item-"]').length > 0;
-
-                                if (!hasProducts && !hasServices) {
-                                    location.reload();
-                                }
-                            }, 300);
-                        } else {
-                            // Update quantity display with server value (if available)
-                            if (data.cart_item_quantity && quantityElement) {
-                                quantityElement.textContent = data.cart_item_quantity;
-                            }
-
-                            // Update item total with animation
-                            const totalClass = itemType === 'product' ? 'product-total' : 'service-total';
-                            const totalElement = document.querySelector(`.${totalClass}[data-id="${itemId}"]`);
-                            if (totalElement && data.item_total) {
-                                totalElement.classList.add('text-pink-400');
-                                totalElement.textContent = `${data.item_total} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}`;
-                                setTimeout(() => {
-                                    totalElement.classList.remove('text-pink-400');
-                                }, 300);
-                            }
-
-                            // Update total price with animation
-                            const totalPriceElement = document.getElementById('total-price');
-                            if (totalPriceElement) {
-                                totalPriceElement.classList.add('text-pink-400');
-                                totalPriceElement.textContent = `${data.total_price} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}`;
-                                setTimeout(() => {
-                                    totalPriceElement.classList.remove('text-pink-400');
-                                }, 300);
-                            }
-
-                            // Update section totals if applicable
-                            if (data.product_total && document.getElementById('total-products-price')) {
-                                const productTotalElement = document.getElementById('total-products-price');
-                                productTotalElement.classList.add('text-pink-400');
-                                productTotalElement.textContent = `${data.product_total} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}`;
-                                setTimeout(() => {
-                                    productTotalElement.classList.remove('text-pink-400');
-                                }, 300);
-                            }
-                            if (data.service_total && document.getElementById('total-services-price')) {
-                                const serviceTotalElement = document.getElementById('total-services-price');
-                                serviceTotalElement.classList.add('text-pink-400');
-                                serviceTotalElement.textContent = `${data.service_total} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}`;
-                                setTimeout(() => {
-                                    serviceTotalElement.classList.remove('text-pink-400');
-                                }, 300);
-                            }
-                        }
-                    } else {
-                        // Show error message and revert the optimistic update
-                        alert(data.message);
-                        // Reload the page to get accurate data
-                        location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    // Reload the page in case of error
-                    location.reload();
-                });
-            });
+        const response = await fetch('{% url "update_cart" %}', {
+            method: 'POST',
+            body: formData
         });
 
-        // Function to update cart count in navbar
-        function updateNavbarCartCount(count) {
-            const cartCountElement = document.getElementById('cart-count');
-            if (cartCountElement) {
-                cartCountElement.textContent = count;
+        const data = await response.json();
 
-                // Show/hide based on count with animation
-                if (count > 0) {
-                    cartCountElement.classList.remove('hidden');
-                    cartCountElement.classList.add('animate-pulse');
-                    setTimeout(() => {
-                        cartCountElement.classList.remove('animate-pulse');
-                    }, 500);
-                } else {
-                    cartCountElement.classList.add('hidden');
-                }
+        if (data.success) {
+            // Update cart totals
+            updateCartTotals(data);
+
+            if (action === 'remove') {
+                setTimeout(() => {
+                    itemElement.remove();
+                    // If no items left, reload page
+                    if (!document.querySelector('[id^="product-item-"]') &&
+                        !document.querySelector('[id^="service-item-"]') &&
+                        !document.querySelector('[id^="package-item-"]')) {
+                        location.reload();
+                    }
+                }, 300);
             }
-        }
 
-        if (applyCouponBtn) {
-        applyCouponBtn.addEventListener('click', function() {
-            const code = couponCodeInput.value.trim();
+            showNotification(
+                action === 'remove' ?
+                '{% if LANGUAGE_CODE == "ar" %}تم حذف المنتج من السلة{% else %}Product removed from cart{% endif %}' :
+                '{% if LANGUAGE_CODE == "ar" %}تم تحديث الكمية{% else %}Quantity updated{% endif %}',
+                'success'
+            );
+        } else {
+            // Revert optimistic update
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء المعالجة{% else %}An error occurred{% endif %}', 'error');
+        location.reload();
+    } finally {
+        isProcessing = false;
+        setTimeout(() => {
+            if (totalElement) totalElement.classList.remove('price-highlight');
+        }, 1000);
+    }
+}
+
+// Update service cart
+async function updateServiceCart(itemId, action) {
+    if (isProcessing) return;
+
+    isProcessing = true;
+    const itemElement = document.getElementById(`service-item-${itemId}`);
+
+    // Optimistic UI update for remove
+    if (action === 'remove') {
+        itemElement.classList.add('cart-item-removing');
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('item_id', itemId);
+        formData.append('action', action);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        const response = await fetch('{% url "update_service_cart" %}', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update cart totals
+            updateCartTotals(data);
+
+            if (action === 'remove') {
+                setTimeout(() => {
+                    itemElement.remove();
+                    // If no items left, reload page
+                    if (!document.querySelector('[id^="product-item-"]') &&
+                        !document.querySelector('[id^="service-item-"]') &&
+                        !document.querySelector('[id^="package-item-"]')) {
+                        location.reload();
+                    }
+                }, 300);
+            }
+
+            showNotification(
+                '{% if LANGUAGE_CODE == "ar" %}تم تحديث السلة{% else %}Cart updated{% endif %}',
+                'success'
+            );
+        } else {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء المعالجة{% else %}An error occurred{% endif %}', 'error');
+        location.reload();
+    } finally {
+        isProcessing = false;
+    }
+}
+
+// Update package cart
+async function updatePackageCart(itemId, action) {
+    if (isProcessing) return;
+
+    isProcessing = true;
+    const itemElement = document.getElementById(`package-item-${itemId}`);
+    const quantityElement = document.getElementById(`package-quantity-${itemId}`);
+    const totalElement = document.getElementById(`package-total-${itemId}`);
+
+    // Optimistic UI update
+    let currentQuantity = parseInt(quantityElement.textContent);
+    let price = parseFloat('{{ item.service_package.effective_price }}'.replace(',', ''));
+
+    if (action === 'increase') {
+        currentQuantity += 1;
+        quantityElement.textContent = currentQuantity;
+        totalElement.textContent = (currentQuantity * price).toFixed(2);
+        totalElement.classList.add('price-highlight');
+    } else if (action === 'decrease' && currentQuantity > 1) {
+        currentQuantity -= 1;
+        quantityElement.textContent = currentQuantity;
+        totalElement.textContent = (currentQuantity * price).toFixed(2);
+        totalElement.classList.add('price-highlight');
+    } else if (action === 'remove') {
+        itemElement.classList.add('cart-item-removing');
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('item_id', itemId);
+        formData.append('action', action);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        const response = await fetch('{% url "update_package_cart" %}', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update cart totals
+            updateCartTotals(data);
+
+            if (action === 'remove') {
+                setTimeout(() => {
+                    itemElement.remove();
+                    // If no items left, reload page
+                    if (!document.querySelector('[id^="product-item-"]') &&
+                        !document.querySelector('[id^="service-item-"]') &&
+                        !document.querySelector('[id^="package-item-"]')) {
+                        location.reload();
+                    }
+                }, 300);
+            }
+
+            showNotification(
+                action === 'remove' ?
+                '{% if LANGUAGE_CODE == "ar" %}تم حذف الباقة من السلة{% else %}Package removed from cart{% endif %}' :
+                '{% if LANGUAGE_CODE == "ar" %}تم تحديث الكمية{% else %}Quantity updated{% endif %}',
+                'success'
+            );
+        } else {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء المعالجة{% else %}An error occurred{% endif %}', 'error');
+        location.reload();
+    } finally {
+        isProcessing = false;
+        setTimeout(() => {
+            if (totalElement) totalElement.classList.remove('price-highlight');
+        }, 1000);
+    }
+}
+
+// Update cart totals
+function updateCartTotals(data) {
+    // Update cart total
+    const cartTotalElement = document.getElementById('cart-total');
+    if (cartTotalElement && data.total_price) {
+        cartTotalElement.textContent = `${data.total_price} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}`;
+        cartTotalElement.classList.add('price-highlight');
+        setTimeout(() => {
+            cartTotalElement.classList.remove('price-highlight');
+        }, 1000);
+    }
+
+    // Update cart count in navbar
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement && data.cart_count !== undefined) {
+        cartCountElement.textContent = data.cart_count;
+        if (data.cart_count > 0) {
+            cartCountElement.classList.remove('hidden');
+            cartCountElement.classList.add('animate-pulse');
+            setTimeout(() => {
+                cartCountElement.classList.remove('animate-pulse');
+            }, 500);
+        } else {
+            cartCountElement.classList.add('hidden');
+        }
+    }
+}
+
+// Clear all products
+function clearAllProducts() {
+    if (confirm('{% if LANGUAGE_CODE == "ar" %}هل أنت متأكد من حذف جميع المنتجات؟{% else %}Are you sure you want to remove all products?{% endif %}')) {
+        const productItems = document.querySelectorAll('[id^="product-item-"]');
+        productItems.forEach(item => {
+            const itemId = item.id.split('-')[2];
+            updateProductCart(itemId, 'remove');
+        });
+    }
+}
+
+// Clear all services
+function clearAllServices() {
+    if (confirm('{% if LANGUAGE_CODE == "ar" %}هل أنت متأكد من حذف جميع الخدمات؟{% else %}Are you sure you want to remove all services?{% endif %}')) {
+        const serviceItems = document.querySelectorAll('[id^="service-item-"]');
+        serviceItems.forEach(item => {
+            const itemId = item.id.split('-')[2];
+            updateServiceCart(itemId, 'remove');
+        });
+    }
+}
+
+// Clear all packages
+function clearAllPackages() {
+    if (confirm('{% if LANGUAGE_CODE == "ar" %}هل أنت متأكد من حذف جميع الباقات؟{% else %}Are you sure you want to remove all packages?{% endif %}')) {
+        const packageItems = document.querySelectorAll('[id^="package-item-"]');
+        packageItems.forEach(item => {
+            const itemId = item.id.split('-')[2];
+            updatePackageCart(itemId, 'remove');
+        });
+    }
+}
+
+// Coupon functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const applyCouponBtn = document.getElementById('apply-coupon-btn');
+    const removeCouponBtn = document.getElementById('remove-coupon-btn');
+    const couponCodeInput = document.getElementById('coupon-code-input');
+    const couponMessage = document.getElementById('coupon-message');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    // Apply coupon
+    if (applyCouponBtn) {
+        applyCouponBtn.addEventListener('click', async function() {
+            if (isProcessing) return;
+
+            const code = couponCodeInput.value.trim().toUpperCase();
             if (!code) {
                 showCouponMessage('{% if LANGUAGE_CODE == "ar" %}الرجاء إدخال كود الخصم{% else %}Please enter a coupon code{% endif %}', 'error');
                 return;
             }
 
-            fetch('{% url "apply_coupon" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: `code=${encodeURIComponent(code)}`
-            })
-            .then(response => response.json())
-            .then(data => {
+            isProcessing = true;
+            applyCouponBtn.innerHTML = '<div class="loading-spinner"></div>';
+            applyCouponBtn.disabled = true;
+
+            try {
+                const response = await fetch('{% url "apply_coupon" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: `code=${encodeURIComponent(code)}`
+                });
+
+                const data = await response.json();
+
                 if (data.success) {
                     showCouponMessage(data.message, 'success');
-                    couponDetails.classList.remove('hidden');
-                    couponName.textContent = data.coupon.code;
-
-                    if (data.coupon.discount_type === 'percentage') {
-                        couponValue.textContent = `${data.coupon.discount_value}% ${data.coupon.max_discount ? '(max ' + data.coupon.max_discount + ' SAR)' : ''}`;
-                    } else {
-                        couponValue.textContent = `${data.coupon.discount_value} SAR`;
-                    }
-
-                    // Update totals with discount
-                    updateTotalsWithDiscount(data.discount_amount, data.new_total);
+                    // Reload page to show updated totals
+                    setTimeout(() => location.reload(), 1500);
                 } else {
                     showCouponMessage(data.message, 'error');
                 }
-            })
-            .catch(error => {
-                showCouponMessage('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء تطبيق الخصم{% else %}Error applying coupon{% endif %}', 'error');
+            } catch (error) {
                 console.error('Error:', error);
-            });
+                showCouponMessage('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء تطبيق الخصم{% else %}Error applying coupon{% endif %}', 'error');
+            } finally {
+                isProcessing = false;
+                applyCouponBtn.innerHTML = '{% if LANGUAGE_CODE == "ar" %}تطبيق{% else %}Apply{% endif %}';
+                applyCouponBtn.disabled = false;
+            }
+        });
+
+        // Allow Enter key to apply coupon
+        couponCodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyCouponBtn.click();
+            }
         });
     }
 
+    // Remove coupon
     if (removeCouponBtn) {
-        removeCouponBtn.addEventListener('click', function() {
-            fetch('{% url "remove_coupon" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
+        removeCouponBtn.addEventListener('click', async function() {
+            if (isProcessing) return;
+
+            isProcessing = true;
+            removeCouponBtn.innerHTML = '<div class="loading-spinner"></div>';
+            removeCouponBtn.disabled = true;
+
+            try {
+                const response = await fetch('{% url "remove_coupon" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
+
+                const data = await response.json();
+
                 if (data.success) {
                     showCouponMessage(data.message, 'success');
-                    couponDetails.classList.add('hidden');
-                    couponCodeInput.value = '';
-
-                    // Revert to original totals
-                    updateTotalsWithDiscount(0, data.new_total);
+                    // Reload page to show updated totals
+                    setTimeout(() => location.reload(), 1500);
                 } else {
                     showCouponMessage(data.message, 'error');
                 }
-            })
-            .catch(error => {
-                showCouponMessage('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء إزالة الخصم{% else %}Error removing coupon{% endif %}', 'error');
+            } catch (error) {
                 console.error('Error:', error);
-            });
+                showCouponMessage('{% if LANGUAGE_CODE == "ar" %}حدث خطأ أثناء إزالة الخصم{% else %}Error removing coupon{% endif %}', 'error');
+            } finally {
+                isProcessing = false;
+                removeCouponBtn.innerHTML = '<i class="fas fa-times {% if LANGUAGE_CODE == "ar" %}ml-1{% else %}mr-1{% endif %}"></i> {% if LANGUAGE_CODE == "ar" %}إزالة الخصم{% else %}Remove coupon{% endif %}';
+                removeCouponBtn.disabled = false;
+            }
         });
     }
 
     function showCouponMessage(message, type) {
         couponMessage.textContent = message;
-        couponMessage.classList.remove('hidden', 'text-green-600', 'text-red-600');
-        couponMessage.classList.add(type === 'success' ? 'text-green-600' : 'text-red-600');
+        couponMessage.className = `text-sm mt-2 ${type === 'success' ? 'text-green-600' : 'text-red-600'}`;
+        couponMessage.classList.remove('hidden');
 
-        // Hide message after 5 seconds
         setTimeout(() => {
             couponMessage.classList.add('hidden');
         }, 5000);
     }
 
-    function updateTotalsWithDiscount(discountAmount, newTotal) {
-        // Update the displayed totals
-        const discountElement = document.getElementById('discount-amount');
-        const totalElement = document.getElementById('total-price');
-
-        if (!discountElement) {
-            // Create discount row if it doesn't exist
-            const summaryDiv = document.querySelector('.bg-gradient-to-r.from-pink-50.to-rose-50');
-            if (summaryDiv) {
-                const discountRow = document.createElement('div');
-                discountRow.className = 'flex justify-between items-center border-b border-pink-100 pb-3';
-                discountRow.id = 'discount-row';
-                discountRow.innerHTML = `
-                    <span class="font-semibold text-gray-700">{% if LANGUAGE_CODE == 'ar' %}الخصم:{% else %}Discount:{% endif %}</span>
-                    <span id="discount-amount" class="text-green-600 font-medium">-${discountAmount} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}</span>
-                `;
-                summaryDiv.insertBefore(discountRow, summaryDiv.firstChild);
+    // Add loading state to checkout button
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function(e) {
+            if (isProcessing) {
+                e.preventDefault();
+                return;
             }
-        } else {
-            discountElement.textContent = `-${discountAmount} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}`;
-        }
 
-        if (totalElement) {
-            totalElement.textContent = `${newTotal} {{ request.user.userprofile.student_profile.club.vat_settings.currency }}`;
-        }
+            // Add loading state
+            const originalContent = checkoutBtn.innerHTML;
+            checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin {% if LANGUAGE_CODE == "ar" %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == "ar" %}جاري التحميل...{% else %}Loading...{% endif %}';
+            checkoutBtn.disabled = true;
+
+            // Remove loading state after 5 seconds (in case page doesn't redirect)
+            setTimeout(() => {
+                checkoutBtn.innerHTML = originalContent;
+                checkoutBtn.disabled = false;
+            }, 5000);
+        });
     }
 });
 </script>
-
 {% endblock %}

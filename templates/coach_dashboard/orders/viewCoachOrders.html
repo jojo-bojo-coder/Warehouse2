@@ -416,6 +416,7 @@
                     <option value="all">{% if LANGUAGE_CODE == 'ar' %}جميع الأنواع{% else %}All Types{% endif %}</option>
                     <option value="products">{% if LANGUAGE_CODE == 'ar' %}منتجات فقط{% else %}Products Only{% endif %}</option>
                     <option value="services">{% if LANGUAGE_CODE == 'ar' %}خدمات فقط{% else %}Services Only{% endif %}</option>
+                    <option value="packages">{% if LANGUAGE_CODE == 'ar' %}باقات فقط{% else %}Packages Only{% endif %}</option>  <!-- NEW -->
                     <option value="mixed">{% if LANGUAGE_CODE == 'ar' %}مختلطة{% else %}Mixed{% endif %}</option>
                 </select>
             </div>
@@ -598,14 +599,17 @@
 
                 const matchStatus = status === 'all' ||
                     (status === 'pending' && orderStatus.includes('pending')) ||
+                    (status === 'paid' && orderStatus.includes('paid')) ||
+                    (status === 'delivered' && orderStatus.includes('delivered')) ||
                     (status === 'confirmed' && orderStatus.includes('confirmed')) ||
                     (status === 'completed' && orderStatus.includes('completed')) ||
                     (status === 'cancelled' && orderStatus.includes('cancelled'));
 
                 const matchType = type === 'all' ||
-                    (type === 'products' && orderType.includes('product')) ||
-                    (type === 'services' && orderType.includes('service')) ||
-                    (type === 'mixed' && orderType.includes('mixed'));
+                    (type === 'products' && (orderType.includes('منتج') || orderType.includes('product'))) ||
+                    (type === 'services' && (orderType.includes('خدمة') || orderType.includes('service'))) ||
+                    (type === 'packages' && (orderType.includes('باقة') || orderType.includes('package'))) ||  // NEW
+                    (type === 'mixed' && (orderType.includes('مختلط') || orderType.includes('mixed')));
 
                 const matchSearch = orderId.includes(searchQuery);
 

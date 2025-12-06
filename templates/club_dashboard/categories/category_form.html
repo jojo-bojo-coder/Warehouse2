@@ -8,12 +8,12 @@
       animation: float 4s ease-in-out infinite;
   }
 
-  .animate-fade-in {
+  .animate-fadeIn {
       animation: fadeIn 0.6s ease-out forwards;
       opacity: 0;
   }
 
-  .animate-fade-in-up {
+  .animate-fadeInUp {
       animation: fadeInUp 0.8s ease-out forwards;
       opacity: 0;
   }
@@ -67,31 +67,25 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
   }
-
-  /* Background Animation */
-  .animated-bg {
-      animation: gradientBG 15s ease infinite;
-      background-size: 300% 300%;
-  }
-
-  @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-  }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full px-4 md:px-8 min-h-screen pb-12 overflow-hidden  dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
 
     <!-- Header -->
-    <div class="flex justify-between items-center py-8 animate-fade-in">
+    <div class="flex justify-between items-center py-8 animate-fadeIn">
         <div class="flex items-center gap-4">
             <a href="{% url 'category_list' %}" class="p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 dark:bg-gray-700 dark:hover:bg-gray-600">
                 <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    <!-- Right arrow for Arabic (points right) -->
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    {% else %}
+                    <!-- Left arrow for English (points left) -->
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    {% endif %}
                 </svg>
             </a>
-            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2 dark:text-white">
+            <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2 flex items-center gap-2">
                 <div class="p-2 bg-blue-100 rounded-full text-blue-600 dark:bg-blue-900 dark:text-blue-300">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
@@ -103,10 +97,15 @@
     </div>
 
     <!-- Form Card -->
-    <div class="max-w-4xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s">
-        <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden dark:bg-gray-800/90 dark:border dark:border-gray-700">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-                <h2 class="text-xl font-semibold text-white">{% if LANGUAGE_CODE == 'ar' %}إضافة فئة جديدة{% else %}Add New Category{% endif %}</h2>
+    <div class="max-w-4xl mx-auto animate-fadeInUp" style="animation-delay: 0.2s">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+                <h2 class="text-xl font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M17 10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v5zm-2-2a1 1 0 00-1 1v1a1 1 0 01-1 1H7a1 1 0 01-1-1V9a1 1 0 00-1-1V5a1 1 0 011-1h10a1 1 0 011 1v3z" clip-rule="evenodd"/>
+                    </svg>
+                    {% if LANGUAGE_CODE == 'ar' %}إضافة فئة جديدة{% else %}Add New Category{% endif %}
+                </h2>
             </div>
 
             <form method="post" enctype="multipart/form-data" class="p-6 space-y-6">
@@ -114,7 +113,7 @@
 
                 <!-- Display form errors -->
                 {% if form.non_field_errors %}
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4 dark:bg-red-900/20 dark:border-red-800">
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 dark:bg-red-900/20 dark:border-red-800 animate-fadeIn">
                     <div class="flex">
                         <svg class="w-5 h-5 text-red-400 mt-0.5 dark:text-red-300" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
@@ -130,21 +129,43 @@
                 {% endif %}
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-stagger">
-                    <!-- Category Name -->
-                    <div class="md:col-span-2">
-                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
-                            {% if LANGUAGE_CODE == 'ar' %}اسم الفئة{% else %}Category Name{% endif %}
+                    <!-- Category Name English -->
+                    <div>
+                        <label for="{{ form.name_en.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                            {% if LANGUAGE_CODE == 'ar' %}اسم الفئة (الإنجليزية){% else %}Category Name (English){% endif %}
                             <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
-                               id="{{ form.name.id_for_label }}"
-                               name="{{ form.name.name }}"
-                               value="{{ form.name.value|default:'' }}"
-                               class="w-full px-4 py-2 border {% if form.name.errors %}border-red-500{% else %}border-gray-300 dark:border-gray-600{% endif %} rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-                               required>
-                        {% if form.name.errors %}
+                               id="{{ form.name_en.id_for_label }}"
+                               name="{{ form.name_en.name }}"
+                               value="{{ form.name_en.value|default:'' }}"
+                               class="w-full px-4 py-2 border {% if form.name_en.errors %}border-red-500{% else %}border-gray-300 dark:border-gray-600{% endif %} rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                               placeholder="{% if LANGUAGE_CODE == 'ar' %}أدخل اسم الفئة بالإنجليزية{% else %}Enter category name in English{% endif %}"
+                               {% if not form.name_en.value and not form.name_ar.value %}required{% endif %}>
+                        {% if form.name_en.errors %}
                         <div class="mt-1 text-sm text-red-600 dark:text-red-400">
-                            {{ form.name.errors }}
+                            {{ form.name_en.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Category Name Arabic -->
+                    <div>
+                        <label for="{{ form.name_ar.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                            {% if LANGUAGE_CODE == 'ar' %}اسم الفئة (العربية){% else %}Category Name (Arabic){% endif %}
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                               id="{{ form.name_ar.id_for_label }}"
+                               name="{{ form.name_ar.name }}"
+                               value="{{ form.name_ar.value|default:'' }}"
+                               class="w-full px-4 py-2 border {% if form.name_ar.errors %}border-red-500{% else %}border-gray-300 dark:border-gray-600{% endif %} rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                               placeholder="{% if LANGUAGE_CODE == 'ar' %}أدخل اسم الفئة بالعربية{% else %}Enter category name in Arabic{% endif %}"
+                               dir="rtl"
+                               {% if not form.name_en.value and not form.name_ar.value %}required{% endif %}>
+                        {% if form.name_ar.errors %}
+                        <div class="mt-1 text-sm text-red-600 dark:text-red-400">
+                            {{ form.name_ar.errors }}
                         </div>
                         {% endif %}
                     </div>
@@ -180,7 +201,8 @@
                                       file:bg-blue-50 file:text-blue-700
                                       hover:file:bg-blue-100
                                       dark:file:bg-blue-900 dark:file:text-blue-300
-                                      dark:hover:file:bg-blue-800">
+                                      dark:hover:file:bg-blue-800"
+                               {% if LANGUAGE_CODE == 'ar' %}data-ar="true"{% endif %}>
                         {% if form.image.errors %}
                         <div class="mt-1 text-sm text-red-600 dark:text-red-400">
                             {{ form.image.errors }}
@@ -205,12 +227,12 @@
                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                    {% if form.is_active.value %}checked{% endif %}>
                         </div>
-                        <div class=" {% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm">
+                        <div class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm">
                             <label for="{{ form.is_active.id_for_label }}" class="font-medium text-gray-700 dark:text-gray-300">
-                                {{ form.is_active.label }}
+                                {% if LANGUAGE_CODE == 'ar' %}مفعل{% else %}Active{% endif %}
                             </label>
                             <p class="text-gray-500 dark:text-gray-400">
-                                {% if LANGUAGE_CODE == 'ar' %} فعل هذا الخيار لجعل الفئة مرئية للمستخدمين {% else %} Enable this to make the category visible to users {% endif %}
+                                {% if LANGUAGE_CODE == 'ar' %}فعل هذا الخيار لجعل الفئة مرئية للمستخدمين{% else %}Enable this to make the category visible to users{% endif %}
                             </p>
                         </div>
                         {% if form.is_active.errors %}
@@ -226,7 +248,7 @@
                     <a href="{% url 'category_list' %}" class="ml-2 px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
                         {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
                     </a>
-                    <button type="submit" class="mr-4 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800">
+                    <button type="submit" class="ripple btn-gradient px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 transform hover:-translate-y-1">
                         {% if LANGUAGE_CODE == 'ar' %}إنشاء فئة{% else %}Create Category{% endif %}
                     </button>
                 </div>
@@ -317,5 +339,49 @@
             }
         });
     });
+
+    // Ripple effect for buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.ripple')) {
+            const button = e.target.closest('.ripple');
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple-effect');
+
+            button.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+    });
+
+    // Add ripple effect styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 {% endblock %}

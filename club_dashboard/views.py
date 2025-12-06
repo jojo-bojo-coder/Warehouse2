@@ -538,6 +538,388 @@ def club_dashboard_index(request):
     })
 
 
+from .models import LandingPageContent, LandingPageFeature, LandingPageBanner, LandingPageFAQ, NavItem
+from .forms import (LandingPageContentForm, LandingPageFeatureForm,
+                   LandingPageBannerForm, LandingPageFAQForm, NavItemForm)
+@login_required
+def edit_landing_content(request):
+    """Director dashboard view to edit landing page content"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    # Get or create landing content for this club
+    landing_content, created = LandingPageContent.objects.get_or_create()
+
+    if request.method == 'POST':
+        form = LandingPageContentForm(request.POST, request.FILES, instance=landing_content)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Landing page content updated successfully!')
+            return redirect('edit_landing_content')
+    else:
+        form = LandingPageContentForm(instance=landing_content)
+
+    # Get related items
+    features = landing_content.features.all()
+    banners = landing_content.banners.all()
+    faqs = landing_content.faqs.all()
+    nav_items = landing_content.nav_items.all()
+
+    context = {
+        'form': form,
+        'landing_content': landing_content,
+        'features': features,
+        'banners': banners,
+        'faqs': faqs,
+        'nav_items': nav_items,
+        'club': club,
+        'LANGUAGE_CODE': translation.get_language(),
+    }
+
+    return render(request, 'club_dashboard/edit_landing_content.html', context)
+
+
+@login_required
+def manage_features(request):
+    """Manage landing page features"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    landing_content = LandingPageContent.objects.get_or_create()[0]
+
+    if request.method == 'POST':
+        form = LandingPageFeatureForm(request.POST)
+        if form.is_valid():
+            feature = form.save(commit=False)
+            feature.landing_content = landing_content
+            feature.save()
+            messages.success(request, 'Feature added successfully!')
+            return redirect('manage_features')
+    else:
+        form = LandingPageFeatureForm()
+
+    features = landing_content.features.all()
+
+    context = {
+        'form': form,
+        'features': features,
+        'club': club,
+        'LANGUAGE_CODE': translation.get_language(),
+    }
+
+    return render(request, 'club_dashboard/manage_features.html', context)
+
+
+@login_required
+def edit_feature(request, feature_id):
+    """Edit a specific feature"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    feature = get_object_or_404(LandingPageFeature, id=feature_id)
+
+    if request.method == 'POST':
+        form = LandingPageFeatureForm(request.POST, instance=feature)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Feature updated successfully!')
+            return redirect('manage_features')
+    else:
+        form = LandingPageFeatureForm(instance=feature)
+
+    context = {
+        'form': form,
+        'feature': feature,
+        'club': club,
+        'LANGUAGE_CODE': translation.get_language(),
+    }
+
+    return render(request, 'club_dashboard/edit_feature.html', context)
+
+
+@login_required
+def delete_feature(request, feature_id):
+    """Delete a feature"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    feature = get_object_or_404(LandingPageFeature, id=feature_id)
+    feature.delete()
+    messages.success(request, 'Feature deleted successfully!')
+    return redirect('manage_features')
+
+
+@login_required
+def manage_banners(request):
+    """Manage landing page banners"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    landing_content = LandingPageContent.objects.get_or_create()[0]
+
+    if request.method == 'POST':
+        form = LandingPageBannerForm(request.POST, request.FILES)
+        if form.is_valid():
+            banner = form.save(commit=False)
+            banner.landing_content = landing_content
+            banner.save()
+            messages.success(request, 'Banner added successfully!')
+            return redirect('manage_banners')
+    else:
+        form = LandingPageBannerForm()
+
+    banners = landing_content.banners.all()
+
+    context = {
+        'form': form,
+        'banners': banners,
+        'club': club,
+        'LANGUAGE_CODE': translation.get_language(),
+    }
+
+    return render(request, 'club_dashboard/manage_banners.html', context)
+
+
+@login_required
+def delete_banner(request, banner_id):
+    """Delete a banner"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    banner = get_object_or_404(LandingPageBanner, id=banner_id)
+    banner.delete()
+    messages.success(request, 'Banner deleted successfully!')
+    return redirect('manage_banners')
+
+
+@login_required
+def manage_faqs(request):
+    """Manage landing page FAQs"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    landing_content = LandingPageContent.objects.get_or_create()[0]
+
+    if request.method == 'POST':
+        form = LandingPageFAQForm(request.POST)
+        if form.is_valid():
+            faq = form.save(commit=False)
+            faq.landing_content = landing_content
+            faq.save()
+            messages.success(request, 'FAQ added successfully!')
+            return redirect('manage_faqs')
+    else:
+        form = LandingPageFAQForm()
+
+    faqs = landing_content.faqs.all()
+
+    context = {
+        'form': form,
+        'faqs': faqs,
+        'club': club,
+        'LANGUAGE_CODE': translation.get_language(),
+    }
+
+    return render(request, 'club_dashboard/manage_faqs.html', context)
+
+
+@login_required
+def delete_faq(request, faq_id):
+    """Delete a FAQ"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    faq = get_object_or_404(LandingPageFAQ, id=faq_id)
+    faq.delete()
+    messages.success(request, 'FAQ deleted successfully!')
+    return redirect('manage_faqs')
+
+
+@login_required
+def manage_nav_items(request):
+    """Manage navigation items"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    landing_content = LandingPageContent.objects.get_or_create()[0]
+
+    if request.method == 'POST':
+        form = NavItemForm(request.POST)
+        if form.is_valid():
+            nav_item = form.save(commit=False)
+            nav_item.landing_content = landing_content
+            nav_item.save()
+            messages.success(request, 'Navigation item added successfully!')
+            return redirect('manage_nav_items')
+    else:
+        form = NavItemForm()
+
+    nav_items = landing_content.nav_items.all()
+
+    context = {
+        'form': form,
+        'nav_items': nav_items,
+        'club': club,
+        'LANGUAGE_CODE': translation.get_language(),
+    }
+
+    return render(request, 'club_dashboard/manage_nav_items.html', context)
+
+
+@login_required
+def delete_nav_item(request, nav_item_id):
+    """Delete a navigation item"""
+    user = request.user
+    club = getattr(user.userprofile.director_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('club_dashboard_index')
+
+    nav_item = get_object_or_404(NavItem, id=nav_item_id)
+    nav_item.delete()
+    messages.success(request, 'Navigation item deleted successfully!')
+    return redirect('manage_nav_items')
+
+
+from .models import ClubContact
+from .forms import ClubContactForm
+
+
+@login_required
+def update_club_contact(request, club_id):
+    """Update club contact information"""
+    print(f"DEBUG: update_club_contact called with club_id={club_id}")
+    print(f"DEBUG: User authenticated: {request.user.is_authenticated}")
+    print(f"DEBUG: User ID: {request.user.id}")
+    print(f"DEBUG: User type: {type(request.user)}")
+
+    user = request.user
+    print(f"DEBUG: User object: {user}")
+
+    try:
+        club = get_object_or_404(ClubsModel, id=club_id)
+        print(f"DEBUG: Club found: {club.id} - {club.name}")
+    except Exception as e:
+        print(f"DEBUG ERROR: Failed to get club: {e}")
+        raise
+
+    # Check if user has permission to edit this club
+    print(f"DEBUG: Checking user permissions...")
+    print(f"DEBUG: User has userprofile: {hasattr(user, 'userprofile')}")
+
+    if hasattr(user, 'userprofile'):
+        print(f"DEBUG: UserProfile exists: {user.userprofile}")
+        print(f"DEBUG: UserProfile type: {type(user.userprofile)}")
+        print(f"DEBUG: UserProfile has director_profile: {hasattr(user.userprofile, 'director_profile')}")
+
+        if hasattr(user.userprofile, 'director_profile'):
+            director_profile = user.userprofile.director_profile
+            print(f"DEBUG: Director profile found: {director_profile}")
+            print(f"DEBUG: Director's club: {getattr(director_profile, 'club', 'NO CLUB ATTRIBUTE')}")
+            print(f"DEBUG: Expected club_id: {club_id}")
+            print(f"DEBUG: Director's club ID: {getattr(getattr(director_profile, 'club', None), 'id', 'NO CLUB ID')}")
+
+    if not hasattr(user, 'userprofile') or not hasattr(user.userprofile,
+                                                       'director_profile') or user.userprofile.director_profile.club != club:
+        print(f"DEBUG: Permission denied for user {user.id} to edit club {club_id}")
+        print(f"DEBUG: Reason check:")
+        print(f"  - Has userprofile: {hasattr(user, 'userprofile')}")
+        if hasattr(user, 'userprofile'):
+            print(f"  - Has director_profile: {hasattr(user.userprofile, 'director_profile')}")
+            if hasattr(user.userprofile, 'director_profile'):
+                print(f"  - Club match: {user.userprofile.director_profile.club == club}")
+        messages.error(request, 'You do not have permission to edit this club.')
+        return redirect('club_dashboard_index')
+
+    print(f"DEBUG: User has permission to edit club {club_id}")
+
+    # Get or create contact info
+    print(f"DEBUG: Getting or creating ClubContact...")
+    try:
+        contact_info, created = ClubContact.objects.get_or_create()
+        print(f"DEBUG: Contact info {'created' if created else 'retrieved'}: {contact_info.id}")
+    except Exception as e:
+        print(f"DEBUG ERROR: Failed to get/create ClubContact: {e}")
+        messages.error(request, 'Error accessing contact information.')
+        return redirect('ViewClubProfile', id=club.id)
+
+    if request.method == 'POST':
+        print(f"DEBUG: POST request received")
+        print(f"DEBUG: POST data: {request.POST}")
+        print(f"DEBUG: FILES data: {request.FILES}")
+
+        form = ClubContactForm(request.POST, request.FILES, instance=contact_info)
+        print(f"DEBUG: Form created with instance: {form.instance}")
+
+        if form.is_valid():
+            print(f"DEBUG: Form is valid")
+            try:
+                saved_instance = form.save()
+                print(f"DEBUG: Form saved successfully. Instance ID: {saved_instance.id}")
+                messages.success(request, 'Contact information updated successfully!')
+                return redirect('ViewClubProfile', id=club.id)
+            except Exception as e:
+                print(f"DEBUG ERROR: Failed to save form: {e}")
+                messages.error(request, 'Error saving contact information.')
+        else:
+            print(f"DEBUG: Form is INVALID")
+            print(f"DEBUG: Form errors: {form.errors}")
+            print(f"DEBUG: Form non-field errors: {form.non_field_errors()}")
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        print(f"DEBUG: GET request received")
+        form = ClubContactForm(instance=contact_info)
+        print(f"DEBUG: Form created for GET with instance ID: {contact_info.id}")
+
+    context = {
+        'form': form,
+        'club': club,
+        'contact_info': contact_info,
+        'LANGUAGE_CODE': translation.get_language(),
+    }
+
+    print(f"DEBUG: Context prepared with club_id={club.id}")
+    print(f"DEBUG: LANGUAGE_CODE: {translation.get_language()}")
+
+    return render(request, 'accounts/profiles/Club/ViewClubProfile.html', context)
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -1082,24 +1464,14 @@ def editStudent(request, id):
 def deleteStudent(request, id):
     """Deletes a student from the club."""
     user = request.user
-
-    # ✅ Ensure user is a director
-    # if not hasattr(user.userprofile, 'director_profile') or not user.userprofile.director_profile:
-    #     messages.error(request, "Unauthorized access.")
-    #     return redirect('home')
-
     club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
 
     student_profile = get_object_or_404(StudentProfile, id=id)
     student = get_object_or_404(User, userprofile__student_profile=student_profile)
 
     student_name = student.username
-
-    # ✅ Delete student profile and user account
     student_profile.delete()
     student.delete()
-
-    # ✅ Send notification
     send_notification(user, club, f" تم حذف العميل 🗑️ {student_name} .من المنصة ")
 
     messages.success(request, "CLient has been deleted successfully.")
@@ -1211,160 +1583,252 @@ def export_coaches_excel(request):
     return response
 
 from club_dashboard.forms import CoachProfileForm
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.utils import timezone, translation
+from club_dashboard.forms import CoachProfileForm
+from accounts.models import UserProfile
+import json
+
+
 @club_permission_required('addCoach')
 @login_required
 def addCoach(request):
+    print("=== addCoach VIEW STARTED ===")
+    context = {}
+    user = request.user
+    print(f"Logged in user: {user}")
+
+    # Get the club associated with the user
+    club = (getattr(user.userprofile.director_profile, 'club', None) or
+            getattr(user.userprofile.administrator_profile, 'club', None) or
+            getattr(user.userprofile.vendor_manager_profile, 'club', None))
+
+    print(f"Club found: {club}")
+
+    if request.method == 'POST':
+        print("=== POST request detected ===")
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        print(f"Form data received -> username: {username}, email: {email}, password: {'yes' if password else 'no'}")
+
+        # Check for duplicate username and email
+        if User.objects.filter(username=username).exists():
+            print("Duplicate username detected!")
+            messages.error(request,
+                           "اسم المستخدم موجود بالفعل" if translation.get_language() == 'ar' else "Username already exists.")
+            context['form'] = CoachProfileForm(request.POST, club=club)
+            context['LANGUAGE_CODE'] = translation.get_language()
+            context['club'] = club
+            return render(request, 'club_dashboard/coachs/addCoach.html', context)
+
+        if User.objects.filter(email=email).exists():
+            print("Duplicate email detected!")
+            messages.error(request,
+                           "البريد الإلكتروني مستخدم بالفعل" if translation.get_language() == 'ar' else "Email is already in use.")
+            context['form'] = CoachProfileForm(request.POST, club=club)
+            context['LANGUAGE_CODE'] = translation.get_language()
+            context['club'] = club
+            return render(request, 'club_dashboard/coachs/addCoach.html', context)
+
+        form = CoachProfileForm(request.POST, club=club)
+        print("CoachProfileForm initialized")
+
+        if form.is_valid():
+            print("Form is valid ✅")
+
+            # Create new user
+            coach = User.objects.create(username=username, email=email)
+            print(f"New User created: {coach}")
+
+            if password:
+                coach.set_password(password)
+                print("Password set for new user")
+
+            coach.save()
+            print("User saved successfully")
+
+            # Create coach profile
+            coach_profile = form.save(commit=False)
+            coach_profile.club = club
+            coach_profile.approval_status = 'approved'
+            coach_profile.approved_by = user
+            coach_profile.approved_at = timezone.now()
+            print("Coach profile prepared (not yet saved)")
+
+            # Handle branches data
+            number_of_branches = form.cleaned_data.get('number_of_branches', 1)
+            print(f"Number of branches: {number_of_branches}")
+
+            if number_of_branches > 1:
+                branches_json = request.POST.get('branches_data')
+                print(f"Branches JSON received: {branches_json}")
+                if branches_json:
+                    try:
+                        branches = json.loads(branches_json)
+                        coach_profile.branches = branches
+                        print(f"Branches parsed successfully: {branches}")
+                    except json.JSONDecodeError:
+                        print("JSONDecodeError: Invalid branches data")
+                        messages.error(request,
+                                       "خطأ في بيانات الفروع" if translation.get_language() == 'ar' else "Error in branches data")
+                        context['form'] = form
+                        context['LANGUAGE_CODE'] = translation.get_language()
+                        context['club'] = club
+                        return render(request, 'club_dashboard/coachs/addCoach.html', context)
+
+            coach_profile.save()
+            print("Coach profile saved successfully")
+
+            # Create UserProfile entry
+            user_profile = UserProfile.objects.create(
+                user=coach,
+                account_type='4',
+                Coach_profile=coach_profile,
+                is_active=True
+            )
+            print(f"UserProfile created: {user_profile}")
+
+            # Send notification
+            send_notification(user, club, f"التاجر الجديد 📢 {username} انضم إلى {club.name}.")
+            print("Notification sent")
+
+            messages.success(request,
+                             "تم إضافة التاجر بنجاح." if translation.get_language() == 'ar' else "Vendor added successfully.")
+            print("✅ Coach added successfully — redirecting to viewCoachs")
+            return redirect('viewCoachs')
+        else:
+            print("Form validation failed ❌")
+            print(f"Form errors: {form.errors.as_json()}")
+            messages.error(request,
+                           "يرجى تصحيح الأخطاء في النموذج" if translation.get_language() == 'ar' else "Please correct the errors in the form")
+            context['form'] = form
+            context['LANGUAGE_CODE'] = translation.get_language()
+            context['club'] = club
+            return render(request, 'club_dashboard/coachs/addCoach.html', context)
+    else:
+        print("=== GET request detected ===")
+        form = CoachProfileForm(club=club)
+
+    context['LANGUAGE_CODE'] = translation.get_language()
+    context['form'] = form
+    context['club'] = club
+    print("Rendering addCoach.html page")
+    print("=== addCoach VIEW ENDED ===")
+    return render(request, 'club_dashboard/coachs/addCoach.html', context)
+
+
+
+@club_permission_required('editCoach')
+@login_required
+def editCoach(request, id):
     context = {}
     user = request.user
 
     # Get the club associated with the user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = (getattr(user.userprofile.director_profile, 'club', None) or
+            getattr(user.userprofile.administrator_profile, 'club', None) or
+            getattr(user.userprofile.vendor_manager_profile, 'club', None))
 
-    form = CoachProfileForm()
+    try:
+        coach_profile = CoachProfile.objects.get(id=id, club=club)
+        coach_user = User.objects.get(userprofile__Coach_profile=coach_profile)
+    except (CoachProfile.DoesNotExist, User.DoesNotExist):
+        messages.error(request, "التاجر غير موجود" if translation.get_language() == 'ar' else "Vendor not found")
+        return redirect('viewCoachs')
 
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        # Check for duplicate username and email
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists.")
-            return redirect('addCoach')
+        # Check for duplicate username (excluding current user)
+        if User.objects.filter(username=username).exclude(id=coach_user.id).exists():
+            messages.error(request,
+                           "اسم المستخدم موجود بالفعل" if translation.get_language() == 'ar' else "Username already exists.")
+            form = CoachProfileForm(request.POST, instance=coach_profile, club=club)
+            context.update({
+                'form': form,
+                'coach': coach_user,
+                'coach_profile': coach_profile,
+                'LANGUAGE_CODE': translation.get_language(),
+                'club': club
+            })
+            return render(request, 'club_dashboard/coachs/editCoach.html', context)
 
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email is already in use.")
-            return redirect('addCoach')
-
-        form = CoachProfileForm(request.POST)
-        if form.is_valid():
-            # Create new user
-            coach = User.objects.create(username=username, email=email)
-            if password:
-                coach.set_password(password)
-            coach.save()
-
-            # Create coach profile with approved status
-            coach_profile = form.save(commit=False)
-            coach_profile.club = club
-            coach_profile.approval_status = 'approved'
-            coach_profile.approved_by = user
-            coach_profile.approved_at = timezone.now()
-            coach_profile.save()
-
-            # Create UserProfile entry
-            UserProfile.objects.create(
-                user=coach,
-                account_type='4',
-                Coach_profile=coach_profile,
-                is_active=True
-            )
-
-            # Send notification
-            send_notification(user, club, f" التاجر الجديد 📢 {username} انضم إلى {club.name}.")
-
-            messages.success(request, "تم إضافة التاجر بنجاح.")
-            return redirect('viewCoachs')
-
-    context['LANGUAGE_CODE'] = translation.get_language()
-    context['form'] = form
-    context['club'] = club
-    return render(request, 'club_dashboard/coachs/addCoach.html', context)
-
-
-# views.py
-@club_permission_required('editCoach')
-@login_required
-def editCoach(request, id):
-    context = {}
-    user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
-
-    coach_profile = get_object_or_404(CoachProfile, id=id)
-    coach = get_object_or_404(User, userprofile__Coach_profile=coach_profile)
-
-    form = CoachProfileForm(instance=coach_profile, club=club)
-
-    if request.method == 'POST':
-        new_username = request.POST.get('username')
-        new_email = request.POST.get('email')
-        password = request.POST.get('password')
+        # Check for duplicate email (excluding current user)
+        if User.objects.filter(email=email).exclude(id=coach_user.id).exists():
+            messages.error(request,
+                           "البريد الإلكتروني مستخدم بالفعل" if translation.get_language() == 'ar' else "Email is already in use.")
+            form = CoachProfileForm(request.POST, instance=coach_profile, club=club)
+            context.update({
+                'form': form,
+                'coach': coach_user,
+                'coach_profile': coach_profile,
+                'LANGUAGE_CODE': translation.get_language(),
+                'club': club
+            })
+            return render(request, 'club_dashboard/coachs/editCoach.html', context)
 
         form = CoachProfileForm(request.POST, instance=coach_profile, club=club)
+
         if form.is_valid():
-            # Check if username or email was changed
-            username_changed = new_username != coach.username
-            email_changed = new_email != coach.email
-
-            # Check if vendor classification changed
-            old_classification = coach_profile.vendor_classification
-            new_classification = form.cleaned_data.get('vendor_classification')
-            classification_changed = old_classification != new_classification
-
-            # Update coach details
-            coach.username = new_username
-            coach.email = new_email
+            # Update user credentials
+            coach_user.username = username
+            coach_user.email = email
             if password:
-                coach.set_password(password)
-            coach.save()
+                coach_user.set_password(password)
+            coach_user.save()
 
-            # Save the form (this will update all fields including the new ones)
-            updated_profile = form.save()
+            # Update coach profile
+            coach_profile = form.save(commit=False)
 
-            # Update commission assignment if classification changed
-            if classification_changed:
-                try:
-                    # Get the new commission for this classification
-                    new_commission = Commission.objects.filter(
-                        club=club,
-                        commission_type='vendor',
-                        vendor_classification=new_classification,
-                        is_active=True
-                    ).first()
+            # Handle branches data
+            number_of_branches = form.cleaned_data.get('number_of_branches', 1)
+            if number_of_branches > 1:
+                branches_json = request.POST.get('branches_data')
+                if branches_json:
+                    try:
+                        branches = json.loads(branches_json)
+                        coach_profile.branches = branches
+                    except json.JSONDecodeError:
+                        messages.error(request,
+                                       "خطأ في بيانات الفروع" if translation.get_language() == 'ar' else "Error in branches data")
+                        context.update({
+                            'form': form,
+                            'coach': coach_user,
+                            'coach_profile': coach_profile,
+                            'LANGUAGE_CODE': translation.get_language(),
+                            'club': club
+                        })
+                        return render(request, 'club_dashboard/coachs/editCoach.html', context)
+            else:
+                # Clear branches if only one branch
+                coach_profile.branches = []
 
-                    if new_commission:
-                        # Update or create commission assignment
-                        from club_dashboard.models import VendorCommissionAssignment
-                        assignment, created = VendorCommissionAssignment.objects.get_or_create(
-                            vendor=coach_profile,
-                            defaults={'commission': new_commission}
-                        )
+            coach_profile.save()
 
-                        if not created:
-                            assignment.commission = new_commission
-                            assignment.save()
-
-                        messages.success(request, f"تم تحديث تصنيف البائع إلى {new_classification} وتم تحديث العمولة.")
-                    else:
-                        messages.warning(request, f"تم تحديث التصنيف ولكن لم يتم العثور على عمولة مناسبة للتصنيف {new_classification}")
-
-                except Exception as e:
-                    messages.error(request, f"حدث خطأ أثناء تحديث العمولة: {str(e)}")
-
-            # Send notification if changes were made
-            notification_message = f" تم تحديث ملف التاجر 📝 {coach.username}."
-            if username_changed or email_changed:
-                notification_message += " (Username/Email updated.)"
-            if classification_changed:
-                notification_message += f" (Classification changed from {old_classification} to {new_classification})"
-
-            send_notification(user, club, notification_message)
-
-            if not classification_changed:
-                messages.success(request, "Employee profile updated successfully.")
+            messages.success(request,
+                             "تم تحديث بيانات التاجر بنجاح." if translation.get_language() == 'ar' else "Vendor updated successfully.")
             return redirect('viewCoachs')
         else:
-            messages.error(request, "يرجى تصحيح الأخطاء في النموذج.")
+            messages.error(request,
+                           "يرجى تصحيح الأخطاء في النموذج" if translation.get_language() == 'ar' else "Please correct the errors in the form")
+    else:
+        form = CoachProfileForm(instance=coach_profile, club=club)
 
-    context['LANGUAGE_CODE'] = translation.get_language()
     context.update({
         'form': form,
-        'coach': coach,
+        'coach': coach_user,
         'coach_profile': coach_profile,
-        'club': club,
+        'LANGUAGE_CODE': translation.get_language(),
+        'club': club
     })
-
     return render(request, 'club_dashboard/coachs/editCoach.html', context)
+
 
 @club_permission_required('deleteCoach')
 @login_required
@@ -1385,11 +1849,6 @@ def deleteCoach(request, id):
     # Delete all services created by this coach
     services_deleted = ServicesModel.objects.filter(creator=coach).delete()
 
-    # Remove coach from any services they were assigned to (but didn't create)
-    services_with_coach = ServicesModel.objects.filter(coaches=coach_profile)
-    for service in services_with_coach:
-        service.coaches.remove(coach_profile)
-        service.save()
 
     # Delete coach profile and user account
     coach_profile.delete()
@@ -3682,10 +4141,11 @@ def category_list(request):
     search_query = request.GET.get('search', '')
 
     # Filter categories based on search
-    categories = Category.objects.all().order_by('name')
+    categories = Category.objects.all().order_by('name_en')
     if search_query:
         categories = categories.filter(
-            Q(name__icontains=search_query) |
+            Q(name_en__icontains=search_query) |
+            Q(name_ar__icontains=search_query) |
             Q(description__icontains=search_query)
         )
 
@@ -3693,12 +4153,14 @@ def category_list(request):
     categories = categories.annotate(subcategory_count=Count('subcategories'))
 
     # Get subcategories
-    subcategories = SubCategory.objects.select_related('category').order_by('name')
+    subcategories = SubCategory.objects.select_related('category').order_by('name_en')
     if search_query:
         subcategories = subcategories.filter(
-            Q(name__icontains=search_query) |
+            Q(name_en__icontains=search_query) |
+            Q(name_ar__icontains=search_query) |
             Q(description__icontains=search_query) |
-            Q(category__name__icontains=search_query)
+            Q(category__name_en__icontains=search_query) |
+            Q(category__name_ar__icontains=search_query)
         )
 
     # Pagination for categories
@@ -3719,17 +4181,10 @@ def category_list(request):
         'active_subcategories': SubCategory.objects.filter(is_active=True).count(),
     }
 
-    # Recent activities (last 30 days)
-    recent_date = timezone.now() - timedelta(days=30)
-    recent_categories = Category.objects.filter(created_at__gte=recent_date).order_by('-created_at')[:5]
-    recent_subcategories = SubCategory.objects.filter(created_at__gte=recent_date).order_by('-created_at')[:5]
-
     context = {
         'categories': categories,
         'subcategories': subcategories,
         'stats': stats,
-        'recent_categories': recent_categories,
-        'recent_subcategories': recent_subcategories,
         'search_query': search_query,
     }
 
@@ -3743,7 +4198,6 @@ def add_category(request):
         form = CategoryForm(request.POST, request.FILES)
         if form.is_valid():
             category = form.save()
-            messages.success(request, f'Category "{category.name}" has been created successfully!')
             return redirect('category_list')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -4651,62 +5105,62 @@ def manage_services(request):
     """View to manage all services with approval status"""
     context = {}
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+
+    # More robust club detection
+    club = None
+    user_profile = getattr(user, 'userprofile', None)
+    if user_profile:
+        club = (getattr(user_profile, 'director_profile', None) and user_profile.director_profile.club or
+                getattr(user_profile, 'administrator_profile', None) and user_profile.administrator_profile.club or
+                getattr(user_profile, 'vendor_manager_profile', None) and user_profile.vendor_manager_profile.club)
 
     if not club:
         messages.error(request, 'غير مسموح لك بالوصول لهذه الصفحة')
         return redirect('club_dashboard')
 
-    # Get filter parameters
+    # Get filter parameters with validation
     status_filter = request.GET.get('status', 'all')
-    search_query = request.GET.get('search', '')
+    search_query = request.GET.get('search', '').strip()
 
-    # Base queryset for services in this club
+    # Base queryset with optimized database queries
     services = ServicesModel.objects.filter(club=club).select_related(
-        'creator', 'creator__userprofile', 'creator__userprofile__Coach_profile'
-    ).prefetch_related('coaches', 'classification')
+        'creator__userprofile__Coach_profile'
+    ).prefetch_related('classification')
 
-    # Apply status filter
-    if status_filter == 'pending':
-        services = services.filter(approval_status='pending')
-    elif status_filter == 'approved':
-        services = services.filter(approval_status='approved')
-    elif status_filter == 'rejected':
-        services = services.filter(approval_status='rejected')
+    # Apply filters more efficiently
+    status_filters = {
+        'pending': services.filter(approval_status='pending'),
+        'approved': services.filter(approval_status='approved'),
+        'rejected': services.filter(approval_status='rejected'),
+        'all': services
+    }
 
-    # Apply search filter
+    services = status_filters.get(status_filter, services)
+
+    # Optimized search
     if search_query:
         services = services.filter(
             Q(title__icontains=search_query) |
             Q(desc__icontains=search_query) |
             Q(creator__userprofile__Coach_profile__business_name_en__icontains=search_query) |
             Q(creator__userprofile__Coach_profile__full_name__icontains=search_query) |
-            Q(creator__email__icontains=search_query) |
-            Q(coaches__business_name_en__icontains=search_query) |
-            Q(coaches__full_name__icontains=search_query)
+            Q(creator__email__icontains=search_query)
         ).distinct()
 
-    # Order by creation date (newest first)
-    services = services.order_by('-creation_date')
+    # Get statistics in single query for better performance
+    from django.db.models import Count
+    stats = services.aggregate(
+        total=Count('id'),
+        pending=Count('id', filter=Q(approval_status='pending')),
+        approved=Count('id', filter=Q(approval_status='approved')),
+        rejected=Count('id', filter=Q(approval_status='rejected'))
+    )
 
-    # Get statistics
-    stats = {
-        'total': ServicesModel.objects.filter(club=club).count(),
-        'pending': ServicesModel.objects.filter(club=club, approval_status='pending').count(),
-        'approved': ServicesModel.objects.filter(club=club, approval_status='approved').count(),
-        'rejected': ServicesModel.objects.filter(club=club, approval_status='rejected').count(),
-    }
-
-    # Get latest pending services for quick review
-    latest_pending = ServicesModel.objects.filter(
-        club=club,
-        approval_status='pending'
-    ).select_related(
-        'creator', 'creator__userprofile', 'creator__userprofile__Coach_profile'
-    ).order_by('-creation_date')[:3]
+    # Latest pending services
+    latest_pending = services.filter(approval_status='pending')[:3]
 
     # Pagination
-    paginator = Paginator(services, 10)
+    paginator = Paginator(services.order_by('-creation_date'), 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -4723,31 +5177,27 @@ def manage_services(request):
     return render(request, 'club_dashboard/services/manage_services.html', context)
 
 
-
-
-
-
 @login_required
+@club_permission_required('manage_services')  # Add this decorator for consistency
 def pending_services(request):
     """View to show all pending services in a dedicated page"""
-    context = {}
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = get_user_club(user)  # Use the helper function
 
     if not club:
         messages.error(request, 'غير مسموح لك بالوصول لهذه الصفحة')
         return redirect('club_dashboard')
 
-    # Get search query if any
-    search_query = request.GET.get('search', '')
+    # Get and clean search query
+    search_query = request.GET.get('search', '').strip()
 
-    # Get all pending services for this club
+    # Base queryset for pending services with optimized database queries
     services = ServicesModel.objects.filter(
         club=club,
         approval_status='pending'
     ).select_related(
-        'creator', 'creator__userprofile', 'creator__userprofile__Coach_profile'
-    ).prefetch_related('coaches', 'classification')
+        'creator__userprofile__Coach_profile'
+    ).prefetch_related('classification')
 
     # Apply search filter if provided
     if search_query:
@@ -4756,35 +5206,34 @@ def pending_services(request):
             Q(desc__icontains=search_query) |
             Q(creator__userprofile__Coach_profile__business_name_en__icontains=search_query) |
             Q(creator__userprofile__Coach_profile__full_name__icontains=search_query) |
-            Q(creator__email__icontains=search_query) |
-            Q(coaches__business_name_en__icontains=search_query) |
-            Q(coaches__full_name__icontains=search_query)
+            Q(creator__email__icontains=search_query)
         ).distinct()
 
-    # Order by creation date (newest first)
-    services = services.order_by('-creation_date')
+    # Get statistics in a single query for better performance
+    from django.db.models import Count, Q
+    stats = ServicesModel.objects.filter(club=club).aggregate(
+        total=Count('id'),
+        pending=Count('id', filter=Q(approval_status='pending')),
+        approved=Count('id', filter=Q(approval_status='approved')),
+        rejected=Count('id', filter=Q(approval_status='rejected'))
+    )
 
-    # Get statistics (we'll show these in the same format as manage_services)
-    stats = {
-        'total': ServicesModel.objects.filter(club=club).count(),
-        'pending': services.count(),
-        'approved': ServicesModel.objects.filter(club=club, approval_status='approved').count(),
-        'rejected': ServicesModel.objects.filter(club=club, approval_status='rejected').count(),
-    }
+    # Order by creation date (newest first) and paginate
+    services = services.order_by('-creation_date')
 
     # Pagination
     paginator = Paginator(services, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    context.update({
+    context = {
         'services': page_obj,
         'stats': stats,
         'search_query': search_query,
         'club': club,
         'LANGUAGE_CODE': translation.get_language(),
-        'is_pending_page': True  # We'll use this in the template
-    })
+        'is_pending_page': True
+    }
 
     return render(request, 'club_dashboard/services/pending_services.html', context)
 
@@ -4903,11 +5352,9 @@ def service_detail(request, service_id):
         return redirect('manage_services')
 
     # Get service coaches
-    service_coaches = service.coaches.all()
 
     context = {
         'service': service,
-        'service_coaches': service_coaches,
         'creator_profile': service.creator.userprofile.Coach_profile if hasattr(service.creator, 'userprofile') else None,
         'club': club,
         'LANGUAGE_CODE': translation.get_language()
@@ -5546,21 +5993,22 @@ def add_custom_role(request):
     club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
                                                                                'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
 
+    language_code = translation.get_language()
+
     if request.method == 'POST':
-        form = CustomRoleForm(request.POST)
+        form = CustomRoleForm(request.POST, language_code=language_code)
         if form.is_valid():
             role = form.save(commit=False)
             role.club = club
             role.save()
-            messages.success(request, f'Role "{role.name}" created successfully!')
             return redirect('viewDirectors')
     else:
-        form = CustomRoleForm()
+        form = CustomRoleForm(language_code=language_code)
 
     context = {
         'form': form,
         'club': club,
-        'LANGUAGE_CODE': translation.get_language()
+        'LANGUAGE_CODE': language_code
     }
     return render(request, 'club_dashboard/directors/add_custom_role.html', context)
 
@@ -5613,25 +6061,31 @@ def edit_custom_role(request, id):
 
     custom_role = get_object_or_404(CustomRole, id=id, club=club)
 
+    language_code = translation.get_language()
+
     if request.method == 'POST':
-        form = CustomRoleForm(request.POST, instance=custom_role)
+        form = CustomRoleForm(request.POST, instance=custom_role, language_code=language_code)
         if form.is_valid():
             form.save()
             messages.success(request, "Role updated successfully!")
             return redirect('view_custom_roles')
     else:
-        form = CustomRoleForm(instance=custom_role)
+        form = CustomRoleForm(instance=custom_role, language_code=language_code)
+
+    # Get permission choices based on current language
+    permission_choices = CustomRole.get_permission_choices(language_code)
 
     # Create a dictionary of permission statuses
     permission_status = {}
-    for perm_code, perm_name in CustomRole.PERMISSION_CHOICES:
+    for perm_code, perm_name in permission_choices:
         permission_status[perm_code] = custom_role.has_permission(perm_code)
 
     context = {
         'form': form,
         'role': custom_role,
         'permission_status': permission_status,
-        'LANGUAGE_CODE': translation.get_language()
+        'permission_choices': permission_choices,
+        'LANGUAGE_CODE': language_code
     }
     return render(request, 'club_dashboard/directors/edit_custom_role.html', context)
 
@@ -5648,11 +6102,18 @@ def delete_custom_role(request, id):
 
     custom_role = get_object_or_404(CustomRole, id=id, club=club)
 
+    # Get user count before deletion for message
+    user_count = CustomRoleProfile.objects.filter(custom_role=custom_role).count()
+
     # Soft delete by setting is_active=False
     custom_role.is_active = False
     custom_role.save()
 
-    messages.success(request, "Role deleted successfully!")
+    if user_count > 0:
+        messages.success(request, f"Role deleted successfully! {user_count} user(s) have lost this role's permissions.")
+    else:
+        messages.success(request, "Role deleted successfully!")
+
     return redirect('view_custom_roles')
 
 
@@ -5994,10 +6455,13 @@ def director_bills_review(request):
         status__in=['director_reviewed', 'approved', 'rejected']
     ).select_related('order', 'accountant', 'director', 'order__user').order_by('-updated_at')
 
+    total_revisions = reviewed_revisions.count() + pending_revisions.count()
+
     context = {
         'club': club,
         'pending_revisions': pending_revisions,
         'reviewed_revisions': reviewed_revisions,
+        'total_revisions':total_revisions,
         'LANGUAGE_CODE': translation.get_language()
     }
     return render(request, 'club_dashboard/bills/bills_review.html', context)
@@ -6094,5 +6558,54 @@ def director_review_bill(request, revision_id):
     }
 
     return render(request, 'club_dashboard/bills/review_bill.html', context)
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.http import JsonResponse
+from .models import VATSettings
+from .forms import VATSettingsForm
+from .decorators import club_permission_required
+
+
+@club_permission_required('manage_vat_settings')
+@login_required
+def manage_vat_settings(request):
+    """View for managing VAT settings."""
+    club = getattr(request.user.userprofile.director_profile, 'club', None) or \
+           getattr(request.user.userprofile.administrator_profile, 'club', None) or \
+           getattr(request.user.userprofile.vendor_manager_profile, 'club', None) or \
+           getattr(request.user.userprofile.custom_role_profile, 'club', None)
+
+    if not club:
+        messages.error(request, 'No club associated with your account.')
+        return redirect('club_dashboard_index')
+
+    vat_settings, created = VATSettings.objects.get_or_create(
+        club=club,
+        defaults={'is_enabled': False, 'percentage': 15.00, 'currency': 'SAR'}
+    )
+
+    if request.method == 'POST':
+        form = VATSettingsForm(request.POST, instance=vat_settings)
+        if form.is_valid():
+            form.save()
+            if request.LANGUAGE_CODE == 'ar':
+                messages.success(request, 'تم حفظ إعدادات ضريبة القيمة المضافة بنجاح')
+            else:
+                messages.success(request, 'VAT settings saved successfully')
+            return redirect('manage_vat_settings')
+    else:
+        form = VATSettingsForm(instance=vat_settings)
+
+    context = {
+        'form': form,
+        'vat_settings': vat_settings,
+        'club': club,
+        'LANGUAGE_CODE': request.LANGUAGE_CODE
+    }
+
+    return render(request, 'club_dashboard/director/manage_vat_settings.html', context)
 
 

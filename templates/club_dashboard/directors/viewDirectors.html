@@ -41,6 +41,18 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   }
 
+  /* Card styles matching index.html */
+  .info-card {
+    transition: all 0.3s ease;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
   /* Table Row Effects */
   .table-row:hover {
       transform: translateY(-3px);
@@ -214,9 +226,54 @@
   .dark .text-blue-600 {
     color: #93c5fd;
   }
+
+  /* Additional dark mode styles for gradients */
+  .dark .bg-gradient-to-r {
+    background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+  }
+
+  .dark .from-blue-500 {
+    --tw-gradient-from: #1e40af !important;
+  }
+
+  .dark .to-blue-600 {
+    --tw-gradient-to: #1e3a8a !important;
+  }
+
+  .dark .from-purple-500 {
+    --tw-gradient-from: #5b21b6 !important;
+  }
+
+  .dark .to-purple-600 {
+    --tw-gradient-to: #4c1d95 !important;
+  }
+
+  .dark .from-indigo-500 {
+    --tw-gradient-from: #3730a3 !important;
+  }
+
+  .dark .to-indigo-600 {
+    --tw-gradient-to: #312e81 !important;
+  }
+
+  .dark .from-red-500 {
+    --tw-gradient-from: #991b1b !important;
+  }
+
+  .dark .to-red-600 {
+    --tw-gradient-to: #7f1d1d !important;
+  }
+
+  .dark .from-green-500 {
+    --tw-gradient-from: #065f46 !important;
+  }
+
+  .dark .to-emerald-500 {
+    --tw-gradient-to: #047857 !important;
+  }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 pt-8 dark:bg-gray-900">
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 pt-8">
   <!-- Top Navigation Bar -->
   <div class="bg-white dark:bg-gray-800 shadow-md py-3 px-6 flex items-center justify-between sticky top-0 z-10 mb-8 hidden">
     <!-- Club Logo and Name -->
@@ -273,7 +330,7 @@
 
     <div class="flex flex-wrap gap-2">
       <a href="{% url 'addDirector' %}"
-         class="ripple btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:gap-3 transition-all duration-300">
+         class="ripple btn-gradient bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:gap-3 transition-all duration-300 hover:shadow-lg">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
@@ -281,7 +338,7 @@
       </a>
 
       <a href="{% url 'add_custom_role' %}"
-         class="ripple btn-gradient bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:gap-3 transition-all duration-300">
+         class="ripple btn-gradient bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:gap-3 transition-all duration-300 hover:shadow-lg">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
         </svg>
@@ -289,7 +346,7 @@
       </a>
 
       <a href="{% url 'view_custom_roles' %}"
-         class="ripple btn-gradient bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:gap-3 transition-all duration-300">
+         class="ripple btn-gradient bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:gap-3 transition-all duration-300 hover:shadow-lg">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -300,14 +357,14 @@
   </div>
 
   <!-- Search Section -->
-  <div class="search-container dark:bg-gray-800 animate-fadeInUp">
+  <div class="animate-[fadeInUp_0.6s_ease-out_0.1s_both] info-card bg-gradient-to-r from-blue-500 to-indigo-500 p-6 rounded-xl text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 mb-6">
     <div class="relative">
       <input type="text" id="staffSearch"
-             class="search-input dark:bg-gray-700 dark:border-gray-600 dark:text-white pr-10"
+             class="w-full px-4 py-3 rounded-lg bg-blue-400/20 text-white placeholder-blue-100 border border-blue-300 focus:outline-none focus:ring-2 focus:ring-white backdrop-blur-sm"
              placeholder="{% if LANGUAGE_CODE == 'ar' %}ابحث عن موظف...{% else %}Search for a staff member...{% endif %}"
              onkeyup="filterStaffTable()">
-      <div class="search-icon dark:text-gray-400">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="absolute top-1/2 transform -translate-y-1/2 {% if LANGUAGE_CODE == 'ar' %}left-4{% else %}right-4{% endif %}">
+        <svg class="w-5 h-5 text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
       </div>
@@ -315,10 +372,10 @@
   </div>
 
   <!-- Staff Table -->
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 animate-fadeInUp">
+  <div class="animate-[fadeInUp_0.6s_ease-out_0.2s_both] info-card bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
     <div class="overflow-x-auto">
       <table class="w-full text-sm text-{% if LANGUAGE_CODE == 'ar' %}right{% else %}left{% endif %} text-gray-700 dark:text-gray-300">
-        <thead class="text-xs text-white uppercase bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-600 dark:to-purple-600">
+        <thead class="text-xs text-white uppercase bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-600 dark:to-pink-600">
         <tr>
           <th scope="col" class="px-6 py-4 font-semibold">{% if LANGUAGE_CODE == 'ar' %}اسم المستخدم{% else %}Username{% endif %}</th>
           <th scope="col" class="px-6 py-4 font-semibold">{% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %}</th>
@@ -358,7 +415,7 @@
           <td class="px-6 py-4">
             <div class="flex flex-col md:flex-row gap-2 {% if LANGUAGE_CODE == 'ar' %}justify-end{% else %}justify-start{% endif %}">
               <a href="{% url 'editDirector' id=staff.profile.id role=staff.userprofile.account_type %}"
-                 class="ripple btn-gradient bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 shadow-sm">
+                 class="ripple btn-gradient bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 shadow-sm hover:shadow-md">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
@@ -366,7 +423,7 @@
               </a>
               <a href="{% url 'deleteDirector' id=staff.profile.id role=staff.userprofile.account_type %}"
                  onclick="return confirm('{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من حذف هذا الموظف؟{% else %}Are you sure you want to delete this staff member?{% endif %}')"
-                 class="ripple btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 shadow-sm">
+                 class="ripple btn-gradient bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 shadow-sm hover:shadow-md">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                 </svg>
@@ -389,7 +446,7 @@
                 No staff members found
                 {% endif %}
               </p>
-              <a href="{% url 'addDirector' %}" class="mt-4 btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+              <a href="{% url 'addDirector' %}" class="mt-4 ripple btn-gradient bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:shadow-lg">
                 {% if LANGUAGE_CODE == 'ar' %}
                 إضافة موظف جديد
                 {% else %}

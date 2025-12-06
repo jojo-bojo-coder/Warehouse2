@@ -156,8 +156,8 @@ class VendorStep3Form(forms.Form):
     business_document_type = forms.ChoiceField(
         choices=[
             ('', 'اختر نوع الوثيقة'),
-            ('freelance', 'وثيقة العمل الحر'),
-            ('commercial_register', 'صورة السجل التجاري'),
+            ('freelance', 'العمل الحر'),
+            ('commercial_register', 'السجل التجاري'),
         ],
         label="نوع الوثيقة التجارية",
         widget=forms.Select(attrs={

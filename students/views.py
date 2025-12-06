@@ -300,7 +300,7 @@ def viewProductsSpecific(request, id):
     context['LANGUAGE_CODE'] = translation.get_language()
     return render(request, 'student/products/viewSpecific.html', context)
 
-
+from .models import ServicePackage
 def viewServices(request):
     context = {}
     user = request.user
@@ -348,8 +348,9 @@ def viewServices(request):
 
     classifications = ProductsClassificationModel.objects.filter(club=club)
 
+    # Calculate statistics
     if services:
-        # Calculate average monthly price (normalized)
+        # Calculate average monthly price
         avg_monthly_price = sum(service.monthly_price for service in services) / len(services)
         avg_monthly_price = round(avg_monthly_price, 1)
 
@@ -357,19 +358,20 @@ def viewServices(request):
         avg_total_price = sum(service.discounted_price or service.price for service in services) / len(services)
         avg_total_price = round(avg_total_price, 1)
 
+        # Calculate average duration
         avg_duration = sum(service.duration for service in services) / len(services)
         avg_duration_hours = int(avg_duration // 60)
         avg_duration_minutes = int(avg_duration % 60)
 
-        # Get unique pricing periods for filtering
-        pricing_periods = list(set(service.pricing_period_months for service in services))
-        pricing_periods.sort()
+        # Get unique subscription periods for filtering
+        subscription_periods = list(set(service.subscription_days for service in services if service.subscription_days))
+        subscription_periods.sort()
     else:
         avg_monthly_price = 0
         avg_total_price = 0
         avg_duration_hours = 0
         avg_duration_minutes = 0
-        pricing_periods = []
+        subscription_periods = []
 
     context = {
         'services': services,
@@ -378,8 +380,13 @@ def viewServices(request):
         'avg_total_price': avg_total_price,
         'avg_duration_hours': avg_duration_hours,
         'avg_duration_minutes': avg_duration_minutes,
-        'pricing_periods': pricing_periods,
-        'PRICING_PERIOD_CHOICES': ServicesModel.PRICING_PERIOD_CHOICES,
+        'subscription_periods': subscription_periods,
+        'SUBSCRIPTION_PERIOD_CHOICES': [
+            (30, '1 Month' if translation.get_language() == 'en' else 'شهر واحد'),
+            (90, '3 Months' if translation.get_language() == 'en' else '3 أشهر'),
+            (180, '6 Months' if translation.get_language() == 'en' else '6 أشهر'),
+            (365, '1 Year' if translation.get_language() == 'en' else 'سنة واحدة'),
+        ],
     }
     context['LANGUAGE_CODE'] = translation.get_language()
     return render(request, 'student/services/viewServices.html', context)
@@ -389,11 +396,31 @@ def viewServicesSpecific(request, id):
     context = {}
     user = request.user
     club = user.userprofile.student_profile.club
-    service = ServicesModel.objects.get(id=id)
-    services = ServicesModel.objects.filter(club=club,approval_status='approved')
+    service = get_object_or_404(ServicesModel, id=id)
+    services = ServicesModel.objects.filter(club=club, approval_status='approved').exclude(id=id)[:3]
     order = ServiceOrderModel.objects.filter(service=service, student=user).order_by('-id').first()
+
+    # Get active packages for this service
+    packages = ServicePackage.objects.filter(service=service, is_active=True)
+
+    # Get popular package
+    popular_package = packages.filter(is_popular=True).first()
+
+    context = {
+        'service': service,
+        'services': services,
+        'order': order,
+        'packages': packages,
+        'popular_package': popular_package,
+        'SUBSCRIPTION_PERIOD_CHOICES': [
+            (30, '1 Month' if translation.get_language() == 'en' else 'شهر واحد'),
+            (90, '3 Months' if translation.get_language() == 'en' else '3 أشهر'),
+            (180, '6 Months' if translation.get_language() == 'en' else '6 أشهر'),
+            (365, '1 Year' if translation.get_language() == 'en' else 'سنة واحدة'),
+        ],
+    }
     context['LANGUAGE_CODE'] = translation.get_language()
-    return render(request, 'student/services/viewSpecific.html', {'service':service, 'services':services, 'order':order})
+    return render(request, 'student/services/viewSpecific.html', context)
 
 
 def viewArticles(request):
@@ -532,29 +559,6 @@ def edit_review(request, review_id):
     return render(request, 'student/reviews/edit_review.html', {'form': form, 'review': review})
 
 @login_required
-def get_service_info(request, service_id):
-    """
-    Returns JSON with service information including duration and associated coaches
-    """
-    try:
-        service = ServicesModel.objects.get(id=service_id)
-        coaches = service.coaches.all()
-
-        coach_data = [
-            {
-                'id': coach.id,
-                'name': coach.full_name
-            } for coach in coaches
-        ]
-
-        return JsonResponse({
-            'duration': service.duration,
-            'coaches': coach_data
-        })
-    except ServicesModel.DoesNotExist:
-        return JsonResponse({'error': 'Service not found'}, status=404)
-
-@login_required
 def get_service_duration(request, service_id):
     try:
         service = ServicesModel.objects.get(id=service_id)
@@ -603,15 +607,40 @@ def add_to_cart(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid request'})
 
+from .models import ServicePackageCartItem
+
 @login_required
 def cart(request):
+    user = request.user
+    student = user.userprofile.student_profile
+    club = student.club
+    vat_settings = club.vat_settings
     context = {}
     product_items = CartItem.objects.filter(user=request.user)
     service_items = ServiceCartItem.objects.filter(user=request.user)
+    package_items = ServicePackageCartItem.objects.filter(user=request.user)  # New
+
+    total_count = (
+            product_items.count() +
+            service_items.count() +
+            package_items.count()
+    )
 
     product_total = sum(item.total_price for item in product_items)
-
     service_total = sum(item.total_price for item in service_items)
+    package_total = sum(item.total_price for item in package_items)  # New
+
+    # Calculate subtotal (before VAT)
+    subtotal = Decimal(str(product_total)) + Decimal(str(service_total)) + Decimal(str(package_total))
+
+    # Calculate VAT
+    vat_amount = Decimal('0.00')
+    if vat_settings.is_enabled:
+        vat_amount = vat_settings.calculate_vat(subtotal)
+
+    # Calculate total (after VAT)
+    total_price = subtotal + vat_amount
+
     original_service_total = 0
     total_service_savings = 0
 
@@ -623,8 +652,17 @@ def cart(request):
             item_savings = original_item_total - item.total_price
             total_service_savings += item_savings
 
-    total_price = product_total + service_total
-    original_total_price = product_total + original_service_total
+    # Calculate package savings
+    original_package_total = 0
+    total_package_savings = 0
+    for item in package_items:
+        original_item_total = item.quantity * item.service_package.original_price
+        original_package_total += original_item_total
+        if item.service_package.discounted_price:
+            item_savings = original_item_total - item.total_price
+            total_package_savings += item_savings
+
+    original_total_price = product_total + original_service_total + original_package_total
     total_savings = original_total_price - total_price if original_total_price != total_price else 0
 
     has_service_discounts = any(
@@ -632,20 +670,133 @@ def cart(request):
         for item in service_items
     )
 
+    has_package_discounts = any(
+        item.service_package.discounted_price
+        for item in package_items
+    )
+
     context = {
         'product_items': product_items,
         'service_items': service_items,
+        'package_items': package_items,
+        'total_count': total_count,
         'product_total': product_total,
         'service_total': service_total,
-        'original_service_total': original_service_total if has_service_discounts else None,
-        'total_service_savings': total_service_savings if total_service_savings > 0 else None,
+        'package_total': package_total,
+        'subtotal': subtotal,
+        'vat_amount': vat_amount,
         'total_price': total_price,
-        'original_total_price': original_total_price if has_service_discounts else None,
+        'original_service_total': original_service_total if has_service_discounts else None,
+        'original_package_total': original_package_total if has_package_discounts else None,
+        'total_service_savings': total_service_savings if total_service_savings > 0 else None,
+        'total_package_savings': total_package_savings if total_package_savings > 0 else None,
+        'original_total_price': original_total_price if (has_service_discounts or has_package_discounts) else None,
         'total_savings': total_savings if total_savings > 0 else None,
         'has_service_discounts': has_service_discounts,
+        'has_package_discounts': has_package_discounts,
     }
     context['LANGUAGE_CODE'] = translation.get_language()
     return render(request, 'student/cart/cart.html', context)
+
+
+@login_required
+def add_package_to_cart(request):
+    if request.method == 'POST':
+        package_id = request.POST.get('package_id')
+        quantity = int(request.POST.get('quantity', 1))
+        action = request.POST.get('action', 'add')
+
+        if not package_id:
+            return JsonResponse({'success': False, 'message': 'Package ID is required'})
+
+        package = get_object_or_404(ServicePackage, id=package_id, is_active=True)
+
+        # Check if the service is enabled
+        if not package.service.is_enabled:
+            return JsonResponse({
+                'success': False,
+                'message': 'This service is currently unavailable'
+            })
+
+        # Check if student already has an active subscription for this service
+        now = timezone.now()
+        active_subscription = ServiceOrderModel.objects.filter(
+            student=request.user,
+            service=package.service,
+            end_datetime__gte=now
+        ).exists()
+
+        if active_subscription and action != 'confirm_renewal':
+            return JsonResponse({
+                'success': False,
+                'needs_confirmation': True,
+                'message': 'لديك اشتراك نشط بالفعل في هذه الخدمة. هل ترغب في تجديد الاشتراك؟' if get_language() == 'ar' else 'You already have an active subscription for this service. Would you like to renew it?',
+                'package_id': package_id
+            })
+
+        # Add package to cart
+        cart_item, created = ServicePackageCartItem.objects.get_or_create(
+            user=request.user,
+            service_package=package,
+            defaults={'quantity': quantity}
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+
+        messages.success(request, 'تمت إضافة الباقة إلى السلة' if get_language() == 'ar' else 'Package added to cart')
+        return JsonResponse({
+            'success': True,
+            'message': 'تمت إضافة الباقة إلى السلة' if get_language() == 'ar' else 'Package added to cart'
+        })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+@login_required
+def update_package_cart(request):
+    if request.method == 'POST':
+        item_id = request.POST.get('item_id')
+        action = request.POST.get('action')
+
+        cart_item = get_object_or_404(ServicePackageCartItem, id=item_id, user=request.user)
+
+        if action == 'increase':
+            cart_item.quantity += 1
+            cart_item.save()
+        elif action == 'decrease':
+            if cart_item.quantity > 1:
+                cart_item.quantity -= 1
+                cart_item.save()
+            else:
+                cart_item.delete()
+        elif action == 'remove':
+            cart_item.delete()
+
+        # Recalculate totals
+        product_items = CartItem.objects.filter(user=request.user)
+        service_items = ServiceCartItem.objects.filter(user=request.user)
+        package_items = ServicePackageCartItem.objects.filter(user=request.user)
+
+        product_total = sum(item.total_price for item in product_items)
+        service_total = sum(item.total_price for item in service_items)
+        package_total = sum(item.total_price for item in package_items)
+        total_price = product_total + service_total + package_total
+
+        cart_count = (
+            (product_items.aggregate(total=Sum('quantity'))['total'] or 0) +
+            (service_items.aggregate(total=Sum('quantity'))['total'] or 0) +
+            (package_items.aggregate(total=Sum('quantity'))['total'] or 0)
+        )
+
+        return JsonResponse({
+            'success': True,
+            'total_price': float(total_price),
+            'cart_count': cart_count
+        })
+
+    return JsonResponse({'success': False})
 
 # Update Cart Quantity
 @login_required
@@ -810,15 +961,26 @@ def get_cart_count(request):
 
 @login_required
 def checkout(request):
+    """
+    Checkout view with proper VAT and coupon handling
+    Calculation order: Item prices → Subtotal → VAT → Total → Coupon Discount → Final Total
+    """
     userprofile = UserProfile.objects.get(user=request.user)
     student = userprofile.student_profile
+    club = student.club
+    vat_settings = club.vat_settings
+
+    # Get all cart items
     product_items = CartItem.objects.filter(user=request.user)
     service_items = ServiceCartItem.objects.filter(user=request.user)
+    package_items = ServicePackageCartItem.objects.filter(user=request.user)
 
-    if not product_items.exists() and not service_items.exists():
+    # Check if cart is empty
+    if not product_items.exists() and not service_items.exists() and not package_items.exists():
         messages.warning(request, 'سلة التسوق فارغة' if get_language() == 'ar' else 'Your cart is empty')
         return redirect('cart')
 
+    # Check stock for products
     out_of_stock_items = []
     for item in product_items:
         if item.quantity > item.product.stock:
@@ -831,49 +993,123 @@ def checkout(request):
                        else f'These products are not available in the requested quantity: {", ".join(out_of_stock_items)}')
         return redirect('cart')
 
-    # Calculate totals
+    # Calculate individual totals
     product_total = sum(item.total_price for item in product_items)
     service_total = sum(item.total_price for item in service_items)
-    subtotal = product_total + service_total
+    package_total = sum(item.total_price for item in package_items)
+
+    # Calculate subtotal (before VAT)
+    subtotal = Decimal(str(product_total + service_total + package_total))
+
+    # Calculate VAT (applied to subtotal)
+    vat_amount = Decimal('0.00')
+    vat_percentage = Decimal('0.00')
+    if vat_settings.is_enabled:
+        vat_percentage = vat_settings.percentage
+        vat_amount = vat_settings.calculate_vat(subtotal)
+
+    # Calculate total with VAT (before coupon)
+    total_with_vat = subtotal + vat_amount
 
     # Get applied coupon from session if exists
     applied_coupon = None
-    discount_amount = Decimal(0)
+    discount_amount = Decimal('0.00')
 
     if 'applied_coupon' in request.session:
         try:
-            applied_coupon = request.session['applied_coupon']
-            coupon = Coupon.objects.get(id=applied_coupon['coupon_id'])
+            applied_coupon_data = request.session['applied_coupon']
+            coupon = Coupon.objects.get(id=applied_coupon_data['coupon_id'])
 
-            # Validate coupon again in case it became invalid since being applied
+            # Validate coupon again
             if coupon.is_valid(student=student):
-                discount_amount = Decimal(str(applied_coupon['discount_amount']))
+                # Apply coupon to total_with_vat (after VAT)
+                if coupon.discount_type == 'percentage':
+                    discount_amount = (total_with_vat * coupon.discount_value) / Decimal('100')
+                else:  # fixed amount
+                    discount_amount = Decimal(str(coupon.discount_value))
+
+                # Ensure discount doesn't exceed total
+                if discount_amount > total_with_vat:
+                    discount_amount = total_with_vat
+
+                applied_coupon = {
+                    'coupon_id': coupon.id,
+                    'code': coupon.code,
+                    'discount_type': coupon.discount_type,
+                    'discount_value': float(coupon.discount_value),
+                    'discount_amount': float(discount_amount)
+                }
+
+                # Update session with calculated discount
+                request.session['applied_coupon'] = applied_coupon
             else:
-                # Remove invalid coupon from session
+                # Coupon is no longer valid
                 del request.session['applied_coupon']
                 messages.warning(request,
                                  'كوبون الخصم لم يعد صالحاً' if get_language() == 'ar'
                                  else 'The coupon is no longer valid')
         except Coupon.DoesNotExist:
-            # Remove invalid coupon from session
             if 'applied_coupon' in request.session:
                 del request.session['applied_coupon']
 
-    total_after_discount = subtotal - discount_amount
+    # Calculate final total (after coupon discount)
+    total_after_discount = total_with_vat - discount_amount
+
+    # Calculate original totals for display (for discounted items)
+    original_service_total = Decimal('0.00')
+    total_service_savings = Decimal('0.00')
+    for item in service_items:
+        original_item_total = item.quantity * item.service.price
+        original_service_total += Decimal(str(original_item_total))
+        if item.service.discounted_price and item.service.discounted_price != item.service.price:
+            item_savings = Decimal(str(original_item_total)) - Decimal(str(item.total_price))
+            total_service_savings += item_savings
+
+    original_package_total = Decimal('0.00')
+    total_package_savings = Decimal('0.00')
+    for item in package_items:
+        original_item_total = item.quantity * item.service_package.original_price
+        original_package_total += Decimal(str(original_item_total))
+        if item.service_package.discounted_price:
+            item_savings = Decimal(str(original_item_total)) - Decimal(str(item.total_price))
+            total_package_savings += item_savings
+
+    has_service_discounts = any(
+        item.service.discounted_price and item.service.discounted_price != item.service.price
+        for item in service_items
+    )
+
+    has_package_discounts = any(
+        item.service_package.discounted_price
+        for item in package_items
+    )
 
     context = {
         'product_items': product_items,
         'service_items': service_items,
+        'package_items': package_items,
         'product_total': product_total,
         'service_total': service_total,
+        'package_total': package_total,
         'subtotal': subtotal,
+        'vat_amount': vat_amount,
+        'vat_percentage': vat_percentage,
+        'total_with_vat': total_with_vat,
         'discount_amount': discount_amount,
         'total_after_discount': total_after_discount,
         'applied_coupon': applied_coupon,
+        'original_service_total': original_service_total if has_service_discounts else None,
+        'original_package_total': original_package_total if has_package_discounts else None,
+        'total_service_savings': total_service_savings if total_service_savings > 0 else None,
+        'total_package_savings': total_package_savings if total_package_savings > 0 else None,
+        'has_service_discounts': has_service_discounts,
+        'has_package_discounts': has_package_discounts,
         'user': userprofile,
         'student': student,
+        'vat_settings': vat_settings,
+        'LANGUAGE_CODE': translation.get_language(),
     }
-    context['LANGUAGE_CODE'] = translation.get_language()
+
     return render(request, 'student/cart/checkout.html', context)
 
 from coach_dashboard.models import CouponUsage
@@ -882,28 +1118,34 @@ from accountant_dashboard.models import VATSettings
 
 @login_required
 def place_order(request):
+    """
+    Place order view with proper VAT and coupon handling
+    Saves VAT information with the order for historical tracking
+    """
     print("=== place_order called ===")
     club = get_user_club(request.user)
     print(f"User: {request.user}, Club: {club}")
 
     context = {}
+
     if request.method == 'POST':
         print("--- POST request received ---")
 
         product_items = CartItem.objects.filter(user=request.user)
         service_items = ServiceCartItem.objects.filter(user=request.user)
+        package_items = ServicePackageCartItem.objects.filter(user=request.user)
 
         print(f"Product items count: {product_items.count()}")
         print(f"Service items count: {service_items.count()}")
+        print(f"Package items count: {package_items.count()}")
 
-        if not product_items.exists() and not service_items.exists():
+        if not product_items.exists() and not service_items.exists() and not package_items.exists():
             print("Cart is empty!")
             messages.warning(request, 'سلة التسوق فارغة' if get_language() == 'ar' else 'Your cart is empty')
             return redirect('cart')
 
         lang = get_language()
         print(f"Language: {lang}")
-        currency_symbol = 'ر.س' if lang == 'ar' else 'SAR'
 
         # Capture form data
         first_name = request.POST.get('first_name')
@@ -920,7 +1162,7 @@ def place_order(request):
         print(f"Payment method: {payment_method}")
         print(f"Customer: {first_name} {last_name}, Email: {email}, Phone: {phone}")
 
-        # Validate stock
+        # Validate stock for products
         for item in product_items:
             print(
                 f"Checking stock for product {item.product.title}: requested {item.quantity}, available {item.product.stock}")
@@ -929,7 +1171,70 @@ def place_order(request):
                 messages.error(request, msg)
                 return redirect('cart')
 
-        # Cash on delivery branch
+        # Calculate totals
+        product_total = Decimal(str(sum(item.total_price for item in product_items)))
+        service_total = Decimal(str(sum(item.total_price for item in service_items)))
+        package_total = Decimal(str(sum(item.total_price for item in package_items)))
+        subtotal = product_total + service_total + package_total
+
+        print(
+            f"Product total: {product_total}, Service total: {service_total}, Package total: {package_total}, Subtotal: {subtotal}")
+
+        # Get VAT settings
+        vat_settings = club.vat_settings
+        vat_amount = Decimal('0.00')
+        vat_percentage = Decimal('0.00')
+
+        if vat_settings.is_enabled:
+            vat_percentage = vat_settings.percentage
+            vat_amount = vat_settings.calculate_vat(subtotal)
+
+        print(f"VAT enabled: {vat_settings.is_enabled}, VAT %: {vat_percentage}, VAT amount: {vat_amount}")
+
+        # Calculate total with VAT
+        total_with_vat = subtotal + vat_amount
+
+        # Apply coupon discount (from session)
+        applied_coupon = request.session.get('applied_coupon')
+        coupon = None
+        coupon_discount = Decimal('0.00')
+
+        if applied_coupon:
+            try:
+                coupon = Coupon.objects.get(id=applied_coupon['coupon_id'])
+
+                # Recalculate discount based on total_with_vat
+                if coupon.discount_type == 'percentage':
+                    coupon_discount = (total_with_vat * Decimal(str(coupon.discount_value))) / Decimal('100')
+                else:
+                    coupon_discount = Decimal(str(coupon.discount_value))
+
+                # Ensure discount doesn't exceed total
+                if coupon_discount > total_with_vat:
+                    coupon_discount = total_with_vat
+
+                print(f"Coupon applied: {coupon.code}, Discount: {coupon_discount}")
+            except Coupon.DoesNotExist:
+                print("Coupon not found in database")
+                if 'applied_coupon' in request.session:
+                    del request.session['applied_coupon']
+
+        # Calculate final total
+        final_total = total_with_vat - coupon_discount
+
+        print(
+            f"Subtotal: {subtotal}, VAT: {vat_amount}, Total with VAT: {total_with_vat}, Coupon discount: {coupon_discount}, Final total: {final_total}")
+
+        # Determine club
+        if product_items.exists():
+            club = product_items.first().product.club
+        elif service_items.exists():
+            club = service_items.first().service.club
+        elif package_items.exists():
+            club = package_items.first().service_package.service.club
+        print(f"Club determined for order: {club}")
+
+        # Handle cash on delivery
         if payment_method == 'cash_on_delivery':
             print("Payment method is cash on delivery — storing order in session")
             request.session['pending_order'] = {
@@ -956,52 +1261,44 @@ def place_order(request):
                         'quantity': item.quantity,
                         'price': float(item.service.price)
                     } for item in service_items
-                ]
+                ],
+                'package_items': [
+                    {
+                        'package_id': item.service_package.id,
+                        'quantity': item.quantity,
+                        'price': float(item.service_package.effective_price)
+                    } for item in package_items
+                ],
+                'subtotal': float(subtotal),
+                'vat_percentage': float(vat_percentage),
+                'vat_amount': float(vat_amount),
+                'coupon_discount': float(coupon_discount),
+                'total_price': float(final_total)
             }
 
-            product_total = sum(item.total_price for item in product_items)
-            service_total = sum(item.total_price for item in service_items)
-            total_price = product_total + service_total
+            request.session['order_total'] = float(final_total)
+            request.session['order_subtotal'] = float(subtotal)
+            request.session['order_vat_amount'] = float(vat_amount)
+            request.session['order_discount'] = float(coupon_discount)
 
-            request.session['order_total'] = float(total_price)
-            print(f"Stored order total: {total_price}")
+            print(f"Stored order data in session - Total: {final_total}")
             return redirect('bank_transfer_info')
 
+        # Continue with credit card payment
         print("Continuing with credit card payment logic")
-        product_total = sum(item.total_price for item in product_items)
-        service_total = sum(item.total_price for item in service_items)
-        total_price = product_total + service_total
-        print(f"Product total: {product_total}, Service total: {service_total}, Grand total: {total_price}")
-
-        club = None
-        if product_items.exists():
-            club = product_items.first().product.club
-        elif service_items.exists():
-            club = service_items.first().service.club
-        print(f"Club determined for order: {club}")
 
         try:
             with transaction.atomic():
-                applied_coupon = request.session.get('applied_coupon')
-                coupon = None
-                coupon_discount = Decimal(0)
-
-                if applied_coupon:
-                    coupon = Coupon.objects.get(id=applied_coupon['coupon_id'])
-                    coupon_discount = Decimal(str(applied_coupon['discount_amount']))
-                    print(f"Coupon applied: {coupon.code}, Discount: {coupon_discount}")
-
-                subtotal = product_total + service_total
-                total_with_discount = subtotal - coupon_discount
-                print(f"Subtotal: {subtotal}, Discount: {coupon_discount}, Total after discount: {total_with_discount}")
-
+                # Create the order with VAT information
                 order = Order.objects.create(
                     user=request.user,
                     club=club,
                     subtotal=subtotal,
+                    vat_percentage=vat_percentage,
+                    vat_amount=vat_amount,
                     discount_amount=coupon_discount,
-                    total_price=total_with_discount,
-                    status='confirmed' if payment_method == 'credit_card' else 'pending',
+                    total_price=final_total,
+                    status='pending',
                     payment_method=payment_method,
                     first_name=first_name,
                     last_name=last_name,
@@ -1013,8 +1310,10 @@ def place_order(request):
                     postal_code=postal_code,
                     notes=notes
                 )
-                print(f"Order created: ID={order.id}")
+                print(
+                    f"Order created: ID={order.id}, Subtotal={order.subtotal}, VAT={order.vat_amount}, Discount={order.discount_amount}, Total={order.total_price}")
 
+                # Record coupon usage if applicable
                 if coupon:
                     CouponUsage.objects.create(
                         coupon=coupon,
@@ -1026,15 +1325,18 @@ def place_order(request):
                     coupon.save()
                     print("Coupon usage recorded and updated")
 
+                    # Remove coupon from session
                     if 'applied_coupon' in request.session:
                         del request.session['applied_coupon']
                         print("Coupon removed from session")
 
-                # Order items
+                # Track what we have in the order
                 has_products = product_items.exists()
                 has_services = service_items.exists()
-                print(f"Has products: {has_products}, Has services: {has_services}")
+                has_packages = package_items.exists()
+                print(f"Has products: {has_products}, Has services: {has_services}, Has packages: {has_packages}")
 
+                # Process product items
                 for item in product_items:
                     OrderItem.objects.create(
                         order=order,
@@ -1046,6 +1348,7 @@ def place_order(request):
                     item.product.stock -= item.quantity
                     item.product.save()
 
+                # Process service items
                 if has_services:
                     print("Processing service items...")
                     try:
@@ -1059,22 +1362,80 @@ def place_order(request):
                             print(f"Service added to order: {item.service.title} x {item.quantity}")
                     except Exception as e:
                         print(f"Error in service processing: {e}")
+                        raise
+
+                # Process package items
+                if has_packages:
+                    print("Processing package items...")
+                    try:
+                        for item in package_items:
+                            service = item.service_package.service
+                            end_datetime = timezone.now() + timedelta(days=item.service_package.duration_days)
+
+                            # Create service order
+                            ServiceOrderModel.objects.create(
+                                service=service,
+                                student=request.user,
+                                price=item.service_package.effective_price * item.quantity,
+                                is_complited=False,
+                                end_datetime=end_datetime,
+                                creation_date=timezone.now()
+                            )
+
+                            # Create order item with package reference
+                            OrderItem.objects.create(
+                                order=order,
+                                service=service,
+                                service_package=item.service_package,
+                                quantity=item.quantity,
+                                price=item.service_package.effective_price
+                            )
+                            print(
+                                f"Package added to order: {item.service_package.title} x {item.quantity} for service: {service.title}")
+                    except Exception as e:
+                        print(f"Error in package processing: {e}")
+                        raise
 
                 # Clear cart
                 product_items.delete()
                 service_items.delete()
+                package_items.delete()
                 print("Cart cleared after order creation")
 
-                if has_products and has_services:
+                # Determine success message
+                if has_products and has_services and has_packages:
+                    msg = 'تم إتمام عملية شراء المنتجات والخدمات والباقات بنجاح' if lang == 'ar' else 'Product, service and package purchase completed successfully.'
+                elif has_products and has_services:
                     msg = 'تم إتمام عملية شراء المنتجات والخدمات بنجاح' if lang == 'ar' else 'Product and service purchase completed successfully.'
+                elif has_products and has_packages:
+                    msg = 'تم إتمام عملية شراء المنتجات والباقات بنجاح' if lang == 'ar' else 'Product and package purchase completed successfully.'
+                elif has_services and has_packages:
+                    msg = 'تم إتمام عملية شراء الخدمات والباقات بنجاح' if lang == 'ar' else 'Service and package purchase completed successfully.'
                 elif has_products:
                     msg = 'تم إتمام عملية شراء المنتجات بنجاح' if lang == 'ar' else 'Product purchase completed successfully.'
-                else:
+                elif has_services:
                     msg = 'تم إتمام عملية شراء الخدمات بنجاح' if lang == 'ar' else 'Service purchase completed successfully.'
+                else:  # packages only
+                    msg = 'تم إتمام عملية شراء الباقات بنجاح' if lang == 'ar' else 'Package purchase completed successfully.'
 
+                # Notify coaches for order items
                 for item in order.items.all():
                     print(f"Notifying coach for order item ID: {item.id}")
-                    notify_coach_for_order(item)
+                    try:
+                        if item.service:
+                            if item.service.creator and hasattr(item.service.creator.userprofile, 'Coach_profile'):
+                                coach = item.service.creator.userprofile.Coach_profile
+                                notify_coach_for_order(item, coach)
+                            else:
+                                print(f"No coach found for service: {item.service.title}")
+                        elif item.product:
+                            if item.product.creator and hasattr(item.product.creator.userprofile, 'Coach_profile'):
+                                coach = item.product.creator.userprofile.Coach_profile
+                                notify_coach_for_order(item, coach)
+                            else:
+                                print(f"No coach found for product: {item.product.title}")
+                    except Exception as e:
+                        print(f"Error notifying coach for item {item.id}: {str(e)}")
 
                 messages.success(request, msg)
                 print("Order completed successfully")
@@ -1095,6 +1456,8 @@ from coach_dashboard.views import notify_coach_for_refund,notify_coach_for_order
 from decimal import Decimal
 from students.models import ServicesModel
 from students.models import ProductsModel
+
+
 @login_required
 def confirm_order(request):
     club = get_user_club(request.user)
@@ -1122,13 +1485,16 @@ def confirm_order(request):
 
             product_items_data = pending_order_data.get('product_items', [])
             service_items_data = pending_order_data.get('service_items', [])
+            package_items_data = pending_order_data.get('package_items', [])  # NEW
 
             print("DEBUG: Product items:", product_items_data)
             print("DEBUG: Service items:", service_items_data)
+            print("DEBUG: Package items:", package_items_data)  # NEW
 
             product_total = sum(item['price'] * item['quantity'] for item in product_items_data)
             service_total = sum(item['price'] * item['quantity'] for item in service_items_data)
-            total_price = product_total + service_total
+            package_total = sum(item['price'] * item['quantity'] for item in package_items_data)  # NEW
+            total_price = product_total + service_total + package_total  # UPDATED
             print("DEBUG: Total price before VAT:", total_price)
 
             total_price = Decimal(str(total_price))
@@ -1136,7 +1502,7 @@ def confirm_order(request):
             total_with_tax = total_price
             print("DEBUG: Total with tax:", total_with_tax)
 
-            # Determine club again from products/services
+            # Determine club again from products/services/packages
             club = None
             if product_items_data:
                 product = ProductsModel.objects.get(id=product_items_data[0]['product_id'])
@@ -1146,6 +1512,10 @@ def confirm_order(request):
                 service = ServicesModel.objects.get(id=service_items_data[0]['service_id'])
                 club = service.club
                 print("DEBUG: Club from service:", club)
+            elif package_items_data:  # NEW: Check packages
+                package = ServicePackage.objects.get(id=package_items_data[0]['package_id'])
+                club = package.service.club
+                print("DEBUG: Club from package:", club)
 
             transfer_receipt = request.FILES.get('transfer_receipt')
             print("DEBUG: Transfer receipt uploaded:", bool(transfer_receipt))
@@ -1154,7 +1524,7 @@ def confirm_order(request):
                 user=request.user,
                 club=club,
                 total_price=total_with_tax,
-                subtotal =total_price,
+                subtotal=total_price,
                 status='pending',
                 payment_method='cash_on_delivery',
                 first_name=pending_order_data['first_name'],
@@ -1171,6 +1541,7 @@ def confirm_order(request):
             )
             print("DEBUG: Order created with ID:", order.id)
 
+            # Process product items
             for item_data in product_items_data:
                 product = ProductsModel.objects.get(id=item_data['product_id'])
                 OrderItem.objects.create(
@@ -1181,6 +1552,7 @@ def confirm_order(request):
                 )
                 print(f"DEBUG: Added product item {product.title} x {item_data['quantity']}")
 
+            # Process service items
             for item_data in service_items_data:
                 service = ServicesModel.objects.get(id=item_data['service_id'])
                 OrderItem.objects.create(
@@ -1191,23 +1563,65 @@ def confirm_order(request):
                 )
                 print(f"DEBUG: Added service item {service.title} x {item_data['quantity']}")
 
+            # NEW: Process package items
+            for item_data in package_items_data:
+                package = ServicePackage.objects.get(id=item_data['package_id'])
+                service = package.service
+
+                # Create service order for package
+                end_datetime = timezone.now() + timedelta(days=package.duration_days)
+
+                ServiceOrderModel.objects.create(
+                    service=service,
+                    student=request.user,
+                    price=package.effective_price * item_data['quantity'],
+                    is_complited=False,
+                    end_datetime=end_datetime,
+                    creation_date=timezone.now()
+                )
+
+                # Create order item WITH package reference
+                OrderItem.objects.create(
+                    order=order,
+                    service=service,
+                    service_package=package,  # ADD THIS
+                    quantity=item_data['quantity'],
+                    price=package.effective_price
+                )
+                print(f"DEBUG: Added package item {package.title} x {item_data['quantity']} for service: {service.title}")
+
             if club:
                 customer_name = f"{pending_order_data['first_name']} {pending_order_data['last_name']}"
                 receipt_status = "تم رفع إثبات التحويل - يحتاج مراجعة" if transfer_receipt else "في انتظار رفع إثبات التحويل"
                 receipt_status_en = "Bank transfer receipt uploaded - needs review" if transfer_receipt else "Waiting for transfer receipt upload"
 
-                if product_items_data and service_items_data:
+                # Determine order type for notification
+                has_products = len(product_items_data) > 0
+                has_services = len(service_items_data) > 0
+                has_packages = len(package_items_data) > 0  # NEW
+
+                if has_products and has_services and has_packages:
+                    msg = f"طلب منتجات وخدمات وباقات جديد رقم #{order.id} بقيمة {total_with_tax} {currency_symbol} من العميل {customer_name}. {receipt_status}" if lang == 'ar' else f"New product, service & package order #{order.id} worth {total_with_tax} {currency_symbol} from {customer_name}. {receipt_status_en}"
+                elif has_products and has_services:
                     msg = f"طلب منتجات وخدمات جديد رقم #{order.id} بقيمة {total_with_tax} {currency_symbol} من العميل {customer_name}. {receipt_status}" if lang == 'ar' else f"New product & service order #{order.id} worth {total_with_tax} {currency_symbol} from {customer_name}. {receipt_status_en}"
-                elif product_items_data:
+                elif has_products and has_packages:
+                    msg = f"طلب منتجات وباقات جديد رقم #{order.id} بقيمة {total_with_tax} {currency_symbol} من العميل {customer_name}. {receipt_status}" if lang == 'ar' else f"New product & package order #{order.id} worth {total_with_tax} {currency_symbol} from {customer_name}. {receipt_status_en}"
+                elif has_services and has_packages:
+                    msg = f"طلب خدمات وباقات جديد رقم #{order.id} بقيمة {total_with_tax} {currency_symbol} من العميل {customer_name}. {receipt_status}" if lang == 'ar' else f"New service & package order #{order.id} worth {total_with_tax} {currency_symbol} from {customer_name}. {receipt_status_en}"
+                elif has_products:
                     msg = f"طلب منتجات جديد رقم #{order.id} بقيمة {total_with_tax} {currency_symbol} من العميل {customer_name}. {receipt_status}" if lang == 'ar' else f"New product order #{order.id} worth {total_with_tax} {currency_symbol} from {customer_name}. {receipt_status_en}"
-                else:
+                elif has_services:
                     msg = f"طلب خدمات جديد رقم #{order.id} بقيمة {total_with_tax} {currency_symbol} من العميل {customer_name}. {receipt_status}" if lang == 'ar' else f"New service order #{order.id} worth {total_with_tax} {currency_symbol} from {customer_name}. {receipt_status_en}"
+                else:  # packages only
+                    msg = f"طلب باقات جديد رقم #{order.id} بقيمة {total_with_tax} {currency_symbol} من العميل {customer_name}. {receipt_status}" if lang == 'ar' else f"New package order #{order.id} worth {total_with_tax} {currency_symbol} from {customer_name}. {receipt_status_en}"
 
                 Notification.objects.create(club=club, message=msg, is_read=False, created_at=timezone.now())
                 print("DEBUG: Notification created for club")
 
+            # Clear cart (all types)
             CartItem.objects.filter(user=request.user).delete()
             ServiceCartItem.objects.filter(user=request.user).delete()
+            ServicePackageCartItem.objects.filter(user=request.user).delete()  # NEW
             print("DEBUG: Cleared cart items")
 
             if 'pending_order' in request.session:
@@ -1236,9 +1650,9 @@ def confirm_order(request):
 
     except Exception as e:
         print("DEBUG: Exception occurred:", str(e))
-        messages.error(request, f"حدث خطأ أثناء معالجة الطلب: {str(e)}" if lang == 'ar' else f"Error processing order: {str(e)}")
+        messages.error(request,
+                       f"حدث خطأ أثناء معالجة الطلب: {str(e)}" if lang == 'ar' else f"Error processing order: {str(e)}")
         return redirect('checkout')
-
 
 
 def process_order_confirmation(order):
@@ -1263,39 +1677,81 @@ def process_order_confirmation(order):
             for item in service_items:
                 service = item.service
 
-                # Handle service subscriptions
-                existing_service_order = ServiceOrderModel.objects.filter(
-                    student=order.user,
-                    service=service,
-                    order__status='confirmed'
-                ).order_by('-end_datetime').first()
+                # Check if this is from a package purchase
+                # (You might want to add a flag to OrderItem to track if it's from a package)
+                is_package_purchase = False  # You should determine this based on your logic
 
-                if existing_service_order:
-                    # Calculate subscription extension based on pricing_period_months
-                    subscription_months = service.pricing_period_months * item.quantity
-
-                    if existing_service_order.end_datetime > timezone.now():
-                        new_end_datetime = existing_service_order.end_datetime + timezone.timedelta(days=subscription_months * 30)
-                    else:
-                        new_end_datetime = timezone.now() + timezone.timedelta(days=subscription_months * 30)
-
-                    existing_service_order.end_datetime = new_end_datetime
-                    existing_service_order.price += service.price * item.quantity
-                    existing_service_order.creation_date = timezone.now()
-                    existing_service_order.is_complited = False
-                    existing_service_order.save()
-                else:
-                    # Create new service subscription using pricing_period_months
-                    subscription_months = service.pricing_period_months * item.quantity
-
-                    ServiceOrderModel.objects.create(
-                        service=service,
+                if is_package_purchase:
+                    # Handle package-specific logic
+                    # For now, treat it as regular service subscription
+                    existing_service_order = ServiceOrderModel.objects.filter(
                         student=order.user,
-                        price=service.price * item.quantity,
-                        is_complited=False,
-                        end_datetime=timezone.now() + timezone.timedelta(days=subscription_months * 30),
-                        creation_date=timezone.now()
-                    )
+                        service=service,
+                        order__status='pending'
+                    ).order_by('-end_datetime').first()
+
+                    if existing_service_order:
+                        # Calculate subscription extension based on pricing_period_months
+                        subscription_months = service.pricing_period_months * item.quantity
+
+                        if existing_service_order.end_datetime > timezone.now():
+                            new_end_datetime = existing_service_order.end_datetime + timezone.timedelta(
+                                days=subscription_months * 30)
+                        else:
+                            new_end_datetime = timezone.now() + timezone.timedelta(days=subscription_months * 30)
+
+                        existing_service_order.end_datetime = new_end_datetime
+                        existing_service_order.price += service.price * item.quantity
+                        existing_service_order.creation_date = timezone.now()
+                        existing_service_order.is_complited = False
+                        existing_service_order.save()
+                    else:
+                        # Create new service subscription using pricing_period_months
+                        subscription_months = service.pricing_period_months * item.quantity
+
+                        ServiceOrderModel.objects.create(
+                            service=service,
+                            student=order.user,
+                            price=service.price * item.quantity,
+                            is_complited=False,
+                            end_datetime=timezone.now() + timezone.timedelta(days=subscription_months * 30),
+                            creation_date=timezone.now()
+                        )
+                else:
+                    # Regular service purchase logic
+                    existing_service_order = ServiceOrderModel.objects.filter(
+                        student=order.user,
+                        service=service,
+                        order__status='pending'
+                    ).order_by('-end_datetime').first()
+
+                    if existing_service_order:
+                        # Calculate subscription extension based on pricing_period_months
+                        subscription_months = service.pricing_period_months * item.quantity
+
+                        if existing_service_order.end_datetime > timezone.now():
+                            new_end_datetime = existing_service_order.end_datetime + timezone.timedelta(
+                                days=subscription_months * 30)
+                        else:
+                            new_end_datetime = timezone.now() + timezone.timedelta(days=subscription_months * 30)
+
+                        existing_service_order.end_datetime = new_end_datetime
+                        existing_service_order.price += service.price * item.quantity
+                        existing_service_order.creation_date = timezone.now()
+                        existing_service_order.is_complited = False
+                        existing_service_order.save()
+                    else:
+                        # Create new service subscription using pricing_period_months
+                        subscription_months = service.pricing_period_months * item.quantity
+
+                        ServiceOrderModel.objects.create(
+                            service=service,
+                            student=order.user,
+                            price=service.price * item.quantity,
+                            is_complited=False,
+                            end_datetime=timezone.now() + timezone.timedelta(days=subscription_months * 30),
+                            creation_date=timezone.now()
+                        )
 
                 # Handle appointment payments
                 bookings = BookingService.objects.filter(
@@ -1307,7 +1763,6 @@ def process_order_confirmation(order):
                         if (booking_service.booking and
                                 hasattr(booking_service.booking, 'appointment') and
                                 booking_service.booking.appointment):
-
                             appointment = booking_service.booking.appointment
                             appointment.is_paid = True
                             appointment.save()
@@ -1659,8 +2114,30 @@ def edit_student_profile(request):
 @login_required
 def order_details(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    order_items = OrderItem.objects.filter(order=order)
+    order_items = OrderItem.objects.filter(order=order).select_related(
+        'product', 'service', 'service_package'
+    )
 
+    # Get club for currency display
+    club = None
+    if order.club:
+        club = order.club
+    else:
+        # Try to get club from user's student profile
+        try:
+            club = request.user.userprofile.student_profile.club
+        except:
+            pass
+
+    # Try to get VAT settings
+    vat_settings = None
+    if club:
+        try:
+            vat_settings = club.vat_settings
+        except:
+            pass
+
+    # Get cancellation info if exists
     cancellation = None
     if order.status == 'cancelled':
         try:
@@ -1668,10 +2145,28 @@ def order_details(request, order_id):
         except OrderCancellation.DoesNotExist:
             pass
 
+    # Calculate package-specific discounts
+    package_savings = 0
+    original_package_total = 0
+    package_total = 0
+
+    for item in order_items:
+        if item.service_package and item.service_package.discounted_price:
+            original_price = item.service_package.original_price * item.quantity
+            discounted_price = item.service_package.discounted_price * item.quantity
+            package_savings += original_price - discounted_price
+            original_package_total += original_price
+            package_total += discounted_price
+
     context = {
         'order': order,
         'order_items': order_items,
         'cancellation': cancellation,
+        'club': club,
+        'vat_settings': vat_settings,
+        'package_savings': package_savings,
+        'original_package_total': original_package_total,
+        'package_total': package_total,
     }
     context['LANGUAGE_CODE'] = translation.get_language()
     return render(request, 'student/orders/order_details.html', context)

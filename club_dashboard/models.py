@@ -232,7 +232,8 @@ class DashboardSettings(models.Model):
 
 from django.utils.text import slugify
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name_en = models.CharField(max_length=100, verbose_name='English Name')
+    name_ar = models.CharField(max_length=100, verbose_name='Arabic Name')
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='categories/', blank=True, null=True)
@@ -242,11 +243,20 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            # Use English name for slug generation
+            self.slug = slugify(self.name_en)
         super(Category, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.name_en
+
+    @property
+    def name(self):
+        """Return the appropriate name based on current language"""
+        from django.utils import translation
+        if translation.get_language() == 'ar' and self.name_ar:
+            return self.name_ar
+        return self.name_en
 
     class Meta:
         verbose_name = 'Category'
@@ -262,7 +272,8 @@ class SubCategory(models.Model):
         on_delete=models.CASCADE,
         related_name='subcategories'
     )
-    name = models.CharField(max_length=100)
+    name_en = models.CharField(max_length=100, verbose_name='English Name')
+    name_ar = models.CharField(max_length=100, verbose_name='Arabic Name')
     slug = models.SlugField(blank=True)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='subcategories/', blank=True, null=True)
@@ -272,16 +283,25 @@ class SubCategory(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            # Use English name for slug generation
+            self.slug = slugify(self.name_en)
         super(SubCategory, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.category.name} - {self.name}"
+        return f"{self.category.name_en} - {self.name_en}"
+
+    @property
+    def name(self):
+        """Return the appropriate name based on current language"""
+        from django.utils import translation
+        if translation.get_language() == 'ar' and self.name_ar:
+            return self.name_ar
+        return self.name_en
 
     class Meta:
         verbose_name = 'SubCategory'
         verbose_name_plural = 'SubCategories'
-        unique_together = ('category', 'name')
+        unique_together = ('category', 'name_en', 'name_ar')
 
 
 
@@ -291,7 +311,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
-
+from django.utils.functional import cached_property
 def get_commission_types():
     language = get_language()
     if language == 'ar':
@@ -305,6 +325,15 @@ def get_commission_types():
             ('time_period', "Time period offer"),
         ]
 class Commission(models.Model):
+    COMMISSION_TYPE_CHOICES = [
+        ('vendor', 'Vendor Commission'),
+        ('time_period', 'Time Period Offer'),
+    ]
+
+    COMMISSION_TYPE_CHOICES_AR = [
+        ('vendor', 'عمولة البائع'),
+        ('time_period', 'عرض لفترة زمنية'),
+    ]
     vendor_classification = models.CharField(
         max_length=50,
         blank=True,
@@ -317,7 +346,7 @@ class Commission(models.Model):
     name = models.CharField(max_length=100, verbose_name="اسم العمولة")
     commission_type = models.CharField(
         max_length=20,
-        choices=[],  # Empty list, we'll handle it differently
+        choices=COMMISSION_TYPE_CHOICES,  # استخدام الخيارات الإنجليزية كافتراضي
         verbose_name=_("Commission Type")
     )
     commission_rate = models.DecimalField(
@@ -369,17 +398,12 @@ class Commission(models.Model):
 
     @classmethod
     def get_commission_choices(cls):
+        """دالة مساعدة للحصول على الخيارات"""
         language = get_language()
         if language == 'ar':
-            return [
-                ('vendor', 'عمولة البائع'),
-                ('time_period', 'عرض لفترة زمنية'),
-            ]
+            return cls.COMMISSION_TYPE_CHOICES_AR
         else:
-            return [
-                ('vendor', "Vendor's commission"),
-                ('time_period', "Time period offer"),
-            ]
+            return cls.COMMISSION_TYPE_CHOICES
 
     @classmethod
     def get_commission_choices_with_all(cls):
@@ -514,6 +538,15 @@ class Commission(models.Model):
             commission_type='vendor',
             is_active=True
         ).values_list('vendor_classification', flat=True).distinct()
+
+    @cached_property
+    def commission_type_choices(self):
+        """إرجاع الخيارات بناءً على اللغة الحالية"""
+        language = get_language()
+        if language == 'ar':
+            return self.COMMISSION_TYPE_CHOICES_AR
+        else:
+            return self.COMMISSION_TYPE_CHOICES
 
 
 class VendorCommissionAssignment(models.Model):
@@ -1058,7 +1091,38 @@ class RefundDisputeAttachment(models.Model):
 
 class CustomRole(models.Model):
     # Permission choices will map to view names in club_dashboard
-    PERMISSION_CHOICES = [
+    PERMISSION_CHOICES_EN = [
+        ('club_dashboard_index', 'View Dashboard'),
+        ('viewStudents', 'View Customers'),
+        ('addStudent', 'Add Customers'),
+        ('editStudent', 'Edit Customers'),
+        ('deleteStudent', 'Delete Customers'),
+        ('viewCoachs', 'View Vendors'),
+        ('addCoach', 'Add Vendors'),
+        ('editCoach', 'Edit Vendors'),
+        ('deleteCoach', 'Delete Vendors'),
+        ('viewArticles', 'View Articles'),
+        ('addArticle', 'Add Articles'),
+        ('editArticle', 'Edit Articles'),
+        ('deleteArticle', 'Delete Articles'),
+        ('viewDirectors', 'View Staff'),
+        ('addDirector', 'Add Staff'),
+        ('editDirector', 'Edit Staff'),
+        ('deleteDirector', 'Delete Staff'),
+        ('viewClubNotifications', 'View Notifications'),
+        ('club_orders', 'View Orders'),
+        ('update_order_status', 'Manage Orders'),
+        ('club_financial_dashboard', 'View Revenue'),
+        ('manage_products', 'Manage Product Approval'),
+        ('manage_services', 'Manage Service Approval'),
+        ('commission_list', 'View Commissions'),
+        ('refund_dashboard', 'Manage Conflicts'),
+        ('delete_review', 'Delete Customer Reviews'),
+        ('category_list', 'View Categories'),
+        ('reviews_list', 'View Customer Reviews')
+    ]
+
+    PERMISSION_CHOICES_AR = [
         ('club_dashboard_index', 'عرض لوحة التحكم'),
         ('viewStudents', 'عرض العملاء'),
         ('addStudent', 'إضافة العملاء'),
@@ -1085,24 +1149,297 @@ class CustomRole(models.Model):
         ('commission_list', 'عرض العمولات'),
         ('refund_dashboard', 'التحكم في النزاعات'),
         ('delete_review', 'حذف اراء العملاء'),
-        ('category_list','عرض الفئات'),
-        ('reviews_list','عرض اراء العملاء')
+        ('category_list', 'عرض الفئات'),
+        ('reviews_list', 'عرض اراء العملاء')
     ]
 
-    name = models.CharField(max_length=100)
+    name_en = models.CharField(max_length=100, verbose_name='Role Name (English)')
+    name_ar = models.CharField(max_length=100, verbose_name='Role Name (Arabic)')
     permissions = models.JSONField(default=list)  # Will store list of permission codes
     club = models.ForeignKey('accounts.ClubsModel', on_delete=models.CASCADE, related_name="custom_roles")
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.name} ({self.club.name})"
+        return f"{self.name_en} / {self.name_ar} ({self.club.name})"
 
-    def get_permissions_display(self):
-        """Returns human-readable permission names"""
-        permission_dict = dict(self.PERMISSION_CHOICES)
+    def get_name(self, language_code='en'):
+        """Get role name based on language"""
+        if language_code == 'ar':
+            return self.name_ar
+        return self.name_en
+
+    def get_permissions_display(self, language_code='en'):
+        """Returns human-readable permission names based on language"""
+        if language_code == 'ar':
+            permission_dict = dict(self.PERMISSION_CHOICES_AR)
+        else:
+            permission_dict = dict(self.PERMISSION_CHOICES_EN)
         return [permission_dict.get(code, code) for code in self.permissions]
 
     def has_permission(self, permission_code):
         """Check if role has specific permission"""
         return permission_code in self.permissions
+
+    @classmethod
+    def get_permission_choices(cls, language_code='en'):
+        """Get permission choices based on language"""
+        if language_code == 'ar':
+            return cls.PERMISSION_CHOICES_AR
+        else:
+            return cls.PERMISSION_CHOICES_EN
+
+
+from django.db import models
+from django.core.validators import FileExtensionValidator
+
+
+class LandingPageContent(models.Model):
+    # Hero Section
+    hero_title_en = models.CharField(max_length=200, default="The Premier Platform for")
+    hero_title_ar = models.CharField(max_length=200, default="المنصة الرائدة")
+    hero_subtitle_en = models.CharField(max_length=200, default="Vendor Excellence")
+    hero_subtitle_ar = models.CharField(max_length=200, default="للتميز في التجارة")
+    hero_description_en = models.TextField(
+        default="Discover and connect with thousands of vendors to find the perfect products for your needs.")
+    hero_description_ar = models.TextField(default="اكتشف وتواصل مع آلاف التجار لتجد المنتجات المثالية لاحتياجاتك.")
+    hero_image = models.ImageField(upload_to='landing/hero/', blank=True, null=True)
+
+    # About Section
+    about_title_en = models.CharField(max_length=200, default="Why Choose Our Platform")
+    about_title_ar = models.CharField(max_length=200, default="لماذا تختار منصتنا")
+    about_description_en = models.TextField(
+        default="We provide the tools and connections you need to succeed in your business journey.")
+    about_description_ar = models.TextField(default="نحن نقدم الأدوات والروابط التي تحتاجها للنجاح في رحلتك التجارية.")
+
+    # Features Section
+    features_title_en = models.CharField(max_length=200, default="Platform Features")
+    features_title_ar = models.CharField(max_length=200, default="ميزات المنصة")
+
+    # CTA Section
+    cta_title_en = models.CharField(max_length=200, default="Start organizing your business today")
+    cta_title_ar = models.CharField(max_length=200, default="ابدأ في تنظيم عملك اليوم")
+    cta_description_en = models.TextField(
+        default="Join thousands of vendors using our platform to improve their performance and management")
+    cta_description_ar = models.TextField(
+        default="انضم إلى الآلاف من التجار الذين يستخدمون منصتنا لتحسين أدائهم وإدارتهم")
+
+    # Meta
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Landing Page Content"
+        verbose_name_plural = "Landing Page Contents"
+
+    def __str__(self):
+        return f"Landing Content - {self.club.name}"
+
+
+class LandingPageFeature(models.Model):
+    landing_content = models.ForeignKey(LandingPageContent, on_delete=models.CASCADE, related_name='features')
+    icon = models.CharField(max_length=100, help_text="Font Awesome icon class (e.g., fa-shopping-cart)")
+    title_en = models.CharField(max_length=200)
+    title_ar = models.CharField(max_length=200)
+    description_en = models.TextField()
+    description_ar = models.TextField()
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title_en
+
+
+class LandingPageBanner(models.Model):
+    landing_content = models.ForeignKey(LandingPageContent, on_delete=models.CASCADE, related_name='banners')
+    title_en = models.CharField(max_length=200)
+    title_ar = models.CharField(max_length=200)
+    image = models.ImageField(upload_to='landing/banners/',
+                              validators=[FileExtensionValidator(['jpg', 'jpeg', 'png', 'webp'])])
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title_en
+
+
+class LandingPageFAQ(models.Model):
+    landing_content = models.ForeignKey(LandingPageContent, on_delete=models.CASCADE, related_name='faqs')
+    question_en = models.CharField(max_length=300)
+    question_ar = models.CharField(max_length=300)
+    answer_en = models.TextField()
+    answer_ar = models.TextField()
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.question_en
+
+
+class NavItem(models.Model):
+    landing_content = models.ForeignKey(LandingPageContent, on_delete=models.CASCADE, related_name='nav_items')
+    name_en = models.CharField(max_length=100)
+    name_ar = models.CharField(max_length=100)
+    href = models.CharField(max_length=200)
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.name_en
+
+
+from django.db import models
+from accounts.models import ClubsModel
+
+
+class ClubContact(models.Model):
+    """Contact information for the club"""
+    club = models.OneToOneField(ClubsModel, on_delete=models.CASCADE, related_name='contact_info')
+
+    # Contact Details
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    address_en = models.TextField(blank=True, null=True)
+    address_ar = models.TextField(blank=True, null=True)
+    working_hours_en = models.TextField(blank=True, null=True)
+    working_hours_ar = models.TextField(blank=True, null=True)
+
+    # Social Media Links
+    facebook = models.URLField(max_length=200, blank=True, null=True)
+    twitter = models.URLField(max_length=200, blank=True, null=True)
+    instagram = models.URLField(max_length=200, blank=True, null=True)
+    linkedin = models.URLField(max_length=200, blank=True, null=True)
+    youtube = models.URLField(max_length=200, blank=True, null=True)
+    whatsapp = models.URLField(max_length=200, blank=True,
+                               null=True)  # Changed from CharField to URLField with 200 max_length
+
+    # Footer
+    footer_text_en = models.TextField(blank=True, null=True)
+    footer_text_ar = models.TextField(blank=True, null=True)
+    footer_logo = models.ImageField(upload_to='contact/footer_logos/', blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Club Contact Information"
+        verbose_name_plural = "Club Contact Information"
+
+    def __str__(self):
+        return f"Contact Info for {self.club.name}"
+
+    @property
+    def address(self):
+        """Return address based on current language"""
+        from django.utils import translation
+        lang = translation.get_language()
+        if lang == 'ar' and self.address_ar:
+            return self.address_ar
+        return self.address_en or self.address_ar or ''
+
+    @property
+    def working_hours(self):
+        """Return working hours based on current language"""
+        from django.utils import translation
+        lang = translation.get_language()
+        if lang == 'ar' and self.working_hours_ar:
+            return self.working_hours_ar
+        return self.working_hours_en or self.working_hours_ar or ''
+
+    @property
+    def footer_text(self):
+        """Return footer text based on current language"""
+        from django.utils import translation
+        lang = translation.get_language()
+        if lang == 'ar' and self.footer_text_ar:
+            return self.footer_text_ar
+        return self.footer_text_en or self.footer_text_ar or ''
+
+    def get_social_links(self):
+        """Return list of active social media links with their icons"""
+        social_media = []
+
+        if self.facebook:
+            social_media.append(('Facebook', 'fab fa-facebook-f', self.facebook, 'فيسبوك', 'Facebook'))
+        if self.twitter:
+            social_media.append(('Twitter', 'fab fa-twitter', self.twitter, 'تويتر', 'Twitter'))
+        if self.instagram:
+            social_media.append(('Instagram', 'fab fa-instagram', self.instagram, 'إنستغرام', 'Instagram'))
+        if self.linkedin:
+            social_media.append(('LinkedIn', 'fab fa-linkedin-in', self.linkedin, 'لينكد إن', 'LinkedIn'))
+        if self.youtube:
+            social_media.append(('YouTube', 'fab fa-youtube', self.youtube, 'يوتيوب', 'YouTube'))
+
+        return social_media
+
+
+from django.db import models
+from accounts.models import ClubsModel
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+
+class VATSettings(models.Model):
+    """
+    VAT (Value Added Tax) settings for each club.
+    Allows club directors to enable/disable VAT and set the percentage.
+    """
+    club = models.OneToOneField(
+        ClubsModel,
+        on_delete=models.CASCADE,
+        related_name='vat_settings',
+        verbose_name='Club'
+    )
+    is_enabled = models.BooleanField(
+        default=False,
+        verbose_name='Enable VAT',
+        help_text='Enable or disable VAT for this club'
+    )
+    percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=15.00,
+        validators=[MinValueValidator(0.00), MaxValueValidator(100.00)],
+        verbose_name='VAT Percentage',
+        help_text='VAT percentage to be applied (0-100)'
+    )
+    currency = models.CharField(
+        max_length=10,
+        default='SAR',
+        verbose_name='Currency',
+        help_text='Currency code (e.g., SAR, USD, EUR)'
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'VAT Settings'
+        verbose_name_plural = 'VAT Settings'
+
+    def __str__(self):
+        status = 'Enabled' if self.is_enabled else 'Disabled'
+        return f"{self.club.name} - VAT {status} ({self.percentage}%)"
+
+    def calculate_vat(self, amount):
+        """Calculate VAT amount for a given price. Returns 0 if VAT is disabled."""
+        if not self.is_enabled:
+            return 0
+        return (amount * self.percentage) / 100
+
+    def calculate_total_with_vat(self, amount):
+        """Calculate total amount including VAT. Returns original amount if VAT is disabled."""
+        if not self.is_enabled:
+            return amount
+        vat_amount = self.calculate_vat(amount)
+        return amount + vat_amount

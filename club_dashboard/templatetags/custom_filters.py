@@ -123,3 +123,7 @@ def add_class(value, arg):
         css_classes = list(filter(None, css_classes))  # Remove empty classes
         css_classes.append(arg)
     return value.as_widget(attrs={'class': ' '.join(css_classes)})
+
+@register.filter
+def split(value, separator=","):
+    return value.split(separator)

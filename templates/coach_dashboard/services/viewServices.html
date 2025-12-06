@@ -326,12 +326,12 @@
                         <option value="name">ترتيب حسب الاسم</option>
                         <option value="price">ترتيب حسب السعر الشهري</option>
                         <option value="duration">ترتيب حسب المدة</option>
-                        <option value="period">ترتيب حسب فترة التسعير</option>
+                        <option value="subscription">ترتيب حسب فترة الاشتراك</option>
                         {% else %}
                         <option value="name">Sort by Name</option>
                         <option value="price">Sort by Monthly Price</option>
                         <option value="duration">Sort by Duration</option>
-                        <option value="period">Sort by Pricing Period</option>
+                        <option value="subscription">Sort by Subscription Period</option>
                         {% endif %}
                     </select>
                     <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}left-0 pl-2{% else %}right-0 pr-2{% endif %} flex items-center pointer-events-none">
@@ -362,16 +362,6 @@
                 {% if service.image %}
                 <div class="h-48 overflow-hidden relative">
                     <img src="{{ service.image.url }}" alt="{{ service.title }}" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
-                    <!-- Pricing Period Badge -->
-                    <div class="absolute top-3 {% if LANGUAGE_CODE == 'ar' %}left-3{% else %}right-3{% endif %}">
-                <span class="pricing-badge">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                    {{ service.pricing_period_months }} {% if service.pricing_period_months == 1 %}شهر{% else %}أشهر{% endif %}
-                    {% else %}
-                    {{ service.pricing_period_months }} {% if service.pricing_period_months == 1 %}Month{% else %}Months{% endif %}
-                    {% endif %}
-                </span>
-                    </div>
                 </div>
                 {% else %}
                 <!-- If no image, show pricing period badge in header -->
@@ -495,15 +485,20 @@
                 {% if service.approval_status == 'approved' or service.approval_status == 'pending' %}
                 <div class="border-t border-gray-100 dark:border-gray-700 flex">
                     <a href="{% url 'coachviewServiceDetails' service.id %}" class="flex-1 text-center py-2 btn-gradient bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white transition-all duration-300" aria-label="{% if LANGUAGE_CODE == 'ar' %}عرض التفاصيل{% else %}View Details{% endif %}">
-                        <i class="fas fa-eye mr-1"></i>
+                        <i class="fas fa-eye ml-1"></i>
                         {% if LANGUAGE_CODE == 'ar' %}التفاصيل{% else %}Details{% endif %}
                     </a>
+                     <a href="{% url 'view_service_packages' service.id %}"
+                           class="flex-1 py-2 bg-purple-100 text-center dark:bg-purple-900 text-purple-600 dark:text-purple-300 text-sm hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors">
+                            <i class="fas fa-box ml-1"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}الباقات{% else %}Packages{% endif %}
+                        </a>
                     <a href="{% url 'coacheditServices' service.id %}" class="flex-1 text-center py-2 btn-gradient bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white transition-all duration-300" aria-label="{% if LANGUAGE_CODE == 'ar' %}تعديل الخدمة{% else %}Edit Service{% endif %}">
-                        <i class="fas fa-edit mr-1"></i>
+                        <i class="fas fa-edit ml-1"></i>
                         {% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}
                     </a>
                     <a href="{% url 'coachDeleteServices' service.id %}" class="flex-1 text-center py-2 btn-gradient bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white transition-all duration-300 delete-service" data-id="{{ service.id }}" aria-label="{% if LANGUAGE_CODE == 'ar' %}حذف الخدمة{% else %}Delete Service{% endif %}">
-                        <i class="fas fa-trash-alt mr-1"></i>
+                        <i class="fas fa-trash-alt ml-1"></i>
                         {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}
                     </a>
                     {% else %}
@@ -586,6 +581,11 @@
           const periodB = getPricingPeriodValue(b);
           return periodA - periodB;
         }
+        else if (sortBy === 'subscription') {
+            const periodA = getPricingPeriodValue(a);
+            const periodB = getPricingPeriodValue(b);
+            return periodA - periodB;
+        }
         return 0;
       });
 
@@ -628,12 +628,12 @@
 
     // Helper function to get pricing period value for sorting
     function getPricingPeriodValue(card) {
-      const periodBadge = card.querySelector('.pricing-badge');
-      if (!periodBadge) return 0;
+        const periodBadge = card.querySelector('.pricing-badge');
+        if (!periodBadge) return 0;
 
-      const periodText = periodBadge.textContent;
-      const match = periodText.match(/(\d+)/);
-      return match ? parseInt(match[1]) : 0;
+        const periodText = periodBadge.textContent;
+        const match = periodText.match(/(\d+)/);
+        return match ? parseInt(match[1]) : 0;
     }
 
     // Confirm delete

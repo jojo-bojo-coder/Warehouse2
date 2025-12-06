@@ -106,18 +106,12 @@
                 <!-- Right Column -->
                 <div>
                     <!-- Price and Pricing Period Fields -->
-                    <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class=" mb-6">
                         <div>
                             <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
                             </label>
                             {{form.price}}
-                        </div>
-                        <div>
-                            <label for="pricing_period_months" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                {% if LANGUAGE_CODE == 'ar' %}فترة التسعير{% else %}Pricing Period{% endif %}
-                            </label>
-                            {{form.pricing_period_months}}
                         </div>
                     </div>
 

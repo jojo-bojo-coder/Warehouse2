@@ -1,14 +1,9 @@
 {% extends 'base_coach_dashboard.html' %}
 {% load static %}
 
-
 {% block content %}
 <style>
     /* Animation Classes */
-    .animate-float {
-        animation: float 4s ease-in-out infinite;
-    }
-
     .animate-fadeIn {
         animation: fadeIn 0.8s ease-out forwards;
         opacity: 0;
@@ -33,10 +28,20 @@
     .animate-stagger > *:nth-child(7) { animation-delay: 0.7s; }
     .animate-stagger > *:nth-child(8) { animation-delay: 0.8s; }
 
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     /* Button Effects */
     .btn-gradient {
         background-size: 200% auto;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .btn-gradient:hover {
@@ -45,150 +50,199 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     }
 
-    /* Input Effects */
-    input, select, textarea {
+    /* Card Effects */
+    .stat-card {
         transition: all 0.3s ease;
     }
 
-    input:focus, select:focus, textarea:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
 
-    /* Keyframes */
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-8px); }
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateX(10px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Background Animation */
-    .animated-bg {
-        animation: gradientBG 15s ease infinite;
-        background-size: 300% 300%;
-    }
-
-    @keyframes gradientBG {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* Dark Mode Styles */
-    .dark .animated-bg {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    }
-
+    /* Dark mode specific styles */
     .dark .stat-card {
-        background-color: #1e293b;
-        border-color: #334155;
+        background-color: #1f2937;
+        border-color: #374151;
+    }
+
+    .dark .stat-card:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark .bg-gradient-to-r {
+        border-color: #374151;
     }
 
     .dark .text-gray-800 {
-        color: #f8fafc;
-    }
-
-    .dark .text-gray-700 {
-        color: #e2e8f0;
+        color: #f3f4f6;
     }
 
     .dark .text-gray-500 {
-        color: #94a3b8;
+        color: #9ca3af;
     }
 
-    .dark .text-blue-700 {
+    .dark .text-gray-600 {
+        color: #d1d5db;
+    }
+
+    .dark .bg-white {
+        background-color: #1f2937;
+    }
+
+    .dark .border-gray-100 {
+        border-color: #374151;
+    }
+
+    .dark .border-gray-200 {
+        border-color: #4b5563;
+    }
+
+    .dark .bg-blue-50 {
+        background-color: #1e3a8a;
+    }
+
+    .dark .text-blue-600 {
         color: #93c5fd;
     }
 
-    .dark input,
-    .dark textarea,
-    .dark select {
-        background-color: #1e293b;
-        border-color: #334155;
-        color: #f8fafc;
+    .dark .bg-red-50 {
+        background-color: #7f1d1d;
     }
 
-    .dark input:focus,
-    .dark textarea:focus,
-    .dark select:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    .dark .text-red-500 {
+        color: #fca5a5;
     }
 
-    .dark .image-upload-area {
-        background-color: #1e293b;
-        border-color: #334155;
+    .dark .border-blue-200 {
+        border-color: #1e40af;
     }
 
-    .dark .image-upload-area:hover {
-        background-color: #0f172a;
-        border-color: #3b82f6;
+    .dark .text-blue-700 {
+        color: #bfdbfe;
     }
 
-    .dark .empty-carousel {
-        background-color: #1e293b;
-        border-color: #334155;
-        color: #94a3b8;
-    }
-
-    .dark .carousel-item-content {
-        background-color: #1e293b;
-        border-color: #334155;
+    .dark .bg-indigo-50 {
+        background-color: #3730a3;
     }
 
     /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f8fafc;
+    }
+
     .dark ::-webkit-scrollbar-track {
-        background: #1e293b;
+        background: #111827;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #3b82f6;
+        border-radius: 4px;
     }
 
     .dark ::-webkit-scrollbar-thumb {
-        background: #3b82f6;
+        background: #1e40af;
     }
 
-    .dark ::-webkit-scrollbar-thumb:hover {
+    ::-webkit-scrollbar-thumb:hover {
         background: #2563eb;
     }
 
-    /* Form Input Styling */
-    input, textarea, select {
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: #1e3a8a;
+    }
+
+    /* Input Styling */
+    select, input, textarea {
         border-color: #93c5fd !important;
         border-radius: 0.5rem !important;
         transition: all 0.2s ease !important;
-        padding: 0.75rem 1rem !important;
+        padding: 0.75rem 1rem;
         background-color: #fff;
         color: #1e3a8a;
     }
 
-    .dark input,
-    .dark textarea,
-    .dark select {
-        background-color: #1e293b !important;
-        border-color: #334155 !important;
-        color: #f8fafc !important;
+    .dark select, .dark input, .dark textarea {
+        background-color: #1f2937;
+        color: #e5e7eb;
+        border-color: #4b5563 !important;
     }
 
-    input:focus, textarea:focus, select:focus {
+    select:focus, input:focus, textarea:focus {
         border-color: #3b82f6 !important;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
         outline: none !important;
     }
 
-    /* Checkbox Styling */
-    input[type="checkbox"] {
-        width: 1.25rem;
-        height: 1.25rem;
-        accent-color: #3b82f6;
-        cursor: pointer;
+    .dark select:focus, .dark input:focus, .dark textarea:focus {
+        border-color: #1e40af !important;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.3) !important;
+    }
+
+    /* Status badges */
+    .dark .bg-green-100 {
+        background-color: #14532d;
+    }
+    .dark .text-green-800 {
+        color: #86efac;
+    }
+    .dark .bg-red-100 {
+        background-color: #7f1d1d;
+    }
+    .dark .text-red-800 {
+        color: #fca5a5;
+    }
+    .dark .bg-yellow-100 {
+        background-color: #713f12;
+    }
+    .dark .text-yellow-800 {
+        color: #fcd34d;
+    }
+    .dark .bg-amber-100 {
+        background-color: #78350f;
+    }
+    .dark .text-amber-800 {
+        color: #fbbf24;
+    }
+
+    /* Image Upload Area */
+    .image-upload-area {
+        border: 2px dashed #93c5fd;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background-color: #f8fafc;
+        margin-bottom: 1rem;
+    }
+
+    .image-upload-area:hover {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+
+    .image-upload-area.drag-over {
+        border-color: #2563eb;
+        background-color: #dbeafe;
+    }
+
+    .dark .image-upload-area {
+        background-color: #1f2937;
+        border-color: #4b5563;
+    }
+
+    .dark .image-upload-area:hover {
+        background-color: #111827;
+        border-color: #3b82f6;
+    }
+
+    /* Hide default file input */
+    .hidden-file-input {
+        display: none;
     }
 
     /* Carousel Styling */
@@ -212,6 +266,11 @@
         border-radius: 8px;
         padding: 5px;
         background-color: white;
+    }
+
+    .dark .carousel-item-content {
+        background-color: #1f2937;
+        border-color: #4b5563;
     }
 
     .carousel img {
@@ -251,32 +310,6 @@
         padding: 12px;
     }
 
-    /* Image Upload Area */
-    .image-upload-area {
-        border: 2px dashed #93c5fd;
-        border-radius: 0.75rem;
-        padding: 2rem;
-        text-align: center;
-        transition: all 0.3s ease;
-        background-color: #f8fafc;
-        margin-bottom: 1rem;
-    }
-
-    .image-upload-area:hover {
-        border-color: #3b82f6;
-        background-color: #eff6ff;
-    }
-
-    .image-upload-area.drag-over {
-        border-color: #2563eb;
-        background-color: #dbeafe;
-    }
-
-    /* Hide default file input */
-    .hidden-file-input {
-        display: none;
-    }
-
     /* Empty state styling */
     .empty-carousel {
         display: flex;
@@ -291,37 +324,52 @@
         margin: 1.5rem auto;
         max-width: 300px;
     }
+
+    .dark .empty-carousel {
+        background-color: #1f2937;
+        border-color: #4b5563;
+        color: #9ca3af;
+    }
+
+    /* Checkbox Styling */
+    input[type="checkbox"] {
+        width: 1.25rem;
+        height: 1.25rem;
+        accent-color: #3b82f6;
+        cursor: pointer;
+    }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50  px-4 pt-8 font-sans dark:bg-gray-900">
-    <section class="container mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-2 animate-fadeIn dark:text-white">
-            <div class="p-2 bg-blue-100 rounded-full text-blue-600 animate-float dark:bg-blue-900 dark:text-blue-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-            </div>
-            {% if LANGUAGE_CODE == 'ar' %}إضافة مخزون للمنتج{% else %}Add Product Stock{% endif %}
-        </h1>
+<div class="min-h-screen bg-white dark:bg-gray-900 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animate-fadeIn">
+    <section class="container mx-auto px-4 pt-8 pb-16">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-8 animate-fadeIn">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white relative inline-block">
+                <span class="relative z-10 flex items-center gap-2">
+                    <i class="fas fa-plus text-blue-600 dark:text-blue-400"></i>
+                    {% if LANGUAGE_CODE == 'ar' %}إضافة مخزون للمنتج{% else %}Add Product Stock{% endif %}
+                </span>
+                <span class="absolute bottom-0 left-0 w-full h-2 bg-blue-200 dark:bg-blue-900 opacity-30 z-0"></span>
+            </h1>
+            <a href="{% url 'coachviewProducts' %}" class="btn-gradient px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 flex items-center transition-all duration-300 shadow-md" aria-label="{% if LANGUAGE_CODE == 'ar' %}عودة إلى المنتجات{% else %}Back to Products{% endif %}">
+                <i class="fas fa-arrow-left {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}عودة إلى المنتجات{% else %}Back to Products{% endif %}
+            </a>
+        </div>
 
-        <form method="post" enctype="multipart/form-data" class="w-full p-8 bg-white rounded-xl shadow-lg border border-gray-100 animate-fadeInUp dark:bg-gray-800 dark:border-gray-700">
+        <form method="post" enctype="multipart/form-data" class="w-full p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 animate-fadeInUp stat-card">
             {% csrf_token %}
 
             <!-- Image Upload Section -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center gap-2 dark:text-gray-300">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
+                    <i class="fas fa-images text-blue-600"></i>
                     {% if LANGUAGE_CODE == 'ar' %}صور المنتج{% else %}Product Images{% endif %}
                 </label>
 
                 <!-- Drag & Drop Area -->
                 <div class="image-upload-area" id="image-upload-area">
-                    <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 dark:bg-blue-900">
-                        <svg class="w-8 h-8 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
+                    <div class="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-cloud-upload-alt text-blue-600 dark:text-blue-300 text-2xl"></i>
                     </div>
                     <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-gray-300">
                         {% if LANGUAGE_CODE == 'ar' %}اسحب وأفلت الصور هنا{% else %}Drag & drop images here{% endif %}
@@ -330,9 +378,7 @@
                         {% if LANGUAGE_CODE == 'ar' %}أو انقر لاختيار الصور{% else %}or click to select images{% endif %}
                     </p>
                     <button type="button" class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg flex items-center mx-auto hover:from-blue-600 hover:to-blue-700" onclick="document.getElementById('image-upload').click()">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
+                        <i class="fas fa-plus {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                         {% if LANGUAGE_CODE == 'ar' %}اختيار الصور{% else %}Select Images{% endif %}
                     </button>
                 </div>
@@ -346,9 +392,7 @@
                     <!-- Empty state -->
                     <div class="empty-carousel" id="empty-state">
                         <div>
-                            <svg class="w-10 h-10 text-gray-400 mb-2 mx-auto dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
+                            <i class="fas fa-image text-4xl text-gray-400 mb-2 mx-auto dark:text-gray-500"></i>
                             <p class="text-gray-500 dark:text-gray-400">
                                 {% if LANGUAGE_CODE == 'ar' %}لا توجد صور مرفوعة{% else %}No images uploaded{% endif %}
                             </p>
@@ -361,45 +405,35 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-stagger">
                 <div class="space-y-2">
                     <label for="product" class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                        <i class="fas fa-box text-blue-600"></i>
                         {% if LANGUAGE_CODE == 'ar' %}اسم المنتج{% else %}Product Name{% endif %}
                     </label>
                     {{form.title}}
                 </div>
                 <div class="space-y-2">
                     <label for="description" class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                        </svg>
+                        <i class="fas fa-align-left text-blue-600"></i>
                         {% if LANGUAGE_CODE == 'ar' %}الوصف{% else %}Description{% endif %}
                     </label>
                     {{form.desc}}
                 </div>
                 <div class="space-y-2">
                     <label for="quantity" class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                        </svg>
+                        <i class="fas fa-boxes text-blue-600"></i>
                         {% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Quantity{% endif %}
                     </label>
                     {{form.stock}}
                 </div>
                 <div class="space-y-2">
                     <label for="price" class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                        <i class="fas fa-tag text-blue-600"></i>
                         {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
                     </label>
                     {{form.price}}
                 </div>
                 <div class="space-y-2">
                     <label for="subcategory" class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
-                        </svg>
+                        <i class="fas fa-layer-group text-blue-600"></i>
                         {% if LANGUAGE_CODE == 'ar' %}التصنيف الفرعي (اختياري){% else %}Subcategory (Optional){% endif %}
                     </label>
                     {{form.subcategory}}
@@ -413,9 +447,7 @@
                 </div>
                 <div class="space-y-2">
                     <label class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path>
-                        </svg>
+                        <i class="fas fa-calculator text-blue-600"></i>
                         {% if LANGUAGE_CODE == 'ar' %}حساب الضرائب والأرباح{% else %}Tax & Profit Calculation{% endif %}
                     </label>
 
@@ -447,9 +479,7 @@
                 </div>
                 <div class="space-y-2">
                     <label for="manufacturing_date" class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
+                        <i class="fas fa-calendar text-blue-600"></i>
                         {% if LANGUAGE_CODE == 'ar' %}تاريخ التصنيع (اختياري){% else %}Manufacturing Date (Optional){% endif %}
                     </label>
                     {{form.manufacturing_date}}
@@ -457,9 +487,7 @@
 
                 <div class="space-y-2">
                     <label for="expiration_date" class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                        </svg>
+                        <i class="fas fa-calendar-times text-blue-600"></i>
                         {% if LANGUAGE_CODE == 'ar' %}تاريخ انتهاء الصلاحية (اختياري){% else %}Expiration Date (Optional){% endif %}
                     </label>
                     {{form.expiration_date}}
@@ -467,9 +495,7 @@
                 <div class="space-y-2 flex items-center gap-4">
                     {{form.is_enabled}}
                     <label for="is_enabled" class="text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
+                        <i class="fas fa-check-circle text-blue-600"></i>
                         {% if LANGUAGE_CODE == 'ar' %}متاح{% else %}Available{% endif %}
                     </label>
                 </div>
@@ -478,16 +504,12 @@
             <!-- Form Actions -->
             <div class="flex items-center {% if LANGUAGE_CODE == 'ar' %}justify-end space-x-4 space-x-reverse{% else %}justify-start space-x-4{% endif %} mt-8">
                 <a href="{% url 'coachviewProducts' %}" class="btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:from-red-600 hover:to-red-700">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                    <i class="fas fa-times {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                     {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
                 </a>
 
                 <button type="submit" class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:from-blue-600 hover:to-blue-700">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
+                    <i class="fas fa-plus {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                     {% if LANGUAGE_CODE == 'ar' %}إضافة المخزون{% else %}Add Stock{% endif %}
                 </button>
             </div>
@@ -621,9 +643,7 @@
                         <img src="${imageData}" class="d-block w-100" alt="{% if LANGUAGE_CODE == 'ar' %}صورة المنتج{% else %}Product Image{% endif %}">
                         <input type="hidden" name="profile_imgs" value="${imageData}" id="userprofile-avatar-${imgCounter}">
                         <button type="button" class="remove-btn" onclick="removeImage('image-result-${imgCounter}')" aria-label="{% if LANGUAGE_CODE == 'ar' %}حذف الصورة{% else %}Remove Image{% endif %}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>

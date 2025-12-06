@@ -68,18 +68,6 @@
       to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Background Animation */
-  .animated-bg {
-      animation: gradientBG 15s ease infinite;
-      background-size: 300% 300%;
-  }
-
-  @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-  }
-
   /* Permission Groups */
   .permission-group {
     margin-bottom: 1.5rem;
@@ -87,7 +75,6 @@
     background: #f8f9fa;
     border-radius: 8px;
     transition: all 0.3s ease;
-    dark:bg-gray-700;
   }
 
   .permission-item {
@@ -97,6 +84,40 @@
   }
 
   /* Dark mode styles */
+  .dark .bg-white {
+      background-color: #1e293b;
+      border-color: #334155;
+  }
+
+  .dark .text-gray-800 {
+      color: #f8fafc;
+  }
+
+  .dark .text-gray-600 {
+      color: #94a3b8;
+  }
+
+  .dark .text-gray-700 {
+      color: #e2e8f0;
+  }
+
+  .dark .bg-blue-100 {
+      background-color: #1e3a8a;
+  }
+
+  .dark .text-blue-600 {
+      color: #93c5fd;
+  }
+
+  .dark .bg-gray-200 {
+      background-color: #334155;
+      color: #e2e8f0;
+  }
+
+  .dark .bg-gray-200:hover {
+      background-color: #475569;
+  }
+
   .dark .permission-group {
     background: #374151;
     border-color: #4b5563;
@@ -107,72 +128,120 @@
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animated-bg bg-gradient-to-br from-blue-50 to-purple-50 w-full px-4 md:px-8 min-h-screen pb-12 pt-8  dark:bg-gray-900 dark:from-gray-800 dark:to-gray-900">
+<div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
   <!-- Header Section -->
-  <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 animate-fadeIn">
-    <div class="flex items-center space-x-4 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
-      <div class="p-3 rounded-full bg-blue-100 text-blue-600 animate-float dark:bg-blue-900 dark:text-blue-300">
-        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+  <div class="py-8">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <h1 class="text-3xl font-bold text-blue-800 dark:text-blue-400 mb-2 flex items-center gap-2 animate-fadeIn">
+        <div class="p-2 bg-blue-100 rounded-full text-blue-600 animate-float dark:bg-blue-900 dark:text-blue-300">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+          </svg>
+        </div>
+        {% if LANGUAGE_CODE == 'ar' %}إضافة دور جديد{% else %}Add New Role{% endif %}
+      </h1>
+      <a href="{% url 'viewDirectors' %}"
+         class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 flex items-center gap-2 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
-      </div>
-      <div>
-        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
-          {% if LANGUAGE_CODE == 'ar' %}إضافة دور جديد{% else %}Add New Role{% endif %}
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400">
-          {% if LANGUAGE_CODE == 'ar' %}
-          إنشاء دور جديد مع صلاحيات محددة
-          {% else %}
-          Create a new role with specific permissions
-          {% endif %}
-        </p>
-      </div>
+        {% if LANGUAGE_CODE == 'ar' %}العودة للقائمة{% else %}Back to List{% endif %}
+      </a>
     </div>
+    <p class="text-gray-600 dark:text-gray-400">
+      {% if LANGUAGE_CODE == 'ar' %}
+        إنشاء دور جديد مع صلاحيات محددة
+      {% else %}
+        Create a new role with specific permissions
+      {% endif %}
+    </p>
   </div>
 
   <!-- Form Section -->
-  <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 animate-fadeInUp p-6 dark:bg-gray-800 dark:border-gray-700">
-    <form method="post">
+  <div class="animate-[fadeInUp_0.8s_ease-out_0.1s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
+    <form method="post" class="w-full">
       {% csrf_token %}
 
-      <!-- Role Name -->
-      <div class="mb-6">
-        <label class="block text-gray-700 font-medium mb-2 dark:text-gray-300" for="id_name">
-          {% if LANGUAGE_CODE == 'ar' %}اسم الدور{% else %}Role Name{% endif %}
-        </label>
-        <input type="text" name="name" id="id_name"
-               class="w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-               required>
-      </div>
-
-      <!-- Permissions -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-4 dark:text-white">
-          {% if LANGUAGE_CODE == 'ar' %}صلاحيات الدور{% else %}Role Permissions{% endif %}
-        </h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {% for perm_code, perm_name in form.Meta.model.PERMISSION_CHOICES %}
-          <div class="permission-item">
-            <input type="checkbox" name="perm_{{ perm_code }}" id="perm_{{ perm_code }}"
-                   class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
-            <label for="perm_{{ perm_code }}" class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %}  text-gray-700 dark:text-gray-300">
-              {{ perm_name }}
+      <div class="animate-stagger space-y-6">
+        <!-- Role Names -->
+        <div class="animate-stagger space-y-6">
+          <!-- English Role Name -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
+              <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+              </svg>
+              {{ form.name_en.label }}
             </label>
+            <input type="text" name="name_en" id="id_name_en"
+                   value="{{ form.name_en.value|default:'' }}"
+                   class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent hover:border-blue-300 dark:bg-gray-700 dark:text-white dark:hover:border-blue-500"
+                   placeholder="{{ form.name_en.field.widget.attrs.placeholder }}"/>
+            {% if form.name_en.errors %}
+              <div class="text-red-500 text-sm mt-1">{{ form.name_en.errors.0 }}</div>
+            {% endif %}
           </div>
-          {% endfor %}
+
+          <!-- Arabic Role Name -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700 flex items-center gap-2 dark:text-gray-300">
+              <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+              </svg>
+              {{ form.name_ar.label }}
+            </label>
+            <input type="text" name="name_ar" id="id_name_ar"
+                   value="{{ form.name_ar.value|default:'' }}"
+                   class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent hover:border-blue-300 dark:bg-gray-700 dark:text-white dark:hover:border-blue-500 text-right"
+                   placeholder="{{ form.name_ar.field.widget.attrs.placeholder }}"
+                   dir="rtl"/>
+            {% if form.name_ar.errors %}
+              <div class="text-red-500 text-sm mt-1">{{ form.name_ar.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+        <!-- Permissions -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+            {% if LANGUAGE_CODE == 'ar' %}صلاحيات الدور{% else %}Role Permissions{% endif %}
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for field in form %}
+              {% if field.name|slice:":5" == "perm_" %}
+              <div class="permission-item">
+                {{ field }}
+                <label for="{{ field.id_for_label }}" class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %} text-gray-700 dark:text-gray-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  {{ field.label }}
+                </label>
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
         </div>
       </div>
 
-      <!-- Submit Button -->
-      <div class="flex justify-end space-x-4">
-        <a href="{% url 'viewDirectors' %}"
-           class="ml-2 ripple btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:gap-3 transition-all duration-300">
+      <div class="flex items-center {% if LANGUAGE_CODE == 'ar' %}justify-end space-x-4 space-x-reverse{% else %}justify-start space-x-4{% endif %} mt-8">
+        <a
+          href="{% url 'viewDirectors' %}"
+          class="btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
           {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
         </a>
-        <button type="submit"
-                class="ripple btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2 hover:gap-3 transition-all duration-300">
+
+        <button
+          type="submit"
+          class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
           {% if LANGUAGE_CODE == 'ar' %}حفظ الدور{% else %}Save Role{% endif %}
         </button>
       </div>
@@ -181,67 +250,102 @@
 </div>
 
 <script>
-  // Add any necessary JavaScript here
-  document.querySelectorAll('.ripple').forEach(button => {
-      button.addEventListener('click', function(e) {
-          const rect = button.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
+// Get the current language from the template
+const LANGUAGE_CODE = "{{ LANGUAGE_CODE }}";
 
-          const ripple = document.createElement('span');
-          ripple.className = 'ripple-effect';
-          ripple.style.left = `${x}px`;
-          ripple.style.top = `${y}px`;
+// Error messages in both languages
+const errorMessages = {
+    required: {
+        ar: 'هذا الحقل مطلوب',
+        en: 'This field is required'
+    }
+};
 
-          this.appendChild(ripple);
+// Function to get error message based on language
+function getErrorMessage(key) {
+    return errorMessages[key][LANGUAGE_CODE] || errorMessages[key]['ar'];
+}
 
-          setTimeout(() => {
-              ripple.remove();
-          }, 1000);
-      });
-  });
+document.querySelector('form').addEventListener('submit', function(e) {
+    let isValid = true;
+    const form = e.target;
 
-  // Client-side form validation
-  document.querySelector('form').addEventListener('submit', function(e) {
-      let isValid = true;
-      const form = e.target;
+    // Clear previous errors
+    form.querySelectorAll('.border-red-500').forEach(field => field.classList.remove('border-red-500'));
+    form.querySelectorAll('.text-red-500').forEach(error => error.remove());
 
-      // Validate required fields
-      const requiredFields = form.querySelectorAll('[required]');
-      requiredFields.forEach(field => {
-          if (!field.value.trim()) {
-              isValid = false;
-              field.classList.add('border-red-500');
-              if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('text-red-500')) {
-                  const errorDiv = document.createElement('div');
-                  errorDiv.className = 'text-red-500 text-sm mt-1';
-                  errorDiv.textContent = '{% if LANGUAGE_CODE == "ar" %}هذا الحقل مطلوب{% else %}This field is required{% endif %}';
-                  field.parentNode.insertBefore(errorDiv, field.nextSibling);
-              }
-          }
-      });
+    // Validate at least one role name is provided
+    const nameEn = form.querySelector('#id_name_en').value.trim();
+    const nameAr = form.querySelector('#id_name_ar').value.trim();
 
-      if (!isValid) {
-          e.preventDefault();
-          // Scroll to first error
-          const firstError = form.querySelector('.border-red-500');
-          if (firstError) {
-              firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-      }
-  });
+    if (!nameEn && !nameAr) {
+        isValid = false;
+        const nameEnField = form.querySelector('#id_name_en');
+        const nameArField = form.querySelector('#id_name_ar');
 
-  // Clear error when user starts typing
-  document.querySelectorAll('input, select, textarea').forEach(field => {
-      field.addEventListener('input', function() {
-          if (this.classList.contains('border-red-500')) {
-              this.classList.remove('border-red-500');
-              const errorDiv = this.nextElementSibling;
-              if (errorDiv && errorDiv.classList.contains('text-red-500')) {
-                  errorDiv.remove();
-              }
-          }
-      });
-  });
+        nameEnField.classList.add('border-red-500');
+        nameArField.classList.add('border-red-500');
+
+        const errorMessage = LANGUAGE_CODE === 'ar'
+            ? 'يجب إدخال اسم الدور بالإنجليزية أو العربية'
+            : 'Please enter role name in English or Arabic';
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'text-red-500 text-sm mt-1';
+        errorDiv.textContent = errorMessage;
+        nameEnField.parentNode.appendChild(errorDiv);
+    }
+
+    // Validate at least one permission is selected
+    const permissionCheckboxes = form.querySelectorAll('input[type="checkbox"]');
+    const atLeastOneChecked = Array.from(permissionCheckboxes).some(checkbox => checkbox.checked);
+
+    if (!atLeastOneChecked) {
+        isValid = false;
+        const permissionSection = form.querySelector('.space-y-4');
+        if (permissionSection && !permissionSection.querySelector('.text-red-500')) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'text-red-500 text-sm mt-1';
+            errorDiv.textContent = LANGUAGE_CODE === 'ar' ? 'يجب اختيار صلاحية واحدة على الأقل' : 'At least one permission must be selected';
+            permissionSection.appendChild(errorDiv);
+        }
+    }
+
+    if (!isValid) {
+        e.preventDefault();
+        // Scroll to first error
+        const firstError = form.querySelector('.border-red-500') || form.querySelector('.text-red-500');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+});
+
+// Clear error when user starts typing or checking permissions
+document.querySelectorAll('input, select, textarea').forEach(field => {
+    field.addEventListener('input', function() {
+        if (this.classList.contains('border-red-500')) {
+            this.classList.remove('border-red-500');
+            const parent = this.parentNode;
+            const errorDiv = parent.querySelector('.text-red-500');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+    });
+});
+
+// Clear permission error when any checkbox is checked
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const permissionSection = this.closest('.space-y-4');
+        if (permissionSection) {
+            const errorDiv = permissionSection.querySelector('.text-red-500');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+    });
+});
 </script>
 {% endblock %}

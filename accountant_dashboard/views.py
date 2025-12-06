@@ -73,17 +73,17 @@ def accountant_dashboard(request):
             created_at__range=[start_date, end_date]
         )
         .annotate(
-            category_name=Case(
+            category_name_ar=Case(
                 When(items__product__isnull=False,
-                     then=F('items__product__creator__userprofile__Coach_profile__activity_type__name')),
+                     then=F('items__product__creator__userprofile__Coach_profile__activity_type__name_ar')),
                 When(items__service__isnull=False,
-                     then=F('items__service__creator__userprofile__Coach_profile__activity_type__name')),
+                     then=F('items__service__creator__userprofile__Coach_profile__activity_type__name_ar')),
                 output_field=models.CharField()
             )
         )
-        .values('category_name')
+        .values('category_name_ar')
         .annotate(total=Sum('total_price'))
-        .filter(category_name__isnull=False)
+        .filter(category_name_ar__isnull=False)
         .order_by('-total')
     )
 
@@ -183,17 +183,17 @@ def revenue_analytics(request):
                      then=F('items__service__creator__userprofile__Coach_profile__activity_type__id')),
                 output_field=models.IntegerField()
             ),
-            category_name=Case(
+            category_name_ar=Case(
                 When(items__product__isnull=False,
-                     then=F('items__product__creator__userprofile__Coach_profile__activity_type__name')),
+                     then=F('items__product__creator__userprofile__Coach_profile__activity_type__name_ar')),
                 When(items__service__isnull=False,
-                     then=F('items__service__creator__userprofile__Coach_profile__activity_type__name')),
+                     then=F('items__service__creator__userprofile__Coach_profile__activity_type__name_ar')),
                 output_field=models.CharField()
             )
         )
-        .values('category_id', 'category_name')
+        .values('category_id', 'category_name_ar')
         .annotate(total=Sum('total_price'))
-        .filter(category_name__isnull=False)
+        .filter(category_name_ar__isnull=False)
         .order_by('-total')
     )
 
@@ -249,7 +249,7 @@ def revenue_analytics(request):
     revenue_dates = [entry['day'].strftime('%Y-%m-%d') for entry in revenue_by_day]
     revenue_amounts = [float(entry['total']) for entry in revenue_by_day]
 
-    category_labels = [entry['category_name'] or 'Unknown' for entry in revenue_by_category[:5]]
+    category_labels = [entry['category_name_ar'] or 'Unknown' for entry in revenue_by_category[:5]]
     category_data = [float(entry['total']) for entry in revenue_by_category[:5]]
 
     coach_labels = [entry['coach_name'] or 'Unknown' for entry in revenue_by_coach[:5]]
@@ -288,15 +288,15 @@ def revenue_analytics(request):
                      then=F('items__service__creator__userprofile__Coach_profile__activity_type__id')),
                 output_field=models.IntegerField()
             ),
-            category_name=Case(
+            category_name_ar=Case(
                 When(items__product__isnull=False,
-                     then=F('items__product__creator__userprofile__Coach_profile__activity_type__name')),
+                     then=F('items__product__creator__userprofile__Coach_profile__activity_type__name_ar')),
                 When(items__service__isnull=False,
-                     then=F('items__service__creator__userprofile__Coach_profile__activity_type__name')),
+                     then=F('items__service__creator__userprofile__Coach_profile__activity_type__name_ar')),
                 output_field=models.CharField()
             )
         )
-        .values('category_id', 'category_name')
+        .values('category_id', 'category_name_ar')
         .annotate(
             total_orders=Count('id'),
             refunded_orders=Count('id', filter=Q(status='cancelled')),
@@ -308,7 +308,7 @@ def revenue_analytics(request):
                 output_field=models.FloatField()
             )
         )
-        .filter(category_name__isnull=False)
+        .filter(category_name_ar__isnull=False)
         .order_by('-refund_rate')
     )
 

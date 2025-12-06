@@ -934,30 +934,45 @@ def viewServices(request):
     club = getattr(user.userprofile.Coach_profile, 'club', None)
     services = ServicesModel.objects.filter(creator=user)
 
+    # Calculate statistics
     if services:
-        # Calculate average monthly price (normalize all prices to monthly rate)
-        total_monthly_price = sum(service.monthly_price for service in services)
-        avg_monthly_price = total_monthly_price / len(services)
-        avg_monthly_price = round(avg_monthly_price, 1)
-
         # Calculate average duration
         avg_duration = sum(service.duration for service in services) / len(services)
         avg_duration_hours = int(avg_duration // 60)
         avg_duration_minutes = int(avg_duration % 60)
 
-        # Calculate pricing period statistics
-        pricing_periods = [service.pricing_period_months for service in services]
-        most_common_period = max(set(pricing_periods), key=pricing_periods.count)
+        # Calculate average price
+        avg_price = sum(float(service.price) for service in services) / len(services)
 
-        # Get pricing period choices for display
-        pricing_period_choices = dict(ServicesModel.PRICING_PERIOD_CHOICES)
+        # Since pricing_period_months is removed, we'll use subscription_days or default to 30 days
+        # Calculate monthly price if subscription_days exists, otherwise use price directly
+        total_monthly_price = 0
+        for service in services:
+            if service.subscription_days and service.subscription_days > 0:
+                # Convert to monthly rate
+                monthly_rate = (float(service.price) / service.subscription_days) * 30
+                total_monthly_price += monthly_rate
+            else:
+                # Default to price (assuming it's monthly)
+                total_monthly_price += float(service.price)
 
+        avg_monthly_price = round(total_monthly_price / len(services), 2) if services else 0
+
+        # Most common subscription period (in days)
+        subscription_periods = [service.subscription_days for service in services if service.subscription_days]
+        if subscription_periods:
+            from collections import Counter
+            period_counter = Counter(subscription_periods)
+            most_common_period_days = period_counter.most_common(1)[0][0]
+            # Convert to months (approximately)
+            most_common_period = round(most_common_period_days / 30, 1)
+        else:
+            most_common_period = 1  # Default 1 month
     else:
         avg_monthly_price = 0
         avg_duration_hours = 0
         avg_duration_minutes = 0
         most_common_period = 1
-        pricing_period_choices = dict(ServicesModel.PRICING_PERIOD_CHOICES)
 
     context = {
         'services': services,
@@ -965,7 +980,6 @@ def viewServices(request):
         'avg_duration_hours': avg_duration_hours,
         'avg_duration_minutes': avg_duration_minutes,
         'most_common_period': most_common_period,
-        'pricing_period_choices': pricing_period_choices,
         'club': club,
     }
     context['LANGUAGE_CODE'] = translation.get_language()
@@ -1030,6 +1044,141 @@ def DeleteServicesClassification(request, id):
     art = ServicesClassificationModel.objects.get(id=id)
     art.delete()
     return redirect('coachviewServicesClassification')
+
+
+# في نهاية views.py بعد دوال الخدمات
+
+# Service Packages Views
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from club_dashboard.forms import ServicePackageForm
+from students.models import ServicePackage
+
+
+@login_required
+def view_service_packages(request, service_id):
+    """View all packages for a specific service"""
+    context = {}
+    service = get_object_or_404(ServicesModel, id=service_id, creator=request.user)
+    packages = ServicePackage.objects.filter(service=service).order_by('-created_at')
+
+    # Calculate statistics
+    active_packages = packages.filter(is_active=True).count()
+    popular_packages = packages.filter(is_popular=True).count()
+
+    # Calculate average discount
+    total_discount = 0
+    discounted_packages = packages.filter(discounted_price__isnull=False)
+    for package in discounted_packages:
+        if package.original_price > 0:
+            discount = ((package.original_price - package.discounted_price) / package.original_price) * 100
+            total_discount += discount
+
+    avg_discount = round(total_discount / discounted_packages.count() if discounted_packages.count() > 0 else 0, 1)
+
+    context.update({
+        'service': service,
+        'packages': packages,
+        'active_packages': active_packages,
+        'popular_packages': popular_packages,
+        'avg_discount': avg_discount,
+        'currency': request.user.userprofile.Coach_profile.club.vat_settings.currency if hasattr(
+            request.user.userprofile.Coach_profile.club, 'vat_settings') else 'SAR'
+    })
+    context['LANGUAGE_CODE'] = translation.get_language()
+    return render(request, 'coach_dashboard/services/packages.html', context)
+
+
+@login_required
+def add_service_package(request, service_id):
+    """Add a new package to a service"""
+    context = {}
+    service = get_object_or_404(ServicesModel, id=service_id, creator=request.user)
+
+    if request.method == 'POST':
+        form = ServicePackageForm(request.POST)
+        if form.is_valid():
+            package = form.save(commit=False)
+            package.service = service
+            package.save()
+            messages.success(request, 'تم إضافة الباقة بنجاح!')
+            return redirect('view_service_packages', service_id=service_id)
+        else:
+            messages.error(request, 'يرجى تصحيح الأخطاء في النموذج')
+    else:
+        form = ServicePackageForm()
+
+    context.update({
+        'service': service,
+        'form': form,
+        'currency': request.user.userprofile.Coach_profile.club.vat_settings.currency if hasattr(
+            request.user.userprofile.Coach_profile.club, 'vat_settings') else 'SAR'
+    })
+    context['LANGUAGE_CODE'] = translation.get_language()
+    return render(request, 'coach_dashboard/services/add_package.html', context)
+
+
+@login_required
+def edit_service_package(request, package_id):
+    """Edit an existing service package"""
+    context = {}
+    package = get_object_or_404(ServicePackage, id=package_id, service__creator=request.user)
+
+    if request.method == 'POST':
+        form = ServicePackageForm(request.POST, instance=package)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'تم تحديث الباقة بنجاح!')
+            return redirect('view_service_packages', service_id=package.service.id)
+        else:
+            messages.error(request, 'يرجى تصحيح الأخطاء في النموذج')
+    else:
+        form = ServicePackageForm(instance=package)
+
+    context.update({
+        'package': package,
+        'service': package.service,
+        'form': form,
+        'currency': request.user.userprofile.Coach_profile.club.vat_settings.currency if hasattr(
+            request.user.userprofile.Coach_profile.club, 'vat_settings') else 'SAR'
+    })
+    context['LANGUAGE_CODE'] = translation.get_language()
+    return render(request, 'coach_dashboard/services/edit_package.html', context)
+
+
+@login_required
+def delete_service_package(request, package_id):
+    """Delete a service package"""
+    package = get_object_or_404(ServicePackage, id=package_id, service__creator=request.user)
+    service_id = package.service.id
+    package.delete()
+    messages.success(request, 'تم حذف الباقة بنجاح!')
+    return redirect('view_service_packages', service_id=service_id)
+
+
+@login_required
+def toggle_package_status(request, package_id):
+    """Toggle package active status"""
+    package = get_object_or_404(ServicePackage, id=package_id, service__creator=request.user)
+    package.is_active = not package.is_active
+    package.save()
+
+    status = "تم تفعيل" if package.is_active else "تم تعطيل"
+    messages.success(request, f'{status} الباقة بنجاح!')
+    return redirect('view_service_packages', service_id=package.service.id)
+
+
+@login_required
+def toggle_package_popular(request, package_id):
+    """Toggle package popular status"""
+    package = get_object_or_404(ServicePackage, id=package_id, service__creator=request.user)
+    package.is_popular = not package.is_popular
+    package.save()
+
+    status = "تم تحديد كـ الأكثر شيوعاً" if package.is_popular else "تم إلغاء التحديد كـ الأكثر شيوعاً"
+    messages.success(request, f'{status} بنجاح!')
+    return redirect('view_service_packages', service_id=package.service.id)
 
 from .models import Notification
 
@@ -1102,9 +1251,11 @@ def viewOrders(request):
     coach_profile = user.userprofile.Coach_profile
     club = getattr(coach_profile, 'club', None)
 
-    # Get orders that contain products or services created by this coach
+    # Get orders that contain products, services, or packages created by this coach
     orders = Order.objects.filter(
-        Q(items__product__creator=user) | Q(items__service__creator=user),
+        Q(items__product__creator=user) |
+        Q(items__service__creator=user) |
+        Q(items__service_package__service__creator=user),
         club=club
     ).distinct().order_by('-created_at')
 
@@ -1122,6 +1273,22 @@ def viewOrders(request):
     if status_filter and status_filter in dict(Order.STATUS_CHOICES).keys():
         orders = orders.filter(status=status_filter)
 
+    # Filter by type if requested
+    type_filter = request.GET.get('type')
+    if type_filter and type_filter in ['products', 'services', 'mixed', 'packages']:
+        if type_filter == 'products':
+            orders = orders.filter(items__product__creator=user).distinct()
+        elif type_filter == 'services':
+            orders = orders.filter(items__service__creator=user).distinct()
+        elif type_filter == 'packages':
+            orders = orders.filter(items__service_package__service__creator=user).distinct()
+        elif type_filter == 'mixed':
+            # Mixed means at least one product AND one service/package OR multiple types
+            orders = orders.filter(
+                Q(items__product__creator=user) &
+                (Q(items__service__creator=user) | Q(items__service_package__service__creator=user))
+            ).distinct()
+
     # Pagination
     paginator = Paginator(orders, 10)
     page_number = request.GET.get('page')
@@ -1137,6 +1304,7 @@ def viewOrders(request):
         'completed_orders': completed_orders,
         'pending_orders': pending_orders,
         'status_filter': status_filter,
+        'type_filter': type_filter,
         'club': club,
     }
 
@@ -1151,10 +1319,13 @@ def update_order_status(request, order_id):
         coach_profile = user.userprofile.Coach_profile
 
         try:
-            order = Order.objects.get(
-                id=order_id,
-                items__product__creator=user  # Only allow coach to update their own orders
-            )
+            # Allow coach to update orders that contain their products, services, or packages
+            order = Order.objects.filter(
+                Q(id=order_id),
+                Q(items__product__creator=user) |
+                Q(items__service__creator=user) |
+                Q(items__service_package__service__creator=user)
+            ).distinct().first()
 
             new_status = request.POST.get('status')
 
@@ -1184,6 +1355,10 @@ def update_order_status(request, order_id):
                     created_at=timezone.now()
                 )
 
+            # If order is confirmed, process commission
+            if new_status == 'confirmed':
+                order.update_commission_fields()
+
             return JsonResponse({
                 'status': 'success',
                 'message': f'تم تحديث حالة الطلب إلى {dict(Order.STATUS_CHOICES)[new_status]}'
@@ -1205,9 +1380,95 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
 from django.http import HttpResponse
+from weasyprint import HTML
 import tempfile
+
+
 def viewOrderDetails(request, order_id):
     context = {}
+    user = request.user
+    coach_profile = user.userprofile.Coach_profile
+    club = getattr(coach_profile, 'club', None)
+
+    try:
+        # First get the order
+        order = Order.objects.get(
+            id=order_id,
+            club=club
+        )
+
+        # Then check if coach has permission using a subquery
+        from django.db.models import Exists, OuterRef
+
+        # Check if any items in this order belong to the coach
+        coach_items_exist = order.items.filter(
+            Q(product__creator=user) |
+            Q(service__creator=user) |
+            Q(service_package__service__creator=user)
+        ).exists()
+
+        if not coach_items_exist:
+            messages.error(request, "Order not found or you don't have permission to view it.")
+            return redirect('coachviewOrders')
+
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found or you don't have permission to view it.")
+        return redirect('coachviewOrders')
+
+    # Filter items to show only those belonging to this coach
+    coach_items = order.items.filter(
+        Q(product__creator=user) |
+        Q(service__creator=user) |
+        Q(service_package__service__creator=user)
+    ).select_related(
+        'product',
+        'service',
+        'service_package',
+        'service_package__service'
+    ).distinct()
+
+    # Calculate total price for coach's items only
+    coach_total = sum(item.get_total() for item in coach_items)
+
+    # Calculate commission if order is confirmed
+    commission_info = None
+    if order.status == 'confirmed':
+        try:
+            vendor_commission = order.vendor_commissions.get(vendor=coach_profile)
+            commission_info = {
+                'rate': vendor_commission.commission_rate,
+                'amount': vendor_commission.commission_amount,
+                'total_amount': vendor_commission.total_amount,
+            }
+        except:
+            pass
+
+    context = {
+        'order': order,
+        'coach_items': coach_items,
+        'coach_total': coach_total,
+        'club': club,
+        'commission_info': commission_info,
+    }
+    context['LANGUAGE_CODE'] = translation.get_language()
+    return render(request, 'coach_dashboard/orders/coachOrderDetails.html', context)
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
+from django.contrib import messages
+from django.db.models import Q
+from django.utils import translation, timezone
+from django.template.loader import render_to_string
+from weasyprint import HTML
+import qrcode
+import io
+import base64
+from decimal import Decimal
+from students.models import Order
+
+
+def print_order(request, order_id):
     user = request.user
     coach_profile = user.userprofile.Coach_profile
     club = getattr(coach_profile, 'club', None)
@@ -1222,34 +1483,76 @@ def viewOrderDetails(request, order_id):
         messages.error(request, "Order not found or you don't have permission to view it.")
         return redirect('coachviewOrders')
 
-    # Filter items to show only those belonging to this coach
+    lang = request.GET.get('lang', 'ar')
+    if lang not in ['ar', 'en']:
+        lang = 'ar'
+
+    translation.activate(lang)
+
     coach_items = order.items.filter(
         Q(product__creator=user) | Q(service__coaches=coach_profile))
 
-    # Calculate total price for coach's items only
+    commission_rate = float(coach_profile.get_current_commission_rate()) / 100
+
+    calculated_items = []
+    total_subtotal = Decimal('0.00')
+    total_tax_authority = Decimal('0.00')
+    total_vendor_profit = Decimal('0.00')
+    total_platform_fee = Decimal('0.00')
+
+    for item in coach_items:
+        price = Decimal(str(item.price))
+        quantity = item.quantity
+        item_total_price = price * quantity
+        product_real_price = (item_total_price / Decimal('1.15')).quantize(Decimal('0.01'))
+        tax_authority = (item_total_price - product_real_price).quantize(Decimal('0.01'))
+        taxable_amount = item_total_price - tax_authority
+        platform_profit = (taxable_amount * Decimal(str(commission_rate))).quantize(Decimal('0.01'))
+        platform_profit_tax = (platform_profit * Decimal('0.15')).quantize(Decimal('0.01'))
+        current_total_platform_fee = platform_profit + platform_profit_tax
+        vendor_profit = (item_total_price - tax_authority - current_total_platform_fee).quantize(Decimal('0.01'))
+
+        item.tax_authority = tax_authority
+        item.vendor_profit = vendor_profit
+        item.total_platform_fee = current_total_platform_fee
+        calculated_items.append(item)
+
+        total_subtotal += product_real_price
+        total_tax_authority += tax_authority
+        total_platform_fee += current_total_platform_fee
+        total_vendor_profit += vendor_profit
+
     coach_total = sum(item.get_total() for item in coach_items)
 
-    context = {
+    qr_data = f"Seller: {coach_profile.full_name}\nVAT Number: {coach_profile.tax_number}\nDate: {timezone.now().isoformat()}\nInvoice Total: {coach_total}\nVAT Total: {total_tax_authority}"
+    qr_img = qrcode.make(qr_data)
+
+    buffer = io.BytesIO()
+    qr_img.save(buffer, format="PNG")
+    qr_image_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+    template_name = f'coach_dashboard/orders/print_order_{lang}.html'
+
+    html_string = render_to_string(template_name, {
         'order': order,
-        'coach_items': coach_items,
+        'coach_items': calculated_items,
         'coach_total': coach_total,
+        'total_subtotal': total_subtotal,
+        'coach_profile': coach_profile,
+        'total_tax': total_tax_authority,
+        'total_platform_fee': total_platform_fee,
+        'total_vendor_profit': total_vendor_profit,
         'club': club,
-    }
-    context['LANGUAGE_CODE'] = translation.get_language()
-    return render(request, 'coach_dashboard/orders/coachOrderDetails.html', context)
+        'qr_image_base64': qr_image_base64,
+    })
 
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="order_{order_id}_{lang}.pdf"'
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
-from django.contrib import messages
-from django.db.models import Q
-from django.utils import translation, timezone
-from django.template.loader import render_to_string
-import qrcode
-import io
-import base64
-from decimal import Decimal
-from students.models import Order
+    HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(response)
+
+    translation.deactivate()
+    return response
 
 
 from django.shortcuts import render, redirect
@@ -1859,7 +2162,7 @@ def coach_refund_requests(request):
     # Get refund disputes where the coach is the creator of the product/service in the order item
     disputes = RefundDispute.objects.filter(
         Q(order_item__product__creator=user) |
-        Q(order_item__service__coaches__userprofile__user=user),
+        Q(order_item__service__creator=user),
         is_escalated=False
     ).distinct().order_by('-created_at')
 
@@ -2167,15 +2470,15 @@ def coach_students(request):
     # Get students who ordered products created by this coach or services assigned to this coach
     students = User.objects.filter(
         Q(orders__items__product__creator=user) |
-        Q(orders__items__service__coaches=coach)
+        Q(orders__items__service__creator=user)
     ).annotate(
         order_count=Count('orders', filter=Q(
             Q(orders__items__product__creator=user) |
-            Q(orders__items__service__coaches=coach)
+            Q(orders__items__service__creator=user)
         )),
         last_order_date=Max('orders__created_at', filter=Q(
             Q(orders__items__product__creator=user) |
-            Q(orders__items__service__coaches=coach)
+            Q(orders__items__service__creator=user)
         ))
     ).distinct().order_by('-last_order_date')
 
@@ -2479,6 +2782,7 @@ from django.db.models import Sum, Q, F, Count
 from decimal import Decimal
 from django.template.loader import render_to_string
 from django.http import HttpResponse
+from weasyprint import HTML
 import tempfile
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator
@@ -2587,6 +2891,127 @@ def coach_payments(request):
     }
     context['LANGUAGE_CODE'] = translation.get_language()
     return render(request, 'coach_dashboard/payments/coach_payments.html', context)
+
+
+@login_required
+def generate_invoice(request, order_id):
+    """Generate PDF invoice for a specific order"""
+    user = request.user
+    coach_profile = user.userprofile.Coach_profile
+
+    try:
+        order = Order.objects.get(
+            Q(items__product__creator=user) | Q(items__service__creator=user),
+            id=order_id
+        )
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found or you don't have permission to view it.")
+        return redirect('coach_payments')
+
+    # Filter items to show only those belonging to this coach
+    coach_items = order.items.filter(
+        Q(product__creator=user) | Q(service__creator=user))
+
+    # Calculate total for coach's items only, considering discounted prices
+    coach_total = Decimal('0.00')
+    for item in coach_items:
+        if item.product:
+            coach_total += item.price * item.quantity
+        elif item.service:
+            # Use discounted price if available
+            effective_price = item.service.discounted_price if item.service.discounted_price else item.price
+            coach_total += Decimal(str(effective_price)) * Decimal(str(item.quantity))
+
+    # Render HTML template
+    html_string = render_to_string('coach_dashboard/payments/invoice_pdf.html', {
+        'user':user,
+        'order': order,
+        'coach_items': coach_items,
+        'coach_total': coach_total,
+        'coach': coach_profile,
+        'date': timezone.now().strftime("%Y-%m-%d"),
+    })
+
+    # Generate PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order_id}.pdf"'
+
+    HTML(string=html_string).write_pdf(response)
+    return response
+
+
+@login_required
+def generate_payment_statement(request):
+    """Generate PDF payment statement for a date range"""
+    user = request.user
+
+    # Check if user has coach profile
+    if not hasattr(user, 'userprofile') or not user.userprofile.Coach_profile:
+        messages.error(request, "You don't have a coach profile.")
+        return redirect('coach_payments')
+
+    coach_profile = user.userprofile.Coach_profile
+
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+
+    if not date_from or not date_to:
+        messages.error(request, "Please select a date range.")
+        return redirect('coach_payments')
+
+    try:
+        date_from = datetime.strptime(date_from, '%Y-%m-%d')
+        date_to = datetime.strptime(date_to, '%Y-%m-%d') + timedelta(days=1)
+    except ValueError:
+        messages.error(request, "Invalid date format. Please use YYYY-MM-DD.")
+        return redirect('coach_payments')
+
+    # Get orders in date range - only confirmed/completed orders
+    orders = Order.objects.filter(
+        Q(items__product__creator=user) | Q(items__service__creator=user),
+        status__in=['confirmed', 'completed'],
+        created_at__range=[date_from, date_to]
+    ).distinct().order_by('created_at').prefetch_related('items', 'items__product', 'items__service')
+
+    # Calculate total earnings for this coach (total price - commission)
+    total_earnings = Decimal('0.00')
+
+    for order in orders:
+        for item in order.items.all():
+            if ((item.product and item.product.creator == user) or
+                    (item.service and item.service.creator == user)):
+                # Use discounted price if available
+                if item.service and item.service.discounted_price:
+                    item_price = item.service.discounted_price
+                else:
+                    item_price = item.price
+
+                item_total = Decimal(str(item_price)) * Decimal(str(item.quantity))
+                # Calculate commission that goes to the platform
+                commission_rate = Decimal(str(coach_profile.get_current_commission_rate())) / Decimal('100')
+                commission_amount = item_total * commission_rate
+                # Coach gets the remaining amount after commission
+                coach_earnings = item_total - commission_amount
+                total_earnings += coach_earnings
+
+    # Render HTML template
+    html_string = render_to_string('coach_dashboard/payments/payment_statement_pdf.html', {
+        'orders': orders,
+        'user': user,
+        'coach_profile': coach_profile,
+        'total_earnings': total_earnings,
+        'date_from': date_from.strftime('%Y-%m-%d'),
+        'date_to': (date_to - timedelta(days=1)).strftime('%Y-%m-%d'),
+        'generated_date': timezone.now().strftime("%Y-%m-%d"),
+    })
+
+    # Generate PDF
+    response = HttpResponse(content_type='application/pdf')
+    response[
+        'Content-Disposition'] = f'attachment; filename="payment_statement_{date_from.strftime("%Y-%m-%d")}_{(date_to - timedelta(days=1)).strftime("%Y-%m-%d")}.pdf"'
+
+    HTML(string=html_string).write_pdf(response)
+    return response
 
 
 from django.shortcuts import render, redirect

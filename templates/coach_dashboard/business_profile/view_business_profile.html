@@ -372,7 +372,7 @@
                             </label>
                             <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-white dark:border-gray-600 shadow-md">
                                 {% if coach.profile_image_base64 %}
-                                    <img src="data:image/jpeg;base64,{{ coach.profile_image_base64 }}" alt="Profile Image" class="w-full h-full object-cover">
+                                    <img src="{{ coach.profile_image_base64 }}" alt="Profile Image" class="w-full h-full object-cover">
                                 {% else %}
                                     <div class="w-full h-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
                                         <i class="fas fa-user text-gray-400 dark:text-gray-500 text-4xl"></i>
