@@ -1245,8 +1245,6 @@ def export_students_excel(request):
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 @club_permission_required('addStudent')
-# views.py - Update the addStudent view
-
 def addStudent(request):
     context = {}
     user = request.user

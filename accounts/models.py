@@ -83,17 +83,44 @@ class ClubsModel(models.Model):
 
     def get_max_players(self):
         try:
-            current_plan = self.pricing[self.current_plan_id]
-            for feature in current_plan['features']:
-                if 'لاعب' in feature:
-                    # Extract the number from the feature string
-                    numbers = [int(s) for s in feature.split() if s.isdigit()]
-                    if numbers:
-                        return numbers[0]
-                    elif 'غير محدود' in feature:
-                        return float('inf')  # Unlimited
+            # Ensure pricing is a list
+            if not isinstance(self.pricing, list):
+                return 20  # Default if pricing is not a list
+
+            # Adjust for 0-based indexing if needed
+            # If current_plan_id is 1-based (1,2,3,...) but list is 0-based
+            list_index = self.current_plan_id - 1 if self.current_plan_id > 0 else 0
+
+            # Check if index is valid
+            if list_index >= len(self.pricing):
+                return 20  # Default if index out of range
+
+            current_plan = self.pricing[list_index]
+
+            # Check if current_plan is a dictionary
+            if not isinstance(current_plan, dict):
+                return 20  # Default if not a dictionary
+
+            # Look for features
+            features = current_plan.get('features', [])
+
+            for feature in features:
+                if isinstance(feature, str):
+                    if 'لاعب' in feature:
+                        # Extract the number from the feature string
+                        numbers = [int(s) for s in feature.split() if s.isdigit()]
+                        if numbers:
+                            return numbers[0]
+                        elif 'غير محدود' in feature or 'unlimited' in feature.lower():
+                            return float('inf')  # Unlimited
+
             return 20  # Default if not found
-        except (IndexError, KeyError, AttributeError):
+
+        except (IndexError, KeyError, AttributeError, TypeError, ValueError) as e:
+            # Log the error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error in get_max_players for club {self.id}: {str(e)}")
             return 20  # Default if error occurs
 
     @property
