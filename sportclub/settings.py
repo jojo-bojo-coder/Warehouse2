@@ -75,7 +75,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'coach_dashboard.middleware.CoachPolicyMiddleware',
     'club_dashboard.vendor_manager_middleware.VendorManagerMiddleware',
 ]
 
