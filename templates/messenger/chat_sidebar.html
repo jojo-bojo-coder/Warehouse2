@@ -2,6 +2,125 @@
 {% load messenger_tags %}
 
 <style>
+
+    .chat-sidebar h3.font-medium,
+.chat-sidebar .font-medium {
+  color: #1f2937 !important; /* Dark gray/black */
+  font-size: 0.9375rem !important; /* 15px - smaller size */
+  font-weight: 500 !important;
+  text-decoration: none !important;
+}
+
+/* Sidebar links should not have underlines */
+.chat-sidebar a {
+  text-decoration: none !important;
+}
+
+.chat-sidebar a:hover {
+  text-decoration: none !important;
+}
+
+/* User capacity text (smaller subtitle) */
+.chat-sidebar p.text-sm {
+  font-size: 0.8125rem !important; /* 13px */
+  color: #6b7280 !important;
+}
+
+/* Fix for "الدردشة الجماعية" (Homepage/Group chat button) - Remove underline */
+.chat-sidebar a[href*="messageRoom"] {
+  text-decoration: none !important;
+}
+
+.chat-sidebar a[href*="messageRoom"]:hover {
+  text-decoration: none !important;
+}
+
+.chat-sidebar a[href*="messageRoom"] h3,
+.chat-sidebar a[href*="messageRoom"] .font-medium {
+  text-decoration: none !important;
+  color: #1f2937 !important;
+}
+
+/* Members list names in sidebar */
+#membersList a h3,
+#membersListMobile a h3 {
+  color: #1f2937 !important;
+  font-size: 0.9375rem !important; /* 15px */
+  text-decoration: none !important;
+}
+
+/* Dark mode adjustments for sidebar names */
+.dark .chat-sidebar h3.font-medium,
+.dark .chat-sidebar .font-medium {
+  color: #f3f4f6 !important; /* Light color for dark mode */
+}
+
+.dark .chat-sidebar p.text-sm {
+  color: #9ca3af !important;
+}
+
+/* Ensure no underlines on any sidebar links */
+.chat-sidebar a,
+.chat-sidebar a:hover,
+.chat-sidebar a:focus,
+.chat-sidebar a:active {
+  text-decoration: none !important;
+}
+
+/* =============================================
+   ADDITIONAL IMPROVEMENTS
+   ============================================= */
+
+/* Improve spacing and hover effects */
+.chat-sidebar a.block {
+  transition: background-color 0.15s ease;
+}
+
+.chat-sidebar a.block:hover {
+  background-color: #f3f4f6 !important;
+}
+
+.dark .chat-sidebar a.block:hover {
+  background-color: #374151 !important;
+}
+
+/* Active/selected chat styling */
+.chat-sidebar a.bg-indigo-100 {
+  background-color: #e0e7ff !important;
+}
+
+.dark .chat-sidebar a.bg-indigo-100 {
+  background-color: #4338ca !important;
+}
+
+/* Fix for search input in members panel */
+#memberSearchInput,
+#memberSearchInputMobile {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+#memberSearchInput:focus,
+#memberSearchInputMobile:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.dark #memberSearchInput,
+.dark #memberSearchInputMobile {
+  border-color: #4b5563;
+  background: #374151;
+  color: #f3f4f6;
+}
+
+.dark #memberSearchInput:focus,
+.dark #memberSearchInputMobile:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
 /* Dark mode styles for sidebar */
 .dark .chat-sidebar {
     background: #1e293b;
