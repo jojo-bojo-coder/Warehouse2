@@ -1,0 +1,15 @@
+{
+  "name": "sportclub-main",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./sportclub/static/css/input.css -o ./sportclub/static/css/output.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "tailwindcss": "^3.4.18"
+  }
+}
