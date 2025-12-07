@@ -82,7 +82,19 @@ MIDDLEWARE = [
 # Whitenoise configuration
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = DEBUG
-WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0  # 1 year cache in production
+
+# CRITICAL: Set proper cache headers
+if not DEBUG:
+    # Cache static files for 1 year in production
+    WHITENOISE_MAX_AGE = 31536000
+    # Add immutable flag for better caching
+    WHITENOISE_IMMUTABLE_FILE_TEST = lambda path, url: True
+else:
+    # No caching in development
+    WHITENOISE_MAX_AGE = 0
+
+# Skip compression in dev for faster loading
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ('jpg', 'jpeg', 'png', 'gif', 'webp', 'zip', 'gz', 'tgz', 'bz2', 'tbz', 'xz', 'br', 'swf', 'flv', 'woff', 'woff2')
 
 
 USE_L10N = True
@@ -192,6 +204,11 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+WHITENOISE_ADD_HEADERS_FUNCTION = lambda headers, path, url: headers.update({
+    'Cache-Control': 'public, max-age=31536000, immutable' if not DEBUG else 'no-cache'
+})
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

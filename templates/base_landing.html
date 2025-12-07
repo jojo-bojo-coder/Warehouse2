@@ -8,15 +8,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <!-- CRITICAL: Preload critical CSS -->
+    <link rel="preload" href="{% static 'css/output.css' %}" as="style">
+    {% if LANGUAGE_CODE == 'ar' %}
+    <link rel="preload" href="{% static 'css/rtl.css' %}" as="style">
+    {% endif %}
 
+    <!-- CRITICAL: Load CSS immediately (non-blocking) -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" media="all">
+    {% if LANGUAGE_CODE == 'ar' %}
+    <link rel="stylesheet" href="{% static 'css/rtl.css' %}" media="all">
+    {% endif %}
+
+    <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+    <link rel="preconnect" href="https://unpkg.com" />
+
+    <!-- Load fonts with display=swap to prevent FOIT -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link
       href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Load external CSS -->
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <link
       rel="stylesheet"
@@ -25,6 +42,7 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+
     <title>
       {% if LANGUAGE_CODE == 'ar' %}
       الرئيسية
@@ -32,41 +50,75 @@
       Home
       {% endif %}
     </title>
+
+    <!-- CRITICAL: Inline critical styles to prevent FOUC -->
     <style>
+      /* Prevent FOUC */
+      html {
+        visibility: visible;
+        opacity: 1;
+      }
+
       body {
         font-family: "Cairo", sans-serif;
+        visibility: visible;
+        opacity: 1;
+        transition: opacity 0.1s ease-in;
+      }
+
+      /* Loading state (optional but recommended) */
+      body.loading {
+        opacity: 0;
+      }
+
+      /* Ensure navbar doesn't jump */
+      #navbar {
+        min-height: 80px;
+      }
+
+      /* Prevent layout shift from images */
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
       }
     </style>
-    {% if LANGUAGE_CODE == 'ar' %}
-    <link rel="stylesheet" href="{% static 'css/rtl.css' %}">
-    {% endif %}
   </head>
 
-  <body {% if LANGUAGE_CODE == 'ar' %}dir="rtl" lang="ar"{% else %}dir="ltr" lang="en"{% endif %}>
+  <body {% if LANGUAGE_CODE == 'ar' %}dir="rtl" lang="ar"{% else %}dir="ltr" lang="en"{% endif %} class="loading">
     {% include 'parts/landing_page/navbar.html' %}
     {% block content %}
     {% endblock %}
 
+    <!-- Load scripts at the end -->
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
+      // Remove loading class immediately when DOM is ready
       document.addEventListener('DOMContentLoaded', function() {
-      // Initialize Swiper
-      const swiper = new Swiper('.banner-slider', {
-        loop: true,
-        autoplay: {
-          delay: 5000,
-          disableOnInteraction: false,
-        },
-        pagination: {
-          el: '.swiper-pagination',
-          clickable: true,
-        },
-        navigation: {
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        },
+        document.body.classList.remove('loading');
+
+        // Initialize Swiper
+        const swiper = new Swiper('.banner-slider', {
+          loop: true,
+          autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+          },
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
       });
-    });
+
+      // Fallback: Remove loading class after window loads
+      window.addEventListener('load', function() {
+        document.body.classList.remove('loading');
+      });
     </script>
     {% include 'parts/landing_page/footer.html' %}
   </body>
