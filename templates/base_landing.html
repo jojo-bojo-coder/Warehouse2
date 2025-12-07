@@ -49,27 +49,24 @@
 
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
-      // Remove loading state once page is ready
       document.addEventListener('DOMContentLoaded', function() {
-        document.body.classList.add('loaded');
-
-        // Initialize Swiper
-        const swiper = new Swiper('.banner-slider', {
-          loop: true,
-          autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-          },
-          pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-          },
-          navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-          },
-        });
+      // Initialize Swiper
+      const swiper = new Swiper('.banner-slider', {
+        loop: true,
+        autoplay: {
+          delay: 5000,
+          disableOnInteraction: false,
+        },
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
       });
+    });
     </script>
     {% include 'parts/landing_page/footer.html' %}
   </body>
