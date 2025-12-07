@@ -23,7 +23,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
+.venv
+node_modules
 # Django
 *.log
 local_settings.py
