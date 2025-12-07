@@ -240,10 +240,6 @@ STORAGES = {
     },
 }
 
-WHITENOISE_ADD_HEADERS_FUNCTION = lambda headers, path, url: headers.update({
-    'Cache-Control': 'public, max-age=31536000, immutable' if not DEBUG else 'no-cache',
-    'Content-Type': 'text/css' if path.endswith('.css') else headers.get('Content-Type', ''),
-})
 
 
 MEDIA_URL = '/media/'
