@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'tailwind',
     'theme',
+    'django_browser_reload'
 ]
 
 MIDDLEWARE = [
@@ -75,6 +76,7 @@ MIDDLEWARE = [
     'coach_dashboard.middleware.CoachPolicyMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'club_dashboard.vendor_manager_middleware.VendorManagerMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware'
 ]
 
 
