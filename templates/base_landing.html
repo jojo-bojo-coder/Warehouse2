@@ -35,13 +35,6 @@
     <style>
       body {
         font-family: "Cairo", sans-serif;
-        /* Prevent FOUC by hiding content until loaded */
-        opacity: 0;
-        transition: opacity 0.3s ease-in;
-      }
-
-      body.loaded {
-        opacity: 1;
       }
     </style>
     {% if LANGUAGE_CODE == 'ar' %}
