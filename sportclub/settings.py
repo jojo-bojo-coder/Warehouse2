@@ -25,10 +25,11 @@ SECRET_KEY = 'django-insecure-6b1mw+^bk3)_5hys8=%1b-#8j+d*70q9t=px4-6ouary0ymve3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['warehouse2-production.up.railway.app', '127.0.0.1', 'localhost', '*']
+ALLOWED_HOSTS = ['warehouse2-production.up.railway.app', 'web-production-01d4c.up.railway.app', '127.0.0.1', 'localhost', '*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://warehouse2-production.up.railway.app',
+    'https://web-production-01d4c.up.railway.app',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]
@@ -76,12 +77,16 @@ MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware',
     'coach_dashboard.middleware.CoachPolicyMiddleware',
     'club_dashboard.vendor_manager_middleware.VendorManagerMiddleware',
-    # 'django_browser_reload.middleware.BrowserReloadMiddleware'
 ]
 
 # Whitenoise configuration
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = DEBUG
+
+WHITENOISE_MIMETYPES = {
+    '.css': 'text/css',
+    '.js': 'application/javascript',
+}
 
 # CRITICAL: Set proper cache headers
 if not DEBUG:
@@ -96,6 +101,36 @@ else:
 # Skip compression in dev for faster loading
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ('jpg', 'jpeg', 'png', 'gif', 'webp', 'zip', 'gz', 'tgz', 'bz2', 'tbz', 'xz', 'br', 'swf', 'flv', 'woff', 'woff2')
 
+# Security headers - relaxed CSP for external resources
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Content Security Policy (relaxed for development)
+if not DEBUG:
+    CSP_DEFAULT_SRC = ("'self'",)
+    CSP_SCRIPT_SRC = (
+        "'self'",
+        "'unsafe-inline'",
+        "'unsafe-eval'",
+        "https://unpkg.com",
+        "https://ajax.googleapis.com",
+        "https://www.google.com",
+        "https://www.gstatic.com",
+    )
+    CSP_STYLE_SRC = (
+        "'self'",
+        "'unsafe-inline'",
+        "https://fonts.googleapis.com",
+        "https://cdnjs.cloudflare.com",
+        "https://unpkg.com",
+    )
+    CSP_FONT_SRC = (
+        "'self'",
+        "https://fonts.gstatic.com",
+        "https://cdnjs.cloudflare.com",
+    )
+    CSP_IMG_SRC = ("'self'", "data:", "https:")
 
 USE_L10N = True
 
@@ -206,7 +241,8 @@ STORAGES = {
 }
 
 WHITENOISE_ADD_HEADERS_FUNCTION = lambda headers, path, url: headers.update({
-    'Cache-Control': 'public, max-age=31536000, immutable' if not DEBUG else 'no-cache'
+    'Cache-Control': 'public, max-age=31536000, immutable' if not DEBUG else 'no-cache',
+    'Content-Type': 'text/css' if path.endswith('.css') else headers.get('Content-Type', ''),
 })
 
 

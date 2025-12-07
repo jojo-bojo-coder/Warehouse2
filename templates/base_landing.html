@@ -2,143 +2,141 @@
 {% load i18n %}
 {% include "language_switcher.html" %}
 <!DOCTYPE html>
-<html {% if LANGUAGE_CODE == 'ar' %}dir="rtl"{% else %}dir="ltr"{% endif %}>
+<html {% if LANGUAGE_CODE == 'ar' %}dir="rtl" lang="ar"{% else %}dir="ltr" lang="en"{% endif %}>
 
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-     <!-- Hide everything until CSS loads -->
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+  <!-- Critical inline styles to prevent FOUC -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      visibility: hidden;
+      opacity: 0;
+      font-family: "Cairo", sans-serif;
+    }
+
+    body.ready {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity 0.2s ease-in;
+    }
+
+    /* Critical navbar styles */
+    #navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 50;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      min-height: 80px;
+    }
+
+    #navbar img {
+      max-height: 80px;
+      width: auto;
+      display: block;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+
+  <!-- Preconnect to external resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <link rel="preconnect" href="https://unpkg.com" />
+
+  <!-- Load Tailwind CSS synchronously (blocking) - CRITICAL -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/output.css' %}" />
+
+  {% if LANGUAGE_CODE == 'ar' %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/rtl.css' %}" />
+  {% endif %}
+
+  <!-- Load fonts -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet" />
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <title>
+    {% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Home{% endif %}
+  </title>
+
+  <!-- Show content after DOM ready -->
+  <script>
+    (function() {
+      function showContent() {
+        document.body.classList.add('ready');
       }
 
-      body {
-        visibility: hidden;
-        opacity: 0;
-      }
-
-      body.ready {
-        visibility: visible;
-        opacity: 1;
-        transition: opacity 0.2s ease-in;
-      }
-
-      /* Critical navbar styles to prevent layout shift */
-      #navbar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 50;
-        background: white;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      }
-
-      #navbar img {
-        max-height: 80px;
-        width: auto;
-      }
-    </style>
-
-    <!-- Load CSS synchronously (blocking) -->
-    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
-    {% if LANGUAGE_CODE == 'ar' %}
-    <link rel="stylesheet" href="{% static 'css/rtl.css' %}" />
-    {% endif %}
-
-    <!-- Show content after CSS loads -->
-    <script>
-      // Wait for both DOM and CSS to be ready
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-          document.body.classList.add('ready');
-        });
+        document.addEventListener('DOMContentLoaded', showContent);
       } else {
-        document.body.classList.add('ready');
+        showContent();
       }
 
-      // Fallback: Show content after reasonable delay if CSS doesn't load
-      setTimeout(function() {
-        document.body.classList.add('ready');
-      }, 500);
-    </script>
+      // Fallback: Show after reasonable delay
+      setTimeout(showContent, 500);
+    })();
+  </script>
+</head>
 
-    <!-- Preconnect to external resources -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-    <link rel="preconnect" href="https://unpkg.com" />
+<body>
+  {% include 'parts/landing_page/navbar.html' %}
 
-    <!-- Preload critical CSS -->
-    <link rel="preload" href="{% static 'css/output.css' %}" as="style" />
+  {% block content %}
+  {% endblock %}
 
-    <!-- Load fonts asynchronously -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet" />
+  <!-- External Scripts -->
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 
-    <!-- External CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Ensure body is visible
+      document.body.classList.add('ready');
 
-    <title>
-      {% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Home{% endif %}
-    </title>
-
-    <!-- Critical inline styles -->
-    <style>
-      body {
-        font-family: "Cairo", sans-serif;
-      }
-      #navbar {
-        min-height: 80px;
-      }
-      img {
-        display: block;
-        max-width: 100%;
-        height: auto;
-      }
-    </style>
-  </head>
-
-  <body {% if LANGUAGE_CODE == 'ar' %}dir="rtl" lang="ar"{% else %}dir="ltr" lang="en"{% endif %}>
-    {% include 'parts/landing_page/navbar.html' %}
-    {% block content %}
-    {% endblock %}
-
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // Ensure body is visible
-        document.body.classList.add('ready');
-
-        // Initialize Swiper
-        const swiper = new Swiper('.banner-slider', {
-          loop: true,
-          autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-          },
-          pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-          },
-          navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-          },
-        });
+      // Initialize Swiper
+      const swiper = new Swiper('.banner-slider', {
+        loop: true,
+        autoplay: {
+          delay: 5000,
+          disableOnInteraction: false,
+        },
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
       });
-    </script>
-    {% include 'parts/landing_page/footer.html' %}
-  </body>
+    });
+  </script>
+
+  {% include 'parts/landing_page/footer.html' %}
+</body>
 </html>
