@@ -27,14 +27,16 @@
     </style>
 
     <!-- Load CSS synchronously (blocking) -->
-    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" onload="document.body.classList.add('ready')" />
     {% if LANGUAGE_CODE == 'ar' %}
     <link rel="stylesheet" href="{% static 'css/rtl.css' %}" />
     {% endif %}
 
-    <!-- Show content after CSS loads -->
+    <!-- Fallback: Show content after a short delay if CSS doesn't load -->
     <script>
-      document.body.classList.add('ready');
+      setTimeout(function() {
+        document.body.classList.add('ready');
+      }, 100);
     </script>
 
     <!-- Preconnect to external resources -->
