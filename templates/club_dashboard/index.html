@@ -115,7 +115,7 @@
         </div>
       </div>
       <div class="flex justify-center items-center h-24">
-        <p class="text-5xl font-bold">{{ coaches.count }}</p>
+        <p class="text-5xl font-bold">{{ coach_count }}</p>
       </div>
       {% if request.user|has_club_permission:'viewCoachs' %}
       <a href="{% url 'viewCoachs' %}" class="mt-auto btn-gradient bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg text-center transition-all duration-300 flex items-center justify-center gap-2">
