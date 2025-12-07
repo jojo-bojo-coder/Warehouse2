@@ -266,7 +266,7 @@ class PolicyDocumentsForm(forms.ModelForm):
             encoded_terms = base64.b64encode(terms_file.read()).decode('utf-8')
             coach.policy_documents['terms_conditions'] = {
                 'file': f"data:{terms_file.content_type};base64,{encoded_terms}",
-                'uploaded_at': timezone.now().isoformat(),
+                'uploaded_at': timezone.now(),
                 'filename': terms_file.name
             }
 
@@ -276,7 +276,7 @@ class PolicyDocumentsForm(forms.ModelForm):
             encoded_refund = base64.b64encode(refund_file.read()).decode('utf-8')
             coach.policy_documents['refund_policy'] = {
                 'file': f"data:{refund_file.content_type};base64,{encoded_refund}",
-                'uploaded_at': timezone.now().isoformat(),
+                'uploaded_at': timezone.now(),
                 'filename': refund_file.name
             }
 
