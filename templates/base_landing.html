@@ -8,17 +8,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- CRITICAL: Preload critical CSS -->
-    <link rel="preload" href="{% static 'css/output.css' %}" as="style">
+    <!-- METHOD 1: Aggressive FOUC Prevention -->
+    <style>
+      /* Hide everything until CSS loads */
+      body { opacity: 0; transition: opacity 0.1s; }
+      body.ready { opacity: 1; }
+    </style>
+
+    <!-- BLOCKING CSS - Load synchronously -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
     {% if LANGUAGE_CODE == 'ar' %}
-    <link rel="preload" href="{% static 'css/rtl.css' %}" as="style">
+    <link rel="stylesheet" href="{% static 'css/rtl.css' %}" />
     {% endif %}
 
-    <!-- CRITICAL: Load CSS immediately (non-blocking) -->
-    <link rel="stylesheet" href="{% static 'css/output.css' %}" media="all">
-    {% if LANGUAGE_CODE == 'ar' %}
-    <link rel="stylesheet" href="{% static 'css/rtl.css' %}" media="all">
-    {% endif %}
+    <!-- Immediately show content after CSS loads -->
+    <script>document.body.className = 'ready';</script>
 
     <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,14 +30,11 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://unpkg.com" />
 
-    <!-- Load fonts with display=swap to prevent FOIT -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Load fonts asynchronously -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet" />
 
-    <!-- Load external CSS -->
+    <!-- External CSS -->
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <link
       rel="stylesheet"
@@ -44,39 +45,17 @@
     />
 
     <title>
-      {% if LANGUAGE_CODE == 'ar' %}
-      الرئيسية
-      {% else %}
-      Home
-      {% endif %}
+      {% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Home{% endif %}
     </title>
 
-    <!-- CRITICAL: Inline critical styles to prevent FOUC -->
+    <!-- Critical inline styles -->
     <style>
-      /* Prevent FOUC */
-      html {
-        visibility: visible;
-        opacity: 1;
-      }
-
       body {
         font-family: "Cairo", sans-serif;
-        visibility: visible;
-        opacity: 1;
-        transition: opacity 0.1s ease-in;
       }
-
-      /* Loading state (optional but recommended) */
-      body.loading {
-        opacity: 0;
-      }
-
-      /* Ensure navbar doesn't jump */
       #navbar {
         min-height: 80px;
       }
-
-      /* Prevent layout shift from images */
       img {
         display: block;
         max-width: 100%;
@@ -85,17 +64,16 @@
     </style>
   </head>
 
-  <body {% if LANGUAGE_CODE == 'ar' %}dir="rtl" lang="ar"{% else %}dir="ltr" lang="en"{% endif %} class="loading">
+  <body {% if LANGUAGE_CODE == 'ar' %}dir="rtl" lang="ar"{% else %}dir="ltr" lang="en"{% endif %}>
     {% include 'parts/landing_page/navbar.html' %}
     {% block content %}
     {% endblock %}
 
-    <!-- Load scripts at the end -->
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
-      // Remove loading class immediately when DOM is ready
       document.addEventListener('DOMContentLoaded', function() {
-        document.body.classList.remove('loading');
+        // Ensure body is visible
+        document.body.classList.add('ready');
 
         // Initialize Swiper
         const swiper = new Swiper('.banner-slider', {
@@ -113,11 +91,6 @@
             prevEl: '.swiper-button-prev',
           },
         });
-      });
-
-      // Fallback: Remove loading class after window loads
-      window.addEventListener('load', function() {
-        document.body.classList.remove('loading');
       });
     </script>
     {% include 'parts/landing_page/footer.html' %}

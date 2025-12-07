@@ -8,4 +8,8 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  // Add this for production optimization
+  corePlugins: {
+    preflight: true,
+  }
 }
