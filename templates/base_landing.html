@@ -10,33 +10,61 @@
 
      <!-- Hide everything until CSS loads -->
     <style>
-      body {
-        visibility: hidden;
-        opacity: 0;
-      }
-      body.ready {
-        visibility: visible;
-        opacity: 1;
-        transition: opacity 0.15s;
-      }
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
+
+      body {
+        visibility: hidden;
+        opacity: 0;
+      }
+
+      body.ready {
+        visibility: visible;
+        opacity: 1;
+        transition: opacity 0.2s ease-in;
+      }
+
+      /* Critical navbar styles to prevent layout shift */
+      #navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 50;
+        background: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+
+      #navbar img {
+        max-height: 80px;
+        width: auto;
+      }
     </style>
 
     <!-- Load CSS synchronously (blocking) -->
-    <link rel="stylesheet" href="{% static 'css/output.css' %}" onload="document.body.classList.add('ready')" />
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
     {% if LANGUAGE_CODE == 'ar' %}
     <link rel="stylesheet" href="{% static 'css/rtl.css' %}" />
     {% endif %}
 
-    <!-- Fallback: Show content after a short delay if CSS doesn't load -->
+    <!-- Show content after CSS loads -->
     <script>
+      // Wait for both DOM and CSS to be ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          document.body.classList.add('ready');
+        });
+      } else {
+        document.body.classList.add('ready');
+      }
+
+      // Fallback: Show content after reasonable delay if CSS doesn't load
       setTimeout(function() {
         document.body.classList.add('ready');
-      }, 100);
+      }, 500);
     </script>
 
     <!-- Preconnect to external resources -->
@@ -44,6 +72,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://unpkg.com" />
+
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="{% static 'css/output.css' %}" as="style" />
 
     <!-- Load fonts asynchronously -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined&display=swap" rel="stylesheet">
