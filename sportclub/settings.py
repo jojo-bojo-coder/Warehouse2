@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'crispy_forms',
     'crispy_bootstrap5',
+    'tailwind',
+    'theme',
 ]
 
 MIDDLEWARE = [
@@ -268,3 +270,9 @@ OTP_RESEND_COOLDOWN_SECONDS = 60
 
 RECAPTCHA_PUBLIC_KEY = '6LfwLZIrAAAAANqXLMPf8G903mXu1KihzlCuC6SK'
 RECAPTCHA_PRIVATE_KEY = '6LfwLZIrAAAAAFQsd1CIklEZHSGrZu22gkp6T2q0'
+
+TAILWIND_APP_NAME = 'theme'
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "web-production-01d4c.up.railway.app"
+]
