@@ -9,6 +9,134 @@
 
 {% block content %}
 <style>
+    /* Enhanced styling for user links in the messaging sidebar */
+
+/* Main user link container styling */
+.user-name-clickable,
+.user-name {
+  color: #2563eb !important; /* Blue color */
+  font-size: 1rem !important; /* 16px */
+  font-weight: 600 !important; /* Semi-bold */
+  text-decoration: none !important;
+  transition: all 0.3s ease !important;
+  display: inline-block !important;
+}
+
+/* Hover effect for user links */
+.user-name-clickable:hover,
+.user-name:hover {
+  color: #1d4ed8 !important; /* Darker blue on hover */
+  text-decoration: none !important;
+  transform: translateX(-2px); /* Slight movement on hover */
+}
+
+/* For RTL support */
+html[dir="rtl"] .user-name-clickable:hover,
+html[dir="rtl"] .user-name:hover {
+  transform: translateX(2px); /* Opposite direction for RTL */
+}
+
+/* Sidebar user list item styling */
+.chat-sidebar a {
+  display: block;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.chat-sidebar a:hover {
+  background-color: rgba(37, 99, 235, 0.1);
+  text-decoration: none;
+}
+
+/* User capacity label (admin, student, etc.) */
+.user-name-capacity {
+  color: #dc2626 !important; /* Red color */
+  font-size: 0.75rem !important; /* 12px */
+  font-weight: 500 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Specific styling for search results / member list */
+.user-name + .text-xs,
+[class*="text-xs"] {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Dark mode support */
+.dark .user-name-clickable,
+.dark .user-name {
+  color: #60a5fa !important; /* Lighter blue for dark mode */
+}
+
+.dark .user-name-clickable:hover,
+.dark .user-name:hover {
+  color: #93c5fd !important; /* Even lighter blue on hover */
+}
+
+.dark .user-name-capacity {
+  color: #f87171 !important; /* Lighter red for dark mode */
+}
+
+.dark .chat-sidebar a:hover {
+  background-color: rgba(96, 165, 250, 0.15);
+}
+
+/* Additional improvements for the sidebar links */
+.chat-sidebar .user-item {
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  padding: 1rem;
+}
+
+.chat-sidebar .user-item:last-child {
+  border-bottom: none;
+}
+
+.dark .chat-sidebar .user-item {
+  border-bottom-color: rgba(75, 85, 99, 0.5);
+}
+
+/* Make the entire user item clickable area more visible */
+.chat-sidebar .user-container {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-sidebar .user-container:hover {
+  background-color: rgba(37, 99, 235, 0.05);
+}
+
+.dark .chat-sidebar .user-container:hover {
+  background-color: rgba(96, 165, 250, 0.1);
+}
+
+/* Avatar circle next to names */
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-left: 0.75rem;
+}
+
+html[dir="rtl"] .user-avatar {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+.dark .user-avatar {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
   /* Base styles */
   #msg-container-box {
     overflow-y: scroll;
