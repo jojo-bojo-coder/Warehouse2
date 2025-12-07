@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build:css": "tailwindcss -i ./sportclub/static/css/input.css -o ./sportclub/static/css/output.css --minify"
+    "build:css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify"
   },
   "keywords": [],
   "author": "",
