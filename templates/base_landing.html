@@ -7,6 +7,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Move Tailwind to head and load it first -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
@@ -32,21 +36,32 @@
     <style>
       body {
         font-family: "Cairo", sans-serif;
+        /* Prevent FOUC by hiding content until loaded */
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
       }
+
+      body.loaded {
+        opacity: 1;
+      }
+    </style>
     {% if LANGUAGE_CODE == 'ar' %}
     <link rel="stylesheet" href="{% static 'css/rtl.css' %}">
     {% endif %}
-    </style>
   </head>
 
   <body {% if LANGUAGE_CODE == 'ar' %}dir="rtl" lang="ar"{% else %}dir="ltr" lang="en"{% endif %}>
-    {% include 'parts/landing_page/navbar.html' %} {% block content %} 
+    {% include 'parts/landing_page/navbar.html' %}
+    {% block content %}
     {% endblock %}
-    <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
-      // Initialize Swiper
+      // Remove loading state once page is ready
       document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('loaded');
+
+        // Initialize Swiper
         const swiper = new Swiper('.banner-slider', {
           loop: true,
           autoplay: {
@@ -64,6 +79,6 @@
         });
       });
     </script>
-{% include 'parts/landing_page/footer.html' %}
+    {% include 'parts/landing_page/footer.html' %}
   </body>
 </html>

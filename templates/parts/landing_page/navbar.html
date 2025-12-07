@@ -3,7 +3,7 @@
   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between py-4">
       <a href="/" class="flex items-center gap-3">
-        <img src="{% static 'images/logo18.jpg' %}" class="h-16 sm:h-20 object-contain" alt="Logo" />
+        <img src="data:image/jpeg;base64,{{ club.club_profile_image_base64|safe }}" class="h-16 sm:h-20 object-contain" alt="Logo" />
         <span class="text-xl font-bold text-slate-800 dark:text-slate-200">
           {{ club.name }}
         </span>
