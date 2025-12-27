@@ -25,7 +25,7 @@
         </p>
     </div>
 
-    <form id="vendor-step-form" method="post" class="space-y-6">
+    <form id="vendor-step-form" method="post" class="space-y-6" novalidate>
         {% csrf_token %}
 
         <!-- Location Section -->
@@ -45,6 +45,7 @@
                         <span class="text-red-500">*</span>
                     </label>
                     {{ form.region }}
+                    <div id="region_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.region.errors %}
                         <div class="form-error">
                             {% for error in form.region.errors %}
@@ -60,6 +61,7 @@
                         <span class="text-red-500">*</span>
                     </label>
                     {{ form.city }}
+                    <div id="city_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.city.errors %}
                         <div class="form-error">
                             {% for error in form.city.errors %}
@@ -77,6 +79,7 @@
                         <span class="text-red-500">*</span>
                     </label>
                     {{ form.district }}
+                    <div id="district_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.district.errors %}
                         <div class="form-error">
                             {% for error in form.district.errors %}
@@ -92,6 +95,7 @@
                         <span class="text-red-500">*</span>
                     </label>
                     {{ form.street }}
+                    <div id="street_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.street.errors %}
                         <div class="form-error">
                             {% for error in form.street.errors %}
@@ -119,6 +123,7 @@
                     <span class="text-red-500">*</span>
                 </label>
                 {{ form.business_document_type }}
+                <div id="business_document_type_error" class="text-red-500 text-sm mt-1 hidden"></div>
                 {% if form.business_document_type.errors %}
                     <div class="form-error">
                         {% for error in form.business_document_type.errors %}
@@ -142,6 +147,7 @@
                         <span class="text-red-500">*</span>
                     </label>
                     {{ form.commercial_registration_number }}
+                    <div id="commercial_registration_number_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.commercial_registration_number.errors %}
                         <div class="form-error">
                             {% for error in form.commercial_registration_number.errors %}
@@ -163,6 +169,7 @@
                         {{ form.tax_number.label }}
                     </label>
                     {{ form.tax_number }}
+                    <div id="tax_number_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.tax_number.errors %}
                         <div class="form-error">
                             {% for error in form.tax_number.errors %}
@@ -172,9 +179,9 @@
                     {% endif %}
                     <p class="form-help">
                         {% if LANGUAGE_CODE == 'ar' %}
-                        اختياري - إذا كان لديك رقم ضريبي
+                        اختياري - يجب أن يكون 15 رقماً إذا تم إدخاله
                         {% else %}
-                        Optional - if you have a tax number
+                        Optional - must be 15 digits if entered
                         {% endif %}
                     </p>
                 </div>
@@ -203,6 +210,35 @@
     </form>
 </div>
 
+<style>
+input, select, textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    background-color: white;
+    color: #0f172a;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+input.error, select.error, textarea.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+input.success, select.success {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+</style>
+
 <script>
 // Dynamic city loading based on region selection
 document.getElementById('{{ form.region.id_for_label }}').addEventListener('change', function() {
@@ -216,10 +252,11 @@ document.getElementById('{{ form.region.id_for_label }}').addEventListener('chan
                 citySelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar" %}اختر المدينة{% else %}Select City{% endif %}</option>';
                 data.cities.forEach(city => {
                     const option = document.createElement('option');
-                    option.value = city[0];  // value
-                    option.textContent = city[1];  // label
+                    option.value = city[0];
+                    option.textContent = city[1];
                     citySelect.appendChild(option);
                 });
+                citySelect.classList.remove('success', 'error');
             })
             .catch(error => {
                 console.error('Error loading cities:', error);
@@ -228,6 +265,211 @@ document.getElementById('{{ form.region.id_for_label }}').addEventListener('chan
         citySelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar" %}اختر المدينة{% else %}Select City{% endif %}</option>';
     }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('vendor-step-form');
+    const regionInput = document.getElementById('{{ form.region.id_for_label }}');
+    const cityInput = document.getElementById('{{ form.city.id_for_label }}');
+    const districtInput = document.getElementById('{{ form.district.id_for_label }}');
+    const streetInput = document.getElementById('{{ form.street.id_for_label }}');
+    const docTypeInput = document.getElementById('{{ form.business_document_type.id_for_label }}');
+    const crNumberInput = document.getElementById('{{ form.commercial_registration_number.id_for_label }}');
+    const taxNumberInput = document.getElementById('{{ form.tax_number.id_for_label }}');
+
+    // Validation functions
+    function validateRegion() {
+        const value = regionInput.value;
+        const errorDiv = document.getElementById('region_error');
+
+        if (!value || value === '') {
+            showError(regionInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}المنطقة مطلوبة{% else %}Region is required{% endif %}');
+            return false;
+        }
+
+        showSuccess(regionInput, errorDiv);
+        return true;
+    }
+
+    function validateCity() {
+        const value = cityInput.value;
+        const errorDiv = document.getElementById('city_error');
+
+        if (!value || value === '') {
+            showError(cityInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}المدينة مطلوبة{% else %}City is required{% endif %}');
+            return false;
+        }
+
+        showSuccess(cityInput, errorDiv);
+        return true;
+    }
+
+    function validateDistrict() {
+        const value = districtInput.value.trim();
+        const errorDiv = document.getElementById('district_error');
+
+        if (!value) {
+            showError(districtInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}الحي مطلوب{% else %}District is required{% endif %}');
+            return false;
+        }
+
+        if (value.length < 2) {
+            showError(districtInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}اسم الحي يجب أن يكون حرفين على الأقل{% else %}District name must be at least 2 characters{% endif %}');
+            return false;
+        }
+
+        showSuccess(districtInput, errorDiv);
+        return true;
+    }
+
+    function validateStreet() {
+        const value = streetInput.value.trim();
+        const errorDiv = document.getElementById('street_error');
+
+        if (!value) {
+            showError(streetInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}الشارع مطلوب{% else %}Street is required{% endif %}');
+            return false;
+        }
+
+        if (value.length < 2) {
+            showError(streetInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}اسم الشارع يجب أن يكون حرفين على الأقل{% else %}Street name must be at least 2 characters{% endif %}');
+            return false;
+        }
+
+        showSuccess(streetInput, errorDiv);
+        return true;
+    }
+
+    function validateDocType() {
+        const value = docTypeInput.value;
+        const errorDiv = document.getElementById('business_document_type_error');
+
+        if (!value || value === '') {
+            showError(docTypeInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}نوع الوثيقة مطلوب{% else %}Document type is required{% endif %}');
+            return false;
+        }
+
+        showSuccess(docTypeInput, errorDiv);
+        return true;
+    }
+
+    function validateCRNumber() {
+        const value = crNumberInput.value.trim().replace(/[\s\-]/g, '');
+        const errorDiv = document.getElementById('commercial_registration_number_error');
+
+        if (!value) {
+            showError(crNumberInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}رقم السجل التجاري مطلوب{% else %}Commercial registration number is required{% endif %}');
+            return false;
+        }
+
+        if (!/^\d{10}$/.test(value)) {
+            showError(crNumberInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}رقم السجل التجاري يجب أن يكون 10 أرقام بالضبط{% else %}Commercial registration number must be exactly 10 digits{% endif %}');
+            return false;
+        }
+
+        crNumberInput.value = value;
+        showSuccess(crNumberInput, errorDiv);
+        return true;
+    }
+
+    function validateTaxNumber() {
+        const value = taxNumberInput.value.trim().replace(/[\s\-]/g, '');
+        const errorDiv = document.getElementById('tax_number_error');
+
+        if (!value) {
+            // Tax number is optional
+            taxNumberInput.classList.remove('error', 'success');
+            errorDiv.classList.add('hidden');
+            return true;
+        }
+
+        if (!/^\d{15}$/.test(value)) {
+            showError(taxNumberInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}الرقم الضريبي يجب أن يكون 15 رقماً بالضبط{% else %}Tax number must be exactly 15 digits{% endif %}');
+            return false;
+        }
+
+        taxNumberInput.value = value;
+        showSuccess(taxNumberInput, errorDiv);
+        return true;
+    }
+
+    function showError(input, errorDiv, message) {
+        input.classList.remove('success');
+        input.classList.add('error');
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+
+    function showSuccess(input, errorDiv) {
+        input.classList.remove('error');
+        input.classList.add('success');
+        errorDiv.textContent = '';
+        errorDiv.classList.add('hidden');
+    }
+
+    // Event listeners
+    regionInput.addEventListener('change', validateRegion);
+    cityInput.addEventListener('change', validateCity);
+    districtInput.addEventListener('blur', validateDistrict);
+    streetInput.addEventListener('blur', validateStreet);
+    docTypeInput.addEventListener('change', validateDocType);
+    crNumberInput.addEventListener('blur', validateCRNumber);
+    taxNumberInput.addEventListener('blur', validateTaxNumber);
+
+    // Real-time validation
+    districtInput.addEventListener('input', function() {
+        if (this.classList.contains('error') || this.classList.contains('success')) {
+            validateDistrict();
+        }
+    });
+
+    streetInput.addEventListener('input', function() {
+        if (this.classList.contains('error') || this.classList.contains('success')) {
+            validateStreet();
+        }
+    });
+
+    crNumberInput.addEventListener('input', function() {
+        // Only allow digits
+        this.value = this.value.replace(/[^\d]/g, '');
+
+        if (this.classList.contains('error') || this.classList.contains('success')) {
+            validateCRNumber();
+        }
+    });
+
+    taxNumberInput.addEventListener('input', function() {
+        // Only allow digits
+        this.value = this.value.replace(/[^\d]/g, '');
+
+        if (this.classList.contains('error') || this.classList.contains('success')) {
+            validateTaxNumber();
+        }
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const isRegionValid = validateRegion();
+        const isCityValid = validateCity();
+        const isDistrictValid = validateDistrict();
+        const isStreetValid = validateStreet();
+        const isDocTypeValid = validateDocType();
+        const isCRValid = validateCRNumber();
+        const isTaxValid = validateTaxNumber();
+
+        if (isRegionValid && isCityValid && isDistrictValid && isStreetValid &&
+            isDocTypeValid && isCRValid && isTaxValid) {
+            this.submit();
+        } else {
+            const firstError = document.querySelector('.error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+});
 </script>
 {% endblock %}
 
@@ -235,7 +477,7 @@ document.getElementById('{{ form.region.id_for_label }}').addEventListener('chan
 <div class="flex justify-between items-center">
     <div>
         <a href="{% url 'vendor_signup_step2' %}"
-           class=" {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
+           class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             السابق
             {% else %}
@@ -265,4 +507,3 @@ document.getElementById('{{ form.region.id_for_label }}').addEventListener('chan
     </div>
 </div>
 {% endblock %}
-

@@ -76,7 +76,7 @@
     </div>
     {% endif %}
 
-    <form id="vendor-step-form" method="post" enctype="multipart/form-data" class="space-y-6">
+    <form id="vendor-step-form" method="post" enctype="multipart/form-data" class="space-y-6" novalidate>
         {% csrf_token %}
 
         <!-- Documents Section -->
@@ -90,12 +90,34 @@
             </h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Business Document File -->
                 <div class="form-group">
                     <label for="{{ form.business_document_file.id_for_label }}" class="form-label">
                         {{ form.business_document_file.label }}
                         <span class="text-red-500">*</span>
                     </label>
-                    {{ form.business_document_file }}
+                    <div class="file-upload-container">
+                        <input type="file"
+                               id="{{ form.business_document_file.id_for_label }}"
+                               name="{{ form.business_document_file.name }}"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               class="hidden"
+                               required>
+                        <label for="{{ form.business_document_file.id_for_label }}" class="file-upload-label">
+                            <svg class="w-6 h-6 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span class="file-upload-text">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                اختر ملف أو اسحبه هنا
+                                {% else %}
+                                Choose file or drag here
+                                {% endif %}
+                            </span>
+                        </label>
+                        <div id="business_document_file_name" class="file-name-display"></div>
+                    </div>
+                    <div id="business_document_file_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.business_document_file.errors %}
                         <div class="form-error">
                             {% for error in form.business_document_file.errors %}
@@ -112,12 +134,34 @@
                     </p>
                 </div>
 
+                <!-- Commercial Registration Certificate -->
                 <div class="form-group">
                     <label for="{{ form.commercial_registration_certificate.id_for_label }}" class="form-label">
                         {{ form.commercial_registration_certificate.label }}
                         <span class="text-red-500">*</span>
                     </label>
-                    {{ form.commercial_registration_certificate }}
+                    <div class="file-upload-container">
+                        <input type="file"
+                               id="{{ form.commercial_registration_certificate.id_for_label }}"
+                               name="{{ form.commercial_registration_certificate.name }}"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               class="hidden"
+                               required>
+                        <label for="{{ form.commercial_registration_certificate.id_for_label }}" class="file-upload-label">
+                            <svg class="w-6 h-6 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span class="file-upload-text">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                اختر ملف أو اسحبه هنا
+                                {% else %}
+                                Choose file or drag here
+                                {% endif %}
+                            </span>
+                        </label>
+                        <div id="commercial_registration_certificate_name" class="file-name-display"></div>
+                    </div>
+                    <div id="commercial_registration_certificate_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.commercial_registration_certificate.errors %}
                         <div class="form-error">
                             {% for error in form.commercial_registration_certificate.errors %}
@@ -135,12 +179,33 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <!-- Tax Certificate -->
                 <div class="form-group">
                     <label for="{{ form.tax_certificate.id_for_label }}" class="form-label">
                         {{ form.tax_certificate.label }}
                     </label>
-                    {{ form.tax_certificate }}
+                    <div class="file-upload-container">
+                        <input type="file"
+                               id="{{ form.tax_certificate.id_for_label }}"
+                               name="{{ form.tax_certificate.name }}"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               class="hidden">
+                        <label for="{{ form.tax_certificate.id_for_label }}" class="file-upload-label">
+                            <svg class="w-6 h-6 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span class="file-upload-text">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                اختر ملف أو اسحبه هنا
+                                {% else %}
+                                Choose file or drag here
+                                {% endif %}
+                            </span>
+                        </label>
+                        <div id="tax_certificate_name" class="file-name-display"></div>
+                    </div>
+                    <div id="tax_certificate_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.tax_certificate.errors %}
                         <div class="form-error">
                             {% for error in form.tax_certificate.errors %}
@@ -157,12 +222,34 @@
                     </p>
                 </div>
 
+                <!-- Store Logo -->
                 <div class="form-group">
                     <label for="{{ form.store_logo.id_for_label }}" class="form-label">
                         {{ form.store_logo.label }}
                         <span class="text-red-500">*</span>
                     </label>
-                    {{ form.store_logo }}
+                    <div class="file-upload-container">
+                        <input type="file"
+                               id="{{ form.store_logo.id_for_label }}"
+                               name="{{ form.store_logo.name }}"
+                               accept=".jpg,.jpeg,.png,.gif"
+                               class="hidden"
+                               required>
+                        <label for="{{ form.store_logo.id_for_label }}" class="file-upload-label">
+                            <svg class="w-6 h-6 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span class="file-upload-text">
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                اختر ملف أو اسحبه هنا
+                                {% else %}
+                                Choose file or drag here
+                                {% endif %}
+                            </span>
+                        </label>
+                        <div id="store_logo_name" class="file-name-display"></div>
+                    </div>
+                    <div id="store_logo_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     {% if form.store_logo.errors %}
                         <div class="form-error">
                             {% for error in form.store_logo.errors %}
@@ -172,9 +259,9 @@
                     {% endif %}
                     <p class="form-help">
                         {% if LANGUAGE_CODE == 'ar' %}
-                        صورة شعار المتجر، الحد الأقصى 2 ميجابايت
+                        صورة فقط، الحد الأقصى 2 ميجابايت
                         {% else %}
-                        Store logo image, maximum 2MB
+                        Image only, maximum 2MB
                         {% endif %}
                     </p>
                 </div>
@@ -183,39 +270,30 @@
 
         <!-- Terms and Conditions -->
         <div class="bg-gray-50 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                {% if LANGUAGE_CODE == 'ar' %}
-                الشروط والأحكام
-                {% else %}
-                Terms and Conditions
-                {% endif %}
-            </h3>
-
             <div class="flex items-start">
-                {{ form.accept_terms }}
-                <label for="{{ form.accept_terms.id_for_label }}" class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %} text-sm text-gray-700">
-                    {% if LANGUAGE_CODE == 'ar' %}
-                    أوافق على
-                    <a href="{% url 'terms_and_conditions' %}" target="_blank" class="text-blue-600 hover:text-blue-800 underline">
-                        سياسة الخصوصية وشروط الاستخدام
-                    </a>
-                    وأؤكد أن جميع المعلومات المقدمة صحيحة ودقيقة.
-                    {% else %}
-                    I agree to the
-                    <a href="{% url 'terms_and_conditions' %}" target="_blank" class="text-blue-600 hover:text-blue-800 underline">
-                        Privacy Policy and Terms of Use
-                    </a>
-                    and confirm that all provided information is accurate and correct.
-                    {% endif %}
-                </label>
-            </div>
-            {% if form.accept_terms.errors %}
-                <div class="form-error mt-2">
-                    {% for error in form.accept_terms.errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
+                <div class="flex items-center h-5">
+                    {{ form.accept_terms }}
                 </div>
-            {% endif %}
+                <div class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %}">
+                    <label for="{{ form.accept_terms.id_for_label }}" class="font-medium text-gray-700">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        أوافق على <a href="{% url 'terms_and_conditions' %}" target="_blank" class="text-blue-600 hover:underline">سياسة الخصوصية وشروط الاستخدام</a>
+                        <span class="text-red-500">*</span>
+                        {% else %}
+                        I agree to the <a href="{% url 'terms_and_conditions' %}" target="_blank" class="text-blue-600 hover:underline">Privacy Policy and Terms of Use</a>
+                        <span class="text-red-500">*</span>
+                        {% endif %}
+                    </label>
+                    <div id="accept_terms_error" class="text-red-500 text-sm mt-1 hidden"></div>
+                    {% if form.accept_terms.errors %}
+                        <div class="mt-2">
+                            {% for error in form.accept_terms.errors %}
+                                <p class="text-red-500 text-sm">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
         <!-- Final Info Box -->
@@ -239,91 +317,325 @@
         </div>
     </form>
 
+    <!-- Confirmation Modal -->
     <div id="submitConfirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="max-w-2xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s">
-        <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden dark:bg-gray-800/90 dark:border dark:border-gray-700">
-            <div class="bg-gradient-to-r from-blue-500 to-green-600 px-6 py-4">
-                <h2 class="text-xl font-semibold text-white">
-                    {% if LANGUAGE_CODE == 'ar' %}تأكيد الإرسال{% else %}Confirm Submission{% endif %}
-                </h2>
-            </div>
-
-            <div class="p-6">
-                <div class="text-center">
-                    <svg class="mx-auto h-16 w-16 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                    <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">
-                        {% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من إرسال الطلب؟{% else %}Are you sure you want to submit your application?{% endif %}
-                    </h3>
-                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                        <p>
-                            {% if LANGUAGE_CODE == 'ar' %}
-                            بعد الإرسال، سيتم مراجعة طلبك من قبل فريقنا والرد عليك خلال 24-48 ساعة.
-                            {% else %}
-                            After submission, your application will be reviewed by our team and you'll receive a response within 24-48 hours.
-                            {% endif %}
-                        </p>
-                    </div>
+        <div class="max-w-2xl mx-auto animate-fade-in-up p-4">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-green-600 px-6 py-4">
+                    <h2 class="text-xl font-semibold text-white">
+                        {% if LANGUAGE_CODE == 'ar' %}تأكيد الإرسال{% else %}Confirm Submission{% endif %}
+                    </h2>
                 </div>
 
-                <div class="mt-8 flex justify-center space-x-4 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
-                    <button id="cancelSubmitBtn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
-                        {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
-                    </button>
-                    <button id="confirmSubmitBtn" class="px-6 py-2 bg-gradient-to-r from-blue-500 to-green-600 text-white rounded-lg hover:from-blue-600 hover:to-green-700 transition-all duration-300 dark:from-blue-600 dark:to-green-700 dark:hover:from-blue-700 dark:hover:to-green-800">
-                        {% if LANGUAGE_CODE == 'ar' %}نعم، أرسل الطلب{% else %}Yes, Submit Application{% endif %}
-                    </button>
+                <div class="p-6">
+                    <div class="text-center">
+                        <svg class="mx-auto h-16 w-16 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <h3 class="mt-4 text-lg font-medium text-gray-900">
+                            {% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من إرسال الطلب؟{% else %}Are you sure you want to submit your application?{% endif %}
+                        </h3>
+                        <div class="mt-2 text-sm text-gray-600">
+                            <p>
+                                {% if LANGUAGE_CODE == 'ar' %}
+                                بعد الإرسال، سيتم مراجعة طلبك من قبل فريقنا والرد عليك خلال 24-48 ساعة.
+                                {% else %}
+                                After submission, your application will be reviewed by our team and you'll receive a response within 24-48 hours.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-center space-x-4 {% if LANGUAGE_CODE == 'ar' %}space-x-reverse{% endif %}">
+                        <button id="cancelSubmitBtn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300">
+                            {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                        </button>
+                        <button id="confirmSubmitBtn" class="px-6 py-2 bg-gradient-to-r from-blue-500 to-green-600 text-white rounded-lg hover:from-blue-600 hover:to-green-700 transition-all duration-300">
+                            {% if LANGUAGE_CODE == 'ar' %}نعم، أرسل الطلب{% else %}Yes, Submit Application{% endif %}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
+
+<style>
+/* File Upload Styling */
+.file-upload-container {
+    position: relative;
+}
+
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 40px 20px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    background-color: #f8fafc;
+    color: #64748b;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.file-upload-label:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+    color: #3b82f6;
+}
+
+.file-upload-container.has-file .file-upload-label {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+    color: #059669;
+}
+
+.file-upload-container.has-error .file-upload-label {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.file-upload-text {
+    font-weight: 500;
+}
+
+.file-name-display {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    background-color: #f3f4f6;
+    border-radius: 0.375rem;
+    text-align: center;
+    display: none;
+}
+
+.file-name-display.show {
+    display: block;
+}
+
+.file-name-display.success {
+    color: #059669;
+    background-color: #d1fae5;
+}
+
+.file-name-display.error {
+    color: #dc2626;
+    background-color: #fee2e2;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Animation for modal */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out;
+}
+</style>
 
 <script>
-// File upload preview and validation
-document.querySelectorAll('input[type="file"]').forEach(input => {
-    input.addEventListener('change', function() {
-        const file = this.files[0];
-        const maxSize = this.id === 'id_store_logo' ? 2 * 1024 * 1024 : 5 * 1024 * 1024; // 2MB for logo, 5MB for others
-
-        if (file && file.size > maxSize) {
-            const maxSizeMB = maxSize / (1024 * 1024);
-            alert(`{% if LANGUAGE_CODE == 'ar' %}حجم الملف كبير جداً. الحد الأقصى ${maxSizeMB} ميجابايت{% else %}File size too large. Maximum ${maxSizeMB}MB{% endif %}`);
-            this.value = '';
-            return;
-        }
-
-        // Show file name
-        const fileName = file ? file.name : '';
-        const label = this.parentElement.querySelector('.form-help');
-        if (label && fileName) {
-            label.innerHTML = `{% if LANGUAGE_CODE == 'ar' %}تم اختيار: {% else %}Selected: {% endif %}<strong>${fileName}</strong>`;
-        }
-    });
-});
-
-// Form submission confirmation
-document.getElementById('vendor-step-form').addEventListener('submit', function(e) {
-    const confirmed = confirm(`{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من إرسال الطلب؟ تأكد من صحة جميع المعلومات والمستندات.{% else %}Are you sure you want to submit the application? Make sure all information and documents are correct.{% endif %}`);
-    if (!confirmed) {
-        e.preventDefault();
-    }
-});
-
-
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('vendor-step-form');
     const modal = document.getElementById('submitConfirmationModal');
     const cancelBtn = document.getElementById('cancelSubmitBtn');
     const confirmBtn = document.getElementById('confirmSubmitBtn');
     const submitBtn = document.querySelector('button[type="submit"][form="vendor-step-form"]');
-    const form = document.getElementById('vendor-step-form');
+
+    // File input configurations
+    const fileInputs = {
+        business_document_file: {
+            input: document.getElementById('{{ form.business_document_file.id_for_label }}'),
+            nameDiv: document.getElementById('business_document_file_name'),
+            errorDiv: document.getElementById('business_document_file_error'),
+            container: null,
+            required: true,
+            maxSize: 5 * 1024 * 1024,
+            validTypes: ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
+        },
+        commercial_registration_certificate: {
+            input: document.getElementById('{{ form.commercial_registration_certificate.id_for_label }}'),
+            nameDiv: document.getElementById('commercial_registration_certificate_name'),
+            errorDiv: document.getElementById('commercial_registration_certificate_error'),
+            container: null,
+            required: true,
+            maxSize: 5 * 1024 * 1024,
+            validTypes: ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
+        },
+        tax_certificate: {
+            input: document.getElementById('{{ form.tax_certificate.id_for_label }}'),
+            nameDiv: document.getElementById('tax_certificate_name'),
+            errorDiv: document.getElementById('tax_certificate_error'),
+            container: null,
+            required: false,
+            maxSize: 5 * 1024 * 1024,
+            validTypes: ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
+        },
+        store_logo: {
+            input: document.getElementById('{{ form.store_logo.id_for_label }}'),
+            nameDiv: document.getElementById('store_logo_name'),
+            errorDiv: document.getElementById('store_logo_error'),
+            container: null,
+            required: true,
+            maxSize: 2 * 1024 * 1024,
+            validTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+        }
+    };
+
+    // Set container references
+    Object.values(fileInputs).forEach(fileConfig => {
+        fileConfig.container = fileConfig.input.closest('.file-upload-container');
+    });
+
+    const acceptTermsCheckbox = document.getElementById('{{ form.accept_terms.id_for_label }}');
+    const acceptTermsError = document.getElementById('accept_terms_error');
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' bytes';
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        else return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function validateFile(fileConfig) {
+        const file = fileConfig.input.files[0];
+
+        fileConfig.container.classList.remove('has-file', 'has-error');
+        fileConfig.nameDiv.classList.remove('success', 'error', 'show');
+        fileConfig.errorDiv.classList.add('hidden');
+
+        if (!file) {
+            if (fileConfig.required) {
+                showFileError(fileConfig, '{% if LANGUAGE_CODE == "ar" %}هذا الملف مطلوب{% else %}This file is required{% endif %}');
+                return false;
+            }
+            return true;
+        }
+
+        // Validate file size
+        if (file.size > fileConfig.maxSize) {
+            const maxSizeMB = (fileConfig.maxSize / (1024 * 1024)).toFixed(0);
+            showFileError(fileConfig, `{% if LANGUAGE_CODE == "ar" %}حجم الملف كبير جداً. الحد الأقصى ${maxSizeMB} ميجابايت{% else %}File too large. Maximum ${maxSizeMB}MB{% endif %}`);
+            return false;
+        }
+
+        // Validate file type
+        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        const validExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.gif'];
+
+        if (!fileConfig.validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
+            showFileError(fileConfig, '{% if LANGUAGE_CODE == "ar" %}نوع الملف غير مدعوم{% else %}File type not supported{% endif %}');
+            return false;
+        }
+
+        showFileSuccess(fileConfig, file.name, file.size);
+        return true;
+    }
+
+    function showFileError(fileConfig, message) {
+        fileConfig.container.classList.add('has-error');
+        fileConfig.nameDiv.textContent = message;
+        fileConfig.nameDiv.classList.add('error', 'show');
+        fileConfig.errorDiv.textContent = message;
+        fileConfig.errorDiv.classList.remove('hidden');
+    }
+
+    function showFileSuccess(fileConfig, fileName, fileSize) {
+        fileConfig.container.classList.add('has-file');
+        fileConfig.nameDiv.textContent = `{% if LANGUAGE_CODE == "ar" %}✓ تم اختيار: {% else %}✓ Selected: {% endif %}${fileName} (${formatFileSize(fileSize)})`;
+        fileConfig.nameDiv.classList.add('success', 'show');
+        fileConfig.errorDiv.classList.add('hidden');
+    }
+
+    function validateTerms() {
+        if (!acceptTermsCheckbox.checked) {
+            acceptTermsError.textContent = '{% if LANGUAGE_CODE == "ar" %}يجب الموافقة على الشروط والأحكام{% else %}You must accept the terms and conditions{% endif %}';
+            acceptTermsError.classList.remove('hidden');
+            return false;
+        }
+
+        acceptTermsError.classList.add('hidden');
+        return true;
+    }
+
+    // Add event listeners to file inputs
+    Object.values(fileInputs).forEach(fileConfig => {
+        fileConfig.input.addEventListener('change', function() {
+            validateFile(fileConfig);
+        });
+
+        // Add drag and drop support
+        const label = fileConfig.input.nextElementSibling;
+
+        label.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#3b82f6';
+            this.style.backgroundColor = '#eff6ff';
+        });
+
+        label.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '';
+            this.style.backgroundColor = '';
+        });
+
+        label.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '';
+            this.style.backgroundColor = '';
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileConfig.input.files = files;
+                validateFile(fileConfig);
+            }
+        });
+    });
+
+    // Add event listener to terms checkbox
+    acceptTermsCheckbox.addEventListener('change', validateTerms);
 
     // Show modal when submit button is clicked
     submitBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        modal.classList.remove('hidden');
+
+        // Validate all files
+        let allValid = true;
+        Object.values(fileInputs).forEach(fileConfig => {
+            if (!validateFile(fileConfig)) {
+                allValid = false;
+            }
+        });
+
+        // Validate terms
+        if (!validateTerms()) {
+            allValid = false;
+        }
+
+        if (allValid) {
+            modal.classList.remove('hidden');
+        } else {
+            // Scroll to first error
+            const firstError = document.querySelector('.has-error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
     });
 
     // Hide modal when cancel button is clicked
@@ -350,7 +662,7 @@ document.getElementById('vendor-step-form').addEventListener('submit', function(
 <div class="flex justify-between items-center">
     <div>
         <a href="{% url 'vendor_signup_step3' %}"
-           class=" {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
+           class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             السابق
             {% else %}
@@ -380,4 +692,3 @@ document.getElementById('vendor-step-form').addEventListener('submit', function(
     </div>
 </div>
 {% endblock %}
-

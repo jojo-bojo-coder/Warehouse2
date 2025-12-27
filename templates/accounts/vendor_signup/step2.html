@@ -24,7 +24,7 @@
         </p>
     </div>
 
-    <form id="vendor-step-form" method="post" class="space-y-6">
+    <form id="vendor-step-form" method="post" class="space-y-6" novalidate>
         {% csrf_token %}
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -34,6 +34,7 @@
                     <span class="text-red-500">*</span>
                 </label>
                 {{ form.business_name_ar }}
+                <div id="business_name_ar_error" class="text-red-500 text-sm mt-1 hidden"></div>
                 {% if form.business_name_ar.errors %}
                     <div class="form-error">
                         {% for error in form.business_name_ar.errors %}
@@ -49,6 +50,7 @@
                     <span class="text-red-500">*</span>
                 </label>
                 {{ form.business_name_en }}
+                <div id="business_name_en_error" class="text-red-500 text-sm mt-1 hidden"></div>
                 {% if form.business_name_en.errors %}
                     <div class="form-error">
                         {% for error in form.business_name_en.errors %}
@@ -66,6 +68,7 @@
                     <span class="text-red-500">*</span>
                 </label>
                 {{ form.activity_type }}
+                <div id="activity_type_error" class="text-red-500 text-sm mt-1 hidden"></div>
                 {% if form.activity_type.errors %}
                     <div class="form-error">
                         {% for error in form.activity_type.errors %}
@@ -81,6 +84,7 @@
                     <span class="text-red-500">*</span>
                 </label>
                 {{ form.number_of_branches }}
+                <div id="number_of_branches_error" class="text-red-500 text-sm mt-1 hidden"></div>
                 {% if form.number_of_branches.errors %}
                     <div class="form-error">
                         {% for error in form.number_of_branches.errors %}
@@ -90,9 +94,9 @@
                 {% endif %}
                 <p class="form-help">
                     {% if LANGUAGE_CODE == 'ar' %}
-                    عدد الفروع أو المواقع التي تملكها
+                    عدد الفروع أو المواقع التي تملكها (1-1000)
                     {% else %}
-                    Number of branches or locations you own
+                    Number of branches or locations you own (1-1000)
                     {% endif %}
                 </p>
             </div>
@@ -104,6 +108,8 @@
                 <span class="text-red-500">*</span>
             </label>
             {{ form.description }}
+            <div id="description_error" class="text-red-500 text-sm mt-1 hidden"></div>
+            <div id="description_counter" class="text-sm text-gray-500 mt-1">0 / 1000</div>
             {% if form.description.errors %}
                 <div class="form-error">
                     {% for error in form.description.errors %}
@@ -113,9 +119,9 @@
             {% endif %}
             <p class="form-help">
                 {% if LANGUAGE_CODE == 'ar' %}
-                اكتب وصفاً مفصلاً عن الخدمات التي تقدمها (الحد الأدنى 50 حرف)
+                اكتب وصفاً مفصلاً عن الخدمات التي تقدمها (الحد الأدنى 50 حرف، الحد الأقصى 1000 حرف)
                 {% else %}
-                Write a detailed description of the services you provide (minimum 50 characters)
+                Write a detailed description of the services you provide (minimum 50 characters, maximum 1000 characters)
                 {% endif %}
             </p>
         </div>
@@ -141,13 +147,247 @@
         </div>
     </form>
 </div>
+
+<style>
+input, select, textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    background-color: white;
+    color: #0f172a;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+input.error, select.error, textarea.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+input.success, select.success, textarea.success {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('vendor-step-form');
+    const businessNameArInput = document.getElementById('{{ form.business_name_ar.id_for_label }}');
+    const businessNameEnInput = document.getElementById('{{ form.business_name_en.id_for_label }}');
+    const activityTypeInput = document.getElementById('{{ form.activity_type.id_for_label }}');
+    const branchesInput = document.getElementById('{{ form.number_of_branches.id_for_label }}');
+    const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+
+    // Validation functions
+    function validateBusinessNameAr() {
+        const value = businessNameArInput.value.trim();
+        const errorDiv = document.getElementById('business_name_ar_error');
+
+        if (!value) {
+            showError(businessNameArInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}اسم النشاط بالعربي مطلوب{% else %}Arabic business name is required{% endif %}');
+            return false;
+        }
+
+        if (value.length < 3) {
+            showError(businessNameArInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}اسم النشاط يجب أن يكون 3 أحرف على الأقل{% else %}Business name must be at least 3 characters{% endif %}');
+            return false;
+        }
+
+        const arabicRegex = /[\u0600-\u06FF]/;
+        if (!arabicRegex.test(value)) {
+            showError(businessNameArInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}يجب أن يحتوي اسم النشاط على أحرف عربية{% else %}Business name must contain Arabic characters{% endif %}');
+            return false;
+        }
+
+        showSuccess(businessNameArInput, errorDiv);
+        return true;
+    }
+
+    function validateBusinessNameEn() {
+        const value = businessNameEnInput.value.trim();
+        const errorDiv = document.getElementById('business_name_en_error');
+
+        if (!value) {
+            showError(businessNameEnInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}اسم النشاط بالإنجليزي مطلوب{% else %}English business name is required{% endif %}');
+            return false;
+        }
+
+        if (value.length < 3) {
+            showError(businessNameEnInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}اسم النشاط يجب أن يكون 3 أحرف على الأقل{% else %}Business name must be at least 3 characters{% endif %}');
+            return false;
+        }
+
+        const englishRegex = /[a-zA-Z]/;
+        if (!englishRegex.test(value)) {
+            showError(businessNameEnInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}يجب أن يحتوي اسم النشاط على أحرف إنجليزية{% else %}Business name must contain English characters{% endif %}');
+            return false;
+        }
+
+        showSuccess(businessNameEnInput, errorDiv);
+        return true;
+    }
+
+    function validateActivityType() {
+        const value = activityTypeInput.value;
+        const errorDiv = document.getElementById('activity_type_error');
+
+        if (!value || value === '') {
+            showError(activityTypeInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}نوع النشاط مطلوب{% else %}Activity type is required{% endif %}');
+            return false;
+        }
+
+        showSuccess(activityTypeInput, errorDiv);
+        return true;
+    }
+
+    function validateBranches() {
+        const value = branchesInput.value;
+        const errorDiv = document.getElementById('number_of_branches_error');
+
+        if (!value) {
+            showError(branchesInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}عدد الفروع مطلوب{% else %}Number of branches is required{% endif %}');
+            return false;
+        }
+
+        const num = parseInt(value);
+        if (isNaN(num) || num < 1) {
+            showError(branchesInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}عدد الفروع يجب أن يكون على الأقل 1{% else %}Number of branches must be at least 1{% endif %}');
+            return false;
+        }
+
+        if (num > 1000) {
+            showError(branchesInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}عدد الفروع يجب ألا يزيد عن 1000{% else %}Number of branches must not exceed 1000{% endif %}');
+            return false;
+        }
+
+        showSuccess(branchesInput, errorDiv);
+        return true;
+    }
+
+    function validateDescription() {
+        const value = descriptionInput.value.trim();
+        const errorDiv = document.getElementById('description_error');
+        const counter = document.getElementById('description_counter');
+
+        // Update character counter
+        counter.textContent = value.length + ' / 1000';
+
+        if (!value) {
+            showError(descriptionInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}وصف الخدمة مطلوب{% else %}Service description is required{% endif %}');
+            counter.classList.add('text-red-500');
+            counter.classList.remove('text-gray-500', 'text-green-500');
+            return false;
+        }
+
+        if (value.length < 50) {
+            showError(descriptionInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}وصف الخدمة يجب أن يكون 50 حرف على الأقل{% else %}Service description must be at least 50 characters{% endif %}');
+            counter.classList.add('text-red-500');
+            counter.classList.remove('text-gray-500', 'text-green-500');
+            return false;
+        }
+
+        if (value.length > 1000) {
+            showError(descriptionInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}وصف الخدمة يجب ألا يزيد عن 1000 حرف{% else %}Service description must not exceed 1000 characters{% endif %}');
+            counter.classList.add('text-red-500');
+            counter.classList.remove('text-gray-500', 'text-green-500');
+            return false;
+        }
+
+        showSuccess(descriptionInput, errorDiv);
+        counter.classList.add('text-green-500');
+        counter.classList.remove('text-gray-500', 'text-red-500');
+        return true;
+    }
+
+    function showError(input, errorDiv, message) {
+        input.classList.remove('success');
+        input.classList.add('error');
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+
+    function showSuccess(input, errorDiv) {
+        input.classList.remove('error');
+        input.classList.add('success');
+        errorDiv.textContent = '';
+        errorDiv.classList.add('hidden');
+    }
+
+    // Add event listeners
+    businessNameArInput.addEventListener('blur', validateBusinessNameAr);
+    businessNameEnInput.addEventListener('blur', validateBusinessNameEn);
+    activityTypeInput.addEventListener('change', validateActivityType);
+    branchesInput.addEventListener('blur', validateBranches);
+    descriptionInput.addEventListener('blur', validateDescription);
+
+    // Real-time validation
+    businessNameArInput.addEventListener('input', function() {
+        if (this.classList.contains('error') || this.classList.contains('success')) {
+            validateBusinessNameAr();
+        }
+    });
+
+    businessNameEnInput.addEventListener('input', function() {
+        if (this.classList.contains('error') || this.classList.contains('success')) {
+            validateBusinessNameEn();
+        }
+    });
+
+    branchesInput.addEventListener('input', function() {
+        // Only allow digits
+        this.value = this.value.replace(/[^\d]/g, '');
+
+        if (this.classList.contains('error') || this.classList.contains('success')) {
+            validateBranches();
+        }
+    });
+
+    descriptionInput.addEventListener('input', function() {
+        const counter = document.getElementById('description_counter');
+        counter.textContent = this.value.length + ' / 1000';
+
+        if (this.classList.contains('error') || this.classList.contains('success')) {
+            validateDescription();
+        }
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const isNameArValid = validateBusinessNameAr();
+        const isNameEnValid = validateBusinessNameEn();
+        const isActivityValid = validateActivityType();
+        const isBranchesValid = validateBranches();
+        const isDescriptionValid = validateDescription();
+
+        if (isNameArValid && isNameEnValid && isActivityValid && isBranchesValid && isDescriptionValid) {
+            this.submit();
+        } else {
+            const firstError = document.querySelector('.error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+});
+</script>
 {% endblock %}
 
 {% block navigation %}
 <div class="flex justify-between items-center">
     <div>
         <a href="{% url 'vendor_signup_step1' %}"
-           class=" {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
+           class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium min-w-[120px] text-center">
             {% if LANGUAGE_CODE == 'ar' %}
             السابق
             {% else %}
@@ -177,4 +417,3 @@
     </div>
 </div>
 {% endblock %}
-
