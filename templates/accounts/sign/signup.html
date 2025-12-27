@@ -56,106 +56,207 @@
       <div class="mt-8">
         <!-- Student Form -->
         <div id="student-form" class="tab-content bg-slate-50 dark:bg-slate-900 rounded-xl p-6 md:p-8">
-          <form class="space-y-6" method="post">
+          <form id="student-registration-form" class="space-y-6" method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
             <input type="hidden" name="account_type" value="3">
 
+            <!-- Username -->
             <div>
-              <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label for="student_username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 {% if LANGUAGE_CODE == 'ar' %}
                 اسم المستخدم
                 {% else %}
                 Username
                 {% endif %}
+                <span class="text-red-500">*</span>
               </label>
               <div>
-                <input id="username" name="username" type="text" required
+                <input id="student_username" name="username" type="text" required
+                       minlength="3" maxlength="30" pattern="^[a-zA-Z0-9_]+$"
                        class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
               </div>
+              <div id="student_username_error" class="text-red-500 text-sm mt-1 hidden"></div>
+              <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                {% if LANGUAGE_CODE == 'ar' %}
+                3-30 حرف، حروف وأرقام فقط
+                {% else %}
+                3-30 characters, letters and numbers only
+                {% endif %}
+              </p>
             </div>
 
+            <!-- Email -->
             <div>
-              <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label for="student_email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 {% if LANGUAGE_CODE == 'ar' %}
                 البريد الالكتروني
                 {% else %}
                 Email
                 {% endif %}
+                <span class="text-red-500">*</span>
               </label>
               <div>
-                <input id="email" name="email" type="email" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
+                <input id="student_email" name="email" type="email" required
+                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                       dir="ltr" />
               </div>
+              <div id="student_email_error" class="text-red-500 text-sm mt-1 hidden"></div>
             </div>
 
             <!-- Full Name Field -->
-    <div>
-      <label for="full_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-        {% if LANGUAGE_CODE == 'ar' %}
-        الاسم الكامل
-        {% else %}
-        Full Name
-        {% endif %}
-      </label>
-      <div>
-        {{ student_form.full_name }}
-      </div>
-    </div>
-
-    <!-- Phone Field -->
-    <div>
-      <label for="phone" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-        {% if LANGUAGE_CODE == 'ar' %}
-        رقم الهاتف
-        {% else %}
-        Phone Number
-        {% endif %}
-      </label>
-      <div>
-        {{ student_form.phone }}
-      </div>
-    </div>
-
-    <!-- Birthday Field -->
-    <div>
-      <label for="birthday" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-        {% if LANGUAGE_CODE == 'ar' %}
-        تاريخ الميلاد
-        {% else %}
-        Birthday
-        {% endif %}
-      </label>
-      <div>
-        {{ student_form.birthday }}
-      </div>
-    </div>
-
-    <!-- Profile Image Field -->
-    <div>
-      <label for="profile_image_base64" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-        {% if LANGUAGE_CODE == 'ar' %}
-        صورة الملف الشخصي
-        {% else %}
-        Profile Image
-        {% endif %}
-      </label>
-      <div>
-        {{ student_form.profile_image_base64 }}
-      </div>
-    </div>
-
             <div>
-              <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label for="{{ student_form.full_name.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                الاسم الكامل
+                {% else %}
+                Full Name
+                {% endif %}
+                <span class="text-red-500">*</span>
+              </label>
+              <div>
+                {{ student_form.full_name }}
+              </div>
+              <div id="full_name_error" class="text-red-500 text-sm mt-1 hidden"></div>
+              {% if student_form.full_name.errors %}
+                {% for error in student_form.full_name.errors %}
+                  <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+              <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                {% if LANGUAGE_CODE == 'ar' %}
+                الاسم الأول واسم العائلة (3 أحرف على الأقل)
+                {% else %}
+                First and last name (at least 3 characters)
+                {% endif %}
+              </p>
+            </div>
+
+            <!-- Phone Field -->
+            <div>
+              <label for="{{ student_form.phone.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                رقم الهاتف
+                {% else %}
+                Phone Number
+                {% endif %}
+                <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <span class="text-gray-500 sm:text-sm">+966</span>
+                </div>
+                {{ student_form.phone }}
+              </div>
+              <div id="phone_error" class="text-red-500 text-sm mt-1 hidden"></div>
+              {% if student_form.phone.errors %}
+                {% for error in student_form.phone.errors %}
+                  <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+              <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                {% if LANGUAGE_CODE == 'ar' %}
+                رقم جوال سعودي يبدأ بـ 5 (مثال: 512345678)
+                {% else %}
+                Saudi mobile number starting with 5 (example: 512345678)
+                {% endif %}
+              </p>
+            </div>
+
+            <!-- Birthday Field -->
+            <div>
+              <label for="{{ student_form.birthday.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                تاريخ الميلاد
+                {% else %}
+                Birthday
+                {% endif %}
+                <span class="text-red-500">*</span>
+              </label>
+              <div>
+                {{ student_form.birthday }}
+              </div>
+              <div id="birthday_error" class="text-red-500 text-sm mt-1 hidden"></div>
+              {% if student_form.birthday.errors %}
+                {% for error in student_form.birthday.errors %}
+                  <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+            </div>
+
+            <!-- Profile Image Field -->
+            <div>
+              <label for="{{ student_form.profile_image_base64.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {% if LANGUAGE_CODE == 'ar' %}
+                صورة الملف الشخصي
+                {% else %}
+                Profile Image
+                {% endif %}
+                <span class="text-slate-500">({% if LANGUAGE_CODE == 'ar' %}اختياري{% else %}Optional{% endif %})</span>
+              </label>
+              <div class="file-upload-container">
+                <input type="file"
+                       id="{{ student_form.profile_image_base64.id_for_label }}"
+                       name="{{ student_form.profile_image_base64.name }}"
+                       accept=".jpg,.jpeg,.png,.gif"
+                       class="hidden">
+                <label for="{{ student_form.profile_image_base64.id_for_label }}" class="file-upload-label">
+                  <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <span class="file-upload-text">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    اختر صورة
+                    {% else %}
+                    Choose Image
+                    {% endif %}
+                  </span>
+                </label>
+                <div id="profile_image_name" class="file-name-display"></div>
+              </div>
+              <div id="profile_image_error" class="text-red-500 text-sm mt-1 hidden"></div>
+              {% if student_form.profile_image_base64.errors %}
+                {% for error in student_form.profile_image_base64.errors %}
+                  <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+              <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                {% if LANGUAGE_CODE == 'ar' %}
+                صورة بصيغة JPG أو PNG، الحد الأقصى 2 ميجابايت
+                {% else %}
+                JPG or PNG image, maximum 2MB
+                {% endif %}
+              </p>
+            </div>
+
+            <!-- Password -->
+            <div>
+              <label for="student_password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 {% if LANGUAGE_CODE == 'ar' %}
                 كلمة المرور
                 {% else %}
                 Password
                 {% endif %}
+                <span class="text-red-500">*</span>
               </label>
-              <div>
-                <input id="password" name="password" type="password" required
+              <div class="relative">
+                <input id="student_password" name="password" type="password" required
+                       minlength="8" maxlength="128"
                        class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
+                <button type="button" id="toggle-password" class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                  <svg id="eye-icon" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
               </div>
+              <div id="student_password_error" class="text-red-500 text-sm mt-1 hidden"></div>
+              <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                {% if LANGUAGE_CODE == 'ar' %}
+                8 أحرف على الأقل، يجب أن تحتوي على حرف ورقم
+                {% else %}
+                At least 8 characters, must contain letter and number
+                {% endif %}
+              </p>
             </div>
 
             <div class="pt-4">
@@ -171,216 +272,26 @@
           </form>
         </div>
 
-        <!-- Club Form (Director Sign-Up) -->
-        <div id="club-form" class="tab-content hidden bg-slate-50 dark:bg-slate-900 rounded-xl p-6 md:p-8">
-          <form class="space-y-6" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="hidden" name="account_type" value="2">
-
-            <div class="mb-6">
-              <h3 class="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                معلومات المستخدم
-                {% else %}
-                User Information
-                {% endif %}
-              </h3>
+        <!-- Vendor Registration Redirect -->
+        <div id="vendor-form" class="tab-content hidden bg-slate-50 dark:bg-slate-900 rounded-xl p-6 md:p-8">
+          <div class="text-center py-12">
+            <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
             </div>
-
-            <div>
-              <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                اسم المستخدم
-                {% else %}
-                Username
-                {% endif %}
-              </label>
-              <div>
-                <input id="username" name="username" type="text" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
-              </div>
-            </div>
-
-            <div>
-              <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                البريد الالكتروني
-                {% else %}
-                Email
-                {% endif %}
-              </label>
-              <div>
-                <input id="email" name="email" type="email" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
-              </div>
-            </div>
-
-            <div>
-              <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                كلمة المرور
-                {% else %}
-                Password
-                {% endif %}
-              </label>
-              <div>
-                <input id="password" name="password" type="password" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
-              </div>
-            </div>
-
-            <div>
-              <label for="phone" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                رقم الهاتف
-                {% else %}
-                Phone Number
-                {% endif %}
-              </label>
-              <div>
-                <input id="phone" name="phone" type="text" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
-              </div>
-            </div>
-
-            <div class="mb-6 pt-6">
-              <h3 class="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                معلومات النادي
-                {% else %}
-                Salon Information
-                {% endif %}
-              </h3>
-            </div>
-
-            <div>
-              <label for="club_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                اسم النادي
-                {% else %}
-                Salon Name
-                {% endif %}
-              </label>
-              <div>
-                <input id="club_name" name="club_name" type="text" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
-              </div>
-            </div>
-
-            <div>
-              <label for="city" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                المدينة
-                {% else %}
-                City
-                {% endif %}
-              </label>
-              <div>
-                {% if director_form.city %}
-                {{ director_form.city }}
-                {% else %}
-                <p class="text-red-500 text-sm">
-                  {% if LANGUAGE_CODE == 'ar' %}
-                  ⚠️ خطأ: لم يتم تحميل حقل المدينة بشكل صحيح.
-                  {% else %}
-                  ⚠️ Error: City field not loaded properly.
-                  {% endif %}
-                </p>
-                {% endif %}
-              </div>
-            </div>
-
-            <div>
-              <label for="street" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                الشارع
-                {% else %}
-                Street
-                {% endif %}
-              </label>
-              <div>
-                <input id="street" name="street" type="text" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
-              </div>
-            </div>
-
-            <div>
-              <label for="desc" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                وصف قصير
-                {% else %}
-                Short Description
-                {% endif %}
-              </label>
-              <div>
-                <textarea id="desc" name="desc" rows="2"
-                          class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"></textarea>
-              </div>
-            </div>
-
-            <div>
-              <label for="about" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                عن النادي
-                {% else %}
-                About the Salon
-                {% endif %}
-              </label>
-              <div>
-                <textarea id="about" name="about" rows="3"
-                          class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"></textarea>
-              </div>
-            </div>
-
-            <div>
-              <label for="club_logo" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                شعار النادي
-                {% else %}
-                Salon Logo
-                {% endif %}
-              </label>
-              <div>
-                <input id="club_logo" name="club_profile_image_base64" type="file"
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-              </div>
-            </div>
-
-            <div class="pt-4">
-              <button type="submit"
-                      class="w-full rounded-full bg-blue-500 px-6 py-3 text-lg font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                إنشاء حساب نادي
-                {% else %}
-                Create Salon Account
-                {% endif %}
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Vendor Form - Now redirects to multi-step process -->
-        <div id="vendor-form" class="tab-content hidden bg-slate-50 dark:bg-slate-900 rounded-xl p-8 text-center">
-          <div class="space-y-6">
-            <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto">
-              <div class="text-3xl text-blue-500">
-                <i class="fas fa-store"></i>
-              </div>
-            </div>
-
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
               {% if LANGUAGE_CODE == 'ar' %}
-              تسجيل بائع
+              تسجيل البائعين
               {% else %}
               Vendor Registration
               {% endif %}
             </h3>
-
-            <p class="text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto">
+            <p class="text-slate-600 dark:text-slate-300 mb-8 max-w-xl mx-auto">
               {% if LANGUAGE_CODE == 'ar' %}
-              نقدم لك تجربة تسجيل محسّنة مع خطوات واضحة ومنظمة لضمان دقة المعلومات وسرعة المراجعة
+              تسجيل البائعين يتطلب خطوات متعددة. انقر على الزر أدناه للانتقال إلى نموذج التسجيل الكامل.
               {% else %}
-              We offer you an enhanced registration experience with clear and organized steps to ensure information accuracy and quick review
+              Vendor registration requires multiple steps. Click the button below to go to the full registration form.
               {% endif %}
             </p>
 
@@ -394,79 +305,6 @@
               <i class="fas fa-arrow-left text-lg ml-2 {% if LANGUAGE_CODE == 'ar' %}rotate-180{% endif %}"></i>
             </a>
           </div>
-        </div>
-
-        <!-- Receptionist Form -->
-        <div id="receptionist-form" class="tab-content hidden bg-slate-50 dark:bg-slate-900 rounded-xl p-6 md:p-8">
-          <form class="space-y-6" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="account_type" value="5">
-
-            <div class="mb-6">
-              <h3 class="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                معلومات المستخدم
-                {% else %}
-                User Information
-                {% endif %}
-              </h3>
-            </div>
-
-            <div>
-              <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                اسم المستخدم
-                {% else %}
-                Username
-                {% endif %}
-              </label>
-              <div>
-                <input id="username" name="username" type="text" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
-              </div>
-            </div>
-
-            <div>
-              <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                البريد الالكتروني
-                {% else %}
-                Email
-                {% endif %}
-              </label>
-              <div>
-                <input id="email" name="email" type="email" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
-              </div>
-            </div>
-
-            <div>
-              <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                كلمة المرور
-                {% else %}
-                Password
-                {% endif %}
-              </label>
-              <div>
-                <input id="password" name="password" type="password" required
-                       class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300" />
-              </div>
-            </div>
-
-            {{ receptionist_form.as_p }}
-
-            <div class="pt-4">
-              <button type="submit"
-                      class="w-full rounded-full bg-blue-500 px-6 py-3 text-lg font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                {% if LANGUAGE_CODE == 'ar' %}
-                انشاء حساب موظف استقبال
-                {% else %}
-                Create Receptionist Account
-                {% endif %}
-              </button>
-            </div>
-          </form>
         </div>
       </div>
     </div>
@@ -497,49 +335,74 @@
   display: none;
 }
 
-/* Style form fields to match index.html */
-select {
+/* Input validation styles */
+input.error, select.error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+input.success, select.success {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Phone input special padding for country code */
+#{{ student_form.phone.id_for_label }} {
+  padding-left: 60px;
+}
+
+/* File Upload Styling */
+.file-upload-container {
+  position: relative;
+}
+
+.file-upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #cbd5e1;
+  padding: 30px 20px;
+  border: 2px dashed #cbd5e1;
   border-radius: 12px;
-  background-color: white;
-  color: #0f172a;
+  background-color: #f8fafc;
+  color: #64748b;
   font-size: 16px;
+  cursor: pointer;
   transition: all 0.3s ease;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  background-size: 20px;
 }
 
-select:focus {
-  outline: none;
+.file-upload-label:hover {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background-color: #eff6ff;
+  color: #3b82f6;
 }
 
-/* Dark mode styles for form fields */
-.dark select {
-  background-color: #334155;
-  border-color: #475569;
-  color: #f1f5f9;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+.file-upload-container.has-file .file-upload-label {
+  border-color: #10b981;
+  background-color: #f0fdf4;
+  color: #059669;
 }
 
-.dark textarea {
-  background-color: #334155;
-  border-color: #475569;
-  color: #f1f5f9;
+.file-name-display {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  border-radius: 0.375rem;
+  text-align: center;
+  display: none;
 }
 
-.dark textarea:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+.file-name-display.show {
+  display: block;
 }
 
-/* Animation for tab switching */
+.file-name-display.success {
+  color: #059669;
+  background-color: #d1fae5;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -550,40 +413,11 @@ select:focus {
     transform: translateY(0);
   }
 }
-
-/* Form labels styling */
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-/* File input styling */
-input[type="file"]::-webkit-file-upload-button {
-  visibility: hidden;
-}
-
-input[type="file"]::before {
-  content: 'Choose file';
-  display: inline-block;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .tab-btn {
-    padding: 10px 16px;
-    font-size: 0.875rem;
-  }
-}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Tab switching
   const tabs = document.querySelectorAll('.tab-btn');
   const contents = document.querySelectorAll('.tab-content');
 
@@ -591,16 +425,315 @@ document.addEventListener('DOMContentLoaded', function() {
     tab.addEventListener('click', function() {
       const targetId = this.id.replace('-tab', '-form');
 
-      // Remove active class from all tabs
       tabs.forEach(t => t.classList.remove('active-tab'));
-      // Add active class to clicked tab
       this.classList.add('active-tab');
 
-      // Hide all content
       contents.forEach(content => content.classList.add('hidden'));
-      // Show target content
       document.getElementById(targetId).classList.remove('hidden');
     });
+  });
+
+  // Student form validation
+  const studentForm = document.getElementById('student-registration-form');
+  const usernameInput = document.getElementById('student_username');
+  const emailInput = document.getElementById('student_email');
+  const fullNameInput = document.getElementById('{{ student_form.full_name.id_for_label }}');
+  const phoneInput = document.getElementById('{{ student_form.phone.id_for_label }}');
+  const birthdayInput = document.getElementById('{{ student_form.birthday.id_for_label }}');
+  const profileImageInput = document.getElementById('{{ student_form.profile_image_base64.id_for_label }}');
+  const passwordInput = document.getElementById('student_password');
+  const togglePassword = document.getElementById('toggle-password');
+
+  // Password visibility toggle
+  if (togglePassword) {
+    togglePassword.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+    });
+  }
+
+  // Validation functions
+  function validateUsername() {
+    const value = usernameInput.value.trim();
+    const errorDiv = document.getElementById('student_username_error');
+
+    if (!value) {
+      showError(usernameInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}اسم المستخدم مطلوب{% else %}Username is required{% endif %}');
+      return false;
+    }
+
+    if (value.length < 3) {
+      showError(usernameInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}اسم المستخدم يجب أن يكون 3 أحرف على الأقل{% else %}Username must be at least 3 characters{% endif %}');
+      return false;
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+      showError(usernameInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}اسم المستخدم يجب أن يحتوي على حروف وأرقام فقط{% else %}Username must contain only letters and numbers{% endif %}');
+      return false;
+    }
+
+    showSuccess(usernameInput, errorDiv);
+    return true;
+  }
+
+  function validateEmail() {
+    const value = emailInput.value.trim().toLowerCase();
+    const errorDiv = document.getElementById('student_email_error');
+
+    if (!value) {
+      showError(emailInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}البريد الإلكتروني مطلوب{% else %}Email is required{% endif %}');
+      return false;
+    }
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+      showError(emailInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}البريد الإلكتروني غير صحيح{% else %}Invalid email address{% endif %}');
+      return false;
+    }
+
+    emailInput.value = value;
+    showSuccess(emailInput, errorDiv);
+    return true;
+  }
+
+  function validateFullName() {
+    const value = fullNameInput.value.trim();
+    const errorDiv = document.getElementById('full_name_error');
+
+    if (!value) {
+      showError(fullNameInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}الاسم الكامل مطلوب{% else %}Full name is required{% endif %}');
+      return false;
+    }
+
+    if (value.length < 3) {
+      showError(fullNameInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}الاسم يجب أن يكون 3 أحرف على الأقل{% else %}Name must be at least 3 characters{% endif %}');
+      return false;
+    }
+
+    if (!/^[\u0600-\u06FFa-zA-Z\s]+$/.test(value)) {
+      showError(fullNameInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}الاسم يجب أن يحتوي على حروف فقط{% else %}Name must contain only letters{% endif %}');
+      return false;
+    }
+
+    const words = value.split(/\s+/).filter(word => word.length > 0);
+    if (words.length < 2) {
+      showError(fullNameInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}يرجى إدخال الاسم الأول واسم العائلة{% else %}Please enter first and last name{% endif %}');
+      return false;
+    }
+
+    showSuccess(fullNameInput, errorDiv);
+    return true;
+  }
+
+  function validatePhone() {
+    const value = phoneInput.value.trim().replace(/[\s\-\(\)\+]/g, '');
+    const errorDiv = document.getElementById('phone_error');
+
+    if (!value) {
+      showError(phoneInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}رقم الهاتف مطلوب{% else %}Phone number is required{% endif %}');
+      return false;
+    }
+
+    let cleanedPhone = value;
+    if (cleanedPhone.startsWith('966')) {
+      cleanedPhone = cleanedPhone.substring(3);
+    } else if (cleanedPhone.startsWith('00966')) {
+      cleanedPhone = cleanedPhone.substring(5);
+    } else if (cleanedPhone.startsWith('+966')) {
+      cleanedPhone = cleanedPhone.substring(4);
+    }
+
+    if (cleanedPhone.startsWith('0')) {
+      cleanedPhone = cleanedPhone.substring(1);
+    }
+
+    if (!/^5[0-9]{8}$/.test(cleanedPhone)) {
+      showError(phoneInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}رقم جوال سعودي غير صحيح. يجب أن يبدأ بـ 5 ويتكون من 9 أرقام{% else %}Invalid Saudi mobile number. Must start with 5 and contain 9 digits{% endif %}');
+      return false;
+    }
+
+    phoneInput.value = cleanedPhone;
+    showSuccess(phoneInput, errorDiv);
+    return true;
+  }
+
+  function validateBirthday() {
+    const value = birthdayInput.value;
+    const errorDiv = document.getElementById('birthday_error');
+
+    if (!value) {
+      showError(birthdayInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}تاريخ الميلاد مطلوب{% else %}Birthday is required{% endif %}');
+      return false;
+    }
+
+    const birthday = new Date(value);
+    const today = new Date();
+
+    if (birthday > today) {
+      showError(birthdayInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}تاريخ الميلاد لا يمكن أن يكون في المستقبل{% else %}Birthday cannot be in the future{% endif %}');
+      return false;
+    }
+
+    const minAge = new Date();
+    minAge.setFullYear(minAge.getFullYear() - 5);
+    if (birthday > minAge) {
+      showError(birthdayInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}يجب أن يكون العمر 5 سنوات على الأقل{% else %}Must be at least 5 years old{% endif %}');
+      return false;
+    }
+
+    const maxAge = new Date();
+    maxAge.setFullYear(maxAge.getFullYear() - 100);
+    if (birthday < maxAge) {
+      showError(birthdayInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}العمر المدخل غير صحيح{% else %}Invalid age entered{% endif %}');
+      return false;
+    }
+
+    showSuccess(birthdayInput, errorDiv);
+    return true;
+  }
+
+  function validateProfileImage() {
+    const file = profileImageInput.files[0];
+    const errorDiv = document.getElementById('profile_image_error');
+    const nameDiv = document.getElementById('profile_image_name');
+    const container = profileImageInput.closest('.file-upload-container');
+
+    container.classList.remove('has-file');
+    nameDiv.classList.remove('success', 'show');
+    errorDiv.classList.add('hidden');
+
+    if (!file) {
+      return true; // Optional field
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      showError(profileImageInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}حجم الصورة يجب أن يكون أقل من 2 ميجابايت{% else %}Image size must be less than 2MB{% endif %}');
+      return false;
+    }
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      showError(profileImageInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}نوع الملف غير مدعوم. يرجى رفع صورة{% else %}File type not supported. Please upload an image{% endif %}');
+      return false;
+    }
+
+    container.classList.add('has-file');
+    nameDiv.textContent = `✓ ${file.name}`;
+    nameDiv.classList.add('success', 'show');
+    errorDiv.classList.add('hidden');
+    return true;
+  }
+
+  function validatePassword() {
+    const value = passwordInput.value;
+    const errorDiv = document.getElementById('student_password_error');
+
+    if (!value) {
+      showError(passwordInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}كلمة المرور مطلوبة{% else %}Password is required{% endif %}');
+      return false;
+    }
+
+    if (value.length < 8) {
+      showError(passwordInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}كلمة المرور يجب أن تكون 8 أحرف على الأقل{% else %}Password must be at least 8 characters{% endif %}');
+      return false;
+    }
+
+    if (!/[a-zA-Z]/.test(value)) {
+      showError(passwordInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}كلمة المرور يجب أن تحتوي على حرف واحد على الأقل{% else %}Password must contain at least one letter{% endif %}');
+      return false;
+    }
+
+    if (!/\d/.test(value)) {
+      showError(passwordInput, errorDiv, '{% if LANGUAGE_CODE == "ar" %}كلمة المرور يجب أن تحتوي على رقم واحد على الأقل{% else %}Password must contain at least one number{% endif %}');
+      return false;
+    }
+
+    showSuccess(passwordInput, errorDiv);
+    return true;
+  }
+
+  function showError(input, errorDiv, message) {
+    input.classList.remove('success');
+    input.classList.add('error');
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('hidden');
+  }
+
+  function showSuccess(input, errorDiv) {
+    input.classList.remove('error');
+    input.classList.add('success');
+    errorDiv.textContent = '';
+    errorDiv.classList.add('hidden');
+  }
+
+  // Event listeners
+  usernameInput.addEventListener('blur', validateUsername);
+  emailInput.addEventListener('blur', validateEmail);
+  fullNameInput.addEventListener('blur', validateFullName);
+  phoneInput.addEventListener('blur', validatePhone);
+  birthdayInput.addEventListener('blur', validateBirthday);
+  profileImageInput.addEventListener('change', validateProfileImage);
+  passwordInput.addEventListener('blur', validatePassword);
+
+  // Real-time validation
+  usernameInput.addEventListener('input', function() {
+    if (this.classList.contains('error') || this.classList.contains('success')) {
+      validateUsername();
+    }
+  });
+
+  emailInput.addEventListener('input', function() {
+    if (this.classList.contains('error') || this.classList.contains('success')) {
+      validateEmail();
+    }
+  });
+
+  fullNameInput.addEventListener('input', function() {
+    if (this.classList.contains('error') || this.classList.contains('success')) {
+      validateFullName();
+    }
+  });
+
+  phoneInput.addEventListener('input', function() {
+    this.value = this.value.replace(/[^\d]/g, '');
+    if (this.classList.contains('error') || this.classList.contains('success')) {
+      validatePhone();
+    }
+  });
+
+  birthdayInput.addEventListener('change', function() {
+    if (this.classList.contains('error') || this.classList.contains('success')) {
+      validateBirthday();
+    }
+  });
+
+  passwordInput.addEventListener('input', function() {
+    if (this.classList.contains('error') || this.classList.contains('success')) {
+      validatePassword();
+    }
+  });
+
+  // Form submission
+  studentForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const isUsernameValid = validateUsername();
+    const isEmailValid = validateEmail();
+    const isFullNameValid = validateFullName();
+    const isPhoneValid = validatePhone();
+    const isBirthdayValid = validateBirthday();
+    const isProfileImageValid = validateProfileImage();
+    const isPasswordValid = validatePassword();
+
+    if (isUsernameValid && isEmailValid && isFullNameValid && isPhoneValid &&
+        isBirthdayValid && isProfileImageValid && isPasswordValid) {
+      this.submit();
+    } else {
+      const firstError = document.querySelector('.error');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+      }
+    }
   });
 });
 </script>

@@ -8,14 +8,18 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 
 
+from django.contrib.auth.models import User
+from datetime import date, timedelta
+import re
 class StudentProfileForm(forms.ModelForm):
-    """Form for creating/updating a student profile."""
+    """Form for creating/updating a student profile with comprehensive validation."""
 
     profile_image_base64 = forms.FileField(
         label="صورة الملف الشخصي",
         required=False,
         widget=forms.FileInput(attrs={
-            'class': "w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            'class': "w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300",
+            'accept': '.jpg,.jpeg,.png,.gif'
         })
     )
 
@@ -24,10 +28,30 @@ class StudentProfileForm(forms.ModelForm):
         fields = ['full_name', 'phone', 'birthday', 'profile_image_base64']
 
         widgets = {
-            'full_name': forms.TextInput(attrs={'class': "w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ", 'placeholder': 'Full Name / الاسم الكامل'}),
-            'phone': forms.TextInput(attrs={'class': "w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500", 'placeholder': 'Phone Number / رقم الهاتف'}),
-            'birthday': forms.DateInput(format=('%d-%m-%Y'), attrs={'type': 'date', 'class': "w-full px-3 py-2 border border-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"}),
+            'full_name': forms.TextInput(attrs={
+                'class': "w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300",
+                'placeholder': 'الاسم الكامل / Full Name',
+                'required': True,
+                'minlength': '3',
+                'maxlength': '100'
+            }),
+            'phone': forms.TextInput(attrs={
+                'class': "w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300",
+                'placeholder': '5XXXXXXXX',
+                'required': True,
+                'pattern': '^5[0-9]{8}$',
+                'title': 'يرجى إدخال رقم جوال سعودي صحيح يبدأ بـ 5 ومكون من 9 أرقام',
+                'maxlength': '9',
+                'dir': 'ltr'
+            }),
+            'birthday': forms.DateInput(attrs={
+                'type': 'date',
+                'class': "w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300",
+                'required': True,
+                'max': date.today().isoformat()
+            }),
         }
+
         labels = {
             'full_name': 'الاسم الكامل',
             'phone': 'رقم الهاتف',
@@ -35,22 +59,125 @@ class StudentProfileForm(forms.ModelForm):
             'profile_image_base64': 'صورة الملف الشخصي',
         }
 
+    def clean_full_name(self):
+        """Validate full name."""
+        full_name = self.cleaned_data.get('full_name', '').strip()
+
+        if not full_name:
+            raise ValidationError("الاسم الكامل مطلوب")
+
+        if len(full_name) < 3:
+            raise ValidationError("الاسم يجب أن يكون 3 أحرف على الأقل")
+
+        if len(full_name) > 100:
+            raise ValidationError("الاسم يجب ألا يزيد عن 100 حرف")
+
+        # Check if name contains only letters, spaces, and Arabic/English characters
+        if not re.match(r'^[\u0600-\u06FFa-zA-Z\s]+$', full_name):
+            raise ValidationError("الاسم يجب أن يحتوي على حروف فقط")
+
+        # Check for at least two words (first name and last name)
+        words = full_name.split()
+        if len(words) < 2:
+            raise ValidationError("يرجى إدخال الاسم الأول واسم العائلة على الأقل")
+
+        return full_name
+
+    def clean_phone(self):
+        """Validate Saudi Arabian phone number."""
+        phone = self.cleaned_data.get('phone', '').strip()
+
+        # Remove any spaces, dashes, or parentheses
+        phone = re.sub(r'[\s\-\(\)\+]', '', phone)
+
+        # Remove country code if present
+        if phone.startswith('966'):
+            phone = phone[3:]
+        elif phone.startswith('00966'):
+            phone = phone[5:]
+        elif phone.startswith('+966'):
+            phone = phone[4:]
+
+        # Remove leading zero if present
+        if phone.startswith('0'):
+            phone = phone[1:]
+
+        # Validate Saudi phone number format (must start with 5 and be 9 digits)
+        if not re.match(r'^5[0-9]{8}$', phone):
+            raise ValidationError(
+                "رقم الجوال غير صحيح. يجب أن يبدأ بـ 5 ويتكون من 9 أرقام (مثال: 512345678)"
+            )
+
+        # Check if phone number already exists
+        if self.instance.pk:
+            # Updating existing profile
+            if StudentProfile.objects.filter(phone=phone).exclude(pk=self.instance.pk).exists():
+                raise ValidationError("رقم الهاتف مسجل مسبقاً")
+        else:
+            # Creating new profile
+            if StudentProfile.objects.filter(phone=phone).exists():
+                raise ValidationError("رقم الهاتف مسجل مسبقاً")
+
+        return phone
+
+    def clean_birthday(self):
+        """Validate birthday."""
+        birthday = self.cleaned_data.get('birthday')
+
+        if not birthday:
+            raise ValidationError("تاريخ الميلاد مطلوب")
+
+        # Check if birthday is not in the future
+        if birthday > date.today():
+            raise ValidationError("تاريخ الميلاد لا يمكن أن يكون في المستقبل")
+
+        # Check minimum age (e.g., 5 years old)
+        min_age_date = date.today() - timedelta(days=5 * 365)
+        if birthday > min_age_date:
+            raise ValidationError("يجب أن يكون العمر 5 سنوات على الأقل")
+
+        # Check maximum age (e.g., 100 years old)
+        max_age_date = date.today() - timedelta(days=100 * 365)
+        if birthday < max_age_date:
+            raise ValidationError("العمر المدخل غير صحيح")
+
+        return birthday
+
     def clean_profile_image_base64(self):
-        """Convert uploaded image file to Base64 string before saving."""
+        """Convert uploaded image file to Base64 string with validation."""
         image_file = self.cleaned_data.get("profile_image_base64")
 
-        if image_file:
-            try:
-                image_data = image_file.read()
+        if not image_file:
+            return None
 
-                base64_encoded = base64.b64encode(image_data).decode("utf-8")
-                return base64_encoded
+        try:
+            # Validate file size (max 2MB)
+            if image_file.size > 2 * 1024 * 1024:
+                raise ValidationError("حجم الصورة يجب أن يكون أقل من 2 ميجابايت")
 
-            except Exception as e:
-                print(f"ERROR: Failed to convert student profile image to Base64: {e}")
-                raise forms.ValidationError(f"خطأ في معالجة الصورة: {e}")
+            # Validate file type
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+            file_extension = '.' + image_file.name.lower().split('.')[-1]
 
-        return None
+            if file_extension not in valid_extensions:
+                raise ValidationError("نوع الملف غير مدعوم. يرجى رفع صورة (JPG, PNG, GIF)")
+
+            # Validate MIME type
+            valid_mime_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+            if hasattr(image_file, 'content_type') and image_file.content_type not in valid_mime_types:
+                raise ValidationError("نوع الملف غير مدعوم. يرجى رفع صورة")
+
+            # Read and encode image
+            image_data = image_file.read()
+            base64_encoded = base64.b64encode(image_data).decode("utf-8")
+
+            return base64_encoded
+
+        except ValidationError:
+            raise
+        except Exception as e:
+            print(f"ERROR: Failed to convert student profile image to Base64: {e}")
+            raise ValidationError(f"خطأ في معالجة الصورة: {e}")
 
     def save(self, commit=True):
         student = super().save(commit=False)
@@ -69,6 +196,71 @@ class StudentProfileForm(forms.ModelForm):
         if commit:
             student.save()
         return student
+
+
+# Additional validation functions for username, email, and password
+def validate_username(username):
+    """Validate username for student registration."""
+    username = username.strip()
+
+    if not username:
+        raise ValidationError("اسم المستخدم مطلوب")
+
+    if len(username) < 3:
+        raise ValidationError("اسم المستخدم يجب أن يكون 3 أحرف على الأقل")
+
+    if len(username) > 30:
+        raise ValidationError("اسم المستخدم يجب ألا يزيد عن 30 حرف")
+
+    # Check if username contains only letters, numbers, and underscores
+    if not re.match(r'^[a-zA-Z0-9_]+$', username):
+        raise ValidationError("اسم المستخدم يجب أن يحتوي على حروف وأرقام فقط")
+
+    # Check if username already exists
+    if User.objects.filter(username=username).exists():
+        raise ValidationError("اسم المستخدم موجود مسبقاً")
+
+    return username
+
+
+def validate_email(email):
+    """Validate email for student registration."""
+    email = email.strip().lower()
+
+    if not email:
+        raise ValidationError("البريد الإلكتروني مطلوب")
+
+    # Basic email validation
+    if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        raise ValidationError("البريد الإلكتروني غير صحيح")
+
+    # Check if email already exists in User model
+    if User.objects.filter(email=email).exists():
+        raise ValidationError("البريد الإلكتروني مسجل مسبقاً")
+
+    return email
+
+
+def validate_password(password):
+    """Validate password for student registration."""
+    if not password:
+        raise ValidationError("كلمة المرور مطلوبة")
+
+    if len(password) < 8:
+        raise ValidationError("كلمة المرور يجب أن تكون 8 أحرف على الأقل")
+
+    if len(password) > 128:
+        raise ValidationError("كلمة المرور طويلة جداً")
+
+    # Check if password contains at least one letter
+    if not re.search(r'[a-zA-Z]', password):
+        raise ValidationError("كلمة المرور يجب أن تحتوي على حرف واحد على الأقل")
+
+    # Check if password contains at least one number
+    if not re.search(r'\d', password):
+        raise ValidationError("كلمة المرور يجب أن تحتوي على رقم واحد على الأقل")
+
+    return password
 
 
 class DirectorSignupForm(forms.Form):
