@@ -156,6 +156,15 @@ import requests
 from django.conf import settings
 from pages.models import ClubSecuritySettings
 
+from .validators import (
+    validate_signin_credentials,
+    sanitize_signin_input,
+    find_user_by_credentials,
+    validate_recaptcha,
+    check_account_status,
+    log_failed_login_attempt,
+    get_client_ip
+)
 def signin(request):
     """Step 1: Verify email/username & password, then check security settings"""
 
@@ -194,16 +203,60 @@ def signin(request):
         email_or_username = request.POST.get('email', '').strip().lower()
         password = request.POST.get('password', '')
 
-        # Find user by email or username
-        user = User.objects.filter(email=email_or_username).first()
-        if not user:
-            user = User.objects.filter(username=email_or_username).first()
+        # Step 1: Validate input format
+        validation = validate_signin_credentials(email_or_username, password)
+        if not validation['valid']:
+            context['error'] = list(validation['errors'].values())[0]
+            return render(request, 'accounts/sign/signin.html', context)
+
+        # Step 2: Sanitize input
+        email_or_username = sanitize_signin_input(email_or_username)
+
+        # Step 3: Validate reCAPTCHA if enabled
+        if context['show_recaptcha']:
+            recaptcha_response = request.POST.get('g-recaptcha-response')
+            recaptcha_result = validate_recaptcha(
+                recaptcha_response,
+                settings.RECAPTCHA_PRIVATE_KEY
+            )
+
+            if not recaptcha_result['valid']:
+                context['error'] = recaptcha_result['error']
+                return render(request, 'accounts/sign/signin.html', context)
+
+        # Step 4: Find user
+        user = find_user_by_credentials(email_or_username)
 
         if not user:
-            return render(request, 'accounts/sign/signin.html',
-                          {"error": "البريد الإلكتروني أو كلمة المرور غير صحيحة."})
+            # Log failed attempt
+            ip_address = get_client_ip(request)
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            log_failed_login_attempt(email_or_username, ip_address, user_agent)
 
-        # Check if this user belongs to a club (director, receptionist, etc.)
+            context['error'] = "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+            return render(request, 'accounts/sign/signin.html', context)
+
+        # Step 5: Check account status
+        status_check = check_account_status(user)
+        if not status_check['valid']:
+            context['error'] = status_check['error']
+            return render(request, 'accounts/sign/signin.html', context)
+
+        # Step 6: Authenticate
+        authenticated_user = authenticate(
+            username=user.username,
+            password=password
+        )
+
+        if not authenticated_user:
+            # Log failed attempt
+            ip_address = get_client_ip(request)
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            log_failed_login_attempt(email_or_username, ip_address, user_agent)
+
+            context['error'] = "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+            return render(request, 'accounts/sign/signin.html', context)
+
         club = None
         user_profile = None
         security_settings = None
@@ -212,7 +265,7 @@ def signin(request):
             user_profile = UserProfile.objects.get(user=user)
 
             # Check if this is a club user (director, receptionist, etc.)
-            if user_profile.account_type in ['2','3', '5', '6', '7', '8', '9']:
+            if user_profile.account_type in ['2', '3', '5', '6', '7', '8', '9']:
                 # Get the club associated with this user
                 if hasattr(user_profile, 'director_profile') and user_profile.director_profile:
                     club = user_profile.director_profile.club
@@ -241,53 +294,11 @@ def signin(request):
         except UserProfile.DoesNotExist:
             pass
 
-        # Check reCAPTCHA if enabled for this club
-        if security_settings and security_settings.enable_recaptcha:
-            recaptcha_response = request.POST.get('g-recaptcha-response')
-
-            if not recaptcha_response:
-                return render(request, 'accounts/sign/signin.html',
-                              {"error": "الرجاء إكمال التحقق من reCAPTCHA."})
-
-            data = {
-                'secret': settings.RECAPTCHA_PRIVATE_KEY,
-                'response': recaptcha_response
-            }
-            r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-            result = r.json()
-
-            if not result.get('success'):
-                return render(request, 'accounts/sign/signin.html',
-                              {"error": "الرجاء إكمال التحقق من reCAPTCHA."})
-
-        # Authenticate user
-        user = authenticate(username=user.username, password=password)
-
-        if not user:
-            return render(request, 'accounts/sign/signin.html',
-                          {"error": "البريد الإلكتروني أو كلمة المرور غير صحيحة."})
-
         # Check if OTP is required for this user
         otp_required = True
 
         # Admin always skips OTP
         if user_profile and user_profile.account_type == '1':
-            otp_required = False
-        if user_profile and user_profile.account_type == '2':
-            otp_required = False
-        if user_profile and user_profile.account_type == '3':
-            otp_required = False
-        if user_profile and user_profile.account_type == '4':
-            otp_required = False
-        if user_profile and user_profile.account_type == '5':
-            otp_required = False
-        if user_profile and user_profile.account_type == '6':
-            otp_required = False
-        if user_profile and user_profile.account_type == '7':
-            otp_required = False
-        if user_profile and user_profile.account_type == '8':
-            otp_required = False
-        if user_profile and user_profile.account_type == '9':
             otp_required = False
         # Check club security settings
         elif security_settings and not security_settings.enable_otp_verification:
@@ -366,7 +377,7 @@ def signin(request):
             # Check OTP method from security settings
             if security_settings and security_settings.otp_method == 'whatsapp':
                 if phone_number:
-                    return redirect('send_otp_email')
+                    return redirect('send_otp_whatsapp')
                 else:
                     # If WhatsApp is required but no phone number, fall back to email
                     return redirect('send_otp_email')
