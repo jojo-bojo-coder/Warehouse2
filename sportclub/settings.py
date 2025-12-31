@@ -248,16 +248,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Email settings (SMTP Configuration)
 # Replace with actual email details
 # ============================================================================
-# EMAIL SETTINGS (SMTP Configuration) - FIXED VERSION
+# EMAIL SETTINGS (SMTP Configuration) - RAILWAY COMPATIBLE
 # ============================================================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'af5275794@gmail.com'
-EMAIL_HOST_PASSWORD = 'tnxm zlrz lrny rzcq'  # Gmail App Password
-DEFAULT_FROM_EMAIL = 'af5275794@gmail.com'  # Use your actual email
-EMAIL_TIMEOUT = 10  # CRITICAL: Timeout after 10 seconds to prevent worker hangs
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'af5275794@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'tnxm zlrz lrny rzcq')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '10'))  # Timeout to prevent worker hangs
 # ============================================================================
 LOGIN_URL = 'http://127.0.0.1:8000/auth/signin/'
 
@@ -321,8 +321,8 @@ MAIN_CLUB_ID = 4
 MAIN_CLUB_DIRECTOR_EMAIL = "naghammohamed287@gmail.com"
 
 # WhatsApp Configuration
-WHATSAPP_SENDER_NUMBER = '+201090871358'
-WHATSAPP_ENABLED = True
+WHATSAPP_SENDER_NUMBER = os.environ.get('WHATSAPP_SENDER_NUMBER', '+201090871358')
+WHATSAPP_ENABLED = os.environ.get('WHATSAPP_ENABLED', 'True') == 'True'
 
 # OTP Configuration
 OTP_EXPIRY_MINUTES = 5

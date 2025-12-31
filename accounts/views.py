@@ -48,6 +48,10 @@ def generate_otp():
 def send_whatsapp_otp(phone_number, otp_code, user_name):
     """Send OTP via WhatsApp using pywhatkit"""
     try:
+        # Check if running on Railway (no GUI available)
+        if not settings.WHATSAPP_ENABLED or os.environ.get('RAILWAY_ENVIRONMENT'):
+            return False, "WhatsApp غير متاح في بيئة الخادم. يرجى استخدام البريد الإلكتروني."
+        
         # Clean the phone number - remove all non-digit characters
         cleaned_number = ''.join(filter(str.isdigit, phone_number))
 
@@ -83,8 +87,18 @@ def send_whatsapp_otp(phone_number, otp_code, user_name):
 فريق المنصة
         """
 
-        # Send immediately using pywhatkit
+        # Send immediately using pywhatkit (only works in local environment)
+        import pywhatkit as kit
         now = datetime.now()
+        
+        # Send WhatsApp message immediately
+        kit.sendwhatmsg_instantly(
+            formatted_number,
+            message,
+            wait_time=10,  # Wait 10 seconds before sending
+            tab_close=True,
+            close_time=3
+        )
 
         return True, "تم إرسال رمز التحقق عبر الواتساب بنجاح"
 
