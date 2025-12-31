@@ -433,121 +433,121 @@
         </form>
     </div>
 
-    <div class="animate-[fadeInUp_0.6s_ease-out_0.6s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 mt-6">
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-            <svg class="w-5 h-5 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-            {% if LANGUAGE_CODE == 'ar' %} إعدادات الأمان {% else %} Security Settings {% endif %}
-        </h2>
+<!--    <div class="animate-[fadeInUp_0.6s_ease-out_0.6s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 mt-6">-->
+<!--        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">-->
+<!--            <svg class="w-5 h-5 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>-->
+<!--            </svg>-->
+<!--            {% if LANGUAGE_CODE == 'ar' %} إعدادات الأمان {% else %} Security Settings {% endif %}-->
+<!--        </h2>-->
 
-        <form method="POST" action="{% url 'ViewClubProfile' club.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="update_security_settings" value="true">
+<!--        <form method="POST" action="{% url 'ViewClubProfile' club.id %}">-->
+<!--            {% csrf_token %}-->
+<!--            <input type="hidden" name="update_security_settings" value="true">-->
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <!-- OTP Settings -->
-                <div class="space-y-4">
-                    <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                        {% if LANGUAGE_CODE == 'ar' %} إعدادات التحقق بخطوتين {% else %} Two-Factor Authentication (OTP) {% endif %}
-                    </h3>
+<!--            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">-->
+<!--                &lt;!&ndash; OTP Settings &ndash;&gt;-->
+<!--                <div class="space-y-4">-->
+<!--                    <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-3">-->
+<!--                        {% if LANGUAGE_CODE == 'ar' %} إعدادات التحقق بخطوتين {% else %} Two-Factor Authentication (OTP) {% endif %}-->
+<!--                    </h3>-->
 
-                    <div class="flex items-center">
-                        <input
-                            type="checkbox"
-                            name="enable_otp_verification"
-                            id="enable_otp"
-                            {% if security_settings.enable_otp_verification %}checked{% endif %}
-                            class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                        >
-                        <label for="enable_otp" class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {% if LANGUAGE_CODE == 'ar' %} تفعيل التحقق بخطوتين (OTP) {% else %} Enable OTP Verification {% endif %}
-                        </label>
-                    </div>
+<!--                    <div class="flex items-center">-->
+<!--                        <input-->
+<!--                            type="checkbox"-->
+<!--                            name="enable_otp_verification"-->
+<!--                            id="enable_otp"-->
+<!--                            {% if security_settings.enable_otp_verification %}checked{% endif %}-->
+<!--                            class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"-->
+<!--                        >-->
+<!--                        <label for="enable_otp" class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">-->
+<!--                            {% if LANGUAGE_CODE == 'ar' %} تفعيل التحقق بخطوتين (OTP) {% else %} Enable OTP Verification {% endif %}-->
+<!--                        </label>-->
+<!--                    </div>-->
 
-                    <div id="otp_settings" class="space-y-4 {% if not security_settings.enable_otp_verification %}hidden{% endif %}">
-                        <div>
-                            <label for="otp_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                {% if LANGUAGE_CODE == 'ar' %} طريقة إرسال رمز التحقق {% else %} OTP Delivery Method {% endif %}
-                            </label>
-                            <select
-                                name="otp_method"
-                                id="otp_method"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                            >
-                                <option value="whatsapp" {% if security_settings.otp_method == 'whatsapp' %}selected{% endif %}>
-                                    {% if LANGUAGE_CODE == 'ar' %} واتساب {% else %} WhatsApp {% endif %}
-                                </option>
-                                <option value="email" {% if security_settings.otp_method == 'email' %}selected{% endif %}>
-                                    {% if LANGUAGE_CODE == 'ar' %} البريد الإلكتروني {% else %} Email {% endif %}
-                                </option>
-                                <option value="both" {% if security_settings.otp_method == 'both' %}selected{% endif %}>
-                                    {% if LANGUAGE_CODE == 'ar' %} كليهما {% else %} Both {% endif %}
-                                </option>
-                            </select>
-                        </div>
+<!--                    <div id="otp_settings" class="space-y-4 {% if not security_settings.enable_otp_verification %}hidden{% endif %}">-->
+<!--                        <div>-->
+<!--                            <label for="otp_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">-->
+<!--                                {% if LANGUAGE_CODE == 'ar' %} طريقة إرسال رمز التحقق {% else %} OTP Delivery Method {% endif %}-->
+<!--                            </label>-->
+<!--                            <select-->
+<!--                                name="otp_method"-->
+<!--                                id="otp_method"-->
+<!--                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"-->
+<!--                            >-->
+<!--                                <option value="whatsapp" {% if security_settings.otp_method == 'whatsapp' %}selected{% endif %}>-->
+<!--                                    {% if LANGUAGE_CODE == 'ar' %} واتساب {% else %} WhatsApp {% endif %}-->
+<!--                                </option>-->
+<!--                                <option value="email" {% if security_settings.otp_method == 'email' %}selected{% endif %}>-->
+<!--                                    {% if LANGUAGE_CODE == 'ar' %} البريد الإلكتروني {% else %} Email {% endif %}-->
+<!--                                </option>-->
+<!--                                <option value="both" {% if security_settings.otp_method == 'both' %}selected{% endif %}>-->
+<!--                                    {% if LANGUAGE_CODE == 'ar' %} كليهما {% else %} Both {% endif %}-->
+<!--                                </option>-->
+<!--                            </select>-->
+<!--                        </div>-->
 
-                        <div>
-                            <label for="otp_expiry_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                {% if LANGUAGE_CODE == 'ar' %} مدة صلاحية رمز التحقق (دقائق) {% else %} OTP Expiry (Minutes) {% endif %}
-                            </label>
-                            <input
-                                type="number"
-                                name="otp_expiry_minutes"
-                                id="otp_expiry_minutes"
-                                value="{{ security_settings.otp_expiry_minutes }}"
-                                min="1"
-                                max="60"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                            >
-                        </div>
-                    </div>
-                </div>
+<!--                        <div>-->
+<!--                            <label for="otp_expiry_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">-->
+<!--                                {% if LANGUAGE_CODE == 'ar' %} مدة صلاحية رمز التحقق (دقائق) {% else %} OTP Expiry (Minutes) {% endif %}-->
+<!--                            </label>-->
+<!--                            <input-->
+<!--                                type="number"-->
+<!--                                name="otp_expiry_minutes"-->
+<!--                                id="otp_expiry_minutes"-->
+<!--                                value="{{ security_settings.otp_expiry_minutes }}"-->
+<!--                                min="1"-->
+<!--                                max="60"-->
+<!--                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"-->
+<!--                            >-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
 
-                <!-- reCAPTCHA Settings -->
-                <div class="space-y-4">
-                    <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                        {% if LANGUAGE_CODE == 'ar' %} إعدادات reCAPTCHA {% else %} reCAPTCHA Settings {% endif %}
-                    </h3>
+<!--                &lt;!&ndash; reCAPTCHA Settings &ndash;&gt;-->
+<!--                <div class="space-y-4">-->
+<!--                    <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-3">-->
+<!--                        {% if LANGUAGE_CODE == 'ar' %} إعدادات reCAPTCHA {% else %} reCAPTCHA Settings {% endif %}-->
+<!--                    </h3>-->
 
-                    <div class="flex items-center">
-                        <input
-                            type="checkbox"
-                            name="enable_recaptcha"
-                            id="enable_recaptcha"
-                            {% if security_settings.enable_recaptcha %}checked{% endif %}
-                            class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                        >
-                        <label for="enable_recaptcha" class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {% if LANGUAGE_CODE == 'ar' %} تفعيل reCAPTCHA {% else %} Enable reCAPTCHA {% endif %}
-                        </label>
-                    </div>
+<!--                    <div class="flex items-center">-->
+<!--                        <input-->
+<!--                            type="checkbox"-->
+<!--                            name="enable_recaptcha"-->
+<!--                            id="enable_recaptcha"-->
+<!--                            {% if security_settings.enable_recaptcha %}checked{% endif %}-->
+<!--                            class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"-->
+<!--                        >-->
+<!--                        <label for="enable_recaptcha" class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %} text-sm font-medium text-gray-700 dark:text-gray-300">-->
+<!--                            {% if LANGUAGE_CODE == 'ar' %} تفعيل reCAPTCHA {% else %} Enable reCAPTCHA {% endif %}-->
+<!--                        </label>-->
+<!--                    </div>-->
 
-                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                        <div class="flex">
-                            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                            <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                {% if LANGUAGE_CODE == 'ar' %}
-                                عند تعطيل reCAPTCHA، لن يتم طلب التحقق من الروبوتات في صفحة تسجيل الدخول.
-                                {% else %}
-                                When reCAPTCHA is disabled, robot verification will not be required on the login page.
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!--                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">-->
+<!--                        <div class="flex">-->
+<!--                            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}" fill="currentColor" viewBox="0 0 20 20">-->
+<!--                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>-->
+<!--                            </svg>-->
+<!--                            <p class="text-sm text-yellow-700 dark:text-yellow-300">-->
+<!--                                {% if LANGUAGE_CODE == 'ar' %}-->
+<!--                                عند تعطيل reCAPTCHA، لن يتم طلب التحقق من الروبوتات في صفحة تسجيل الدخول.-->
+<!--                                {% else %}-->
+<!--                                When reCAPTCHA is disabled, robot verification will not be required on the login page.-->
+<!--                                {% endif %}-->
+<!--                            </p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
 
-            <div class="flex justify-end">
-                <button type="submit"
-                        class="btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2.5 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-red-300/40 dark:hover:shadow-red-700/40">
-                    {% if LANGUAGE_CODE == 'ar' %}🔒 حفظ إعدادات الأمان{% else %}🔒 Save Security Settings{% endif %}
-                </button>
-            </div>
-        </form>
-    </div>
+<!--            <div class="flex justify-end">-->
+<!--                <button type="submit"-->
+<!--                        class="btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2.5 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-red-300/40 dark:hover:shadow-red-700/40">-->
+<!--                    {% if LANGUAGE_CODE == 'ar' %}🔒 حفظ إعدادات الأمان{% else %}🔒 Save Security Settings{% endif %}-->
+<!--                </button>-->
+<!--            </div>-->
+<!--        </form>-->
+<!--    </div>-->
 </div>
 
 <script>
