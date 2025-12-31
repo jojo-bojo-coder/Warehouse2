@@ -309,110 +309,110 @@ def signin(request):
             pass
 
         # Check if OTP is required for this user
-        # otp_required = True
+        otp_required = True
 
         # Admin always skips OTP
-        # if user_profile and user_profile.account_type == '1':
-        #     otp_required = False
+        if user_profile and user_profile.account_type == '1':
+            otp_required = False
         # Check club security settings
-        # elif security_settings and not security_settings.enable_otp_verification:
-        #     otp_required = False
+        elif security_settings and security_settings.enable_otp_verification:
+            otp_required = False
             # Also skip OTP for club users if OTP is disabled
-            # if user_profile and user_profile.account_type in ['2', '3','5', '6', '7', '8', '9']:
-            #     otp_required = False
+            if user_profile and user_profile.account_type in ['2', '3','5', '6', '7', '8', '9']:
+                otp_required = False
 
         # If OTP is not required, log in directly
-        # if not otp_required:
-        #     login(request, user)
+        if not otp_required:
+            login(request, user)
 
             # Redirect based on account type
-            # try:
-            #     user_profile = UserProfile.objects.get(user=user)
-            #     account_type = user_profile.account_type
-            #
-            #     if account_type == '1':
-            #         return redirect('adminIndex')
-            #     elif account_type == '2':
-            #         return redirect('club_dashboard_index')
-            #     elif account_type == '3':
-            #         return redirect('studentIndex')
-            #     elif account_type == '4':
-            #         # Check if coach needs to select subcategories
-            #         coach_profile = user_profile.Coach_profile
-            #         if coach_profile and not coach_profile.subcategories.exists():
-            #             return redirect('select_subcategories')
-            #         return redirect('coachIndex')
-            #     elif account_type == '5':
-            #         return redirect('receptionistIndex')
-            #     elif account_type == '6':
-            #         return redirect('administrator_dashboard_index')
-            #     elif account_type == '7':
-            #         return redirect('accountant_dashboard')
-            #     elif account_type == '8':
-            #         return redirect('club_dashboard_index')
-            #     elif account_type == '9':
-            #         return redirect('club_dashboard_index')
-            #     else:
-            #         return redirect('home')
-            # except UserProfile.DoesNotExist:
-            #     return redirect('home')
+            try:
+                user_profile = UserProfile.objects.get(user=user)
+                account_type = user_profile.account_type
+
+                if account_type == '1':
+                    return redirect('adminIndex')
+                elif account_type == '2':
+                    return redirect('club_dashboard_index')
+                elif account_type == '3':
+                    return redirect('studentIndex')
+                elif account_type == '4':
+                    # Check if coach needs to select subcategories
+                    coach_profile = user_profile.Coach_profile
+                    if coach_profile and not coach_profile.subcategories.exists():
+                        return redirect('select_subcategories')
+                    return redirect('coachIndex')
+                elif account_type == '5':
+                    return redirect('receptionistIndex')
+                elif account_type == '6':
+                    return redirect('administrator_dashboard_index')
+                elif account_type == '7':
+                    return redirect('accountant_dashboard')
+                elif account_type == '8':
+                    return redirect('club_dashboard_index')
+                elif account_type == '9':
+                    return redirect('club_dashboard_index')
+                else:
+                    return redirect('home')
+            except UserProfile.DoesNotExist:
+                return redirect('home')
 
         # OTP is required - proceed with OTP flow
-        # try:
-        #     user_profile = UserProfile.objects.get(user=user)
+        try:
+            user_profile = UserProfile.objects.get(user=user)
 
             # Check if user has phone number for WhatsApp option
-            # phone_number = None
-            # if hasattr(user_profile, 'student_profile') and user_profile.student_profile:
-            #     phone_number = user_profile.student_profile.phone
-            # elif hasattr(user_profile, 'director_profile') and user_profile.director_profile:
-            #     phone_number = user_profile.director_profile.phone
-            # elif hasattr(user_profile, 'Coach_profile') and user_profile.Coach_profile:
-            #     coach_profile = user_profile.Coach_profile
-            #     phone_number = coach_profile.phone
-            # elif hasattr(user_profile, 'receptionist_profile') and user_profile.receptionist_profile:
-            #     phone_number = user_profile.receptionist_profile.phone
-            # elif hasattr(user_profile, 'administrator_profile') and user_profile.administrator_profile:
-            #     phone_number = user_profile.administrator_profile.phone
-            # elif hasattr(user_profile, 'accountant_profile') and user_profile.accountant_profile:
-            #     phone_number = user_profile.accountant_profile.phone
+            phone_number = None
+            if hasattr(user_profile, 'student_profile') and user_profile.student_profile:
+                phone_number = user_profile.student_profile.phone
+            elif hasattr(user_profile, 'director_profile') and user_profile.director_profile:
+                phone_number = user_profile.director_profile.phone
+            elif hasattr(user_profile, 'Coach_profile') and user_profile.Coach_profile:
+                coach_profile = user_profile.Coach_profile
+                phone_number = coach_profile.phone
+            elif hasattr(user_profile, 'receptionist_profile') and user_profile.receptionist_profile:
+                phone_number = user_profile.receptionist_profile.phone
+            elif hasattr(user_profile, 'administrator_profile') and user_profile.administrator_profile:
+                phone_number = user_profile.administrator_profile.phone
+            elif hasattr(user_profile, 'accountant_profile') and user_profile.accountant_profile:
+                phone_number = user_profile.accountant_profile.phone
 
             # Store user info in session for OTP method selection
-            # request.session['otp_user_id'] = user.id
-            # request.session['user_phone'] = phone_number
-            # request.session['user_email'] = user.email
-            # request.session['user_name'] = user.get_full_name() or user.username
+            request.session['otp_user_id'] = user.id
+            request.session['user_phone'] = phone_number
+            request.session['user_email'] = user.email
+            request.session['user_name'] = user.get_full_name() or user.username
 
             # Store club security settings in session for OTP handling
-            # if security_settings:
-            #     request.session['otp_expiry_minutes'] = security_settings.otp_expiry_minutes
-            #     request.session['otp_method'] = security_settings.otp_method
+            if security_settings:
+                request.session['otp_expiry_minutes'] = security_settings.otp_expiry_minutes
+                request.session['otp_method'] = security_settings.otp_method
 
             # Check OTP method from security settings
-            # if security_settings and security_settings.otp_method == 'whatsapp':
-            #     if phone_number:
-            #         return redirect('send_otp_whatsapp')
-            #     else:
+            if security_settings and security_settings.otp_method == 'whatsapp':
+                if phone_number:
+                    return redirect('send_otp_whatsapp')
+                else:
                     # If WhatsApp is required but no phone number, fall back to email
-            #         return redirect('send_otp_email')
-            # elif security_settings and security_settings.otp_method == 'email':
-            #     return redirect('send_otp_email')
-            # elif security_settings and security_settings.otp_method == 'both':
+                    return redirect('send_otp_email')
+            elif security_settings and security_settings.otp_method == 'email':
+                return redirect('send_otp_email')
+            elif security_settings and security_settings.otp_method == 'both':
                 # If both methods allowed, show selection if user has phone
-            #     if phone_number:
-            #         return redirect('select_otp_method')
-            #     else:
-            #         return redirect('send_otp_email')
-            # else:
+                if phone_number:
+                    return redirect('select_otp_method')
+                else:
+                    return redirect('send_otp_email')
+            else:
                 # Default behavior for users without security settings
-                # if phone_number:
-                #     return redirect('select_otp_method')
-                # else:
-                #     return redirect('send_otp_email')
+                if phone_number:
+                    return redirect('select_otp_method')
+                else:
+                    return redirect('send_otp_email')
 
-        # except UserProfile.DoesNotExist:
-        #     return render(request, 'accounts/sign/signin.html',
-        #                   {"error": "ملف المستخدم غير موجود."})
+        except UserProfile.DoesNotExist:
+            return render(request, 'accounts/sign/signin.html',
+                          {"error": "ملف المستخدم غير موجود."})
 
     # GET request - render login page
     context['LANGUAGE_CODE'] = translation.get_language()
