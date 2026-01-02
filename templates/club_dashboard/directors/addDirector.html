@@ -170,7 +170,7 @@
                 </svg>
                 {% if LANGUAGE_CODE == 'ar' %}اختر الدور المخصص{% else %}Select Custom Role{% endif %}
               </label>
-              <select name="custom_role" required
+              <select name="custom_role"
                       class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent hover:border-blue-300 dark:bg-gray-700 dark:text-white dark:hover:border-blue-500">
                 <option value="">{% if LANGUAGE_CODE == 'ar' %}اختر الدور{% else %}Select Role{% endif %}</option>
                 {% for role in custom_roles %}
