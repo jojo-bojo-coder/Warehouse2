@@ -304,7 +304,11 @@
                                 <option value="">{% if LANGUAGE_CODE == 'ar' %}اختر عمولة{% else %}Select Commission{% endif %}</option>
                                 {% for commission in available_commissions %}
                                 <option value="{{ commission.id }}" {% if vendor.commission_assignment and vendor.commission_assignment.commission.id == commission.id %}selected{% endif %}>
-                                    {{ commission.name }} ({{ commission.commission_rate }}%)
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                        {{ commission.name_ar|default:commission.name|default:commission.name_en }}
+                                    {% else %}
+                                        {{ commission.name_en|default:commission.name|default:commission.name_ar }}
+                                    {% endif %} ({{ commission.commission_rate }}%)
                                 </option>
                                 {% endfor %}
                             </select>

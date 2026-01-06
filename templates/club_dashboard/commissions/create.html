@@ -31,6 +31,11 @@
     <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md p-8 rounded-2xl shadow-2xl max-w-4xl mx-auto border border-white/50 dark:border-gray-700 animate-fadeInUp">
         <form method="post" id="commissionForm" class="space-y-8">
             {% csrf_token %}
+            
+            <!-- Hidden field for backward compatibility -->
+            <div style="display: none;">
+                {{ form.name }}
+            </div>
 
             <!-- Enhanced Commission Type Toggle (Only Vendor and Time Period) -->
             <div class="space-y-4">
@@ -87,28 +92,60 @@
             </div>
 
             <!-- Basic Fields with Enhanced Design -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+            <div class="grid grid-cols-1 gap-8">
+                <!-- Commission Names Section -->
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-700 dark:to-gray-700 p-6 rounded-2xl border border-indigo-200 dark:border-gray-600">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-indigo-500" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
-                        {% if LANGUAGE_CODE == 'ar' %}الوصف{% else %}Commission Name{% endif %}
-                    </label>
-                    <div class="relative">
-                        {{ form.name|add_class:"w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm dark:text-white" }}
+                        {% if LANGUAGE_CODE == 'ar' %}أسماء العمولة{% else %}Commission Names{% endif %}
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                                {% if LANGUAGE_CODE == 'ar' %}الاسم العربي{% else %}Arabic Name{% endif %}
+                            </label>
+                            <div class="relative">
+                                {{ form.name_ar|add_class:"w-full px-4 py-3 border-2 border-indigo-200 dark:border-gray-600 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm dark:text-white" }}
+                            </div>
+                            {% if form.name_ar.errors %}
+                            <p class="text-sm text-red-500 dark:text-red-400 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM13 17h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                </svg>
+                                {{ form.name_ar.errors.0 }}
+                            </p>
+                            {% endif %}
+                        </div>
 
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                                {% if LANGUAGE_CODE == 'ar' %}الاسم الإنجليزي{% else %}English Name{% endif %}
+                            </label>
+                            <div class="relative">
+                                {{ form.name_en|add_class:"w-full px-4 py-3 border-2 border-indigo-200 dark:border-gray-600 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm dark:text-white" }}
+                            </div>
+                            {% if form.name_en.errors %}
+                            <p class="text-sm text-red-500 dark:text-red-400 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM13 17h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                </svg>
+                                {{ form.name_en.errors.0 }}
+                            </p>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% if form.name.errors %}
-                    <p class="text-sm text-red-500 dark:text-red-400 flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM13 17h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                        </svg>
-                        {{ form.name.errors.0 }}
-                    </p>
-                    {% endif %}
                 </div>
 
+                <!-- Commission Rate Field -->
                 <div class="space-y-2">
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                         <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
@@ -569,6 +606,8 @@
 
         // Set custom validation messages for HTML5 validation
         const nameField = document.querySelector('input[name="name"]');
+        const nameArField = document.querySelector('input[name="name_ar"]');
+        const nameEnField = document.querySelector('input[name="name_en"]');
         const rateField = document.querySelector('input[name="commission_rate"]');
         const vendorClassificationField = document.querySelector('input[name="vendor_classification"]');
 
@@ -577,6 +616,24 @@
                 this.setCustomValidity('{% if LANGUAGE_CODE == "ar" %}يرجى إدخال اسم العمولة{% else %}Please enter commission name{% endif %}');
             });
             nameField.addEventListener('input', function() {
+                this.setCustomValidity('');
+            });
+        }
+
+        if (nameArField) {
+            nameArField.addEventListener('invalid', function() {
+                this.setCustomValidity('{% if LANGUAGE_CODE == "ar" %}يرجى إدخال الاسم العربي{% else %}Please enter Arabic name{% endif %}');
+            });
+            nameArField.addEventListener('input', function() {
+                this.setCustomValidity('');
+            });
+        }
+
+        if (nameEnField) {
+            nameEnField.addEventListener('invalid', function() {
+                this.setCustomValidity('{% if LANGUAGE_CODE == "ar" %}يرجى إدخال الاسم الإنجليزي{% else %}Please enter English name{% endif %}');
+            });
+            nameEnField.addEventListener('input', function() {
                 this.setCustomValidity('');
             });
         }

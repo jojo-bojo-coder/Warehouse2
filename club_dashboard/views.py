@@ -5279,7 +5279,7 @@ def commission_delete(request, commission_id):
     if assigned_vendors_count > 0:
         messages.error(request, f'لا يمكن حذف هذه العمولة لأنها مخصصة لـ {assigned_vendors_count} بائع')
     else:
-        commission_name = commission.name
+        commission_name = commission.get_display_name()
         commission.delete()
         messages.success(request, f'تم حذف العمولة "{commission_name}" بنجاح')
 

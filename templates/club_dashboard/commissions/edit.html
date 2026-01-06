@@ -106,6 +106,11 @@
     <div class="animate-[fadeIn_0.8s_ease-out_0.3s_both] bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 max-w-3xl mx-auto border border-gray-100 dark:border-gray-700">
         <form method="post" id="commissionForm" class="space-y-8">
             {% csrf_token %}
+            
+            <!-- Hidden field for backward compatibility -->
+            <div style="display: none;">
+                {{ form.name }}
+            </div>
 
             <!-- Commission Type (disabled for editing) -->
             <div class="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white">
@@ -126,22 +131,50 @@
             </div>
 
             <!-- Basic Fields -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                        {% if LANGUAGE_CODE == 'ar' %}الوصف{% else %}Commission Name{% endif %}
-                    </label>
-                    {{ form.name }}
-                    {% if form.name.errors %}
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            <div class="space-y-6">
+                <!-- Commission Names Section -->
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-700 dark:to-gray-700 p-6 rounded-2xl border border-indigo-200 dark:border-gray-600">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-indigo-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
-                        {{ form.name.errors.0 }}
-                    </p>
-                    {% endif %}
+                        {% if LANGUAGE_CODE == 'ar' %}أسماء العمولة{% else %}Commission Names{% endif %}
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                {% if LANGUAGE_CODE == 'ar' %}الاسم العربي{% else %}Arabic Name{% endif %}
+                            </label>
+                            {{ form.name_ar }}
+                            {% if form.name_ar.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ form.name_ar.errors.0 }}
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                {% if LANGUAGE_CODE == 'ar' %}الاسم الإنجليزي{% else %}English Name{% endif %}
+                            </label>
+                            {{ form.name_en }}
+                            {% if form.name_en.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ form.name_en.errors.0 }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
 
+                <!-- Commission Rate -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                         {% if LANGUAGE_CODE == 'ar' %}نسبة العمولة (%){% else %}Commission Rate (%){% endif %}
@@ -269,6 +302,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add styling to form fields
     const nameField = document.getElementById('{{ form.name.id_for_label }}');
+    const nameArField = document.getElementById('{{ form.name_ar.id_for_label }}');
+    const nameEnField = document.getElementById('{{ form.name_en.id_for_label }}');
     const rateField = document.getElementById('{{ form.commission_rate.id_for_label }}');
     const classificationField = document.getElementById('{{ form.vendor_classification.id_for_label }}');
     const startDateField = document.getElementById('{{ form.start_date.id_for_label }}');
@@ -276,6 +311,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const isActiveField = document.getElementById('{{ form.is_active.id_for_label }}');
 
     if (nameField) nameField.className = 'form-input';
+    if (nameArField) nameArField.className = 'form-input';
+    if (nameEnField) nameEnField.className = 'form-input';
     if (rateField) rateField.className = 'form-input';
     if (classificationField) classificationField.className = 'form-select';
     if (startDateField) startDateField.className = 'form-input';

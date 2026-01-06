@@ -344,6 +344,8 @@ class Commission(models.Model):
 
     # Basic fields
     name = models.CharField(max_length=100, verbose_name="اسم العمولة")
+    name_en = models.CharField(max_length=100, blank=True, null=True, verbose_name="English Name")
+    name_ar = models.CharField(max_length=100, blank=True, null=True, verbose_name="الاسم العربي")
     commission_type = models.CharField(
         max_length=20,
         choices=COMMISSION_TYPE_CHOICES,  # استخدام الخيارات الإنجليزية كافتراضي
@@ -423,14 +425,32 @@ class Commission(models.Model):
         verbose_name_plural = "العمولات"
         ordering = ['-created_at']
 
-    def __str__(self):
-        if self.commission_type == 'vendor':
-            return f"{self.name} - {self.vendor_classification} - {self.commission_rate}%"
+    def get_display_name(self):
+        """Get the appropriate name based on current language"""
+        language = get_language()
+        if language == 'ar':
+            return self.name_ar or self.name or self.name_en
         else:
-            return f"{self.name} - {self.start_date} إلى {self.end_date} - {self.commission_rate}%"
+            return self.name_en or self.name or self.name_ar
+
+    def __str__(self):
+        display_name = self.get_display_name()
+        if self.commission_type == 'vendor':
+            return f"{display_name} - {self.vendor_classification} - {self.commission_rate}%"
+        else:
+            return f"{display_name} - {self.start_date} إلى {self.end_date} - {self.commission_rate}%"
 
     def clean(self):
         from django.core.exceptions import ValidationError
+
+        # Ensure at least one name is provided
+        if not self.name and not self.name_ar and not self.name_en:
+            raise ValidationError('يجب إدخال اسم واحد على الأقل للعمولة')
+
+        # If no specific language names are provided, use the general name
+        if self.name and not self.name_ar and not self.name_en:
+            self.name_ar = self.name
+            self.name_en = self.name
 
         if self.commission_type == 'vendor':
             if not self.vendor_classification:
@@ -448,6 +468,9 @@ class Commission(models.Model):
             if not self.discount_amount:
                 raise ValidationError('مقدار الخصم مطلوب للخصم الزمني')
             if self.discount_amount < 0 or self.discount_amount > 100:
+                raise ValidationError('مقدار الخصم يجب أن يكون بين 0 و 100')
+            if self.vendor_classification:
+                raise ValidationError('تصنيف البائع غير مطلوب للخصم الزمني')
                 raise ValidationError('مقدار الخصم يجب أن يكون بين 0 و 100')
             if self.vendor_classification:
                 raise ValidationError('تصنيف البائع غير مطلوب للخصم الزمني')
@@ -569,7 +592,7 @@ class VendorCommissionAssignment(models.Model):
         verbose_name_plural = "تخصيصات عمولة البائعين"
 
     def __str__(self):
-        return f"{self.vendor.full_name} - {self.commission.name}"
+        return f"{self.vendor.full_name} - {self.commission.get_display_name()}"
 
 
 

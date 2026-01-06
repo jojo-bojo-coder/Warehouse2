@@ -1051,7 +1051,7 @@ class CommissionForm(forms.ModelForm):
     class Meta:
         model = Commission
         fields = [
-            'name', 'commission_type', 'commission_rate',
+            'name', 'name_en', 'name_ar', 'commission_type', 'commission_rate',
             'vendor_classification', 'start_date', 'end_date',
             'discount_amount', 'is_active'
         ]
@@ -1059,6 +1059,30 @@ class CommissionForm(forms.ModelForm):
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'أدخل الوصف',
+                'style': '''
+                            border: 2px solid #e9ecef;
+                            border-radius: 8px;
+                            padding: 12px 15px;
+                            font-size: 14px;
+                            transition: all 0.3s ease;
+                            background-color: #fff;
+                        '''
+            }),
+            'name_en': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter English Name',
+                'style': '''
+                            border: 2px solid #e9ecef;
+                            border-radius: 8px;
+                            padding: 12px 15px;
+                            font-size: 14px;
+                            transition: all 0.3s ease;
+                            background-color: #fff;
+                        '''
+            }),
+            'name_ar': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'أدخل الاسم العربي',
                 'style': '''
                             border: 2px solid #e9ecef;
                             border-radius: 8px;
@@ -1136,6 +1160,7 @@ class CommissionForm(forms.ModelForm):
         self.club = kwargs.pop('club', None)
         super().__init__(*args, **kwargs)
         self.fields['discount_amount'].required = False
+        self.fields['name'].required = False  # Make old name field optional
 
         # Set initial values based on commission type
         if not self.instance.pk:
@@ -1153,6 +1178,8 @@ class CommissionForm(forms.ModelForm):
 
         placeholders = {
             'name': 'أدخل الوصف' if language == 'ar' else 'Enter description',
+            'name_en': 'Enter English Name',
+            'name_ar': 'أدخل الاسم العربي',
             'commission_rate': 'أدخل نسبة العمولة' if language == 'ar' else 'Enter the commission percentage',
             'discount_amount': 'أدخل مقدار الخصم' if language == 'ar' else 'Enter the discount amount',
         }
@@ -1170,6 +1197,18 @@ class CommissionForm(forms.ModelForm):
         start_date = cleaned_data.get('start_date')
         end_date = cleaned_data.get('end_date')
         commission_rate = cleaned_data.get('commission_rate')
+        name = cleaned_data.get('name')
+        name_ar = cleaned_data.get('name_ar')
+        name_en = cleaned_data.get('name_en')
+
+        # Ensure at least one name is provided
+        if not name and not name_ar and not name_en:
+            raise ValidationError('يجب إدخال اسم واحد على الأقل للعمولة')
+
+        # If no specific language names are provided, use the general name
+        if name and not name_ar and not name_en:
+            cleaned_data['name_ar'] = name
+            cleaned_data['name_en'] = name
 
         # Validate vendor type commission
         if commission_type == 'vendor':

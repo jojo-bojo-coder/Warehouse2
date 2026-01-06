@@ -341,7 +341,13 @@
             <div class="p-5 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-300">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="font-medium text-gray-800 dark:text-white">{{ commission.name }}</h3>
+                        <h3 class="font-medium text-gray-800 dark:text-white">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                {{ commission.name_ar|default:commission.name|default:commission.name_en }}
+                            {% else %}
+                                {{ commission.name_en|default:commission.name|default:commission.name_ar }}
+                            {% endif %}
+                        </h3>
                         <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ commission.start_date }} - {{ commission.end_date }}</p>
                     </div>
                     <div class="flex items-center space-x-2">
