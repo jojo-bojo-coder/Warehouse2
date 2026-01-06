@@ -92,9 +92,149 @@
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
       border-color: #374151;
   }
+
+  /* Enhanced Dark Mode Table Styling */
+  .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .data-table {
+      background-color: #111827;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+      border: 1px solid #374151;
+  }
+
+  .data-table th {
+      background-color: #f8fafc;
+      padding: 1rem 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+      border-bottom: 2px solid #e2e8f0;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+  }
+
+  .dark .data-table th {
+      background-color: #1f2937 !important;
+      color: #ffffff !important;
+      border-bottom: 2px solid #6b7280 !important;
+      font-weight: 700 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      background-image: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  }
+
+  .data-table thead {
+      background-color: #f8fafc;
+  }
+
+  .dark .data-table thead {
+      background-color: #1f2937 !important;
+  }
+
+  .data-table td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      color: #4b5563;
+      background-color: white;
+      font-size: 0.875rem;
+  }
+
+  .dark .data-table td {
+      border-bottom-color: #374151;
+      color: #e5e7eb;
+      background-color: #111827;
+  }
+
+  .data-table tr:hover td {
+      background-color: #f1f5f9;
+  }
+
+  .dark .data-table tr:hover td {
+      background-color: #1f2937;
+  }
+
+  .data-table tbody tr:last-child td {
+      border-bottom: none;
+  }
+
+  /* Force dark mode table header visibility */
+  .dark .data-table th,
+  .dark .data-table thead th {
+      color: #ffffff !important;
+      background-color: #1f2937 !important;
+      border-color: #6b7280 !important;
+      font-weight: 700 !important;
+  }
+
+  /* Override any Tailwind classes in dark mode */
+  .dark th.text-gray-500 {
+      color: #ffffff !important;
+  }
+
+  .dark th.dark\:text-gray-300 {
+      color: #ffffff !important;
+  }
+
+  .dark th.dark\:text-white {
+      color: #ffffff !important;
+  }
+
+  /* Ensure table header background is visible */
+  .dark thead.bg-gray-50 {
+      background-color: #1f2937 !important;
+  }
+
+  .dark thead.dark\:bg-gray-700 {
+      background-color: #1f2937 !important;
+  }
+
+  /* Custom table header classes for maximum visibility */
+  .table-header-dark {
+      background-color: #f8fafc;
+  }
+
+  .dark .table-header-dark {
+      background-color: #1f2937 !important;
+  }
+
+  .table-header-cell {
+      padding: 1rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #374151;
+  }
+
+  .dark .table-header-cell {
+      color: #ffffff !important;
+      background-color: #1f2937 !important;
+      border-bottom: 2px solid #6b7280 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Form styling improvements for dark mode */
+  .dark textarea,
+  .dark input[type="text"],
+  .dark input[type="email"] {
+      background-color: #374151;
+      border-color: #4b5563;
+      color: #ffffff;
+  }
+
+  .dark textarea::placeholder,
+  .dark input::placeholder {
+      color: #9ca3af;
+  }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
+<div id="main-content"  class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
 
   <!-- Main Content -->
   <div class="px-4 md:px-8 pt-6">
@@ -108,7 +248,7 @@
         </div>
         {% if LANGUAGE_CODE == 'ar' %} مراجعة الفاتورة #{{ order.id }} {% else %} Review Bill #{{ order.id }} {% endif %}
       </h1>
-      <div class="flex items-center mt-2 text-gray-600 dark:text-gray-400">
+      <div class="flex items-center mt-2 text-gray-600 dark:text-white">
         <span class="mr-4">{% if LANGUAGE_CODE == 'ar' %}العميل:{% else %}Customer:{% endif %} {{ order.first_name }} {{ order.last_name }}</span>
         <span class="mr-4">|</span>
         <span>{% if LANGUAGE_CODE == 'ar' %}المبلغ:{% else %}Amount:{% endif %} {{ order.total_price }} {{ club.vat_settings.currency }}</span>
@@ -116,7 +256,7 @@
     </div>
 
     <!-- Order Details -->
-    <div class="animate-[fadeIn_0.8s_ease-out_0.2s_both] section-card">
+    <div class=" section-card">
       <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
         <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300">
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -132,9 +272,9 @@
             {% if LANGUAGE_CODE == 'ar' %} معلومات العميل {% else %} Customer Information {% endif %}
           </h3>
           <div class="space-y-3">
-            <p class="text-gray-600 dark:text-gray-400"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}الاسم:{% else %}Name:{% endif %}</span> {{ order.first_name }} {{ order.last_name }}</p>
-            <p class="text-gray-600 dark:text-gray-400"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني:{% else %}Email:{% endif %}</span> {{ order.user.email }}</p>
-            <p class="text-gray-600 dark:text-gray-400"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}الهاتف:{% else %}Phone:{% endif %}</span> {{ order.phone }}</p>
+            <p class="text-gray-600 dark:text-white"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}الاسم:{% else %}Name:{% endif %}</span> {{ order.first_name }} {{ order.last_name }}</p>
+            <p class="text-gray-600 dark:text-white"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني:{% else %}Email:{% endif %}</span> {{ order.user.email }}</p>
+            <p class="text-gray-600 dark:text-white"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}الهاتف:{% else %}Phone:{% endif %}</span> {{ order.phone }}</p>
           </div>
         </div>
 
@@ -143,9 +283,9 @@
             {% if LANGUAGE_CODE == 'ar' %} معلومات الشحن {% else %} Shipping Information {% endif %}
           </h3>
           <div class="space-y-3">
-            <p class="text-gray-600 dark:text-gray-400"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}العنوان:{% else %}Address:{% endif %}</span> {{ order.address }}</p>
-            <p class="text-gray-600 dark:text-gray-400"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}المدينة:{% else %}City:{% endif %}</span> {{ order.city }}</p>
-            <p class="text-gray-600 dark:text-gray-400"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}المنطقة:{% else %}Region:{% endif %}</span> {{ order.region }}</p>
+            <p class="text-gray-600 dark:text-white"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}العنوان:{% else %}Address:{% endif %}</span> {{ order.address }}</p>
+            <p class="text-gray-600 dark:text-white"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}المدينة:{% else %}City:{% endif %}</span> {{ order.city }}</p>
+            <p class="text-gray-600 dark:text-white"><span class="font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}المنطقة:{% else %}Region:{% endif %}</span> {{ order.region }}</p>
           </div>
         </div>
       </div>
@@ -154,19 +294,19 @@
         {% if LANGUAGE_CODE == 'ar' %} العناصر {% else %} Items {% endif %}
       </h3>
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
+          <thead class="table-header-dark">
             <tr>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}الصنف{% else %}Item{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}المجموع{% else %}Total{% endif %}
               </th>
             </tr>
@@ -174,27 +314,27 @@
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {% for item in order.items.all %}
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if item.product %}
                   {{ item.product.title }}
                 {% elif item.service %}
                   {{ item.service.title }}
                 {% endif %}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.price }} {{ club.vat_settings.currency }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.quantity }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.get_total }} {{ club.vat_settings.currency }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">{{ item.price }} {{ club.vat_settings.currency }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">{{ item.quantity }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">{{ item.get_total }} {{ club.vat_settings.currency }}</td>
             </tr>
             {% endfor %}
           </tbody>
           <tfoot class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <td colspan="3" class="px-6 py-4 text-right text-sm font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}المجموع:{% else %}Subtotal:{% endif %}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-white">{{ order.subtotal }} {{ club.vat_settings.currency }}</td>
+              <td colspan="3" class="px-6 py-4 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-right{% endif %} text-sm font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}المجموع:{% else %}Subtotal:{% endif %}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-white {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">{{ order.subtotal }} {{ club.vat_settings.currency }}</td>
             </tr>
             <tr>
-              <td colspan="3" class="px-6 py-4 text-right text-sm font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}الإجمالي:{% else %}Total:{% endif %}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-blue-600 dark:text-blue-400">{{ order.total_price }} {{ club.vat_settings.currency }}</td>
+              <td colspan="3" class="px-6 py-4 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-right{% endif %} text-sm font-medium text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}الإجمالي:{% else %}Total:{% endif %}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-blue-600 dark:text-blue-400 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">{{ order.total_price }} {{ club.vat_settings.currency }}</td>
             </tr>
           </tfoot>
         </table>
@@ -202,7 +342,7 @@
     </div>
 
     <!-- Revision Form -->
-    <div class="animate-[fadeIn_0.8s_ease-out_0.4s_both] section-card">
+    <div class=" section-card">
       <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
         <div class="p-2 bg-green-100 dark:bg-green-900 rounded-full text-green-600 dark:text-green-300">
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -236,7 +376,7 @@
     </div>
 
     <!-- Comments Section -->
-    <div class="animate-[fadeIn_0.8s_ease-out_0.6s_both] section-card">
+    <div class=" section-card">
       <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
         <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full text-yellow-600 dark:text-yellow-300">
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -256,7 +396,7 @@
           <p class="text-gray-700 dark:text-gray-300">{{ comment.comment }}</p>
         </div>
         {% empty %}
-        <p class="text-gray-500 dark:text-gray-400 text-center py-4">
+        <p class="text-gray-500 dark:text-white text-center py-4">
           {% if LANGUAGE_CODE == 'ar' %} لا توجد تعليقات {% else %} No comments yet {% endif %}
         </p>
         {% endfor %}

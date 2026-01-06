@@ -1,0 +1,291 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html {% if LANGUAGE_CODE == 'ar' %}dir="rtl" lang="ar"{% else %}dir="ltr" lang="en"{% endif %}>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+          integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <title>
+        {% block title %}
+            {% if LANGUAGE_CODE == 'ar' %}
+                الصفحة الرئيسية
+            {% else %}
+                Home Page
+            {% endif %}
+        {% endblock %}
+    </title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Cairo", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        /* RTL Support */
+        [dir="rtl"] {
+            text-align: right;
+        }
+
+        [dir="ltr"] {
+            text-align: left;
+        }
+
+        /* Basic responsive utilities */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Loading overlay */
+        #page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease-out;
+        }
+
+        #page-loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Basic button styles */
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Alert styles */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            border: 1px solid #fcd34d;
+            color: #92400e;
+        }
+
+        .alert-info {
+            background-color: #dbeafe;
+            border: 1px solid #93c5fd;
+            color: #1e40af;
+        }
+
+        /* Responsive utilities */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #111827;
+                color: #f9fafb;
+            }
+
+            #page-loader {
+                background-color: #111827;
+            }
+
+            .loader-spinner {
+                border-color: #374151;
+                border-top-color: #3b82f6;
+            }
+
+            .form-control {
+                background-color: #374151;
+                border-color: #4b5563;
+                color: #f9fafb;
+            }
+
+            .form-label {
+                color: #d1d5db;
+            }
+        }
+
+        /* Custom styles can be added here */
+        {% block extra_css %}{% endblock %}
+    </style>
+
+    {% if LANGUAGE_CODE == 'ar' %}
+    <style>
+        /* RTL specific styles */
+        body {
+            direction: rtl;
+        }
+
+        .form-control {
+            text-align: right;
+        }
+    </style>
+    {% endif %}
+
+    {% block head_extra %}{% endblock %}
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div id="page-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div style="position: fixed; top: 1rem; right: 1rem; z-index: 1000; max-width: 400px;">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }}" style="margin-bottom: 0.5rem;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        // Remove loader when page is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const loader = document.getElementById('page-loader');
+            if (loader) {
+                setTimeout(() => {
+                    loader.classList.add('fade-out');
+                    setTimeout(() => loader.remove(), 300);
+                }, 100);
+            }
+        });
+
+        // Auto-hide messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateX(100%)';
+                    setTimeout(() => alert.remove(), 300);
+                }, 5000);
+            });
+        });
+
+        {% block extra_js %}{% endblock %}
+    </script>
+
+    {% block body_extra %}{% endblock %}
+</body>
+</html>

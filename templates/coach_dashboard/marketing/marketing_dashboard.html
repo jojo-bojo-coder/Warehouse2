@@ -107,19 +107,19 @@
           {% if LANGUAGE_CODE == 'ar' %}المدة (أيام){% else %}Duration (days){% endif %} <span class="text-red-500">*</span>
         </label>
         <div class="flex items-center">
-          <button type="button" onclick="changeDuration(-1)" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-r-md border border-gray-300 dark:border-gray-600">
+          <button type="button" onclick="changeDuration(-1)" class="p-2 bg-gray-100 dark:bg-gray-700 {% if LANGUAGE_CODE == 'ar' %}rounded-r-md{% else %}rounded-l-md{% endif %} border border-gray-300 dark:border-gray-600">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
             </svg>
           </button>
           <input type="number" name="duration_days" id="durationDays" min="1" value="7"
                  class="w-20 px-3 py-2 border-t border-b border-gray-300 dark:border-gray-600 text-center dark:bg-gray-700 dark:text-white">
-          <button type="button" onclick="changeDuration(1)" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-l-md border border-gray-300 dark:border-gray-600">
+          <button type="button" onclick="changeDuration(1)" class="p-2 bg-gray-100 dark:bg-gray-700 {% if LANGUAGE_CODE == 'ar' %}rounded-l-md{% else %}rounded-r-md{% endif %} border border-gray-300 dark:border-gray-600">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
           </button>
-          <span class="mr-4 text-sm text-gray-500 dark:text-gray-400">
+          <span class="{% if LANGUAGE_CODE == 'ar' %}mr-4{% else %}ml-4{% endif %} text-sm text-gray-500 dark:text-gray-400">
             {% if LANGUAGE_CODE == 'ar' %}يوم{% else %}days{% endif %}
           </span>
         </div>
@@ -135,7 +135,7 @@
           <label class="flex items-start p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors">
             <input type="checkbox" name="features" value="{{ feature.id }}"
                    class="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-800">
-            <div class="mr-3">
+            <div class="{% if LANGUAGE_CODE == 'ar' %}mr-3{% else %}ml-3{% endif %}">
               <span class="block font-medium text-gray-900 dark:text-white">{{ feature.name }}</span>
               <span class="block text-sm text-gray-500 dark:text-gray-400">{{ feature.description }}</span>
               <span class="block text-sm text-blue-600 dark:text-blue-400 mt-1">

@@ -62,8 +62,8 @@ urlpatterns = [
     path('vendor-status/<int:vendor_id>/', views.vendor_status, name='vendor_status'),
     path('vendor-approval/', views.vendor_approval_list, name='vendor_approval_list'),
     path('vendor-approval/action/<int:vendor_id>/', views.vendor_approval_action, name='vendor_approval_action'),
-    path('vendor-approval/<int:vendor_id>/', views.vendor_approval_detail, name='vendor_approval_detail'),
     path('vendors/pending/<int:pk>/', views.VendorApprovalDetailView.as_view(), name='vendor_approval_detail'),
+    path('vendor/edit-application/<int:vendor_id>/', views.vendor_edit_application, name='vendor_edit_application'),
     path('delete-product/<int:product_id>/', views.delete_product, name='delete_product'),
     path('pending-products/', views.pending_products, name='pending_products'),
 

@@ -42,14 +42,23 @@ from .models import BillRevision, BillRevisionComment
 
 
 class BillRevisionForm(forms.ModelForm):
-    accountant_notes = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
-            'rows': 3,
-            'placeholder': 'أدخل ملاحظاتك حول هذه الفاتورة...'
-        }),
-        required=False
-    )
+    def __init__(self, *args, **kwargs):
+        language = kwargs.pop('language', 'ar')
+        super().__init__(*args, **kwargs)
+
+        placeholder_text = {
+            'ar': 'أدخل ملاحظاتك حول هذه الفاتورة...',
+            'en': 'Enter your notes about this bill...'
+        }
+
+        self.fields['accountant_notes'] = forms.CharField(
+            widget=forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'rows': 3,
+                'placeholder': placeholder_text.get(language, placeholder_text['ar'])
+            }),
+            required=False
+        )
 
     class Meta:
         model = BillRevision
@@ -57,14 +66,23 @@ class BillRevisionForm(forms.ModelForm):
 
 
 class BillRevisionCommentForm(forms.ModelForm):
-    comment = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
-            'rows': 2,
-            'placeholder': 'اضف تعليق...'
-        }),
-        required=True
-    )
+    def __init__(self, *args, **kwargs):
+        language = kwargs.pop('language', 'ar')
+        super().__init__(*args, **kwargs)
+
+        placeholder_text = {
+            'ar': 'اضف تعليق...',
+            'en': 'Add a comment...'
+        }
+
+        self.fields['comment'] = forms.CharField(
+            widget=forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'rows': 2,
+                'placeholder': placeholder_text.get(language, placeholder_text['ar'])
+            }),
+            required=True
+        )
 
     class Meta:
         model = BillRevisionComment

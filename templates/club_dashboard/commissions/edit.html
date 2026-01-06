@@ -88,10 +88,17 @@
             {% if LANGUAGE_CODE == 'ar' %} تعديل العمولة {% else %} Edit Commission {% endif %}
         </h1>
         <a href="{% url 'commission_list' %}" class="group bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm px-4 py-2 rounded-lg text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-600 font-medium flex items-center transition-all duration-300 shadow-md hover:shadow-lg border border-blue-200 dark:border-gray-600">
-            {% if LANGUAGE_CODE == 'ar' %} العودة إلى القائمة {% else %} Back to List {% endif %}
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
+            {% if LANGUAGE_CODE == 'ar' %}
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                العودة إلى القائمة
+            {% else %}
+                Back to List
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            {% endif %}
         </a>
     </div>
 

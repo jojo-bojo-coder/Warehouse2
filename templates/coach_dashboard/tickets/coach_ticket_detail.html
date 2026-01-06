@@ -48,11 +48,11 @@
     }
 
     /* Status Badges */
-    .status-open {
+    .status-active {
         background-color: #d1fae5;
         color: #065f46;
     }
-    .dark .status-open {
+    .dark .status-active {
         background-color: #064e3b;
         color: #d1fae5;
     }
@@ -82,6 +82,25 @@
     .dark .status-resolved {
         background-color: #047857;
         color: #ecfdf5;
+    }
+
+    /* Legacy status classes for backward compatibility */
+    .status-open {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    .dark .status-open {
+        background-color: #064e3b;
+        color: #d1fae5;
+    }
+
+    .status-in_progress {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    .dark .status-in_progress {
+        background-color: #92400e;
+        color: #fef3c7;
     }
 
     /* Message Bubbles */

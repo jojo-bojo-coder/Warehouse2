@@ -60,6 +60,127 @@
   .toggle-label {
     transition: background-color 0.3s ease-in-out;
   }
+
+  /* Comprehensive Dark Mode Styles */
+  .dark {
+    background-color: #111827 !important;
+  }
+
+  .dark * {
+    border-color: #374151 !important;
+  }
+
+  /* Table specific dark mode styles */
+  .dark table {
+    background-color: #1f2937 !important;
+  }
+
+  .dark thead {
+    background-color: #374151 !important;
+  }
+
+  .dark th {
+    color: #ffffff !important;
+    background-color: #374151 !important;
+  }
+
+  .dark td {
+    color: #e5e7eb !important;
+    background-color: #1f2937 !important;
+  }
+
+  .dark tbody tr {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .dark tbody tr:hover {
+    background-color: #374151 !important;
+  }
+
+  /* Text colors in dark mode */
+  .dark .text-gray-500 {
+    color: #e5e7eb !important;
+  }
+
+  .dark .text-gray-600 {
+    color: #d1d5db !important;
+  }
+
+  .dark .text-gray-700 {
+    color: #f3f4f6 !important;
+  }
+
+  .dark .text-gray-800 {
+    color: #ffffff !important;
+  }
+
+  .dark .text-gray-900 {
+    color: #ffffff !important;
+  }
+
+  /* Blue text adjustments for dark mode */
+  .dark .text-blue-600 {
+    color: #60a5fa !important;
+  }
+
+  .dark .text-blue-700 {
+    color: #3b82f6 !important;
+  }
+
+  /* Card backgrounds in dark mode */
+  .dark .bg-white {
+    background-color: #1f2937 !important;
+  }
+
+  .dark .bg-gray-50 {
+    background-color: #374151 !important;
+  }
+
+  /* Ensure all text is visible */
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #ffffff !important;
+  }
+
+  .dark p {
+    color: #e5e7eb !important;
+  }
+
+  .dark span {
+    color: #e5e7eb !important;
+  }
+
+  /* Badge colors in dark mode */
+  .dark .bg-orange-100 {
+    background-color: #ea580c !important;
+    color: #ffffff !important;
+  }
+
+  .dark .bg-gray-100 {
+    background-color: #6b7280 !important;
+    color: #ffffff !important;
+  }
+
+  .dark .bg-yellow-100 {
+    background-color: #d97706 !important;
+    color: #ffffff !important;
+  }
+
+  .dark .bg-purple-100 {
+    background-color: #7c3aed !important;
+    color: #ffffff !important;
+  }
+
+  /* Status badges */
+  .dark .bg-green-100 {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+  }
+
+  .dark .bg-red-100 {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+  }
 </style>
 
 <div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
@@ -74,10 +195,17 @@
             {% if LANGUAGE_CODE == 'ar' %} إدارة عمولات البائعين {% else %} Vendor Commission Management {% endif %}
         </h1>
         <a href="{% url 'commission_list' %}" class="group bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm px-4 py-2 rounded-lg text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-600 font-medium flex items-center transition-all duration-300 shadow-md hover:shadow-lg border border-blue-200 dark:border-gray-600">
-            {% if LANGUAGE_CODE == 'ar' %} العودة إلى القائمة {% else %} Back to Commissions {% endif %}
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
+            {% if LANGUAGE_CODE == 'ar' %}
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                العودة إلى القائمة
+            {% else %}
+                Back to Commissions
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            {% endif %}
         </a>
     </div>
 
@@ -130,19 +258,19 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">
                         {% if LANGUAGE_CODE == 'ar' %}اسم البائع{% else %}Vendor Name{% endif %}
                     </th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">
                         {% if LANGUAGE_CODE == 'ar' %}نوع النشاط{% else %}Activity Type{% endif %}
                     </th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">
                         {% if LANGUAGE_CODE == 'ar' %}التصنيف الحالي{% else %}Current Classification{% endif %}
                     </th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">
                         {% if LANGUAGE_CODE == 'ar' %}نسبة العمولة{% else %}Commission Rate{% endif %}
                     </th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th scope="col" class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">
                         {% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}
                     </th>
                 </tr>

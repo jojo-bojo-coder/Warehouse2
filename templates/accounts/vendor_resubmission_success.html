@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .container {
+        min-height: 100vh;
+        background-color: #f9fafb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+    }
+
+    .success-wrapper {
+        max-width: 28rem;
+        width: 100%;
+    }
+
+    .success-content {
+        text-align: center;
+    }
+
+    .success-icon {
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 4rem;
+        width: 4rem;
+        border-radius: 50%;
+        background-color: #dcfce7;
+        margin-bottom: 1.5rem;
+    }
+
+    .success-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #111827;
+        margin-bottom: 1rem;
+    }
+
+    .success-message {
+        color: #6b7280;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .info-box {
+        background-color: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-content {
+        display: flex;
+        align-items: flex-start;
+        text-align: right;
+    }
+
+    .info-icon {
+        flex-shrink: 0;
+        margin-left: 0.75rem;
+    }
+
+    .info-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #1e40af;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-list {
+        font-size: 0.875rem;
+        color: #1d4ed8;
+    }
+
+    .info-list ul {
+        list-style-type: disc;
+        padding-left: 1.25rem;
+        margin: 0;
+    }
+
+    .info-list li {
+        margin-bottom: 0.25rem;
+    }
+
+    .contact-text {
+        font-size: 0.875rem;
+        color: #9ca3af;
+        margin-bottom: 2rem;
+    }
+
+    .btn-home {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.375rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: white;
+        background-color: #2563eb;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-home:hover {
+        background-color: #1d4ed8;
+    }
+
+    .btn-home:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px #f3f4f6, 0 0 0 4px #2563eb;
+    }
+</style>
+
+<div class="container">
+    <div class="success-wrapper">
+        <div class="success-content">
+            <!-- Success Icon -->
+            <div class="success-icon">
+                <svg style="height: 2rem; width: 2rem; color: #16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+
+            <!-- Title -->
+            <h1 class="success-title">
+                {% if LANGUAGE_CODE == 'ar' %}
+                    تم إعادة تقديم الطلب بنجاح
+                {% else %}
+                    Application Resubmitted Successfully
+                {% endif %}
+            </h1>
+
+            <!-- Message -->
+            <p class="success-message">
+                {% if LANGUAGE_CODE == 'ar' %}
+                    شكراً لك على إعادة تقديم طلبك. سيتم مراجعة البيانات المحدثة من قبل إدارة {{ vendor.club.name }} وسنقوم بإشعارك بالنتيجة قريباً.
+                {% else %}
+                    Thank you for resubmitting your application. Your updated information will be reviewed by {{ vendor.club.name }} management and we will notify you of the result soon.
+                {% endif %}
+            </p>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <div class="info-content">
+                    <div class="info-icon">
+                        <svg style="height: 1.25rem; width: 1.25rem; color: #3b82f6;" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="info-title">
+                            {% if LANGUAGE_CODE == 'ar' %}
+                                ماذا يحدث الآن؟
+                            {% else %}
+                                What happens next?
+                            {% endif %}
+                        </h3>
+                        <div class="info-list">
+                            <ul>
+                                <li>
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                        سيتم مراجعة طلبك المحدث خلال 2-3 أيام عمل
+                                    {% else %}
+                                        Your updated application will be reviewed within 2-3 business days
+                                    {% endif %}
+                                </li>
+                                <li>
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                        ستتلقى إشعاراً عبر البريد الإلكتروني بالنتيجة
+                                    {% else %}
+                                        You will receive an email notification with the result
+                                    {% endif %}
+                                </li>
+                                <li>
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                        في حالة الموافقة، ستحصل على بيانات تسجيل الدخول
+                                    {% else %}
+                                        If approved, you will receive login credentials
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="contact-text">
+                {% if LANGUAGE_CODE == 'ar' %}
+                    إذا كان لديك أي استفسارات، يمكنك التواصل معنا عبر البريد الإلكتروني أو الهاتف.
+                {% else %}
+                    If you have any questions, you can contact us via email or phone.
+                {% endif %}
+            </div>
+
+            <!-- Action Button -->
+            <div>
+                <a href="{% url 'dashboard' %}" class="btn-home">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                        العودة للصفحة الرئيسية
+                    {% else %}
+                        Return to Home Page
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

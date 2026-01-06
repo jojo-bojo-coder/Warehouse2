@@ -1,6 +1,157 @@
 {% extends 'base_coach_dashboard.html' %}
 
 {% block content %}
+<style>
+  /* Animation Classes */
+  .animate-fadeIn {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  .animate-fadeInUp {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* Keyframes */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Custom Arabic Time Picker Styles */
+  .arabic-time-picker {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    direction: rtl;
+    flex-wrap: wrap;
+  }
+
+  .arabic-time-select {
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem;
+    background-color: white;
+    color: #1f2937;
+    font-size: 0.875rem;
+    min-width: 60px;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+  }
+
+  .dark .arabic-time-select {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+  }
+
+  .arabic-time-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6;
+  }
+
+  .dark .arabic-time-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px #2563eb;
+  }
+
+  .time-separator {
+    font-weight: bold;
+    color: #6b7280;
+    font-size: 1.125rem;
+    margin: 0 0.25rem;
+  }
+
+  .dark .time-separator {
+    color: #9ca3af;
+  }
+
+  .period-select {
+    min-width: 80px;
+  }
+
+  /* Custom Arabic Date Picker Styles */
+  .arabic-date-picker {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    direction: rtl;
+    flex-wrap: wrap;
+  }
+
+  .arabic-date-select {
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem;
+    background-color: white;
+    color: #1f2937;
+    font-size: 0.875rem;
+    min-width: 70px;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+  }
+
+  .dark .arabic-date-select {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+  }
+
+  .arabic-date-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6;
+  }
+
+  .dark .arabic-date-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px #2563eb;
+  }
+
+  .date-separator {
+    font-weight: bold;
+    color: #6b7280;
+    font-size: 1rem;
+    margin: 0 0.25rem;
+  }
+
+  .dark .date-separator {
+    color: #9ca3af;
+  }
+
+  /* Ensure original inputs are styled properly when Arabic picker is not available */
+  .time-input[type="time"], .date-input[type="date"] {
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 0.75rem;
+    background-color: white;
+    color: #1f2937;
+    font-size: 0.875rem;
+  }
+
+  .dark .time-input[type="time"], .dark .date-input[type="date"] {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+  }
+
+  /* Hide inputs when Arabic picker is active */
+  .has-arabic-picker {
+    display: none !important;
+  }
+
+  /* Input wrapper styles */
+  .time-input-wrapper, .date-input-wrapper {
+    position: relative;
+  }
+</style>
 <div class="bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
     <section class="container mx-auto px-4 pt-8 pb-16">
         <!-- Header Section -->
@@ -29,7 +180,9 @@
                             <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 {% if LANGUAGE_CODE == 'ar' %}عنوان الجدول{% else %}Schedule Title{% endif %}
                             </label>
-                            {{ form.title }}
+                            <div class="title-input-wrapper">
+                                {{ form.title }}
+                            </div>
                             {% if form.title.errors %}
                                 <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
                             {% endif %}
@@ -40,7 +193,9 @@
                                 <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     {% if LANGUAGE_CODE == 'ar' %}تاريخ البدء{% else %}Start Date{% endif %}
                                 </label>
-                                {{ form.start_date }}
+                                <div class="date-input-wrapper">
+                                    {{ form.start_date }}
+                                </div>
                                 {% if form.start_date.errors %}
                                     <p class="mt-1 text-sm text-red-600">{{ form.start_date.errors.0 }}</p>
                                 {% endif %}
@@ -50,7 +205,9 @@
                                 <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     {% if LANGUAGE_CODE == 'ar' %}تاريخ الانتهاء{% else %}End Date{% endif %}
                                 </label>
-                                {{ form.end_date }}
+                                <div class="date-input-wrapper">
+                                    {{ form.end_date }}
+                                </div>
                                 {% if form.end_date.errors %}
                                     <p class="mt-1 text-sm text-red-600">{{ form.end_date.errors.0 }}</p>
                                 {% endif %}
@@ -117,14 +274,18 @@
                                     <label for="{{ day.open_field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                         {% if LANGUAGE_CODE == 'ar' %}وقت الفتح{% else %}Opening Time{% endif %}
                                     </label>
-                                    {{ day.open_field }}
+                                    <div class="time-input-wrapper">
+                                        {{ day.open_field }}
+                                    </div>
                                 </div>
 
                                 <div>
                                     <label for="{{ day.close_field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                         {% if LANGUAGE_CODE == 'ar' %}وقت الإغلاق{% else %}Closing Time{% endif %}
                                     </label>
-                                    {{ day.close_field }}
+                                    <div class="time-input-wrapper">
+                                        {{ day.close_field }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -145,4 +306,302 @@
         </div>
     </section>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const isArabic = '{{ LANGUAGE_CODE }}' === 'ar';
+
+  if (isArabic) {
+    // Arabic numerals mapping
+    const arabicNumbers = {
+      '1': '١', '2': '٢', '3': '٣', '4': '٤', '5': '٥',
+      '6': '٦', '7': '٧', '8': '٨', '9': '٩', '10': '١٠',
+      '11': '١١', '12': '١٢', '13': '١٣', '14': '١٤', '15': '١٥',
+      '16': '١٦', '17': '١٧', '18': '١٨', '19': '١٩', '20': '٢٠',
+      '21': '٢١', '22': '٢٢', '23': '٢٣', '24': '٢٤', '25': '٢٥',
+      '26': '٢٦', '27': '٢٧', '28': '٢٨', '29': '٢٩', '30': '٣٠', '31': '٣١'
+    };
+
+    const arabicMinutes = {
+      '00': '٠٠', '01': '٠١', '02': '٠٢', '03': '٠٣', '04': '٠٤',
+      '05': '٠٥', '06': '٠٦', '07': '٠٧', '08': '٠٨', '09': '٠٩',
+      '10': '١٠', '11': '١١', '12': '١٢', '13': '١٣', '14': '١٤',
+      '15': '١٥', '16': '١٦', '17': '١٧', '18': '١٨', '19': '١٩',
+      '20': '٢٠', '21': '٢١', '22': '٢٢', '23': '٢٣', '24': '٢٤',
+      '25': '٢٥', '26': '٢٦', '27': '٢٧', '28': '٢٨', '29': '٢٩',
+      '30': '٣٠', '31': '٣١', '32': '٣٢', '33': '٣٣', '34': '٣٤',
+      '35': '٣٥', '36': '٣٦', '37': '٣٧', '38': '٣٨', '39': '٣٩',
+      '40': '٤٠', '41': '٤١', '42': '٤٢', '43': '٤٣', '44': '٤٤',
+      '45': '٤٥', '46': '٤٦', '47': '٤٧', '48': '٤٨', '49': '٤٩',
+      '50': '٥٠', '51': '٥١', '52': '٥٢', '53': '٥٣', '54': '٥٤',
+      '55': '٥٥', '56': '٥٦', '57': '٥٧', '58': '٥٨', '59': '٥٩'
+    };
+
+    const arabicMonths = {
+      '01': 'يناير', '02': 'فبراير', '03': 'مارس', '04': 'أبريل',
+      '05': 'مايو', '06': 'يونيو', '07': 'يوليو', '08': 'أغسطس',
+      '09': 'سبتمبر', '10': 'أكتوبر', '11': 'نوفمبر', '12': 'ديسمبر'
+    };
+
+    // Function to create Arabic time picker
+    function createArabicTimePicker(timeInput) {
+      // Hide original input and add class
+      timeInput.style.display = 'none';
+      timeInput.classList.add('has-arabic-picker');
+
+      // Create Arabic time picker container
+      const pickerContainer = document.createElement('div');
+      pickerContainer.className = 'arabic-time-picker';
+
+      // Hour select
+      const hourSelect = document.createElement('select');
+      hourSelect.className = 'arabic-time-select';
+      hourSelect.innerHTML = '<option value="">ساعة</option>';
+
+      for (let i = 1; i <= 12; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = arabicNumbers[i.toString()];
+        hourSelect.appendChild(option);
+      }
+
+      // Separator
+      const separator = document.createElement('span');
+      separator.className = 'time-separator';
+      separator.textContent = ':';
+
+      // Minute select
+      const minuteSelect = document.createElement('select');
+      minuteSelect.className = 'arabic-time-select';
+      minuteSelect.innerHTML = '<option value="">دقيقة</option>';
+
+      // Generate all minutes from 00 to 59
+      for (let i = 0; i < 60; i++) {
+        const minute = i.toString().padStart(2, '0');
+        const option = document.createElement('option');
+        option.value = minute;
+        option.textContent = arabicMinutes[minute];
+        minuteSelect.appendChild(option);
+      }
+
+      // Period select (AM/PM)
+      const periodSelect = document.createElement('select');
+      periodSelect.className = 'arabic-time-select period-select';
+      periodSelect.innerHTML = `
+        <option value="">فترة</option>
+        <option value="AM">صباحاً</option>
+        <option value="PM">مساءً</option>
+      `;
+
+      // Assemble picker (RTL order)
+      pickerContainer.appendChild(periodSelect);
+      pickerContainer.appendChild(minuteSelect);
+      pickerContainer.appendChild(separator);
+      pickerContainer.appendChild(hourSelect);
+
+      // Insert after original input (within the wrapper)
+      const wrapper = timeInput.parentNode;
+      if (wrapper && wrapper.classList.contains('time-input-wrapper')) {
+        wrapper.appendChild(pickerContainer);
+      } else {
+        timeInput.parentNode.insertBefore(pickerContainer, timeInput.nextSibling);
+      }
+
+      // Function to update original input value
+      function updateTimeInput() {
+        const hour = hourSelect.value;
+        const minute = minuteSelect.value;
+        const period = periodSelect.value;
+
+        if (hour && minute && period) {
+          let hour24 = parseInt(hour);
+
+          // Convert to 24-hour format
+          if (period === 'PM' && hour24 !== 12) {
+            hour24 += 12;
+          } else if (period === 'AM' && hour24 === 12) {
+            hour24 = 0;
+          }
+
+          const timeValue = `${hour24.toString().padStart(2, '0')}:${minute}`;
+          timeInput.value = timeValue;
+
+          // Trigger change event
+          const event = new Event('change', { bubbles: true });
+          timeInput.dispatchEvent(event);
+        } else {
+          timeInput.value = '';
+        }
+      }
+
+      // Function to set picker values from time input
+      function setPickerFromInput() {
+        const timeValue = timeInput.value;
+        if (!timeValue) return;
+
+        const [hours, minutes] = timeValue.split(':');
+        const hour24 = parseInt(hours);
+        const minuteValue = minutes;
+
+        // Convert to 12-hour format
+        let hour12 = hour24;
+        let period = 'AM';
+
+        if (hour24 === 0) {
+          hour12 = 12;
+          period = 'AM';
+        } else if (hour24 === 12) {
+          hour12 = 12;
+          period = 'PM';
+        } else if (hour24 > 12) {
+          hour12 = hour24 - 12;
+          period = 'PM';
+        }
+
+        hourSelect.value = hour12;
+        minuteSelect.value = minuteValue;
+        periodSelect.value = period;
+      }
+
+      // Add event listeners
+      [hourSelect, minuteSelect, periodSelect].forEach(select => {
+        select.addEventListener('change', updateTimeInput);
+      });
+
+      // Initialize picker with current value
+      setPickerFromInput();
+
+      return pickerContainer;
+    }
+
+    // Function to create Arabic date picker
+    function createArabicDatePicker(dateInput) {
+      // Hide original input and add class
+      dateInput.style.display = 'none';
+      dateInput.classList.add('has-arabic-picker');
+
+      // Create Arabic date picker container
+      const pickerContainer = document.createElement('div');
+      pickerContainer.className = 'arabic-date-picker';
+
+      // Day select
+      const daySelect = document.createElement('select');
+      daySelect.className = 'arabic-date-select';
+      daySelect.innerHTML = '<option value="">يوم</option>';
+
+      for (let i = 1; i <= 31; i++) {
+        const option = document.createElement('option');
+        option.value = i.toString().padStart(2, '0');
+        option.textContent = arabicNumbers[i.toString()];
+        daySelect.appendChild(option);
+      }
+
+      // Month select
+      const monthSelect = document.createElement('select');
+      monthSelect.className = 'arabic-date-select';
+      monthSelect.innerHTML = '<option value="">شهر</option>';
+
+      for (let i = 1; i <= 12; i++) {
+        const monthNum = i.toString().padStart(2, '0');
+        const option = document.createElement('option');
+        option.value = monthNum;
+        option.textContent = arabicMonths[monthNum];
+        monthSelect.appendChild(option);
+      }
+
+      // Year select
+      const yearSelect = document.createElement('select');
+      yearSelect.className = 'arabic-date-select';
+      yearSelect.innerHTML = '<option value="">سنة</option>';
+
+      const currentYear = new Date().getFullYear();
+      for (let i = currentYear - 5; i <= currentYear + 10; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        // Convert year to Arabic numerals
+        const arabicYear = i.toString().split('').map(digit => arabicNumbers[digit] || digit).join('');
+        option.textContent = arabicYear;
+        yearSelect.appendChild(option);
+      }
+
+      // Assemble picker (RTL order: day / month / year)
+      pickerContainer.appendChild(yearSelect);
+      pickerContainer.appendChild(monthSelect);
+      pickerContainer.appendChild(daySelect);
+
+      // Insert after original input (within the wrapper)
+      const wrapper = dateInput.parentNode;
+      if (wrapper && wrapper.classList.contains('date-input-wrapper')) {
+        wrapper.appendChild(pickerContainer);
+      } else {
+        dateInput.parentNode.insertBefore(pickerContainer, dateInput.nextSibling);
+      }
+
+      // Function to update original input value
+      function updateDateInput() {
+        const day = daySelect.value;
+        const month = monthSelect.value;
+        const year = yearSelect.value;
+
+        if (day && month && year) {
+          const dateValue = `${year}-${month}-${day}`;
+          dateInput.value = dateValue;
+
+          // Trigger change event
+          const event = new Event('change', { bubbles: true });
+          dateInput.dispatchEvent(event);
+        } else {
+          dateInput.value = '';
+        }
+      }
+
+      // Function to set picker values from date input
+      function setPickerFromInput() {
+        const dateValue = dateInput.value;
+        if (!dateValue) return;
+
+        const [year, month, day] = dateValue.split('-');
+
+        daySelect.value = day;
+        monthSelect.value = month;
+        yearSelect.value = year;
+      }
+
+      // Add event listeners
+      [daySelect, monthSelect, yearSelect].forEach(select => {
+        select.addEventListener('change', updateDateInput);
+      });
+
+      // Initialize picker with current value
+      setPickerFromInput();
+
+      return pickerContainer;
+    }
+
+    // Apply Arabic time picker to all time inputs
+    const timeInputs = document.querySelectorAll('input[type="time"]');
+    timeInputs.forEach(input => {
+      createArabicTimePicker(input);
+    });
+
+    // Apply Arabic date picker to all date inputs
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+      createArabicDatePicker(input);
+    });
+
+    // Set Arabic placeholders for text inputs
+    const titleInput = document.querySelector('input[name="title"]');
+    if (titleInput) {
+      titleInput.placeholder = 'أدخل عنوان الجدول';
+    }
+  } else {
+    // Set English placeholders for text inputs
+    const titleInput = document.querySelector('input[name="title"]');
+    if (titleInput) {
+      titleInput.placeholder = 'Enter schedule title';
+    }
+  }
+});
+</script>
 {% endblock %}

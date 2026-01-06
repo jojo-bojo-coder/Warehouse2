@@ -101,9 +101,195 @@
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
       border-color: #374151;
   }
+
+  /* Responsive button fixes for laptop HIDPI screens */
+  @media screen and (min-width: 1024px) and (max-width: 1440px) and (-webkit-min-device-pixel-ratio: 1.5) {
+    .action-buttons-container {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .action-button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      min-height: 44px;
+    }
+
+    .filter-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .filter-grid .action-buttons-wrapper {
+      grid-column: span 4;
+      margin-top: 1rem;
+    }
+  }
+
+  /* Additional responsive fixes for 1440x900 specifically */
+  @media screen and (width: 1440px) and (height: 900px) {
+    .action-buttons-container {
+      flex-direction: row;
+      gap: 0.75rem;
+    }
+
+    .action-button {
+      flex: 1;
+      padding: 0.625rem 0.875rem;
+      font-size: 0.8125rem;
+      white-space: nowrap;
+    }
+
+    .filter-grid {
+      grid-template-columns: repeat(3, 1fr) auto;
+    }
+
+    .filter-grid .action-buttons-wrapper {
+      grid-column: span 1;
+      margin-top: 0;
+    }
+  }
+
+  /* General responsive improvements */
+  @media screen and (min-width: 1024px) and (max-width: 1600px) {
+    .action-button {
+      font-size: 0.875rem;
+      padding: 0.75rem 1rem;
+    }
+
+    .action-button i {
+      font-size: 0.875rem;
+    }
+  }
+
+  /* Enhanced Dark Mode Table Styling */
+  .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .data-table {
+      background-color: #111827;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+      border: 1px solid #374151;
+  }
+
+  .data-table th {
+      background-color: #f8fafc;
+      padding: 1rem 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+      border-bottom: 2px solid #e2e8f0;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+  }
+
+  .dark .data-table th {
+      background-color: #1f2937 !important;
+      color: #ffffff !important;
+      border-bottom: 2px solid #6b7280 !important;
+      font-weight: 700 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      background-image: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  }
+
+  .data-table thead {
+      background-color: #f8fafc;
+  }
+
+  .dark .data-table thead {
+      background-color: #1f2937 !important;
+  }
+
+  .data-table td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      color: #4b5563;
+      background-color: white;
+      font-size: 0.875rem;
+  }
+
+  .dark .data-table td {
+      border-bottom-color: #374151;
+      color: #e5e7eb;
+      background-color: #111827;
+  }
+
+  .data-table tr:hover td {
+      background-color: #f1f5f9;
+  }
+
+  .dark .data-table tr:hover td {
+      background-color: #1f2937;
+  }
+
+  .data-table tbody tr:last-child td {
+      border-bottom: none;
+  }
+
+  /* Force dark mode table header visibility */
+  .dark .data-table th,
+  .dark .data-table thead th {
+      color: #ffffff !important;
+      background-color: #1f2937 !important;
+      border-color: #6b7280 !important;
+      font-weight: 700 !important;
+  }
+
+  /* Override any Tailwind classes in dark mode */
+  .dark th.text-gray-500 {
+      color: #ffffff !important;
+  }
+
+  .dark th.dark\:text-gray-300 {
+      color: #ffffff !important;
+  }
+
+  .dark th.dark\:text-white {
+      color: #ffffff !important;
+  }
+
+  /* Ensure table header background is visible */
+  .dark thead.bg-gray-50 {
+      background-color: #1f2937 !important;
+  }
+
+  .dark thead.dark\:bg-gray-700 {
+      background-color: #1f2937 !important;
+  }
+
+  /* Custom table header classes for maximum visibility */
+  .table-header-dark {
+      background-color: #f8fafc;
+  }
+
+  .dark .table-header-dark {
+      background-color: #1f2937 !important;
+  }
+
+  .table-header-cell {
+      padding: 1rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #374151;
+  }
+
+  .dark .table-header-cell {
+      color: #ffffff !important;
+      background-color: #1f2937 !important;
+      border-bottom: 2px solid #6b7280 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
+<div id="main-content"  class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
 
   <!-- Main Content -->
   <div class="px-4 md:px-8 pt-6">
@@ -126,8 +312,8 @@
     </div>
 
     <!-- Filters Section -->
-    <div class="animate-[fadeIn_0.8s_ease-out_0.2s_both] filter-section">
-      <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class=" filter-section">
+      <form method="get" class="filter-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <!-- Report Type Filter -->
         <div>
           <label for="report_type" class="filter-label">
@@ -198,15 +384,19 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex items-end gap-2">
-          <button type="submit" name="format" value="html" class="btn-gradient bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 w-full">
-            {% if LANGUAGE_CODE == 'ar' %}عرض التقرير{% else %}View Report{% endif %}
-            <i class="fas fa-chart-bar"></i>
-          </button>
-          <button type="submit" name="format" value="csv" class="btn-gradient bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 w-full">
-            {% if LANGUAGE_CODE == 'ar' %}تحميل CSV{% else %}Download CSV{% endif %}
-            <i class="fas fa-download"></i>
-          </button>
+        <div class="action-buttons-wrapper flex items-end">
+          <div class="action-buttons-container flex gap-2 w-full">
+            <button type="submit" name="format" value="html" class="action-button btn-gradient bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+              <span class="hidden sm:inline">{% if LANGUAGE_CODE == 'ar' %}عرض التقرير{% else %}View Report{% endif %}</span>
+              <span class="sm:hidden">{% if LANGUAGE_CODE == 'ar' %}عرض{% else %}View{% endif %}</span>
+              <i class="fas fa-chart-bar"></i>
+            </button>
+            <button type="submit" name="format" value="csv" class="action-button btn-gradient bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+              <span class="hidden sm:inline">{% if LANGUAGE_CODE == 'ar' %}تحميل CSV{% else %}Download CSV{% endif %}</span>
+              <span class="sm:hidden">CSV</span>
+              <i class="fas fa-download"></i>
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -214,7 +404,7 @@
     <!-- Report Summary -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <!-- Total Orders -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.3s_both] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+      <div class=" bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-blue-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي الطلبات{% else %}Total Orders{% endif %}</h2>
           <div class="p-3 rounded-full bg-blue-400/20">
@@ -229,7 +419,7 @@
       </div>
 
       <!-- Total Revenue -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.4s_both] bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+      <div class=" bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-green-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي الإيرادات{% else %}Total Revenue{% endif %}</h2>
           <div class="p-3 rounded-full bg-green-400/20">
@@ -245,7 +435,7 @@
       </div>
 
       <!-- Date Range -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.5s_both] bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+      <div class=" bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-purple-100">{% if LANGUAGE_CODE == 'ar' %}الفترة الزمنية{% else %}Date Range{% endif %}</h2>
           <div class="p-3 rounded-full bg-purple-400/20">
@@ -262,7 +452,7 @@
       </div>
 
       <!-- Report Type -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.6s_both] bg-gradient-to-r from-yellow-500 to-amber-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+      <div class=" bg-gradient-to-r from-yellow-500 to-amber-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-yellow-100">{% if LANGUAGE_CODE == 'ar' %}نوع التقرير{% else %}Report Type{% endif %}</h2>
           <div class="p-3 rounded-full bg-yellow-400/20">
@@ -284,7 +474,7 @@
     </div>
 
     <!-- Detailed Report Table -->
-    <div class="animate-[fadeIn_0.8s_ease-out_0.7s_both] chart-container">
+    <div class=" chart-container">
       <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
         <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300">
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -294,37 +484,37 @@
         {% if LANGUAGE_CODE == 'ar' %}التفاصيل{% else %}Details{% endif %}
       </h2>
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
+          <thead class="table-header-dark">
             <tr>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}العميل{% else %}Customer{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}النوع{% else %}Type{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}الاسم{% else %}Name{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}التاجر{% else %}Vendor{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}الفئة{% else %}Category{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Qty{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}السعر{% else %}Price{% endif %}
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}الإجمالي{% else %}Total{% endif %}
               </th>
             </tr>
@@ -334,23 +524,23 @@
               {% for item in order.items.all %}
                 {% if report_type == 'products' and item.product or report_type == 'services' and item.service %}
                   <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {{ order.id }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {{ order.created_at|date:"Y-m-d" }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {{ order.first_name }} {{ order.last_name }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {% if item.product %}
                         {% if LANGUAGE_CODE == 'ar' %}منتج{% else %}Product{% endif %}
                       {% else %}
                         {% if LANGUAGE_CODE == 'ar' %}خدمة{% else %}Service{% endif %}
                       {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {% if item.product %}
                         {{ item.product.title }}
                       {% elif item.service %}
@@ -359,27 +549,27 @@
                         N/A
                       {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {% if item.product %}
                         {{ item.product.creator.userprofile.Coach_profile.full_name|default:"N/A" }}
                       {% else %}
                         {{ item.service.creator.userprofile.Coach_profile.full_name|default:"N/A" }}
                       {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {% if item.product %}
                         {{ item.product.creator.userprofile.Coach_profile.activity_type.name|default:"N/A" }}
                       {% else %}
                         {{ item.service.creator.userprofile.Coach_profile.activity_type.name|default:"N/A" }}
                       {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {{ item.quantity }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {{ item.price }} {{ request.user.userprofile.accountant_profile.club.vat_settings.currency }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
                       {{ item.price|multiply:item.quantity }} {{ request.user.userprofile.accountant_profile.club.vat_settings.currency }}
                     </td>
                   </tr>

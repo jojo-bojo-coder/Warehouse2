@@ -53,7 +53,7 @@
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
+<div id="main-content"  class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
 
   <!-- Main Content -->
   <div class="px-4 md:px-8 pt-6">
@@ -78,7 +78,7 @@
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       <!-- Total Expenses Card -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.1s_both] bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+      <div class=" bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-red-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي المصروفات{% else %}Total Expenses{% endif %}</h2>
           <div class="p-3 rounded-full bg-red-400/20">
@@ -108,7 +108,7 @@
       </div>
 
       <!-- Top Categories Card -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.2s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:transform hover:-translate-y-1 flex flex-col h-full">
+      <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-2">
             <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-full text-purple-600 dark:text-purple-300">
@@ -125,7 +125,7 @@
       </div>
 
       <!-- Top Coaches Card -->
-      <div class="animate-[fadeInUp_0.6s_ease-out_0.3s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:transform hover:-translate-y-1 flex flex-col h-full">
+      <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:transform hover:-translate-y-1 flex flex-col h-full">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-2">
             <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full text-yellow-600 dark:text-yellow-300">
@@ -145,7 +145,7 @@
     <!-- Expense Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- Expense Trend Chart -->
-      <div class="animate-[fadeIn_0.8s_ease-out_0.4s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+      <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
         <div class="flex justify-between items-start mb-6">
           <div>
             <h2 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
@@ -171,7 +171,7 @@
       </div>
 
       <!-- Expense Breakdown Chart -->
-      <div class="animate-[fadeIn_0.8s_ease-out_0.5s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+      <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
         <div class="flex justify-between items-start mb-6">
           <div>
             <h2 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">

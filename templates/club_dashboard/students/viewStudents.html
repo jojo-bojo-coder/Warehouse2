@@ -343,7 +343,7 @@
         {% for student in students %}
         <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 table-row transition-all duration-300">
           <td class="px-6 py-4 font-medium text-gray-800 dark:text-white">
-            <div class="flex items-center gap-2 {% if LANGUAGE_CODE == 'ar' %}justify-start{% else %}justify-end{% endif %}">
+            <div class="flex items-center gap-2 {% if LANGUAGE_CODE == 'ar' %}justify-start{% else %}justify-start{{% endif %}">
               <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
                 <span class="text-blue-600 dark:text-blue-300">{{ student.user.username|first|upper }}</span>
               </div>

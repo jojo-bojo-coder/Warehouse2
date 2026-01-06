@@ -454,8 +454,9 @@ def accountant_review_bill(request, order_id):
     )
 
     if request.method == 'POST':
-        form = BillRevisionForm(request.POST, instance=revision)
-        comment_form = BillRevisionCommentForm(request.POST)
+        current_language = translation.get_language()
+        form = BillRevisionForm(request.POST, instance=revision, language=current_language)
+        comment_form = BillRevisionCommentForm(request.POST, language=current_language)
 
         if form.is_valid():
             revision = form.save(commit=False)
@@ -476,8 +477,9 @@ def accountant_review_bill(request, order_id):
             print("Form errors:", form.errors)
             messages.error(request, "Please correct the errors below")
     else:
-        form = BillRevisionForm(instance=revision)
-        comment_form = BillRevisionCommentForm()
+        current_language = translation.get_language()
+        form = BillRevisionForm(instance=revision, language=current_language)
+        comment_form = BillRevisionCommentForm(language=current_language)
 
     context = {
         'club': request.user.userprofile.accountant_profile.club,
@@ -1209,9 +1211,9 @@ def expense_analytics(request):
         expenses.annotate(
             category_name=Case(
                 When(items__product__isnull=False,
-                     then=F('items__product__creator__userprofile__Coach_profile__activity_type__name')),
+                     then=F('items__product__creator__userprofile__Coach_profile__activity_type__name_ar')),
                 When(items__service__isnull=False,
-                     then=F('items__service__creator__userprofile__Coach_profile__activity_type__name')),
+                     then=F('items__service__creator__userprofile__Coach_profile__activity_type__name_ar')),
                 output_field=models.CharField()
             )
         )

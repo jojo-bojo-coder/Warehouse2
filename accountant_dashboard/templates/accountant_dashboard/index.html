@@ -45,9 +45,135 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   }
+
+  /* Enhanced Dark Mode Table Styling */
+  .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .data-table {
+      background-color: #111827;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+      border: 1px solid #374151;
+  }
+
+  .data-table th {
+      background-color: #f8fafc;
+      padding: 1rem 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+      border-bottom: 2px solid #e2e8f0;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+  }
+
+  .dark .data-table th {
+      background-color: #1f2937 !important;
+      color: #ffffff !important;
+      border-bottom: 2px solid #6b7280 !important;
+      font-weight: 700 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      background-image: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  }
+
+  .data-table thead {
+      background-color: #f8fafc;
+  }
+
+  .dark .data-table thead {
+      background-color: #1f2937 !important;
+  }
+
+  .data-table td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      color: #4b5563;
+      background-color: white;
+      font-size: 0.875rem;
+  }
+
+  .dark .data-table td {
+      border-bottom-color: #374151;
+      color: #e5e7eb;
+      background-color: #111827;
+  }
+
+  .data-table tr:hover td {
+      background-color: #f1f5f9;
+  }
+
+  .dark .data-table tr:hover td {
+      background-color: #1f2937;
+  }
+
+  .data-table tbody tr:last-child td {
+      border-bottom: none;
+  }
+
+  /* Force dark mode table header visibility */
+  .dark .data-table th,
+  .dark .data-table thead th {
+      color: #ffffff !important;
+      background-color: #1f2937 !important;
+      border-color: #6b7280 !important;
+      font-weight: 700 !important;
+  }
+
+  /* Override any Tailwind classes in dark mode */
+  .dark th.text-gray-500 {
+      color: #ffffff !important;
+  }
+
+  .dark th.dark\:text-gray-300 {
+      color: #ffffff !important;
+  }
+
+  .dark th.dark\:text-white {
+      color: #ffffff !important;
+  }
+
+  /* Ensure table header background is visible */
+  .dark thead.bg-gray-50 {
+      background-color: #1f2937 !important;
+  }
+
+  .dark thead.dark\:bg-gray-700 {
+      background-color: #1f2937 !important;
+  }
+
+  /* Custom table header classes for maximum visibility */
+  .table-header-dark {
+      background-color: #f8fafc;
+  }
+
+  .dark .table-header-dark {
+      background-color: #1f2937 !important;
+  }
+
+  .table-header-cell {
+      padding: 1rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #374151;
+  }
+
+  .dark .table-header-cell {
+      color: #ffffff !important;
+      background-color: #1f2937 !important;
+      border-bottom: 2px solid #6b7280 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+<div id="main-content" class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
   <!-- Header Section -->
   <div class="py-8">
     <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
@@ -69,7 +195,7 @@
   <!-- Stats Cards -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Total Revenue Card -->
-    <div class="animate-[fadeInUp_0.6s_ease-out_0.1s_both] bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+    <div class=" bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-green-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي الإيرادات{% else %}Total Revenue{% endif %}</h2>
         <div class="p-3 rounded-full bg-green-400/20">
@@ -89,7 +215,7 @@
     </div>
 
     <!-- Total Expenses Card -->
-    <div class="animate-[fadeInUp_0.6s_ease-out_0.2s_both] bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+    <div class=" bg-gradient-to-r from-red-500 to-orange-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-red-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي المصروفات{% else %}Total Expenses{% endif %}</h2>
         <div class="p-3 rounded-full bg-red-400/20">
@@ -108,7 +234,7 @@
     </div>
 
     <!-- Net Profit Card -->
-    <div class="animate-[fadeInUp_0.6s_ease-out_0.3s_both] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+    <div class=" bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-blue-100">{% if LANGUAGE_CODE == 'ar' %}صافي الربح{% else %}Net Profit{% endif %}</h2>
         <div class="p-3 rounded-full bg-blue-400/20">
@@ -127,7 +253,7 @@
     </div>
 
     <!-- Pending Transactions Card -->
-    <div class="animate-[fadeInUp_0.6s_ease-out_0.4s_both] bg-gradient-to-r from-yellow-500 to-amber-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+    <div class=" bg-gradient-to-r from-yellow-500 to-amber-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-yellow-100">{% if LANGUAGE_CODE == 'ar' %}معاملات معلقة{% else %}Pending Transactions{% endif %}</h2>
         <div class="p-3 rounded-full bg-yellow-400/20">
@@ -149,7 +275,7 @@
   <!-- Charts Section -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <!-- Revenue Trend Chart -->
-    <div class="animate-[fadeIn_0.8s_ease-out_0.5s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+    <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
       <div class="flex justify-between items-start mb-6">
         <div>
           <h2 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
@@ -168,7 +294,7 @@
     </div>
 
     <!-- Expense Breakdown Chart -->
-    <div class="animate-[fadeIn_0.8s_ease-out_0.6s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+    <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
       <div class="flex justify-between items-start mb-6">
         <div>
           <h2 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
@@ -188,7 +314,7 @@
   </div>
 
   <!-- Recent Transactions Table -->
-  <div class="animate-[fadeIn_0.8s_ease-out_0.7s_both] bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 mb-8 border border-gray-100 dark:border-gray-700">
+  <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 mb-8 border border-gray-100 dark:border-gray-700">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-semibold text-gray-800 dark:text-white flex items-center gap-3">
         <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300">
@@ -201,22 +327,22 @@
     </div>
 
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-700">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
+        <thead class="table-header-dark">
           <tr>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               {% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}
             </th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               {% if LANGUAGE_CODE == 'ar' %}الوصف{% else %}Description{% endif %}
             </th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               {% if LANGUAGE_CODE == 'ar' %}النوع{% else %}Type{% endif %}
             </th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               {% if LANGUAGE_CODE == 'ar' %}المبلغ{% else %}Amount{% endif %}
             </th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col" class="table-header-cell {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               {% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}
             </th>
           </tr>
@@ -224,19 +350,19 @@
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
           {% for transaction in recent_transactions %}
           <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               {{ transaction.created_at|date:"Y-m-d" }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               Order #{{ transaction.id }} - {{ transaction.get_order_type_display }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               {{ transaction.get_order_type_display }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {% if transaction.status == 'completed' %}text-green-600 dark:text-green-400{% else %}text-blue-600 dark:text-blue-400{% endif %}">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {% if transaction.status == 'completed' %}text-green-600 dark:text-green-400{% else %}text-blue-600 dark:text-blue-400{% endif %} {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               {{ transaction.total_price }} {{ club.vat_settings.currency }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-6 py-4 whitespace-nowrap {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %}">
               <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                 {% if transaction.status == 'completed' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
                 {% elif transaction.status == 'pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200

@@ -61,7 +61,7 @@
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+<div  id="main-content"  class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
   <!-- Header Section -->
   <div class="flex justify-between items-center py-8">
     <div>
@@ -75,7 +75,7 @@
     <a href="{% url 'addStudentFromReceptionist' %}"
        class="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition duration-300 flex items-center">
       {% if LANGUAGE_CODE == 'ar' %}إضافة عميل جديد{% else %}Add New Client{% endif %}
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 {% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
     </a>

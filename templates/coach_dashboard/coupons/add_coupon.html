@@ -124,7 +124,10 @@
                                     {% if LANGUAGE_CODE == 'ar' %}كود القسيمة{% else %}Coupon Code{% endif %} *
                                 </label>
                                 <div class="relative">
-                                    {{ form.code }}
+                                    <input type="text" name="code" id="{{ form.code.id_for_label }}"
+                                           class="form-input"
+                                           placeholder="{% if LANGUAGE_CODE == 'ar' %}أدخل كود القسيمة (مثال: SAVE20){% else %}Enter coupon code (e.g., SAVE20){% endif %}"
+                                           value="{{ form.code.value|default:'' }}" required>
                                 </div>
                                 {% if form.code.errors %}
                                     <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.code.errors.0 }}</p>
@@ -136,7 +139,9 @@
                                 <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     {% if LANGUAGE_CODE == 'ar' %}الوصف{% else %}Description{% endif %}
                                 </label>
-                                {{ form.description }}
+                                <textarea name="description" id="{{ form.description.id_for_label }}"
+                                          class="form-textarea" rows="3"
+                                          placeholder="{% if LANGUAGE_CODE == 'ar' %}وصف مختصر للقسيمة (اختياري){% else %}Brief description of the coupon (optional){% endif %}">{{ form.description.value|default:'' }}</textarea>
                             </div>
                         </div>
 
@@ -157,7 +162,10 @@
                                         {% if LANGUAGE_CODE == 'ar' %}تاريخ البدء{% else %}Start Date{% endif %} *
                                     </label>
                                     <div class="relative">
-                                        {{ form.start_date }}
+                                        <input type="date" name="start_date" id="{{ form.start_date.id_for_label }}"
+                                               class="form-input"
+                                               value="{{ form.start_date.value|default:'' }}"
+                                               {% if LANGUAGE_CODE == 'ar' %}lang="ar"{% endif %} required>
                                     </div>
                                     {% if form.start_date.errors %}
                                         <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.start_date.errors.0 }}</p>
@@ -168,7 +176,10 @@
                                         {% if LANGUAGE_CODE == 'ar' %}تاريخ الانتهاء{% else %}End Date{% endif %} *
                                     </label>
                                     <div class="relative">
-                                        {{ form.end_date }}
+                                        <input type="date" name="end_date" id="{{ form.end_date.id_for_label }}"
+                                               class="form-input"
+                                               value="{{ form.end_date.value|default:'' }}"
+                                               {% if LANGUAGE_CODE == 'ar' %}lang="ar"{% endif %} required>
                                     </div>
                                     {% if form.end_date.errors %}
                                         <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.end_date.errors.0 }}</p>
@@ -219,7 +230,11 @@
                                     {% if LANGUAGE_CODE == 'ar' %}قيمة الخصم{% else %}Discount Value{% endif %} *
                                 </label>
                                 <div class="relative">
-                                    {{ form.discount_value }}
+                                    <input type="number" name="discount_value" id="{{ form.discount_value.id_for_label }}"
+                                           class="form-input"
+                                           placeholder="{% if LANGUAGE_CODE == 'ar' %}أدخل قيمة الخصم (مثال: 20){% else %}Enter discount value (e.g., 20){% endif %}"
+                                           value="{{ form.discount_value.value|default:'' }}"
+                                           min="0" step="0.01" required>
                                 </div>
                                 {% if form.discount_value.errors %}
                                     <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.discount_value.errors.0 }}</p>
@@ -236,8 +251,11 @@
                                     <span class="text-gray-500 dark:text-gray-400 font-normal">({% if LANGUAGE_CODE == 'ar' %}اختياري{% else %}optional{% endif %})</span>
                                 </label>
                                 <div class="relative">
-                                    {{ form.max_discount }}
-
+                                    <input type="number" name="max_discount" id="{{ form.max_discount.id_for_label }}"
+                                           class="form-input"
+                                           placeholder="{% if LANGUAGE_CODE == 'ar' %}الحد الأقصى بالريال (مثال: 100){% else %}Maximum amount in SAR (e.g., 100){% endif %}"
+                                           value="{{ form.max_discount.value|default:'' }}"
+                                           min="0" step="0.01">
                                 </div>
                             </div>
 
@@ -248,8 +266,11 @@
                                     <span class="text-gray-500 dark:text-gray-400 font-normal">({% if LANGUAGE_CODE == 'ar' %}اختياري{% else %}optional{% endif %})</span>
                                 </label>
                                 <div class="relative">
-                                    {{ form.min_order_value }}
-
+                                    <input type="number" name="min_order_value" id="{{ form.min_order_value.id_for_label }}"
+                                           class="form-input"
+                                           placeholder="{% if LANGUAGE_CODE == 'ar' %}الحد الأدنى بالريال (مثال: 50){% else %}Minimum amount in SAR (e.g., 50){% endif %}"
+                                           value="{{ form.min_order_value.value|default:'' }}"
+                                           min="0" step="0.01">
                                 </div>
                             </div>
 
@@ -259,8 +280,11 @@
                                     {% if LANGUAGE_CODE == 'ar' %}الحد الأقصى للاستخدامات{% else %}Maximum Uses{% endif %} *
                                 </label>
                                 <div class="relative">
-                                    {{ form.max_uses }}
-
+                                    <input type="number" name="max_uses" id="{{ form.max_uses.id_for_label }}"
+                                           class="form-input"
+                                           placeholder="{% if LANGUAGE_CODE == 'ar' %}عدد مرات الاستخدام (مثال: 100){% else %}Number of uses (e.g., 100){% endif %}"
+                                           value="{{ form.max_uses.value|default:'' }}"
+                                           min="0" required>
                                 </div>
                                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                     {% if LANGUAGE_CODE == 'ar' %}أدخل 0 لاستخدام غير محدود{% else %}Enter 0 for unlimited uses{% endif %}
@@ -373,6 +397,32 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    {% if LANGUAGE_CODE == 'ar' %}
+    // Set Arabic locale for date inputs
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+        // Set the locale to Arabic
+        input.setAttribute('lang', 'ar-SA');
+
+        // Add Arabic placeholder behavior
+        if (!input.value) {
+            input.style.color = '#9CA3AF'; // Gray color for placeholder-like appearance
+        }
+
+        input.addEventListener('focus', function() {
+            this.style.color = '#374151'; // Normal text color when focused
+        });
+
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.style.color = '#9CA3AF'; // Gray color when empty
+            } else {
+                this.style.color = '#374151'; // Normal text color when has value
+            }
+        });
+    });
+    {% endif %}
+
     // Toggle max discount field based on discount type
     const discountTypeRadios = document.querySelectorAll('input[name="discount_type"]');
     const maxDiscountField = document.getElementById('max-discount-field');
@@ -426,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Select2 for multiple select fields
     $('select[multiple]').select2({
         width: '100%',
-        placeholder: '{% if LANGUAGE_CODE == 'ar' %}اختر...{% else %}Select...{% endif %}',
+        placeholder: '{% if LANGUAGE_CODE == "ar" %}اختر العناصر المطلوبة...{% else %}Select items...{% endif %}',
         closeOnSelect: false,
         theme: document.documentElement.classList.contains('dark') ? 'dark' : ''
     });
@@ -449,59 +499,387 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-    /* Custom styles for form elements */
+    /* Enhanced Form Input Styles */
     .form-input, .form-textarea, .form-select {
-        @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300;
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        background-color: #ffffff;
+        color: #374151;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
     }
 
-    .form-input:focus, .form-textarea:focus, .form-select:focus {
-        @apply outline-none ring-2 ring-blue-500 border-blue-500;
+    /* Dark mode form inputs */
+    .dark .form-input,
+    .dark .form-textarea,
+    .dark .form-select {
+        background-color: #1f2937;
+        border-color: #4b5563;
+        color: #f3f4f6;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
 
+    /* Focus states */
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .dark .form-input:focus,
+    .dark .form-textarea:focus,
+    .dark .form-select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2), 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Hover states */
+    .form-input:hover:not(:focus),
+    .form-textarea:hover:not(:focus),
+    .form-select:hover:not(:focus) {
+        border-color: #d1d5db;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .form-input:hover:not(:focus),
+    .dark .form-textarea:hover:not(:focus),
+    .dark .form-select:hover:not(:focus) {
+        border-color: #6b7280;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Placeholder styling */
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: #9ca3af;
+        font-weight: 400;
+        opacity: 1;
+    }
+
+    .dark .form-input::placeholder,
+    .dark .form-textarea::placeholder {
+        color: #6b7280;
+    }
+
+    /* Invalid/Error states */
+    .form-input:invalid,
+    .form-textarea:invalid,
+    .form-select:invalid {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .dark .form-input:invalid,
+    .dark .form-textarea:invalid,
+    .dark .form-select:invalid {
+        border-color: #f87171;
+        box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+    }
+
+    /* Success states */
+    .form-input:valid:not(:placeholder-shown),
+    .form-textarea:valid:not(:placeholder-shown) {
+        border-color: #10b981;
+    }
+
+    .dark .form-input:valid:not(:placeholder-shown),
+    .dark .form-textarea:valid:not(:placeholder-shown) {
+        border-color: #34d399;
+    }
+
+    /* Disabled states */
+    .form-input:disabled,
+    .form-textarea:disabled,
+    .form-select:disabled {
+        background-color: #f9fafb;
+        border-color: #e5e7eb;
+        color: #9ca3af;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .dark .form-input:disabled,
+    .dark .form-textarea:disabled,
+    .dark .form-select:disabled {
+        background-color: #111827;
+        border-color: #374151;
+        color: #6b7280;
+    }
+
+    /* Textarea specific styling */
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+        line-height: 1.5;
+    }
+
+    /* Number input styling */
+    input[type="number"].form-input {
+        -moz-appearance: textfield;
+    }
+
+    input[type="number"].form-input::-webkit-outer-spin-button,
+    input[type="number"].form-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Date input styling */
+    input[type="date"].form-input {
+        position: relative;
+        cursor: pointer;
+    }
+
+    input[type="date"].form-input::-webkit-calendar-picker-indicator {
+        background: transparent;
+        bottom: 0;
+        color: transparent;
+        cursor: pointer;
+        height: auto;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: auto;
+    }
+
+    /* Arabic date input styling */
+    {% if LANGUAGE_CODE == 'ar' %}
+    input[type="date"].form-input {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    input[type="date"].form-input::-webkit-calendar-picker-indicator {
+        margin-left: 0;
+        margin-right: auto;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3e%3cpath fill-rule='evenodd' d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z' clip-rule='evenodd'/%3e%3c/svg%3e");
+        background-size: 20px 20px;
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 20px;
+        height: 20px;
+        opacity: 0.7;
+    }
+    {% endif %}
+
+    /* Radio button styling */
     .form-radio {
-        @apply h-4 w-4 text-blue-600 dark:text-blue-400 focus:ring-blue-500 border-gray-300 dark:border-gray-600;
+        width: 18px;
+        height: 18px;
+        color: #3b82f6;
+        border: 2px solid #d1d5db;
+        border-radius: 50%;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
     }
 
+    .form-radio:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .form-radio:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+
+    .dark .form-radio {
+        border-color: #6b7280;
+        background-color: #374151;
+    }
+
+    .dark .form-radio:checked {
+        background-color: #60a5fa;
+        border-color: #60a5fa;
+    }
+
+    /* Checkbox styling */
     .form-checkbox {
-        @apply h-4 w-4 text-blue-600 dark:text-blue-400 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded;
+        width: 18px;
+        height: 18px;
+        color: #3b82f6;
+        border: 2px solid #d1d5db;
+        border-radius: 6px;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
     }
 
+    .form-checkbox:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .form-checkbox:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
+    }
+
+    .dark .form-checkbox {
+        border-color: #6b7280;
+        background-color: #374151;
+    }
+
+    .dark .form-checkbox:checked {
+        background-color: #60a5fa;
+        border-color: #60a5fa;
+    }
+
+    /* Button styling */
     .btn {
-        @apply transition duration-200 ease-in-out transform hover:-translate-y-0.5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
     }
 
-    /* Select2 customization */
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form section styling */
+    .form-section {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .dark .form-section {
+        background: #1f2937;
+        border-color: #374151;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-section:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .form-section:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Label styling */
+    label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        transition: color 0.2s ease;
+    }
+
+    .dark label {
+        color: #f3f4f6;
+    }
+
+    /* Required field indicator */
+    label .required {
+        color: #ef4444;
+        margin-left: 4px;
+    }
+
+    /* Help text styling */
+    .help-text {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 4px;
+        line-height: 1.4;
+    }
+
+    .dark .help-text {
+        color: #9ca3af;
+    }
+
+    /* Error message styling */
+    .error-message {
+        font-size: 12px;
+        color: #ef4444;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .dark .error-message {
+        color: #f87171;
+    }
+
+    /* Select2 enhanced styling */
     .select2-container--default .select2-selection--multiple {
-        @apply border-gray-300 dark:border-gray-600 rounded-lg min-h-[42px] bg-white dark:bg-gray-700;
+        border: 2px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        min-height: 48px !important;
+        background-color: #ffffff !important;
+        padding: 4px 8px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .dark .select2-container--default .select2-selection--multiple {
+        background-color: #1f2937 !important;
+        border-color: #4b5563 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
     }
 
     .select2-container--default.select2-container--focus .select2-selection--multiple {
-        @apply border-blue-500 ring-2 ring-blue-500;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 4px 6px rgba(0, 0, 0, 0.1) !important;
     }
 
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        @apply bg-blue-100 dark:bg-blue-900 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-100;
+        background-color: #dbeafe !important;
+        border: 1px solid #93c5fd !important;
+        border-radius: 8px !important;
+        color: #1e40af !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        padding: 4px 8px !important;
+        margin: 2px !important;
+    }
+
+    .dark .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #1e3a8a !important;
+        border-color: #3b82f6 !important;
+        color: #dbeafe !important;
     }
 
     .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-        @apply text-blue-500 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-100;
+        color: #6b7280 !important;
+        font-weight: bold !important;
+        margin-right: 6px !important;
     }
 
-    /* Dark theme for Select2 dropdown */
-    .select2-container--default.select2-container--dark .select2-results__option[aria-selected=true] {
-        @apply bg-gray-600;
-    }
-
-    .select2-container--default.select2-container--dark .select2-results__option--highlighted[aria-selected] {
-        @apply bg-blue-600;
-    }
-
-    .select2-container--default.select2-container--dark .select2-results {
-        @apply bg-gray-700 text-gray-300;
-    }
-
-    .select2-container--default.select2-container--dark .select2-search--dropdown .select2-search__field {
-        @apply bg-gray-700 border-gray-600 text-gray-300;
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        color: #ef4444 !important;
     }
 
     /* Animations */
@@ -516,13 +894,51 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateX(10px); }
-        to { opacity: 1; transform: translateX(0); }
+        from {
+            opacity: 0;
+            transform: translateX(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
 
     @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Loading state */
+    .form-input.loading {
+        background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        background-size: 200px 100%;
+        background-repeat: no-repeat;
+        animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+        0% { background-position: -200px 0; }
+        100% { background-position: 200px 0; }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .form-input, .form-textarea, .form-select {
+            padding: 10px 14px;
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
     }
 </style>
 {% endblock %}

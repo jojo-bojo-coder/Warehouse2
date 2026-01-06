@@ -95,7 +95,7 @@
         <button type="submit" class="mt-4 w-28 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm">
           {% if LANGUAGE_CODE == 'ar' %}تصفية{% else %}Filter{% endif %}
         </button>
-        <a href="{% url 'coach_payments' %}" class=" mt-4 w-28 px-4 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-center text-sm">
+        <a href="{% url 'coach_payments' %}" class=" mt-4 w-28 px-4 py-3 bg-gray-200 dark:bg-orange-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-orange-500 focus:ring-offset-2 text-center text-sm">
           {% if LANGUAGE_CODE == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
         </a>
         {% if date_from and date_to %}
@@ -109,7 +109,25 @@
 
   <!-- Earnings Chart -->
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-    <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% if LANGUAGE_CODE == 'ar' %}الأرباح الشهرية{% else %}Monthly Earnings{% endif %}</h2>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 space-y-4 md:space-y-0">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}الأرباح الشهرية{% else %}Monthly Earnings{% endif %}</h2>
+
+      <!-- Time Filter Buttons -->
+      <div class="flex flex-wrap gap-2">
+        <button onclick="updateChartPeriod('day')" id="dayBtn" class="px-3 py-1 text-sm rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors">
+          {% if LANGUAGE_CODE == 'ar' %}يوم{% else %}Day{% endif %}
+        </button>
+        <button onclick="updateChartPeriod('week')" id="weekBtn" class="px-3 py-1 text-sm rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors">
+          {% if LANGUAGE_CODE == 'ar' %}أسبوع{% else %}Week{% endif %}
+        </button>
+        <button onclick="updateChartPeriod('month')" id="monthBtn" class="px-3 py-1 text-sm rounded-md bg-blue-500 text-white dark:bg-blue-600 transition-colors">
+          {% if LANGUAGE_CODE == 'ar' %}شهر{% else %}Month{% endif %}
+        </button>
+        <button onclick="updateChartPeriod('year')" id="yearBtn" class="px-3 py-1 text-sm rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors">
+          {% if LANGUAGE_CODE == 'ar' %}سنة{% else %}Year{% endif %}
+        </button>
+      </div>
+    </div>
     <div class="h-64">
       <canvas id="earningsChart"></canvas>
     </div>
@@ -121,15 +139,15 @@
       <h2 class="text-xl font-bold text-gray-800 dark:text-white">{% if LANGUAGE_CODE == 'ar' %}سجل الطلبات{% else %}Order History{% endif %}</h2>
     </div>
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-700">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+        <thead class="bg-gray-50 dark:bg-gray-900">
           <tr>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order #{% endif %}</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}العناصر{% else %}Items{% endif %}</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}الإجمالي{% else %}Total{% endif %}</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
+            <th class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-bold text-gray-700 dark:text-gray-100 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order #{% endif %}</th>
+            <th class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-bold text-gray-700 dark:text-gray-100 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">{% if LANGUAGE_CODE == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
+            <th class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-bold text-gray-700 dark:text-gray-100 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">{% if LANGUAGE_CODE == 'ar' %}العناصر{% else %}Items{% endif %}</th>
+            <th class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-bold text-gray-700 dark:text-gray-100 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">{% if LANGUAGE_CODE == 'ar' %}الإجمالي{% else %}Total{% endif %}</th>
+            <th class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-bold text-gray-700 dark:text-gray-100 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">{% if LANGUAGE_CODE == 'ar' %}الحالة{% else %}Status{% endif %}</th>
+            <th class="px-6 py-3 {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-xs font-bold text-gray-700 dark:text-gray-100 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">{% if LANGUAGE_CODE == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -169,8 +187,8 @@
               {{ order.get_status_display }}
             </span>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <a href="{% url 'generate_invoice' order.id %}" class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 ml-3">{% if LANGUAGE_CODE == 'ar' %}فاتورة{% else %}Invoice{% endif %}</a>
+          <td class="px-6 py-4 whitespace-nowrap {% if LANGUAGE_CODE == 'ar' %}text-right{% else %}text-left{% endif %} text-sm font-medium">
+            <a href="{% url 'generate_invoice' order.id %}" class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}">{% if LANGUAGE_CODE == 'ar' %}فاتورة{% else %}Invoice{% endif %}</a>
             <a href="{% url 'coachviewOrderDetails' order.id %}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">{% if LANGUAGE_CODE == 'ar' %}التفاصيل{% else %}Details{% endif %}</a>
           </td>
         </tr>
@@ -248,6 +266,55 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  // Global variables
+  let earningsChart;
+  let currentPeriod = 'month';
+
+  // Sample data for different periods (you'll need to replace this with actual data from your backend)
+  const chartData = {
+    day: {
+      labels: ['{% if LANGUAGE_CODE == "ar" %}اليوم{% else %}Today{% endif %}'],
+      data: [{{ daily_earnings|default:0 }}],
+      title: '{% if LANGUAGE_CODE == "ar" %}الأرباح اليومية{% else %}Daily Earnings{% endif %}'
+    },
+    week: {
+      labels: ['{% if LANGUAGE_CODE == "ar" %}هذا الأسبوع{% else %}This Week{% endif %}'],
+      data: [{{ weekly_earnings|default:0 }}],
+      title: '{% if LANGUAGE_CODE == "ar" %}الأرباح الأسبوعية{% else %}Weekly Earnings{% endif %}'
+    },
+    month: {
+      labels: {{ monthly_earnings|safe }} ? {{ monthly_earnings|safe }}.map(item => item.month) : [],
+      data: {{ monthly_earnings|safe }} ? {{ monthly_earnings|safe }}.map(item => parseFloat(item.earnings)) : [],
+      title: '{% if LANGUAGE_CODE == "ar" %}الأرباح الشهرية{% else %}Monthly Earnings{% endif %}'
+    },
+    year: {
+      labels: ['{% if LANGUAGE_CODE == "ar" %}هذا العام{% else %}This Year{% endif %}'],
+      data: [{{ yearly_earnings|default:0 }}],
+      title: '{% if LANGUAGE_CODE == "ar" %}الأرباح السنوية{% else %}Yearly Earnings{% endif %}'
+    }
+  };
+
+  // Function to update chart period
+  function updateChartPeriod(period) {
+    currentPeriod = period;
+
+    // Update button states
+    document.querySelectorAll('[id$="Btn"]').forEach(btn => {
+      btn.className = 'px-3 py-1 text-sm rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors';
+    });
+
+    document.getElementById(period + 'Btn').className = 'px-3 py-1 text-sm rounded-md bg-blue-500 text-white dark:bg-blue-600 transition-colors';
+
+    // Update chart
+    if (earningsChart) {
+      const periodData = chartData[period];
+      earningsChart.data.labels = periodData.labels;
+      earningsChart.data.datasets[0].data = periodData.data;
+      earningsChart.data.datasets[0].label = periodData.title + ' ({{ request.user.userprofile.Coach_profile.club.vat_settings.currency }})';
+      earningsChart.update();
+    }
+  }
+
   // Wait for DOM to be fully loaded
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing chart...');
@@ -259,35 +326,31 @@
       return;
     }
 
-    // Prepare chart data
-    const monthlyData = {{ monthly_earnings|safe }};
-    console.log('Monthly data:', monthlyData);
+    // Prepare initial chart data (monthly by default)
+    const initialData = chartData.month;
+    console.log('Initial chart data:', initialData);
 
     // Check if we have data
-    if (!monthlyData || monthlyData.length === 0) {
-      console.log('No monthly earnings data available');
+    if (!initialData.labels || initialData.labels.length === 0) {
+      console.log('No earnings data available');
       // Show a message or create an empty chart
       const chartContainer = ctx.parentElement;
       chartContainer.innerHTML = '<p class="text-center text-gray-500 py-8">{% if LANGUAGE_CODE == "ar" %}لا توجد بيانات للعرض{% else %}No data available{% endif %}</p>';
       return;
     }
 
-    // Extract labels and data
-    const labels = monthlyData.map(item => item.month);
-    const data = monthlyData.map(item => parseFloat(item.earnings));
-
-    console.log('Chart labels:', labels);
-    console.log('Chart data:', data);
+    console.log('Chart labels:', initialData.labels);
+    console.log('Chart data:', initialData.data);
 
     // Create the chart
     try {
-      const earningsChart = new Chart(ctx, {
+      earningsChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: labels,
+          labels: initialData.labels,
           datasets: [{
-            label: '{% if LANGUAGE_CODE == "ar" %}الأرباح ({{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}){% else %}Earnings ({{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}){% endif %}',
-            data: data,
+            label: initialData.title + ' ({{ request.user.userprofile.Coach_profile.club.vat_settings.currency }})',
+            data: initialData.data,
             backgroundColor: 'rgba(59, 130, 246, 0.7)',
             borderColor: 'rgba(59, 130, 246, 1)',
             borderWidth: 1,

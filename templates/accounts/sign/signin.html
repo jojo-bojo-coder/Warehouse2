@@ -60,10 +60,20 @@
   .password-toggle {
     cursor: pointer;
     position: absolute;
-    left: 12px;
     top: 50%;
     transform: translateY(-50%);
   }
+
+  /* Language-specific positioning */
+  {% if LANGUAGE_CODE == 'ar' %}
+  .password-toggle {
+    left: 12px;
+  }
+  {% else %}
+  .password-toggle {
+    right: 12px;
+  }
+  {% endif %}
 
   .password-toggle:hover {
     opacity: 0.7;
@@ -212,7 +222,7 @@
               type="checkbox"
               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <label for="remember-me" class="mr-2 block text-sm text-slate-700 dark:text-slate-300">
+            <label for="remember-me" class="{% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %} block text-sm text-slate-700 dark:text-slate-300">
               {% if LANGUAGE_CODE == 'ar' %}
               تذكرني
               {% else %}

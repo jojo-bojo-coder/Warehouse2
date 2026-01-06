@@ -1142,7 +1142,7 @@ class CustomRole(models.Model):
         ('deleteDirector', 'حذف الموظفين'),
         ('viewClubNotifications', 'عرض الإشعارات'),
         ('club_orders', 'عرض الطلبات'),
-        ('update_order_status', 'التحكم الطلبات'),
+        ('update_order_status', 'التحكم بالطلبات'),
         ('club_financial_dashboard', 'عرض الإيرادات'),
         ('manage_products', 'التحكم في قبول المنتجات'),
         ('manage_services', 'التحكم في قبول الخدمات'),

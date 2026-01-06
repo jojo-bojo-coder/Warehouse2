@@ -43,6 +43,39 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   }
+
+  /* Modal styles */
+  .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+  }
+
+  .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+  }
+
+  .modal-content {
+      width: 90%;
+      max-width: 500px;
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+  }
+
+  .modal-overlay.active .modal-content {
+      transform: translateY(0);
+  }
 </style>
 
 <div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
@@ -320,7 +353,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </a>
-                            <button onclick="toggleCommissionStatus({{ commission.id }})" class="text-{% if commission.is_active %}red{% else %}green{% endif %}-600 dark:text-{% if commission.is_active %}red{% else %}green{% endif %}-400 hover:text-{% if commission.is_active %}red{% else %}green{% endif %}-800 dark:hover:text-{% if commission.is_active %}red{% else %}green{% endif %}-300 transition-colors" title="{% if commission.is_active %}{% if LANGUAGE_CODE == 'ar' %}تعطيل{% else %}Deactivate{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}تفعيل{% else %}Activate{% endif %}{% endif %}">
+                            <button onclick="showStatusModal({{ commission.id }}, '{{ commission.name|escapejs }}', {{ commission.is_active|yesno:'true,false' }})" class="text-{% if commission.is_active %}red{% else %}green{% endif %}-600 dark:text-{% if commission.is_active %}red{% else %}green{% endif %}-400 hover:text-{% if commission.is_active %}red{% else %}green{% endif %}-800 dark:hover:text-{% if commission.is_active %}red{% else %}green{% endif %}-300 transition-colors" title="{% if commission.is_active %}{% if LANGUAGE_CODE == 'ar' %}تعطيل{% else %}Deactivate{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}تفعيل{% else %}Activate{% endif %}{% endif %}">
                                 {% if commission.is_active %}
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -427,21 +460,63 @@
     </div>
 </div>
 
+<!-- Status Change Modal -->
+<div id="statusModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+      <div class="p-6">
+        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 dark:bg-yellow-900/50">
+          <svg class="w-8 h-8 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <h3 id="statusTitle" class="text-lg font-semibold text-gray-800 dark:text-white text-center mb-2">
+          {% if LANGUAGE_CODE == 'ar' %}تغيير حالة العمولة{% else %}Change Commission Status{% endif %}
+        </h3>
+        <p id="statusMessage" class="text-gray-600 dark:text-gray-300 text-center">
+          <!-- Message will be set dynamically -->
+        </p>
+      </div>
+      <div class="flex border-t border-gray-200 dark:border-gray-700">
+        <button id="statusCancel" type="button" class="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300">
+          {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+        </button>
+        <form id="statusForm" method="POST" action="" class="flex-1">
+          {% csrf_token %}
+          <input type="hidden" name="redirect_to" value="{% url 'commission_list' %}">
+          <button type="submit" id="statusConfirm" class="w-full py-3 px-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-medium hover:from-yellow-600 hover:to-yellow-700 transition-colors duration-300">
+            {% if LANGUAGE_CODE == 'ar' %} نعم، تأكيد {% else %} Yes, Confirm {% endif %}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-    function toggleCommissionStatus(commissionId) {
-      fetch(`/club_dashboard/commissions/${commissionId}/toggle-status/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-          'Content-Type': 'application/json',
-        },
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          location.reload();
+    // Show status change modal
+    function showStatusModal(commissionId, commissionName, isActive) {
+        const modal = document.getElementById('statusModal');
+        const message = document.getElementById('statusMessage');
+        const form = document.getElementById('statusForm');
+        const confirmButton = document.getElementById('statusConfirm');
+
+        // Set the message text based on current status
+        if (isActive) {
+            message.textContent = "{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من تعطيل العمولة{% else %}Are you sure you want to deactivate the commission{% endif %} \"" + commissionName + "\"?";
+            confirmButton.textContent = "{% if LANGUAGE_CODE == 'ar' %}نعم، تعطيل{% else %}Yes, Deactivate{% endif %}";
+            confirmButton.className = "w-full py-3 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium hover:from-red-600 hover:to-red-700 transition-colors duration-300";
+        } else {
+            message.textContent = "{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من تفعيل العمولة{% else %}Are you sure you want to activate the commission{% endif %} \"" + commissionName + "\"?";
+            confirmButton.textContent = "{% if LANGUAGE_CODE == 'ar' %}نعم، تفعيل{% else %}Yes, Activate{% endif %}";
+            confirmButton.className = "w-full py-3 px-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium hover:from-green-600 hover:to-green-700 transition-colors duration-300";
         }
-      });
+
+        // Set the form action
+        form.action = `/club_dashboard/commissions/${commissionId}/toggle-status/`;
+
+        // Show the modal
+        modal.classList.add('active');
     }
 
     function showDeleteModal(commissionId, commissionTitle) {
@@ -460,17 +535,35 @@
         document.getElementById(modalId).classList.add('hidden');
     }
 
-    // Close modals when clicking outside
+    // Initialize modal functionality on page load
     document.addEventListener('DOMContentLoaded', function() {
-      const modals = document.querySelectorAll('[id$="Modal"]');
+        const statusModal = document.getElementById('statusModal');
+        const statusCancelButton = document.getElementById('statusCancel');
 
-      modals.forEach(modal => {
-        modal.addEventListener('click', function(e) {
-          if (e.target === modal) {
-            hideModal(modal.id);
-          }
+        if (statusCancelButton) {
+            statusCancelButton.addEventListener('click', function() {
+                statusModal.classList.remove('active');
+            });
+        }
+
+        // Close modal when clicking outside
+        if (statusModal) {
+            statusModal.addEventListener('click', function(e) {
+                if (e.target === statusModal) {
+                    statusModal.classList.remove('active');
+                }
+            });
+        }
+
+        // Close modals when clicking outside (for delete modal)
+        const modals = document.querySelectorAll('[id$="Modal"]');
+        modals.forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    hideModal(modal.id);
+                }
+            });
         });
-      });
     });
 </script>
 {% endblock %}

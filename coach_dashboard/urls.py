@@ -40,6 +40,8 @@ urlpatterns = [
     path('packages/<int:package_id>/toggle-popular/', views.toggle_package_popular, name='toggle_package_popular'),
 
     path('addServicesClassification', views.addServicesClassification, name="coachaddServicesClassification"),
+    path('check-classification-name/', views.check_classification_name, name="check_classification_name"),
+    path('check-classification-name-edit/<int:id>/', views.check_classification_name_edit, name="check_classification_name_edit"),
     path('editServicesClassification/<int:id>', views.editServicesClassification, name="coacheditServicesClassification"),
     path('DeleteServicesClassification/<int:id>', views.DeleteServicesClassification, name="coachDeleteServicesClassification"),
     path('viewServicesClassification', views.viewServicesClassification, name="coachviewServicesClassification"),

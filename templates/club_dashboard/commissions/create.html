@@ -13,10 +13,17 @@
             {% if LANGUAGE_CODE == 'ar' %} إنشاء عمولة جديدة {% else %} Create New Commission {% endif %}
         </h1>
         <a href="{% url 'commission_list' %}" class="group bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm px-4 py-2 rounded-lg text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-600 font-medium flex items-center transition-all duration-300 shadow-md hover:shadow-lg border border-blue-200 dark:border-gray-600">
-            {% if LANGUAGE_CODE == 'ar' %} العودة إلى القائمة {% else %} Back to List {% endif %}
-            <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
+            {% if LANGUAGE_CODE == 'ar' %}
+                <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                العودة إلى القائمة
+            {% else %}
+                Back to List
+                <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            {% endif %}
         </a>
     </div>
 
@@ -153,7 +160,7 @@
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                                 </svg>
-                                {% if LANGUAGE_CODE == 'ar' %}أمثلة: silver, gold, platinum{% else %}Examples: silver, gold, platinum{% endif %}
+                                {% if LANGUAGE_CODE == 'ar' %}أمثلة: bronze, gold, platinum{% else %}Examples: bronze, gold, platinum{% endif %}
                             </p>
                         </div>
                     </div>
@@ -451,8 +458,71 @@
 
     // Add form validation feedback
     document.getElementById('commissionForm').addEventListener('submit', function(e) {
+        let isValid = true;
+        const form = e.target;
+
+        // Clear previous custom validation messages
+        form.querySelectorAll('.custom-error').forEach(error => error.remove());
+
+        // Get current commission type
+        const commissionType = form.querySelector('input[name="commission_type"]:checked').value;
+
+        // Validate required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                showFieldError(field, '{% if LANGUAGE_CODE == "ar" %}هذا الحقل مطلوب{% else %}This field is required{% endif %}');
+            }
+        });
+
+        // Special validation for vendor classification when vendor type is selected
+        if (commissionType === 'vendor') {
+            const vendorClassificationField = form.querySelector('input[name="vendor_classification"]');
+            if (vendorClassificationField && !vendorClassificationField.value.trim()) {
+                isValid = false;
+                showFieldError(vendorClassificationField, '{% if LANGUAGE_CODE == "ar" %}يجب إدخال تصنيف البائع{% else %}Vendor classification is required{% endif %}');
+            }
+        }
+
+        // Validate commission rate
+        const rateField = form.querySelector('input[name="commission_rate"]');
+        if (rateField && rateField.value) {
+            const rate = parseFloat(rateField.value);
+            if (rate < 0 || rate > 100) {
+                isValid = false;
+                showFieldError(rateField, '{% if LANGUAGE_CODE == "ar" %}يجب أن تكون نسبة العمولة بين 0 و 100{% else %}Commission rate must be between 0 and 100{% endif %}');
+            }
+        }
+
+        // Validate time period fields if time_period type is selected
+        if (commissionType === 'time_period') {
+            const startDateField = form.querySelector('input[name="start_date"]');
+            const endDateField = form.querySelector('input[name="end_date"]');
+
+            if (startDateField && endDateField && startDateField.value && endDateField.value) {
+                const startDate = new Date(startDateField.value);
+                const endDate = new Date(endDateField.value);
+
+                if (startDate >= endDate) {
+                    isValid = false;
+                    showFieldError(endDateField, '{% if LANGUAGE_CODE == "ar" %}تاريخ النهاية يجب أن يكون بعد تاريخ البداية{% else %}End date must be after start date{% endif %}');
+                }
+            }
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = form.querySelector('.custom-error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+
         const submitButton = this.querySelector('button[type="submit"]');
-                // Add loading state to submit button
+        // Add loading state to submit button
         submitButton.disabled = true;
         submitButton.innerHTML = `
             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -461,6 +531,73 @@
             </svg>
             {% if LANGUAGE_CODE == 'ar' %}جاري الحفظ...{% else %}Saving...{% endif %}
         `;
+    });
+
+    // Function to show field error
+    function showFieldError(field, message) {
+        field.classList.add('border-red-500');
+
+        // Create error message element
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'custom-error text-red-500 text-sm mt-1 flex items-center gap-1';
+        errorDiv.innerHTML = `
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM13 17h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            </svg>
+            ${message}
+        `;
+
+        // Insert error message after the field
+        field.parentNode.insertBefore(errorDiv, field.nextSibling);
+    }
+
+    // Clear errors when user starts typing
+    document.addEventListener('DOMContentLoaded', function() {
+        const formFields = document.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+            field.addEventListener('input', function() {
+                // Remove error styling
+                this.classList.remove('border-red-500');
+
+                // Remove custom error message
+                const nextElement = this.nextElementSibling;
+                if (nextElement && nextElement.classList.contains('custom-error')) {
+                    nextElement.remove();
+                }
+            });
+        });
+
+        // Set custom validation messages for HTML5 validation
+        const nameField = document.querySelector('input[name="name"]');
+        const rateField = document.querySelector('input[name="commission_rate"]');
+        const vendorClassificationField = document.querySelector('input[name="vendor_classification"]');
+
+        if (nameField) {
+            nameField.addEventListener('invalid', function() {
+                this.setCustomValidity('{% if LANGUAGE_CODE == "ar" %}يرجى إدخال اسم العمولة{% else %}Please enter commission name{% endif %}');
+            });
+            nameField.addEventListener('input', function() {
+                this.setCustomValidity('');
+            });
+        }
+
+        if (rateField) {
+            rateField.addEventListener('invalid', function() {
+                this.setCustomValidity('{% if LANGUAGE_CODE == "ar" %}يرجى إدخال نسبة العمولة{% else %}Please enter commission rate{% endif %}');
+            });
+            rateField.addEventListener('input', function() {
+                this.setCustomValidity('');
+            });
+        }
+
+        if (vendorClassificationField) {
+            vendorClassificationField.addEventListener('invalid', function() {
+                this.setCustomValidity('{% if LANGUAGE_CODE == "ar" %}يرجى إدخال تصنيف البائع{% else %}Please enter vendor classification{% endif %}');
+            });
+            vendorClassificationField.addEventListener('input', function() {
+                this.setCustomValidity('');
+            });
+        }
     });
 
     // Date picker enhancements

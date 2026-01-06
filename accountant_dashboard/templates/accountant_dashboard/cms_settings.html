@@ -175,7 +175,7 @@
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+<div id="main-content"  class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
 
   <!-- Header Section - matching index.html style -->
   <div class="py-8">
@@ -198,14 +198,14 @@
   <!-- Tab Navigation -->
   <div class="tab-container">
     <div class="tab-buttons">
-      <button class="tab-button active animate-[fadeIn_0.6s_ease-out_0.1s_both]" data-tab="landing">
+      <button class="tab-button active " data-tab="landing">
         {% if LANGUAGE_CODE == 'ar' %}
         الصفحة الرئيسية
         {% else %}
         Landing Page
         {% endif %}
       </button>
-      <button class="tab-button animate-[fadeIn_0.6s_ease-out_0.2s_both]" data-tab="terms">
+      <button class="tab-button " data-tab="terms">
         {% if LANGUAGE_CODE == 'ar' %}
         الشروط والأحكام
         {% else %}
@@ -222,7 +222,7 @@
       <input type="hidden" name="form_type" value="landing">
 
       <!-- Hero Section -->
-      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.3s_both]">
+      <div class="form-section ">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
           <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-full text-blue-600 dark:text-blue-300">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -262,7 +262,7 @@
       </div>
 
       <!-- About Section -->
-      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.4s_both]">
+      <div class="form-section ">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
           <div class="p-2 bg-green-100 dark:bg-green-900 rounded-full text-green-600 dark:text-green-300">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -302,7 +302,7 @@
       </div>
 
       <!-- Features Section -->
-      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.5s_both]">
+      <div class="form-section ">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
           <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-full text-purple-600 dark:text-purple-300">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -331,7 +331,7 @@
       </div>
 
       <!-- Pricing Section -->
-      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.6s_both]">
+      <div class="form-section ">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
           <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full text-yellow-600 dark:text-yellow-300">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -360,7 +360,7 @@
       </div>
 
       <!-- Call to Action Section -->
-      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.7s_both]">
+      <div class="form-section">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
           <div class="p-2 bg-red-100 dark:bg-red-900 rounded-full text-red-600 dark:text-red-300">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -400,7 +400,7 @@
       </div>
 
       <!-- Submit Button for Landing Page -->
-      <div class="mt-6 flex justify-end animate-[fadeIn_0.8s_ease-out_0.8s_both]">
+      <div class="mt-6 flex justify-end ">
         <button type="submit" class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition duration-300 font-semibold">
           {% if LANGUAGE_CODE == 'ar' %}
           حفظ تغييرات الصفحة الرئيسية
@@ -418,7 +418,7 @@
       {% csrf_token %}
       <input type="hidden" name="form_type" value="terms">
 
-      <div class="form-section animate-[fadeInUp_0.6s_ease-out_0.3s_both]">
+      <div class="form-section">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
           <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -440,7 +440,7 @@
       </div>
 
       <!-- Submit Button for Terms & Conditions -->
-      <div class="mt-6 flex justify-end animate-[fadeIn_0.8s_ease-out_0.4s_both]">
+      <div class="mt-6 flex justify-end ">
         <button type="submit" class="btn-gradient bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition duration-300 font-semibold">
           {% if LANGUAGE_CODE == 'ar' %}
           حفظ الشروط والأحكام

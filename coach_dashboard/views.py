@@ -313,10 +313,6 @@ def addProduct(request):
 
     club = coach_profile.club
 
-    if not request.user.userprofile.Coach_profile.policies_approved:
-        messages.error(request, "يجب عليك رفع سياسة الشروط والأحكام وسياسة الاسترجاع أولاً")
-        return redirect('upload_policies')
-
     print(f"DEBUG: Request method: {request.method}")
 
 
@@ -761,10 +757,6 @@ def addServices(request):
     coaches = CoachProfile.objects.filter(club=club)
     classifications = ServicesClassificationModel.objects.filter(club=club)
 
-    if not request.user.userprofile.Coach_profile.policies_approved:
-        messages.error(request, "يجب عليك رفع سياسة الشروط والأحكام وسياسة الاسترجاع أولاً")
-        return redirect('upload_policies')
-
     # Initialize form with coach_profile
     form = ServicesModelForm(coach_profile=coach_profile)
     form.fields['classification'].queryset = classifications
@@ -1008,6 +1000,7 @@ def DeleteServices(request, id):
     art.delete()
     return redirect('coachviewServices')
 
+
 def addServicesClassification(request):
     user = request.user
     club = getattr(user.userprofile.Coach_profile, 'club', None)
@@ -1015,14 +1008,53 @@ def addServicesClassification(request):
     if request.method == 'POST':
         form = ServicesClassificationModelForm(data=request.POST)
         if form.is_valid():
-            cla = form.save(commit=False)
-            cla.club = club
-            cla.creator = user
-            cla.creation_date = timezone.now()
-            cla.save()
+            title = form.cleaned_data['title']
+            # Check if classification with same title already exists for this club
+            if ServicesClassificationModel.objects.filter(club=club, title__iexact=title).exists():
+                form.add_error('title',
+                               'تصنيف بهذا الاسم موجود بالفعل' if request.LANGUAGE_CODE == 'ar' else 'A classification with this name already exists')
+            else:
+                cla = form.save(commit=False)
+                cla.club = club
+                cla.creator = user
+                cla.creation_date = timezone.now()
+                cla.save()
+                return redirect('coachviewServicesClassification')
+
+    return render(request, 'coach_dashboard/services/Classification/addClassification.html', {'form': form})
 
 
-    return render(request, 'coach_dashboard/services/Classification/addClassification.html', {'form':form})
+def check_classification_name(request):
+    """AJAX endpoint to check if classification name already exists"""
+    if request.method == 'GET':
+        title = request.GET.get('title', '').strip()
+        user = request.user
+        club = getattr(user.userprofile.Coach_profile, 'club', None)
+
+        if title and club:
+            exists = ServicesClassificationModel.objects.filter(club=club, title__iexact=title).exists()
+            return JsonResponse({'exists': exists})
+
+        return JsonResponse({'exists': False})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def check_classification_name_edit(request, id):
+    """AJAX endpoint to check if classification name already exists (excluding current one)"""
+    if request.method == 'GET':
+        title = request.GET.get('title', '').strip()
+        user = request.user
+        club = getattr(user.userprofile.Coach_profile, 'club', None)
+
+        if title and club:
+            exists = ServicesClassificationModel.objects.filter(club=club, title__iexact=title).exclude(id=id).exists()
+            return JsonResponse({'exists': exists})
+
+        return JsonResponse({'exists': False})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 def editServicesClassification(request, id):
     cla = ServicesClassificationModel.objects.get(id=id)
@@ -1030,15 +1062,28 @@ def editServicesClassification(request, id):
     if request.method == 'POST':
         form = ServicesClassificationModelForm(data=request.POST, instance=cla)
         if form.is_valid():
-            form.save()
+            title = form.cleaned_data['title']
+            user = request.user
+            club = getattr(user.userprofile.Coach_profile, 'club', None)
 
-    return render(request, 'coach_dashboard/services/Classification/editClassification.html', {'form':form})
+            # Check if another classification with same title exists (excluding current one)
+            if ServicesClassificationModel.objects.filter(club=club, title__iexact=title).exclude(id=id).exists():
+                form.add_error('title',
+                               'تصنيف بهذا الاسم موجود بالفعل' if request.LANGUAGE_CODE == 'ar' else 'A classification with this name already exists')
+            else:
+                form.save()
+                return redirect('coachviewServicesClassification')
+
+    return render(request, 'coach_dashboard/services/Classification/editClassification.html', {'form': form})
+
 
 def viewServicesClassification(request):
     user = request.user
     club = getattr(user.userprofile.Coach_profile, 'club', None)
     classifications = ServicesClassificationModel.objects.filter(club=club)
-    return render(request, 'coach_dashboard/services/Classification/viewClassification.html', {'classifications':classifications})
+    return render(request, 'coach_dashboard/services/Classification/viewClassification.html',
+                  {'classifications': classifications})
+
 
 def DeleteServicesClassification(request, id):
     art = ServicesClassificationModel.objects.get(id=id)
@@ -1872,14 +1917,19 @@ from django.utils import timezone
 from django.db.models import Q, Count
 from django.utils import timezone
 
+
 @login_required
 def create_coach_ticket(request):
     user_profile = request.user.userprofile
     if user_profile.account_type != '4':
         return redirect('home')
     coach_profile = user_profile.Coach_profile
+
+    # Get the current language code
+    language_code = getattr(request, 'LANGUAGE_CODE', 'ar')
+
     if request.method == 'POST':
-        form = CoachTicketForm(request.POST)
+        form = CoachTicketForm(request.POST, language_code=language_code)
         if form.is_valid():
             # Find available receptionist with fewest closed tickets
             available_receptionists = ReceptionistProfile.objects.filter(
@@ -1902,15 +1952,22 @@ def create_coach_ticket(request):
 
             if receptionist:
                 ticket.assign_to_receptionist(receptionist)
-                messages.success(request, "تم إنشاء طلب الدعم بنجاح وسيتم معالجته قريباً")
+                if language_code == 'ar':
+                    messages.success(request, "تم إنشاء طلب الدعم بنجاح وسيتم معالجته قريباً")
+                else:
+                    messages.success(request, "Support ticket created successfully and will be processed soon")
             else:
                 ticket.status = 'pending'
                 ticket.save()
-                messages.success(request, "تم إنشاء طلب الدعم بنجاح وسيتم معالجته عند توفر موظف")
+                if language_code == 'ar':
+                    messages.success(request, "تم إنشاء طلب الدعم بنجاح وسيتم معالجته عند توفر موظف")
+                else:
+                    messages.success(request,
+                                     "Support ticket created successfully and will be processed when staff is available")
 
             return redirect('coach_ticket_list')
     else:
-        form = CoachTicketForm()
+        form = CoachTicketForm(language_code=language_code)
     return render(request, 'coach_dashboard/tickets/create_coach_ticket.html', {'form': form})
 
 
@@ -2016,6 +2073,9 @@ def coach_ticket_detail(request, ticket_id):
     user_profile = request.user.userprofile
     ticket = get_object_or_404(CoachReceptionistTicket, id=ticket_id)
 
+    # Get the current language code
+    language_code = getattr(request, 'LANGUAGE_CODE', 'ar')
+
     # Ensure the requesting user owns the ticket
     if user_profile.account_type == '4':  # Coach
         base_template = 'base_coach_dashboard.html'
@@ -2029,7 +2089,7 @@ def coach_ticket_detail(request, ticket_id):
         return redirect('home')
 
     if request.method == 'POST':
-        form = TicketMessageForm(request.POST)
+        form = TicketMessageForm(request.POST, language_code=language_code)
         if form.is_valid():
             message = form.save(commit=False)
             message.ticket = ticket
@@ -2047,7 +2107,7 @@ def coach_ticket_detail(request, ticket_id):
 
             return redirect('coach_ticket_detail', ticket_id=ticket.id)
     else:
-        form = TicketMessageForm()
+        form = TicketMessageForm(language_code=language_code)
 
     # Mark as read if receptionist is viewing
     if user_profile.account_type == '5' and not ticket.is_read:

@@ -124,6 +124,39 @@
     background-color: #3730a3;
     color: #a5b4fc;
   }
+
+  /* Modal styles */
+  .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+  }
+
+  .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+  }
+
+  .modal-content {
+      width: 90%;
+      max-width: 500px;
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+  }
+
+  .modal-overlay.active .modal-content {
+      transform: translateY(0);
+  }
 </style>
 
 <div id="main-content" class="transition-all duration-300 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
@@ -183,14 +216,13 @@
               </svg>
               {% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}
             </a>
-            <a href="{% url 'delete_custom_role' id=item.role.id %}"
-               onclick="return confirm('{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من حذف هذا الدور؟ سيتم إزالة الصلاحيات من جميع المستخدمين المرتبطين به.{% else %}Are you sure you want to delete this role? All associated users will lose these permissions.{% endif %}')"
+            <button onclick="showDeleteModal({{ item.role.id }}, '{{ item.role|get_role_name_in_language:LANGUAGE_CODE }}')"
                class="px-4 py-2 bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-800 transition-colors flex items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
               {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -223,6 +255,38 @@
   </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+      <div class="p-6">
+        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/50">
+          <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <h3 id="deleteTitle" class="text-lg font-semibold text-gray-800 dark:text-white text-center mb-2">
+          {% if LANGUAGE_CODE == 'ar' %}تأكيد الحذف{% else %}Confirm Deletion{% endif %}
+        </h3>
+        <p id="deleteMessage" class="text-gray-600 dark:text-gray-300 text-center">
+          <!-- Message will be set dynamically -->
+        </p>
+      </div>
+      <div class="flex border-t border-gray-200 dark:border-gray-700">
+        <button id="deleteCancel" type="button" class="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300">
+          {% if LANGUAGE_CODE == 'ar' %} إلغاء {% else %} Cancel {% endif %}
+        </button>
+        <form id="deleteForm" method="POST" action="" class="flex-1">
+          {% csrf_token %}
+          <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium hover:from-red-600 hover:to-red-700 transition-colors duration-300">
+            {% if LANGUAGE_CODE == 'ar' %} نعم، احذف {% else %} Yes, Delete {% endif %}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // Get the current language from the template
 const LANGUAGE_CODE = "{{ LANGUAGE_CODE }}";
@@ -240,13 +304,42 @@ function getConfirmationMessage(key) {
     return confirmationMessages[key][LANGUAGE_CODE] || confirmationMessages[key]['ar'];
 }
 
-// Enhanced delete confirmation
-document.querySelectorAll('a[href*="delete_custom_role"]').forEach(link => {
-    link.addEventListener('click', function(e) {
-        if (!confirm(getConfirmationMessage('delete'))) {
-            e.preventDefault();
-        }
-    });
+// Show delete confirmation modal
+function showDeleteModal(roleId, roleName) {
+    const modal = document.getElementById('deleteModal');
+    const message = document.getElementById('deleteMessage');
+    const form = document.getElementById('deleteForm');
+
+    // Set the message text
+    const deleteText = "{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد من حذف هذا الدور؟ سيتم إزالة الصلاحيات من جميع المستخدمين المرتبطين به.{% else %}Are you sure you want to delete this role? All associated users will lose these permissions.{% endif %}";
+    message.textContent = `${deleteText}`;
+
+    // Set the form action
+    form.action = `/club_dashboard/directors/delete_custom_role/${roleId}`;
+
+    // Show the modal
+    modal.classList.add('active');
+}
+
+// Initialize modal functionality on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('deleteModal');
+    const cancelButton = document.getElementById('deleteCancel');
+
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+    }
+
+    // Close modal when clicking outside
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    }
 });
 
 // Add hover effects to role cards

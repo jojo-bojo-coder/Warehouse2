@@ -82,7 +82,7 @@
   <!-- Sidebar Header with Collapse Button -->
   <div class="px-4 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
     <div class="flex items-center space-x-2">
-      <div class="ml-2 h-8 w-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+      <div class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} h-8 w-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
         </svg>
@@ -102,14 +102,14 @@
   <div class="flex-1 overflow-y-auto px-4 mt-2 space-y-1 custom-scrollbar">
     <nav class="flex flex-col space-y-1">
       <a href="/receptionist_dashboard" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-home ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-home {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Home{% endif %}
         </span>
       </a>
 
       <a href="/receptionist_dashboard/viewStudents" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-users ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-users {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}العملاء{% else %}Clients{% endif %}
         </span>
@@ -118,7 +118,7 @@
 
 
       <a href="{% url 'receptionist_ticket_list' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200 relative">
-        <i class="fas fa-ticket-alt ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-ticket-alt {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}رسائل التجار{% else %}Vendors' messages{% endif %}
         </span>
@@ -130,7 +130,7 @@
       </a>
 
       <a href="{% url 'receptionist_refund_list' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-undo ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-undo {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}طلبات الإسترجاع{% else %}Refund Requests{% endif %}
         </span>
@@ -138,7 +138,7 @@
 
         {% get_user_club request.user.id as stu_club %}
       <a href="{% url 'messageRoom' stu_club.id %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-comments ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-comments {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}الدردشة الجماعية{% else %}Group Chat{% endif %}
         </span>
@@ -151,7 +151,7 @@
   <div class="mt-auto p-4 border-t border-gray-200 dark:border-gray-700">
     <!-- User Info -->
     <div class="nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-      <div class="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center ml-3">
+      <div class="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}">
         <i class="fas fa-user text-white text-sm"></i>
       </div>
       <span class="nav-text">
@@ -160,21 +160,21 @@
     </div>
 
     <a href="{% url 'view_receptionist_profile' %}" class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
-      <i class="fas fa-user-circle ml-2"></i>
+      <i class="fas fa-user-circle {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
       <span class="nav-text">
         {% if LANGUAGE_CODE == 'ar' %}الملف الشخصي{% else %}Personal Profile{% endif %}
       </span>
     </a>
 
     <a href="{% url 'edit_receptionist_profile' %}" class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
-      <i class="fas fa-cog ml-2"></i>
+      <i class="fas fa-cog {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
       <span class="nav-text">{% if LANGUAGE_CODE == 'ar' %}الإعدادات{% else %}Settings{% endif %}</span>
     </a>
 
 
     <!-- Sign Out -->
     <a href="{% url 'signout' %}" class="nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
-      <i class="fas fa-sign-out-alt ml-3 text-red-500 group-hover:text-red-700 dark:group-hover:text-red-300"></i>
+      <i class="fas fa-sign-out-alt {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-red-500 group-hover:text-red-700 dark:group-hover:text-red-300"></i>
       <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
         {% if LANGUAGE_CODE == 'ar' %}تسجيل خروج{% else %}Sign Out{% endif %}
       </span>
@@ -191,9 +191,9 @@
   <!-- Receptionist Info -->
   <div class="flex items-center">
     {% if receptionist.profile_image %}
-    <img class="h-10 w-10 rounded-full ml-3" src="{{ receptionist.profile_image.url }}" alt="Receptionist">
+    <img class="h-10 w-10 rounded-full {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}" src="{{ receptionist.profile_image.url }}" alt="Receptionist">
     {% else %}
-    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold ml-3">
+    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}">
       {{ receptionist.full_name|first|upper }}
     </div>
     {% endif %}
@@ -257,29 +257,68 @@
   }
 
   // Collapse/Expand sidebar function
-  function toggleCollapse() {
-    const sidebar = document.getElementById("sidebar");
-    sidebar.classList.toggle("sidebar-collapsed");
+function toggleCollapse() {
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("main-content");
 
-    // Store preference in cookie
+  sidebar.classList.toggle("sidebar-collapsed");
+
+  // Toggle main content padding
+  if (mainContent) {
     if (sidebar.classList.contains("sidebar-collapsed")) {
-      document.cookie = "sidebarCollapsed=true; path=/; max-age=31536000";
+      // Collapsed state - use smaller padding
+      if (document.documentElement.dir === "rtl") {
+        mainContent.classList.remove("xl:pr-[20%]");
+        mainContent.classList.add("xl:pr-[8%]");
+      } else {
+        mainContent.classList.remove("xl:pl-[20%]");
+        mainContent.classList.add("xl:pl-[8%]");
+      }
     } else {
-      document.cookie = "sidebarCollapsed=false; path=/; max-age=31536000";
+      // Expanded state - use larger padding
+      if (document.documentElement.dir === "rtl") {
+        mainContent.classList.remove("xl:pr-[8%]");
+        mainContent.classList.add("xl:pr-[20%]");
+      } else {
+        mainContent.classList.remove("xl:pl-[8%]");
+        mainContent.classList.add("xl:pl-[20%]");
+      }
     }
   }
 
-  // Check for saved sidebar state on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    const sidebarCookie = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('sidebarCollapsed='));
+  // Store preference in cookie
+  if (sidebar.classList.contains("sidebar-collapsed")) {
+    document.cookie = "sidebarCollapsed=true; path=/; max-age=31536000";
+  } else {
+    document.cookie = "sidebarCollapsed=false; path=/; max-age=31536000";
+  }
+}
 
-    const isCollapsed = sidebarCookie ? sidebarCookie.split('=')[1] === 'true' : false;
-    if (isCollapsed) {
-      document.getElementById("sidebar").classList.add("sidebar-collapsed");
+  // Check for saved sidebar state on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebarCookie = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('sidebarCollapsed='));
+
+  const isCollapsed = sidebarCookie ? sidebarCookie.split('=')[1] === 'true' : false;
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("main-content");
+
+  if (isCollapsed && sidebar) {
+    sidebar.classList.add("sidebar-collapsed");
+
+    // Apply collapsed padding on page load
+    if (mainContent) {
+      if (document.documentElement.dir === "rtl") {
+        mainContent.classList.remove("xl:pr-[20%]");
+        mainContent.classList.add("xl:pr-[8%]");
+      } else {
+        mainContent.classList.remove("xl:pl-[20%]");
+        mainContent.classList.add("xl:pl-[8%]");
+      }
     }
-  });
+  }
+});
 
   // Dark mode toggle function
   function toggleDarkMode() {
@@ -299,6 +338,14 @@
   function toggleLanguageDropdown() {
     const dropdown = document.getElementById('languageDropdown');
     dropdown.classList.toggle('hidden');
+    document.getElementById('notificationDropdown').classList.add('hidden');
+  }
+
+  // Toggle notification dropdown
+  function toggleNotificationDropdown() {
+    const dropdown = document.getElementById('notificationDropdown');
+    dropdown.classList.toggle('hidden');
+    document.getElementById('languageDropdown').classList.add('hidden');
   }
 
   // Close dropdowns when clicking outside
@@ -306,19 +353,8 @@
     if (!event.target.closest('#languageDropdown') && !event.target.closest('[onclick="toggleLanguageDropdown()"]')) {
       document.getElementById('languageDropdown').classList.add('hidden');
     }
-  });
-
-  // Check for saved dark mode preference on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    const darkModeCookie = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('darkMode='));
-
-    const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
-      document.documentElement.classList.add('dark');
+    if (!event.target.closest('#notificationDropdown') && !event.target.closest('[onclick="toggleNotificationDropdown()"]')) {
+      document.getElementById('notificationDropdown').classList.add('hidden');
     }
   });
 </script>

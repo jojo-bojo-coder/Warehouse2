@@ -220,7 +220,7 @@
                     {% if LANGUAGE_CODE == 'ar' %}التصنيفات{% else %}Classifications{% endif %}
                 </a>
                 <a href="{% url 'coachaddServices' %}" class="btn-gradient px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 flex items-center shadow-md" aria-label="{% if LANGUAGE_CODE == 'ar' %}إضافة خدمة جديدة{% else %}Add New Service{% endif %}">
-                    <i class="fas fa-plus ml-2"></i>
+                    <i class="fas fa-plus {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                     {% if LANGUAGE_CODE == 'ar' %}إضافة خدمة جديدة{% else %}Add New Service{% endif %}
                 </a>
             </div>

@@ -112,6 +112,26 @@
         background-color: #166534;
         color: #BBF7D0;
     }
+
+    /* Filter button styles */
+    .filter-btn {
+        transition: all 0.2s ease-in-out;
+    }
+
+    .filter-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .dark .filter-btn.active {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
 </style>
 
 <div class="min-h-screen {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} animate-fadeIn bg-white dark:bg-gray-900">
@@ -157,9 +177,24 @@
         <!-- Revenue Chart -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-fadeInUp border border-blue-100 dark:border-gray-700 mb-8">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
-                    {% if LANGUAGE_CODE == 'ar' %}الإيرادات الشهرية (آخر 6 أشهر){% else %}Monthly Revenue (Last 6 Months){% endif %}
-                </h2>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+                        <span id="chartTitle">
+                            {% if LANGUAGE_CODE == 'ar' %}الإيرادات الشهرية (آخر 6 أشهر){% else %}Monthly Revenue (Last 6 Months){% endif %}
+                        </span>
+                    </h2>
+                    <div class="flex gap-2">
+                        <button onclick="updateChart('day')" id="dayBtn" class="filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300">
+                            {% if LANGUAGE_CODE == 'ar' %}يومي{% else %}Daily{% endif %}
+                        </button>
+                        <button onclick="updateChart('week')" id="weekBtn" class="filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300">
+                            {% if LANGUAGE_CODE == 'ar' %}أسبوعي{% else %}Weekly{% endif %}
+                        </button>
+                        <button onclick="updateChart('month')" id="monthBtn" class="filter-btn active px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white">
+                            {% if LANGUAGE_CODE == 'ar' %}شهري{% else %}Monthly{% endif %}
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="p-6">
                 <div class="revenue-chart">
@@ -171,9 +206,53 @@
         <!-- Recent Transactions -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-fadeInUp border border-blue-100 dark:border-gray-700">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
-                    {% if LANGUAGE_CODE == 'ar' %}أحدث المعاملات{% else %}Recent Transactions{% endif %}
-                </h2>
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+                        {% if LANGUAGE_CODE == 'ar' %}أحدث المعاملات{% else %}Recent Transactions{% endif %}
+                    </h2>
+
+                    <!-- Filter Controls -->
+                    <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <!-- Order ID Filter -->
+                            <div class="relative">
+                                <input type="text"
+                                       id="orderIdFilter"
+                                       placeholder="{% if LANGUAGE_CODE == 'ar' %}رقم الطلب{% else %}Order ID{% endif %}"
+                                       class="w-full sm:w-32 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <i class="fas fa-hashtag absolute {% if LANGUAGE_CODE == 'ar' %}left-3{% else %}right-3{% endif %} top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+                            </div>
+
+                            <!-- Price Range Filter -->
+                            <div class="flex gap-2">
+                                <input type="number"
+                                       id="minPriceFilter"
+                                       placeholder="{% if LANGUAGE_CODE == 'ar' %}أدنى سعر{% else %}Min Price{% endif %}"
+                                       class="w-full sm:w-28 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <input type="number"
+                                       id="maxPriceFilter"
+                                       placeholder="{% if LANGUAGE_CODE == 'ar' %}أعلى سعر{% else %}Max Price{% endif %}"
+                                       class="w-full sm:w-28 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+
+                            <!-- Quantity Filter -->
+                            <div class="relative">
+                                <input type="number"
+                                       id="quantityFilter"
+                                       placeholder="{% if LANGUAGE_CODE == 'ar' %}الكمية{% else %}Quantity{% endif %}"
+                                       class="w-full sm:w-24 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <i class="fas fa-sort-numeric-up absolute {% if LANGUAGE_CODE == 'ar' %}left-3{% else %}right-3{% endif %} top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+                            </div>
+
+                            <!-- Clear Filters Button -->
+                            <button onclick="clearFilters()"
+                                    class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                                <i class="fas fa-times text-xs"></i>
+                                {% if LANGUAGE_CODE == 'ar' %}مسح{% else %}Clear{% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -266,6 +345,8 @@
 <!-- Include Chart.js -->
 <!-- Safe JSON data passing -->
 {{ monthly_revenue|json_script:"monthly-revenue-data" }}
+{{ weekly_revenue|json_script:"weekly-revenue-data" }}
+{{ daily_revenue|json_script:"daily-revenue-data" }}
 
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -275,6 +356,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Safely get data from Django
     const monthlyRevenueData = JSON.parse(document.getElementById('monthly-revenue-data').textContent);
+    const weeklyRevenueData = document.getElementById('weekly-revenue-data') ?
+        JSON.parse(document.getElementById('weekly-revenue-data').textContent) : [];
+    const dailyRevenueData = document.getElementById('daily-revenue-data') ?
+        JSON.parse(document.getElementById('daily-revenue-data').textContent) : [];
+
     console.log('Monthly revenue data:', monthlyRevenueData);
 
     // Revenue Chart
@@ -285,7 +371,15 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    try {
+    let revenueChart;
+    let currentFilter = 'month';
+
+    function createChart(data, filter) {
+        // Destroy existing chart if it exists
+        if (revenueChart) {
+            revenueChart.destroy();
+        }
+
         // Get current theme
         const isDarkMode = document.documentElement.classList.contains('dark');
 
@@ -295,93 +389,121 @@ document.addEventListener('DOMContentLoaded', function() {
         const textColor = isDarkMode ? '#E5E7EB' : '#374151';
         const gridColor = isDarkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(209, 213, 219, 0.5)';
 
-        const revenueChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: monthlyRevenueData.map(function(item) { return item.month; }),
-                datasets: [{
-                    label: '{% if LANGUAGE_CODE == "ar" %}الإيرادات{% else %}Revenue{% endif %}',
-                    data: monthlyRevenueData.map(function(item) {
-                        return parseFloat(item.revenue);
-                    }),
-                    backgroundColor: barColor,
-                    borderColor: borderColor,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: gridColor
-                        },
-                        ticks: {
-                            color: textColor,
-                            callback: function(value) {
-                                return value.toFixed(2) + ' {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}';
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: gridColor
-                        },
-                        ticks: {
-                            color: textColor
-                        }
-                    }
+        try {
+            revenueChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(function(item) { return item.period || item.month; }),
+                    datasets: [{
+                        label: '{% if LANGUAGE_CODE == "ar" %}الإيرادات{% else %}Revenue{% endif %}',
+                        data: data.map(function(item) {
+                            return parseFloat(item.revenue);
+                        }),
+                        backgroundColor: barColor,
+                        borderColor: borderColor,
+                        borderWidth: 1
+                    }]
                 },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: textColor
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    return value.toFixed(2) + ' {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
                         }
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return parseFloat(context.parsed.y).toFixed(2) + ' {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}';
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return parseFloat(context.parsed.y).toFixed(2) + ' {{ request.user.userprofile.Coach_profile.club.vat_settings.currency }}';
+                                }
                             }
                         }
                     }
-                }
-            }
-        });
-
-        // Update chart colors when theme changes
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.attributeName === 'class') {
-                    const isNowDark = document.documentElement.classList.contains('dark');
-                    revenueChart.data.datasets[0].backgroundColor = isNowDark ? 'rgba(96, 165, 250, 0.7)' : 'rgba(59, 130, 246, 0.7)';
-                    revenueChart.data.datasets[0].borderColor = isNowDark ? 'rgba(96, 165, 250, 1)' : 'rgba(59, 130, 246, 1)';
-
-                    const newTextColor = isNowDark ? '#E5E7EB' : '#374151';
-                    const newGridColor = isNowDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(209, 213, 219, 0.5)';
-
-                    revenueChart.options.scales.y.ticks.color = newTextColor;
-                    revenueChart.options.scales.x.ticks.color = newTextColor;
-                    revenueChart.options.scales.y.grid.color = newGridColor;
-                    revenueChart.options.scales.x.grid.color = newGridColor;
-                    revenueChart.options.plugins.legend.labels.color = newTextColor;
-
-                    revenueChart.update();
                 }
             });
-        });
 
-        observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ['class']
-        });
-
-        console.log('Chart created successfully');
-    } catch (error) {
-        console.error('Error creating chart:', error);
+            console.log('Chart created successfully for filter:', filter);
+        } catch (error) {
+            console.error('Error creating chart:', error);
+        }
     }
+
+    // Initialize chart with monthly data
+    createChart(monthlyRevenueData, 'month');
+
+    // Global function to update chart
+    window.updateChart = function(filter) {
+        currentFilter = filter;
+
+        // Update button states
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.className = 'filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300';
+        });
+
+        document.getElementById(filter + 'Btn').className = 'filter-btn active px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white';
+
+        // Update chart title
+        const chartTitle = document.getElementById('chartTitle');
+        let titleText = '';
+        let data = [];
+
+        switch(filter) {
+            case 'day':
+                titleText = '{% if LANGUAGE_CODE == "ar" %}الإيرادات اليومية (آخر 30 يوم){% else %}Daily Revenue (Last 30 Days){% endif %}';
+                data = dailyRevenueData;
+                break;
+            case 'week':
+                titleText = '{% if LANGUAGE_CODE == "ar" %}الإيرادات الأسبوعية (آخر 12 أسبوع){% else %}Weekly Revenue (Last 12 Weeks){% endif %}';
+                data = weeklyRevenueData;
+                break;
+            case 'month':
+                titleText = '{% if LANGUAGE_CODE == "ar" %}الإيرادات الشهرية (آخر 6 أشهر){% else %}Monthly Revenue (Last 6 Months){% endif %}';
+                data = monthlyRevenueData;
+                break;
+        }
+
+        chartTitle.textContent = titleText;
+        createChart(data, filter);
+    };
+
+    // Update chart colors when theme changes
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                // Recreate chart with current filter to update colors
+                window.updateChart(currentFilter);
+            }
+        });
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
 });
 </script>
 
@@ -417,5 +539,140 @@ document.addEventListener('DOMContentLoaded', function() {
           document.getElementById('toggle').checked = true;
       }
   });
+</script>
+
+<script>
+// Transaction filtering functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const orderIdFilter = document.getElementById('orderIdFilter');
+    const minPriceFilter = document.getElementById('minPriceFilter');
+    const maxPriceFilter = document.getElementById('maxPriceFilter');
+    const quantityFilter = document.getElementById('quantityFilter');
+
+    // Add event listeners to all filter inputs
+    [orderIdFilter, minPriceFilter, maxPriceFilter, quantityFilter].forEach(input => {
+        input.addEventListener('input', filterTransactions);
+        input.addEventListener('keyup', filterTransactions);
+    });
+
+    function filterTransactions() {
+        const orderIdValue = orderIdFilter.value.toLowerCase().trim();
+        const minPrice = parseFloat(minPriceFilter.value) || 0;
+        const maxPrice = parseFloat(maxPriceFilter.value) || Infinity;
+        const quantityValue = parseInt(quantityFilter.value) || null;
+
+        const tableRows = document.querySelectorAll('tbody tr:not(.bg-gray-50)'); // Exclude total row
+        let visibleCount = 0;
+
+        tableRows.forEach(row => {
+            // Skip empty state row
+            if (row.querySelector('td[colspan]')) {
+                return;
+            }
+
+            const cells = row.querySelectorAll('td');
+            if (cells.length < 8) return;
+
+            // Extract data from cells
+            const orderId = cells[0].textContent.toLowerCase().trim();
+            const priceText = cells[3].textContent.trim();
+            const quantityText = cells[2].textContent.trim();
+
+            // Parse price (remove currency and convert to number)
+            const price = parseFloat(priceText.replace(/[^\d.-]/g, '')) || 0;
+            const quantity = parseInt(quantityText) || 0;
+
+            // Apply filters
+            let shouldShow = true;
+
+            // Order ID filter
+            if (orderIdValue && !orderId.includes(orderIdValue)) {
+                shouldShow = false;
+            }
+
+            // Price range filter
+            if (price < minPrice || price > maxPrice) {
+                shouldShow = false;
+            }
+
+            // Quantity filter
+            if (quantityValue !== null && quantity !== quantityValue) {
+                shouldShow = false;
+            }
+
+            // Show/hide row
+            if (shouldShow) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show/hide "no results" message
+        updateNoResultsMessage(visibleCount);
+
+        // Update total row visibility
+        updateTotalRow(visibleCount);
+    }
+
+    function updateNoResultsMessage(visibleCount) {
+        const tbody = document.querySelector('tbody');
+        let noResultsRow = document.getElementById('noResultsRow');
+
+        if (visibleCount === 0) {
+            // Create no results row if it doesn't exist
+            if (!noResultsRow) {
+                noResultsRow = document.createElement('tr');
+                noResultsRow.id = 'noResultsRow';
+                noResultsRow.innerHTML = `
+                    <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex flex-col items-center justify-center py-8">
+                            <i class="fas fa-search text-4xl text-blue-400 dark:text-blue-500 mb-4"></i>
+                            <p class="text-blue-600 dark:text-blue-400 font-medium">
+                                {% if LANGUAGE_CODE == 'ar' %}لا توجد معاملات تطابق معايير البحث{% else %}No transactions match the filter criteria{% endif %}
+                            </p>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(noResultsRow);
+            }
+            noResultsRow.style.display = '';
+        } else if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    }
+
+    function updateTotalRow(visibleCount) {
+        const totalRow = document.querySelector('tr.bg-gray-50');
+        if (totalRow) {
+            // You might want to recalculate totals based on visible rows
+            // For now, we'll just show/hide the total row
+            totalRow.style.display = visibleCount > 0 ? '' : 'none';
+        }
+    }
+
+    // Global function to clear all filters
+    window.clearFilters = function() {
+        orderIdFilter.value = '';
+        minPriceFilter.value = '';
+        maxPriceFilter.value = '';
+        quantityFilter.value = '';
+
+        // Show all rows
+        const tableRows = document.querySelectorAll('tbody tr');
+        tableRows.forEach(row => {
+            if (!row.id || row.id !== 'noResultsRow') {
+                row.style.display = '';
+            }
+        });
+
+        // Hide no results message
+        const noResultsRow = document.getElementById('noResultsRow');
+        if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    };
+});
 </script>
 {% endblock %}

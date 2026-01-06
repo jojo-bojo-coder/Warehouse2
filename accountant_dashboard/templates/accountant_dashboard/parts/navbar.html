@@ -81,7 +81,7 @@
   <!-- Sidebar Header with Collapse Button -->
   <div class="px-4 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
     <div class="flex items-center space-x-2">
-      <div class="ml-2 h-8 w-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+      <div class="{% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %} h-8 w-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
         </svg>
@@ -101,63 +101,63 @@
   <div class="flex-1 overflow-y-auto px-4 mt-2 space-y-1 custom-scrollbar">
     <nav class="flex flex-col space-y-1">
       <a href="{% url 'accountant_dashboard' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-home ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-home {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}الرئيسية{% else %}Dashboard{% endif %}
         </span>
       </a>
 
       <a href="{% url 'accountant_revenue_analytics' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-chart-line ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-chart-line {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}الإيرادات والتحليلات{% else %}Revenue Analytics{% endif %}
         </span>
       </a>
 
       <a href="{% url 'accountant_bills_review' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-file-invoice ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-file-invoice {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}الفواتير{% else %}Invoices{% endif %}
         </span>
       </a>
 
       <a href="{% url 'accountant_expense_analytics' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-money-bill-wave ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-money-bill-wave {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}المصروفات{% else %}Expenses{% endif %}
         </span>
       </a>
 
       <a href="{% url 'accountant_custom_financial_reports' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-file-invoice-dollar ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-file-invoice-dollar {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}التقارير{% else %}Reports{% endif %}
         </span>
       </a>
 
       <a href="{% url 'accountant_banner_management' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-image ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-image {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}إدارة البانر{% else %}Banner Management{% endif %}
         </span>
       </a>
 
       <a href="{% url 'accountant_marketing_reports' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-bullhorn ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-bullhorn {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}تحليل التسويق{% else %}Marketing Analysis{% endif %}
         </span>
       </a>
 
       <a href="{% url 'accountant_cms_settings' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-cogs ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-cogs {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}إدارة صفحات CMS{% else %}CMS Management{% endif %}
         </span>
       </a>
 
       <a href="{% url 'accountant_vat_settings' %}" class="nav-item group flex items-center rounded-md px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-        <i class="fas fa-sliders-h ml-3 text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+        <i class="fas fa-sliders-h {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
         <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
           {% if LANGUAGE_CODE == 'ar' %}الإعدادات العامة{% else %}General settings{% endif %}
         </span>
@@ -168,7 +168,7 @@
   <!-- User menu and logout -->
   <div class="mt-auto p-4 border-t border-gray-200 dark:border-gray-700">
     <div class="nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200">
-      <div class="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center ml-3">
+      <div class="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}">
         <i class="fas fa-user text-white text-sm"></i>
       </div>
       <span class="nav-text">
@@ -177,7 +177,7 @@
     </div>
 
     <a href="{% url 'signout' %}" class="nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
-      <i class="fas fa-sign-out-alt ml-3 text-red-500 group-hover:text-red-700 dark:group-hover:text-red-300"></i>
+      <i class="fas fa-sign-out-alt {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %} text-red-500 group-hover:text-red-700 dark:group-hover:text-red-300"></i>
       <span class="nav-text transition-transform duration-200 ease-in-out {% if LANGUAGE_CODE == 'ar' %}group-hover:translate-x-1{% else %}group-hover:-translate-x-1{% endif %}">
         {% if LANGUAGE_CODE == 'ar' %}تسجيل خروج{% else %}Sign Out{% endif %}
       </span>
@@ -192,7 +192,7 @@
 <div class="bg-white dark:bg-gray-800 shadow-md py-3 px-6 flex items-center justify-between sticky top-0 z-10 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
   <!-- Club Logo and Name -->
   <div class="flex items-center">
-    <img class="h-10 w-10 rounded-full ml-3" src="data:image/jpeg;base64,{{ club.club_profile_image_base64|safe }}" alt="Club Logo">
+    <img class="h-10 w-10 rounded-full {% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}" src="data:image/jpeg;base64,{{ club.club_profile_image_base64|safe }}" alt="Club Logo">
     <h1 class="text-xl font-bold text-gray-800 dark:text-white">{{ club.name }}</h1>
   </div>
 
@@ -240,7 +240,7 @@
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clip-rule="evenodd"></path>
                 </svg>
               </div>
-              <div class="ml-3 {% if LANGUAGE_CODE == 'ar' %}mr-3 ml-0{% endif %}">
+              <div class="{% if LANGUAGE_CODE == 'ar' %}ml-3{% else %}mr-3{% endif %}">
                 <p class="text-sm font-medium text-gray-900 dark:text-white">{{ notification.title }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ notification.message|truncatechars:50 }}</p>
                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ notification.created_at|timesince }} ago</p>
@@ -291,29 +291,68 @@
   }
 
   // Collapse/Expand sidebar function
-  function toggleCollapse() {
-    const sidebar = document.getElementById("sidebar");
-    sidebar.classList.toggle("sidebar-collapsed");
+function toggleCollapse() {
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("main-content");
 
-    // Store preference in cookie
+  sidebar.classList.toggle("sidebar-collapsed");
+
+  // Toggle main content padding
+  if (mainContent) {
     if (sidebar.classList.contains("sidebar-collapsed")) {
-      document.cookie = "sidebarCollapsed=true; path=/; max-age=31536000";
+      // Collapsed state - use smaller padding
+      if (document.documentElement.dir === "rtl") {
+        mainContent.classList.remove("xl:pr-[20%]");
+        mainContent.classList.add("xl:pr-[8%]");
+      } else {
+        mainContent.classList.remove("xl:pl-[20%]");
+        mainContent.classList.add("xl:pl-[8%]");
+      }
     } else {
-      document.cookie = "sidebarCollapsed=false; path=/; max-age=31536000";
+      // Expanded state - use larger padding
+      if (document.documentElement.dir === "rtl") {
+        mainContent.classList.remove("xl:pr-[8%]");
+        mainContent.classList.add("xl:pr-[20%]");
+      } else {
+        mainContent.classList.remove("xl:pl-[8%]");
+        mainContent.classList.add("xl:pl-[20%]");
+      }
     }
   }
 
-  // Check for saved sidebar state on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    const sidebarCookie = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('sidebarCollapsed='));
+  // Store preference in cookie
+  if (sidebar.classList.contains("sidebar-collapsed")) {
+    document.cookie = "sidebarCollapsed=true; path=/; max-age=31536000";
+  } else {
+    document.cookie = "sidebarCollapsed=false; path=/; max-age=31536000";
+  }
+}
 
-    const isCollapsed = sidebarCookie ? sidebarCookie.split('=')[1] === 'true' : false;
-    if (isCollapsed) {
-      document.getElementById("sidebar").classList.add("sidebar-collapsed");
+  // Check for saved sidebar state on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebarCookie = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('sidebarCollapsed='));
+
+  const isCollapsed = sidebarCookie ? sidebarCookie.split('=')[1] === 'true' : false;
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("main-content");
+
+  if (isCollapsed && sidebar) {
+    sidebar.classList.add("sidebar-collapsed");
+
+    // Apply collapsed padding on page load
+    if (mainContent) {
+      if (document.documentElement.dir === "rtl") {
+        mainContent.classList.remove("xl:pr-[20%]");
+        mainContent.classList.add("xl:pr-[8%]");
+      } else {
+        mainContent.classList.remove("xl:pl-[20%]");
+        mainContent.classList.add("xl:pl-[8%]");
+      }
     }
-  });
+  }
+});
 
   // Dark mode toggle function
   function toggleDarkMode() {
@@ -350,20 +389,6 @@
     }
     if (!event.target.closest('#notificationDropdown') && !event.target.closest('[onclick="toggleNotificationDropdown()"]')) {
       document.getElementById('notificationDropdown').classList.add('hidden');
-    }
-  });
-
-  // Check for saved dark mode preference on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    const darkModeCookie = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('darkMode='));
-
-    const isDarkMode = darkModeCookie ? darkModeCookie.split('=')[1] === 'true' : false;
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (isDarkMode || (!darkModeCookie && systemPrefersDark)) {
-      document.documentElement.classList.add('dark');
     }
   });
 </script>

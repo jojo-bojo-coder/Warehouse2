@@ -295,39 +295,65 @@ class PolicyDocumentsForm(forms.ModelForm):
 from django import forms
 from .models import CoachReceptionistTicket, TicketMessage
 from accounts.models import ReceptionistProfile
+
+
 class CoachTicketForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        # Extract language from kwargs if provided, otherwise use default
+        self.language_code = kwargs.pop('language_code', 'ar')
+        super().__init__(*args, **kwargs)
+
+        # Set bilingual labels
+        if self.language_code == 'ar':
+            self.fields['subject'].label = 'الموضوع'
+            self.fields['message'].label = 'الرسالة'
+            self.fields['subject'].help_text = 'اكتب موضوع طلب الدعم الخاص بك'
+            self.fields['message'].help_text = 'أدخل تفاصيل طلب الدعم الخاص بك'
+            self.fields['subject'].widget.attrs['placeholder'] = 'موضوع الطلب'
+            self.fields['message'].widget.attrs['placeholder'] = 'اكتب رسالتك هنا...'
+        else:
+            self.fields['subject'].label = 'Subject'
+            self.fields['message'].label = 'Message'
+            self.fields['subject'].help_text = 'Write the subject of your support request'
+            self.fields['message'].help_text = 'Enter the details of your support request'
+            self.fields['subject'].widget.attrs['placeholder'] = 'Subject of the request'
+            self.fields['message'].widget.attrs['placeholder'] = 'Write your message here...'
+
     class Meta:
         model = CoachReceptionistTicket
-        fields = [ 'subject', 'message']
-        labels = {
-            'subject': 'Subject',
-            'message': 'Message',
-        }
-        help_texts = {
-            'subject': 'Write the subject of your support request',
-            'message': 'Enter the details of your support request',
-        }
+        fields = ['subject', 'message']
         widgets = {
             'message': forms.Textarea(attrs={
                 'rows': 4,
-                'placeholder': 'Write your message here...'
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white'
             }),
             'subject': forms.TextInput(attrs={
-                'placeholder': 'Subject of the request'
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white'
             }),
         }
 
+
 class TicketMessageForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        # Extract language from kwargs if provided, otherwise use default
+        self.language_code = kwargs.pop('language_code', 'ar')
+        super().__init__(*args, **kwargs)
+
+        # Set bilingual labels and placeholders
+        if self.language_code == 'ar':
+            self.fields['message'].label = 'الرسالة'
+            self.fields['message'].widget.attrs['placeholder'] = 'اكتب رسالتك هنا...'
+        else:
+            self.fields['message'].label = 'Message'
+            self.fields['message'].widget.attrs['placeholder'] = 'Write your message here...'
+
     class Meta:
         model = TicketMessage
         fields = ['message']
-        labels = {
-            'message': 'الرسالة',
-        }
         widgets = {
             'message': forms.Textarea(attrs={
                 'rows': 3,
-                'placeholder': 'اكتب رسالتك هنا...'
+                'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white'
             }),
         }
 

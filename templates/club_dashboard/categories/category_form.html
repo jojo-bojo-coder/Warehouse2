@@ -274,6 +274,49 @@
 </div>
 
 <script>
+    // Function to customize file input for Arabic
+    function customizeFileInputForArabic(fileInput) {
+        // Create a custom button for Arabic
+        const customButton = document.createElement('button');
+        customButton.type = 'button';
+        customButton.className = 'bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800';
+        customButton.textContent = 'تصفح';
+
+        // Hide the original file input
+        fileInput.style.display = 'none';
+
+        // Create container for custom file input
+        const container = document.createElement('div');
+        container.className = 'flex items-center gap-4';
+
+        // Insert custom button and file name display
+        const fileNameDisplay = document.createElement('span');
+        fileNameDisplay.className = 'text-sm text-gray-500 dark:text-gray-400';
+        fileNameDisplay.textContent = 'لم يتم اختيار ملف';
+
+        container.appendChild(customButton);
+        container.appendChild(fileNameDisplay);
+
+        // Insert container after the original file input
+        fileInput.parentNode.insertBefore(container, fileInput.nextSibling);
+
+        // Handle custom button click
+        customButton.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // Update file name display when file is selected
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                fileNameDisplay.textContent = this.files[0].name;
+                fileNameDisplay.className = 'text-sm text-green-600 dark:text-green-400';
+            } else {
+                fileNameDisplay.textContent = 'لم يتم اختيار ملف';
+                fileNameDisplay.className = 'text-sm text-gray-500 dark:text-gray-400';
+            }
+        });
+    }
+
     // Show success messages if any
     document.addEventListener('DOMContentLoaded', function() {
       const messages = document.querySelectorAll('.messages li');
@@ -294,6 +337,12 @@
         setTimeout(() => {
           toast.classList.add('hidden');
         }, 5000);
+      }
+
+      // Initialize file input customization for Arabic
+      const fileInput = document.getElementById('{{ form.image.id_for_label }}');
+      if (fileInput && '{{ LANGUAGE_CODE }}' === 'ar') {
+          customizeFileInputForArabic(fileInput);
       }
     });
 

@@ -97,7 +97,7 @@
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
+<div id="main-content"  class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-gray-50 dark:bg-gray-900 w-full min-h-screen pb-12">
 
   <!-- Main Content -->
   <div class="px-4 md:px-8 pt-6">
@@ -120,7 +120,7 @@
     </div>
 
     <!-- Filter Section -->
-    <div class="animate-[fadeIn_0.8s_ease-out_0.2s_both] filter-section">
+    <div class=" filter-section">
       <form method="get" action="{% url 'accountant_marketing_reports' %}">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <!-- Report Type -->
@@ -214,7 +214,7 @@
     </div>
 
     <!-- Report Summary -->
-    <div class="animate-[fadeIn_0.8s_ease-out_0.4s_both] bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
+    <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-semibold text-gray-800 dark:text-white flex items-center gap-3">
           <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300">
@@ -236,7 +236,7 @@
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Total Clicks Card -->
-        <div class="animate-[fadeInUp_0.6s_ease-out_0.5s_both] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+        <div class=" bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
           <div class="flex items-center justify-between">
             <h3 class="text-xl font-semibold text-blue-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي النقرات{% else %}Total Clicks{% endif %}</h3>
             <div class="p-3 rounded-full bg-blue-400/20">
@@ -251,7 +251,7 @@
         </div>
 
         <!-- Total Orders Card -->
-        <div class="animate-[fadeInUp_0.6s_ease-out_0.6s_both] bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+        <div class=" bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
           <div class="flex items-center justify-between">
             <h3 class="text-xl font-semibold text-green-100">{% if LANGUAGE_CODE == 'ar' %}إجمالي الطلبات{% else %}Total Orders{% endif %}</h3>
             <div class="p-3 rounded-full bg-green-400/20">
@@ -266,7 +266,7 @@
         </div>
 
         <!-- Conversion Rate Card -->
-        <div class="animate-[fadeInUp_0.6s_ease-out_0.7s_both] bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
+        <div class=" bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 text-white transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 flex flex-col h-full">
           <div class="flex items-center justify-between">
             <h3 class="text-xl font-semibold text-purple-100">{% if LANGUAGE_CODE == 'ar' %}معدل التحويل{% else %}Conversion Rate{% endif %}</h3>
             <div class="p-3 rounded-full bg-purple-400/20">
@@ -282,7 +282,7 @@
       </div>
 
       <!-- Notes Section -->
-      <div class="animate-[fadeIn_0.8s_ease-out_0.8s_both] bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
+      <div class=" bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
         <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
           <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>

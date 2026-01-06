@@ -46,7 +46,7 @@
   }
 </style>
 
-<div class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
+<div id="main-content" class="{% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %} bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12">
   <!-- Header Section -->
   <div class="py-8">
     <h1 class="text-4xl font-bold text-blue-800 dark:text-blue-400 mb-2">
@@ -74,7 +74,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {% if LANGUAGE_CODE == 'ar' %}صورة الملف الشخصي{% else %}Profile Picture{% endif %}
             </label>
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center ">
               <div class="relative">
                 <img class="h-24 w-24 rounded-full border-2 border-gray-300 dark:border-gray-600"
                      src="{{ receptionist.profile_image_base64|default:'https://via.placeholder.com/128' }}"
@@ -83,7 +83,7 @@
                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                        onchange="previewImage(this)">
               </div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">
+              <div class="text-sm text-gray-500 dark:text-gray-400 {% if LANGUAGE_CODE == 'ar' %}mr-2{% else %}ml-2{% endif %}">
                 {% if LANGUAGE_CODE == 'ar' %}
                 انقر على الصورة لتغييرها
                 {% else %}

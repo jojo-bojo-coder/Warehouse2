@@ -23,6 +23,35 @@
       background-color: white;
     }
 
+    /* Validation styles */
+    #id_title.error {
+      border-color: #EF4444; /* red-500 */
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+
+    #id_title.success {
+      border-color: #10B981; /* green-500 */
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+
+    .validation-message {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+    }
+
+    .validation-message.error {
+      color: #EF4444;
+    }
+
+    .validation-message.success {
+      color: #10B981;
+    }
+
+    .validation-message.checking {
+      color: #6B7280;
+    }
+
     /* Dark mode styles */
     .dark #id_title {
       border-color: #4B5563;
@@ -39,6 +68,28 @@
     .dark #id_title:hover {
       border-color: #60A5FA;
       background-color: #111827;
+    }
+
+    .dark #id_title.error {
+      border-color: #EF4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
+    }
+
+    .dark #id_title.success {
+      border-color: #10B981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+    }
+
+    .dark .validation-message.error {
+      color: #FCA5A5;
+    }
+
+    .dark .validation-message.success {
+      color: #6EE7B7;
+    }
+
+    .dark .validation-message.checking {
+      color: #9CA3AF;
     }
 
     /* Animation Classes */
@@ -81,24 +132,34 @@
             </div>
             {% if LANGUAGE_CODE == 'ar' %}تعديل التصنيف{% else %}Edit Classification{% endif %}
         </h1>
-        <form method="post" enctype="multipart/form-data" class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 animate-fadeInUp">
+        <form method="post" enctype="multipart/form-data" class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 animate-fadeInUp" id="classificationForm">
             {% csrf_token %}
             <div class="mb-6">
-                <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="id_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {% if LANGUAGE_CODE == 'ar' %}عنوان التصنيف{% else %}Classification Title{% endif %}
+                    <span class="text-red-500">*</span>
                 </label>
                 {{ form.title }}
+                <div id="validationMessage" class="validation-message" style="display: none;"></div>
+                {% if form.title.errors %}
+                    <div class="validation-message error">
+                        {% for error in form.title.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
             <div class="flex items-center justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
                 <a
                         href="{% url 'coachviewServicesClassification' %}"
-                        class="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 font-medium mr-4"
+                        class="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 font-medium {% if LANGUAGE_CODE == 'ar' %}ml-4{% else %}mr-4{% endif %}"
                 >
                     {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
                 </a>
                 <button
                         type="submit"
-                        class="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+                        id="submitBtn"
+                        class="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {% if LANGUAGE_CODE == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
                 </button>
@@ -108,8 +169,163 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add any necessary JavaScript here
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('id_title');
+    const validationMessage = document.getElementById('validationMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    const form = document.getElementById('classificationForm');
+
+    let checkTimeout;
+    let isValidating = false;
+    let isValid = true; // Start as valid for edit mode
+    let originalTitle = titleInput.value.trim(); // Store original title
+
+    // Messages for different languages
+    const messages = {
+        ar: {
+            checking: 'جاري التحقق...',
+            exists: 'تصنيف بهذا الاسم موجود بالفعل',
+            available: 'اسم التصنيف متاح',
+            required: 'عنوان التصنيف مطلوب'
+        },
+        en: {
+            checking: 'Checking availability...',
+            exists: 'A classification with this name already exists',
+            available: 'Classification name is available',
+            required: 'Classification title is required'
+        }
+    };
+
+    const lang = '{{ LANGUAGE_CODE }}' === 'ar' ? 'ar' : 'en';
+
+    function showMessage(message, type) {
+        validationMessage.textContent = message;
+        validationMessage.className = `validation-message ${type}`;
+        validationMessage.style.display = 'block';
+    }
+
+    function hideMessage() {
+        validationMessage.style.display = 'none';
+    }
+
+    function updateInputStyle(type) {
+        titleInput.classList.remove('error', 'success');
+        if (type) {
+            titleInput.classList.add(type);
+        }
+    }
+
+    function updateSubmitButton() {
+        const hasValue = titleInput.value.trim().length > 0;
+        submitBtn.disabled = !hasValue || !isValid || isValidating;
+    }
+
+    function checkClassificationName(title) {
+        if (!title.trim()) {
+            hideMessage();
+            updateInputStyle();
+            isValid = false;
+            updateSubmitButton();
+            return;
+        }
+
+        // If title hasn't changed from original, it's valid
+        if (title.trim() === originalTitle) {
+            hideMessage();
+            updateInputStyle();
+            isValid = true;
+            updateSubmitButton();
+            return;
+        }
+
+        isValidating = true;
+        updateSubmitButton();
+        showMessage(messages[lang].checking, 'checking');
+        updateInputStyle();
+
+        // Get the classification ID from the URL
+        const pathParts = window.location.pathname.split('/');
+        const classificationId = pathParts[pathParts.length - 1];
+
+        fetch(`/coach_dashboard/check-classification-name-edit/${classificationId}/?title=${encodeURIComponent(title)}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            isValidating = false;
+
+            if (data.exists) {
+                showMessage(messages[lang].exists, 'error');
+                updateInputStyle('error');
+                isValid = false;
+            } else {
+                showMessage(messages[lang].available, 'success');
+                updateInputStyle('success');
+                isValid = true;
+            }
+
+            updateSubmitButton();
+        })
+        .catch(error => {
+            console.error('Error checking classification name:', error);
+            isValidating = false;
+            hideMessage();
+            updateInputStyle();
+            isValid = true; // Allow submission on error
+            updateSubmitButton();
+        });
+    }
+
+    // Real-time validation with debouncing
+    titleInput.addEventListener('input', function() {
+        const title = this.value.trim();
+
+        // Clear previous timeout
+        clearTimeout(checkTimeout);
+
+        if (title.length === 0) {
+            hideMessage();
+            updateInputStyle();
+            isValid = false;
+            updateSubmitButton();
+            return;
+        }
+
+        // Debounce the API call
+        checkTimeout = setTimeout(() => {
+            checkClassificationName(title);
+        }, 500);
     });
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        const title = titleInput.value.trim();
+
+        if (!title) {
+            e.preventDefault();
+            showMessage(messages[lang].required, 'error');
+            updateInputStyle('error');
+            titleInput.focus();
+            return false;
+        }
+
+        if (isValidating) {
+            e.preventDefault();
+            return false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            titleInput.focus();
+            return false;
+        }
+    });
+
+    // Initial state
+    updateSubmitButton();
+});
 </script>
 {% endblock %}

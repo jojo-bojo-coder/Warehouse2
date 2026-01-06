@@ -49,6 +49,70 @@
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     }
 
+    /* Enhanced dark mode colors for stats cards */
+    .dark .stat-card.bg-gradient-to-r.from-blue-500.to-indigo-500 {
+        background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%) !important;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        box-shadow: 0 4px 20px rgba(30, 58, 138, 0.3);
+    }
+
+    .dark .stat-card.bg-gradient-to-r.from-yellow-500.to-amber-500 {
+        background: linear-gradient(135deg, #b45309 0%, #92400e 100%) !important;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        box-shadow: 0 4px 20px rgba(180, 83, 9, 0.3);
+    }
+
+    .dark .stat-card.bg-gradient-to-r.from-green-500.to-emerald-500 {
+        background: linear-gradient(135deg, #065f46 0%, #064e3b 100%) !important;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        box-shadow: 0 4px 20px rgba(6, 95, 70, 0.3);
+    }
+
+    .dark .stat-card.bg-gradient-to-r.from-purple-500.to-pink-500 {
+        background: linear-gradient(135deg, #581c87 0%, #9d174d 100%) !important;
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        box-shadow: 0 4px 20px rgba(88, 28, 135, 0.3);
+    }
+
+    /* Enhanced hover effects for dark mode stats cards */
+    .dark .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .dark .stat-card.bg-gradient-to-r.from-blue-500.to-indigo-500:hover {
+        box-shadow: 0 15px 35px rgba(30, 58, 138, 0.4);
+    }
+
+    .dark .stat-card.bg-gradient-to-r.from-yellow-500.to-amber-500:hover {
+        box-shadow: 0 15px 35px rgba(180, 83, 9, 0.4);
+    }
+
+    .dark .stat-card.bg-gradient-to-r.from-green-500.to-emerald-500:hover {
+        box-shadow: 0 15px 35px rgba(6, 95, 70, 0.4);
+    }
+
+    .dark .stat-card.bg-gradient-to-r.from-purple-500.to-pink-500:hover {
+        box-shadow: 0 15px 35px rgba(88, 28, 135, 0.4);
+    }
+
+    /* Enhanced text colors for dark mode stats cards */
+    .dark .stat-card .text-blue-100 {
+        color: #dbeafe !important;
+    }
+
+    .dark .stat-card .text-yellow-100 {
+        color: #fef3c7 !important;
+    }
+
+    .dark .stat-card .text-green-100 {
+        color: #d1fae5 !important;
+    }
+
+    .dark .stat-card .text-purple-100 {
+        color: #f3e8ff !important;
+    }
+
     ::-webkit-scrollbar {
         width: 8px;
     }
@@ -79,6 +143,32 @@
         border-color: #3B82F6 !important;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
         outline: none !important;
+    }
+
+    /* Date input specific styles */
+    input[type="date"] {
+        position: relative;
+        padding-left: 2.5rem;
+        padding-right: 1rem;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        position: absolute;
+        right: 0.75rem;
+        color: #3B82F6;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
+    }
+
+    /* Dark mode date input styles */
+    .dark input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        color: #93C5FD;
     }
 
     .order-status {
@@ -399,7 +489,7 @@
         </div>
 
         <!-- Search and Filter -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-fadeInUp">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 animate-fadeInUp">
             <div class="relative">
                 <select id="statusFilter" class="w-full px-4 py-2.5 border border-blue-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent bg-white dark:bg-gray-700 text-blue-700 dark:text-gray-200 shadow-sm transition-all duration-200">
                     <option value="all">{% if LANGUAGE_CODE == 'ar' %}جميع الطلبات{% else %}All Orders{% endif %}</option>
@@ -421,8 +511,20 @@
                 </select>
             </div>
             <div class="relative">
-                <input id="searchInput" type="text" placeholder="{% if LANGUAGE_CODE == 'ar' %}بحث برقم الطلب...{% else %}Search by order number...{% endif %}" class="w-full px-4 py-2.5 pl-10 border border-blue-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent bg-white dark:bg-gray-700 text-blue-700 dark:text-gray-200 shadow-sm transition-all duration-200" aria-label="{% if LANGUAGE_CODE == 'ar' %}بحث برقم الطلب{% else %}Search by order number{% endif %}"/>
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <input id="dateFromFilter" type="date" class="w-full px-4 py-2.5 border border-blue-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent bg-white dark:bg-gray-700 text-blue-700 dark:text-gray-200 shadow-sm transition-all duration-200" aria-label="{% if LANGUAGE_CODE == 'ar' %}من تاريخ{% else %}From Date{% endif %}" title="{% if LANGUAGE_CODE == 'ar' %}من تاريخ{% else %}From Date{% endif %}"/>
+                <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}right-0 pr-3{% else %}left-0 pl-3{% endif %} flex items-center pointer-events-none">
+                    <i class="fas fa-calendar-alt text-blue-400 dark:text-gray-400 text-sm"></i>
+                </div>
+            </div>
+            <div class="relative">
+                <input id="dateToFilter" type="date" class="w-full px-4 py-2.5 border border-blue-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent bg-white dark:bg-gray-700 text-blue-700 dark:text-gray-200 shadow-sm transition-all duration-200" aria-label="{% if LANGUAGE_CODE == 'ar' %}إلى تاريخ{% else %}To Date{% endif %}" title="{% if LANGUAGE_CODE == 'ar' %}إلى تاريخ{% else %}To Date{% endif %}"/>
+                <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}right-0 pr-3{% else %}left-0 pl-3{% endif %} flex items-center pointer-events-none">
+                    <i class="fas fa-calendar-alt text-blue-400 dark:text-gray-400 text-sm"></i>
+                </div>
+            </div>
+            <div class="relative">
+                <input id="searchInput" type="text" placeholder="{% if LANGUAGE_CODE == 'ar' %}بحث برقم الطلب...{% else %}Search by order number...{% endif %}" class="w-full px-4 py-2.5 {% if LANGUAGE_CODE == 'ar' %}pr-10{% else %}pl-10{% endif %} border border-blue-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent bg-white dark:bg-gray-700 text-blue-700 dark:text-gray-200 shadow-sm transition-all duration-200" aria-label="{% if LANGUAGE_CODE == 'ar' %}بحث برقم الطلب{% else %}Search by order number{% endif %}"/>
+                <div class="absolute inset-y-0 {% if LANGUAGE_CODE == 'ar' %}right-0 pr-3{% else %}left-0 pl-3{% endif %} flex items-center pointer-events-none">
                     <i class="fas fa-search text-blue-400 dark:text-gray-400"></i>
                 </div>
             </div>
@@ -582,21 +684,27 @@
         // Filter functionality
         const statusFilter = document.getElementById('statusFilter');
         const typeFilter = document.getElementById('typeFilter');
+        const dateFromFilter = document.getElementById('dateFromFilter');
+        const dateToFilter = document.getElementById('dateToFilter');
         const searchInput = document.getElementById('searchInput');
         const rows = document.querySelectorAll('tbody tr');
 
         function filterOrders() {
             const status = statusFilter.value;
             const type = typeFilter.value;
+            const dateFrom = dateFromFilter.value;
+            const dateTo = dateToFilter.value;
             const searchQuery = searchInput.value.trim().toLowerCase();
 
             rows.forEach(row => {
                 if (row.cells.length < 6) return; // Skip empty row
 
                 const orderId = row.cells[0].textContent.trim().toLowerCase();
-                const orderStatus = row.cells[3].textContent.trim().toLowerCase();
+                const orderDate = row.cells[1].textContent.trim(); // Date column
                 const orderType = row.cells[2].textContent.trim().toLowerCase();
+                const orderStatus = row.cells[3].textContent.trim().toLowerCase();
 
+                // Status matching
                 const matchStatus = status === 'all' ||
                     (status === 'pending' && orderStatus.includes('pending')) ||
                     (status === 'paid' && orderStatus.includes('paid')) ||
@@ -605,15 +713,32 @@
                     (status === 'completed' && orderStatus.includes('completed')) ||
                     (status === 'cancelled' && orderStatus.includes('cancelled'));
 
+                // Type matching
                 const matchType = type === 'all' ||
                     (type === 'products' && (orderType.includes('منتج') || orderType.includes('product'))) ||
                     (type === 'services' && (orderType.includes('خدمة') || orderType.includes('service'))) ||
-                    (type === 'packages' && (orderType.includes('باقة') || orderType.includes('package'))) ||  // NEW
+                    (type === 'packages' && (orderType.includes('باقة') || orderType.includes('package'))) ||
                     (type === 'mixed' && (orderType.includes('مختلط') || orderType.includes('mixed')));
 
+                // Date matching
+                let matchDate = true;
+                if (dateFrom || dateTo) {
+                    const orderDateObj = new Date(orderDate);
+                    const fromDateObj = dateFrom ? new Date(dateFrom) : null;
+                    const toDateObj = dateTo ? new Date(dateTo) : null;
+
+                    if (fromDateObj && orderDateObj < fromDateObj) {
+                        matchDate = false;
+                    }
+                    if (toDateObj && orderDateObj > toDateObj) {
+                        matchDate = false;
+                    }
+                }
+
+                // Search matching
                 const matchSearch = orderId.includes(searchQuery);
 
-                if (matchStatus && matchType && matchSearch) {
+                if (matchStatus && matchType && matchDate && matchSearch) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
@@ -624,6 +749,8 @@
         // Event listeners
         statusFilter.addEventListener('change', filterOrders);
         typeFilter.addEventListener('change', filterOrders);
+        dateFromFilter.addEventListener('change', filterOrders);
+        dateToFilter.addEventListener('change', filterOrders);
         searchInput.addEventListener('input', filterOrders);
 
         document.addEventListener('click', function(e) {

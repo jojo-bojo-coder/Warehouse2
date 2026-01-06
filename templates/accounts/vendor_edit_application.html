@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .container {
+        min-height: 100vh;
+        background-color: #f9fafb;
+        padding: 3rem 1rem;
+    }
+
+    .main-wrapper {
+        max-width: 64rem;
+        margin: 0 auto;
+    }
+
+    .input-style {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        background-color: white;
+        color: #374151;
+        transition: all 0.2s ease;
+        font-size: 14px;
+    }
+
+    .input-style:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-section {
+        background-color: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
+
+    .header-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .main-title {
+        font-size: 1.875rem;
+        font-weight: bold;
+        color: #111827;
+        margin-bottom: 1rem;
+    }
+
+    .subtitle {
+        color: #6b7280;
+    }
+
+    .feedback-box {
+        background-color: #fefce8;
+        border: 1px solid #fde047;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .feedback-content {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .feedback-icon {
+        flex-shrink: 0;
+        margin-right: 0.75rem;
+    }
+
+    .feedback-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #92400e;
+        margin-bottom: 0.5rem;
+    }
+
+    .feedback-text {
+        font-size: 0.875rem;
+        color: #a16207;
+        white-space: pre-line;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 1rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-grid-full {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .error-text {
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        justify-content: flex-end;
+        padding-top: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+        .button-group {
+            flex-direction: row;
+        }
+    }
+
+    .btn-cancel {
+        padding: 0.75rem 1.5rem;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        border-radius: 0.5rem;
+        background-color: white;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-cancel:hover {
+        background-color: #f9fafb;
+    }
+
+    .btn-submit {
+        padding: 0.75rem 1.5rem;
+        background-color: #2563eb;
+        color: white;
+        border-radius: 0.5rem;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-submit:hover {
+        background-color: #1d4ed8;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .checkbox-input {
+        margin-right: 0.5rem;
+        margin-top: 0.125rem;
+    }
+
+    .checkbox-label {
+        font-size: 0.875rem;
+        color: #374151;
+    }
+</style>
+
+<div class="container">
+    <div class="main-wrapper">
+        <!-- Header -->
+        <div class="header-section">
+            <h1 class="main-title">
+                {% if LANGUAGE_CODE == 'ar' %}
+                    تعديل طلب التسجيل كبائع
+                {% else %}
+                    Edit Vendor Application
+                {% endif %}
+            </h1>
+            <p class="subtitle">
+                {% if LANGUAGE_CODE == 'ar' %}
+                    يرجى تعديل البيانات المطلوبة وإعادة تقديم الطلب
+                {% else %}
+                    Please update the required information and resubmit your application
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Rejection Notes -->
+        {% if rejection_notes %}
+        <div class="feedback-box">
+            <div class="feedback-content">
+                <div class="feedback-icon">
+                    <svg style="height: 1.25rem; width: 1.25rem; color: #f59e0b;" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="feedback-title">
+                        {% if LANGUAGE_CODE == 'ar' %}ملاحظات الإدارة{% else %}Management Notes{% endif %}
+                    </div>
+                    <div class="feedback-text">{{ rejection_notes }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Form -->
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Personal Information -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    {% if LANGUAGE_CODE == 'ar' %}المعلومات الشخصية{% else %}Personal Information{% endif %}
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}الاسم الكامل{% else %}Full Name{% endif %}
+                        </label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                            <div class="error-text">{{ form.full_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}رقم الهاتف{% else %}Phone Number{% endif %}
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <div class="error-text">{{ form.phone.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %}
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="error-text">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}نوع النشاط{% else %}Activity Type{% endif %}
+                        </label>
+                        {{ form.activity_type }}
+                        {% if form.activity_type.errors %}
+                            <div class="error-text">{{ form.activity_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Information -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    {% if LANGUAGE_CODE == 'ar' %}معلومات النشاط التجاري{% else %}Business Information{% endif %}
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}اسم النشاط (عربي){% else %}Business Name (Arabic){% endif %}
+                        </label>
+                        {{ form.business_name_ar }}
+                        {% if form.business_name_ar.errors %}
+                            <div class="error-text">{{ form.business_name_ar.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}اسم النشاط (إنجليزي){% else %}Business Name (English){% endif %}
+                        </label>
+                        {{ form.business_name_en }}
+                        {% if form.business_name_en.errors %}
+                            <div class="error-text">{{ form.business_name_en.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}عدد الفروع{% else %}Number of Branches{% endif %}
+                        </label>
+                        {{ form.number_of_branches }}
+                        {% if form.number_of_branches.errors %}
+                            <div class="error-text">{{ form.number_of_branches.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group form-grid-full">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}وصف النشاط{% else %}Business Description{% endif %}
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="error-text">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Information -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    {% if LANGUAGE_CODE == 'ar' %}معلومات الموقع{% else %}Location Information{% endif %}
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}المنطقة{% else %}Region{% endif %}
+                        </label>
+                        {{ form.region }}
+                        {% if form.region.errors %}
+                            <div class="error-text">{{ form.region.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}المدينة{% else %}City{% endif %}
+                        </label>
+                        {{ form.city }}
+                        {% if form.city.errors %}
+                            <div class="error-text">{{ form.city.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}الحي{% else %}District{% endif %}
+                        </label>
+                        {{ form.district }}
+                        {% if form.district.errors %}
+                            <div class="error-text">{{ form.district.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}الشارع{% else %}Street{% endif %}
+                        </label>
+                        {{ form.street }}
+                        {% if form.street.errors %}
+                            <div class="error-text">{{ form.street.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legal Documents -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    {% if LANGUAGE_CODE == 'ar' %}الوثائق القانونية{% else %}Legal Documents{% endif %}
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}نوع وثيقة النشاط{% else %}Business Document Type{% endif %}
+                        </label>
+                        {{ form.business_document_type }}
+                        {% if form.business_document_type.errors %}
+                            <div class="error-text">{{ form.business_document_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}رقم السجل التجاري{% else %}Commercial Registration Number{% endif %}
+                        </label>
+                        {{ form.commercial_registration_number }}
+                        {% if form.commercial_registration_number.errors %}
+                            <div class="error-text">{{ form.commercial_registration_number.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {% if LANGUAGE_CODE == 'ar' %}الرقم الضريبي (اختياري){% else %}Tax Number (Optional){% endif %}
+                        </label>
+                        {{ form.tax_number }}
+                        {% if form.tax_number.errors %}
+                            <div class="error-text">{{ form.tax_number.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Uploads -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    {% if LANGUAGE_CODE == 'ar' %}الملفات والوثائق{% else %}Files and Documents{% endif %}
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            {{ form.business_document_file.label }}
+                        </label>
+                        {{ form.business_document_file }}
+                        {% if form.business_document_file.errors %}
+                            <div class="error-text">{{ form.business_document_file.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {{ form.commercial_registration_certificate.label }}
+                        </label>
+                        {{ form.commercial_registration_certificate }}
+                        {% if form.commercial_registration_certificate.errors %}
+                            <div class="error-text">{{ form.commercial_registration_certificate.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {{ form.tax_certificate.label }}
+                        </label>
+                        {{ form.tax_certificate }}
+                        {% if form.tax_certificate.errors %}
+                            <div class="error-text">{{ form.tax_certificate.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            {{ form.store_logo.label }}
+                        </label>
+                        {{ form.store_logo }}
+                        {% if form.store_logo.errors %}
+                            <div class="error-text">{{ form.store_logo.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="form-section">
+                <div class="checkbox-group">
+                    {{ form.accept_terms }}
+                    <label for="{{ form.accept_terms.id_for_label }}" class="checkbox-label">
+                        {{ form.accept_terms.label }}
+                    </label>
+                </div>
+                {% if form.accept_terms.errors %}
+                    <div class="error-text">{{ form.accept_terms.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="button-group">
+                <a href="{% url 'dashboard' %}" class="btn-cancel">
+                    {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                </a>
+                <button type="submit" class="btn-submit">
+                    {% if LANGUAGE_CODE == 'ar' %}إعادة تقديم الطلب{% else %}Resubmit Application{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ✅ BEST SOLUTION: JavaScript using data from backend -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ✅ Get regions and cities data from Django context (passed from view)
+    const regionsAndCities = {{ regions_and_cities_json|safe }};
+
+    const regionSelect = document.getElementById('region-select');
+    const citySelect = document.getElementById('city-select');
+
+    if (regionSelect && citySelect) {
+        // Save the initial selected city (for when editing)
+        const initialCity = citySelect.value;
+
+        // Function to update cities based on selected region
+        function updateCities(selectedRegion) {
+            // Clear current cities
+            citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+
+            // If a region is selected, populate cities
+            if (selectedRegion && regionsAndCities[selectedRegion]) {
+                const cities = regionsAndCities[selectedRegion];
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+
+                    // Re-select the initial city if it matches
+                    if (city === initialCity) {
+                        option.selected = true;
+                    }
+
+                    citySelect.appendChild(option);
+                });
+            }
+        }
+
+        // Initialize cities based on current region selection
+        if (regionSelect.value) {
+            updateCities(regionSelect.value);
+        }
+
+        // Update cities when region changes
+        regionSelect.addEventListener('change', function() {
+            updateCities(this.value);
+        });
+    }
+});
+</script>
+{% endblock %}

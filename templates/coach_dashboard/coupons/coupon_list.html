@@ -129,6 +129,51 @@
     .dark .coupon-table tr:hover {
         background-color: #1e3a8a;
     }
+
+    /* Button Effects */
+    .btn-gradient {
+        background-size: 200% auto;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .btn-gradient:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-content {
+        width: 90%;
+        max-width: 500px;
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+        transform: translateY(0);
+    }
 </style>
 
 <div class="bg-white dark:bg-gray-900 w-full px-4 md:px-8 min-h-screen pb-12 {% if LANGUAGE_CODE == 'ar' %}xl:pr-[20%]{% else %}xl:pl-[20%]{% endif %}">
@@ -305,25 +350,26 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <a href="{% url 'edit_coupon' coupon.id %}" class="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" title="{% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}">
+                                <div class="flex {% if LANGUAGE_CODE == 'ar' %} space-x-reverse space-x-2{% else %}flex-row space-x-2{% endif %}">
+                                    <a href="{% url 'edit_coupon' coupon.id %}" class="btn-gradient bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 shadow-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-300" title="{% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}">
                                         <i class="fas fa-edit"></i>
+                                        {% if LANGUAGE_CODE == 'ar' %}تعديل{% else %}Edit{% endif %}
                                     </a>
-                                    <a href="{% url 'coupon_usage' coupon.id %}" class="text-purple-600 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-300" title="{% if LANGUAGE_CODE == 'ar' %}سجل الاستخدام{% else %}Usage History{% endif %}">
+                                    <a href="{% url 'coupon_usage' coupon.id %}" class="btn-gradient bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 shadow-sm hover:from-purple-600 hover:to-purple-700 transition-all duration-300" title="{% if LANGUAGE_CODE == 'ar' %}سجل الاستخدام{% else %}Usage History{% endif %}">
                                         <i class="fas fa-history"></i>
+                                        {% if LANGUAGE_CODE == 'ar' %}السجل{% else %}History{% endif %}
                                     </a>
                                     <form method="post" action="{% url 'toggle_coupon_status' coupon.id %}" class="inline">
                                         {% csrf_token %}
-                                        <button type="submit" class="{% if coupon.is_active %}text-yellow-600 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-300{% else %}text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300{% endif %}" title="{% if coupon.is_active %}{% if LANGUAGE_CODE == 'ar' %}تعطيل{% else %}Deactivate{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}تفعيل{% else %}Activate{% endif %}{% endif %}">
+                                        <button type="submit" class="btn-gradient {% if coupon.is_active %}bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700{% else %}bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700{% endif %} text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 shadow-sm transition-all duration-300" title="{% if coupon.is_active %}{% if LANGUAGE_CODE == 'ar' %}تعطيل{% else %}Deactivate{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}تفعيل{% else %}Activate{% endif %}{% endif %}">
                                             <i class="fas {% if coupon.is_active %}fa-toggle-on{% else %}fa-toggle-off{% endif %}"></i>
+                                            {% if coupon.is_active %}{% if LANGUAGE_CODE == 'ar' %}تعطيل{% else %}Deactivate{% endif %}{% else %}{% if LANGUAGE_CODE == 'ar' %}تفعيل{% else %}Activate{% endif %}{% endif %}
                                         </button>
                                     </form>
-                                    <form method="post" action="{% url 'delete_coupon' coupon.id %}" class="inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" title="{% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}" onclick="return confirm('{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد أنك تريد حذف هذه القسيمة؟{% else %}Are you sure you want to delete this coupon?{% endif %}')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <button onclick="showDeleteModal({{ coupon.id }}, '{{ coupon.code }}')" class="btn-gradient bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 shadow-sm hover:from-red-600 hover:to-red-700 transition-all duration-300" title="{% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}">
+                                        <i class="fas fa-trash"></i>
+                                        {% if LANGUAGE_CODE == 'ar' %}حذف{% else %}Delete{% endif %}
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -340,14 +386,46 @@
                 <p class="text-gray-500 dark:text-gray-400 mb-4">
                     {% if LANGUAGE_CODE == 'ar' %}يمكنك إنشاء قسائم خصم لعملائك{% else %}You can create discount coupons for your clients{% endif %}
                 </p>
-                <a href="{% url 'add_coupon' %}" class="btn bg-blue-600 hover:bg-blue-700 text-white">
-                    <i class="fas fa-plus mr-2"></i>
+                <a href="{% url 'add_coupon' %}" class="btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm">
+                    <i class="fas fa-plus {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i>
                     {% if LANGUAGE_CODE == 'ar' %}إنشاء قسيمة جديدة{% else %}Create New Coupon{% endif %}
                 </a>
             </div>
             {% endif %}
         </div>
     </section>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+      <div class="p-6">
+        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/50">
+          <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <h3 id="deleteTitle" class="text-lg font-semibold text-gray-800 dark:text-white text-center mb-2">
+          {% if LANGUAGE_CODE == 'ar' %}تأكيد الحذف{% else %}Confirm Deletion{% endif %}
+        </h3>
+        <p id="deleteMessage" class="text-gray-600 dark:text-gray-300 text-center">
+          <!-- Message will be set dynamically -->
+        </p>
+      </div>
+      <div class="flex border-t border-gray-200 dark:border-gray-700">
+        <button id="deleteCancel" type="button" class="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300">
+          {% if LANGUAGE_CODE == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+        </button>
+        <form id="deleteForm" method="POST" action="" class="flex-1">
+          {% csrf_token %}
+          <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium hover:from-red-600 hover:to-red-700 transition-colors duration-300">
+            {% if LANGUAGE_CODE == 'ar' %}نعم، احذف{% else %}Yes, Delete{% endif %}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -367,6 +445,42 @@
                 });
             }
         });
+
+        // Initialize modal functionality
+        const modal = document.getElementById('deleteModal');
+        const cancelButton = document.getElementById('deleteCancel');
+
+        if (cancelButton) {
+            cancelButton.addEventListener('click', function() {
+                modal.classList.remove('active');
+            });
+        }
+
+        // Close modal when clicking outside
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        }
     });
+
+    // Show delete confirmation modal
+    function showDeleteModal(couponId, couponCode) {
+        const modal = document.getElementById('deleteModal');
+        const message = document.getElementById('deleteMessage');
+        const form = document.getElementById('deleteForm');
+
+        // Set the message text
+        const deleteText = "{% if LANGUAGE_CODE == 'ar' %}هل أنت متأكد أنك تريد حذف القسيمة{% else %}Are you sure you want to delete the coupon{% endif %}";
+        message.textContent = `${deleteText} "${couponCode}"?`;
+
+        // Set the form action
+        form.action = `{% url 'delete_coupon' 0 %}`.replace('0', couponId);
+
+        // Show the modal
+        modal.classList.add('active');
+    }
 </script>
 {% endblock %}

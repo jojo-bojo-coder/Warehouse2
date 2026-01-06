@@ -208,7 +208,7 @@
                 <span class="absolute bottom-0 left-0 w-full h-2 bg-blue-200 dark:bg-blue-900 opacity-30 z-0"></span>
             </h1>
             <a href="{% url 'coachaddProduct' %}" class="btn-gradient px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 flex items-center transition-all duration-300 shadow-md" aria-label="{% if LANGUAGE_CODE == 'ar' %}إضافة منتج جديد{% else %}Add New Product{% endif %}">
-                <i class="fas fa-plus ml-2"></i> {% if LANGUAGE_CODE == 'ar' %}إضافة منتج جديد{% else %}Add New Product{% endif %}
+                <i class="fas fa-plus {% if LANGUAGE_CODE == 'ar' %}ml-2{% else %}mr-2{% endif %}"></i> {% if LANGUAGE_CODE == 'ar' %}إضافة منتج جديد{% else %}Add New Product{% endif %}
             </a>
         </div>
 

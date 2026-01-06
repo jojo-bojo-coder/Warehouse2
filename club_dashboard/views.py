@@ -1,9 +1,13 @@
-from django.shortcuts import render, redirect,get_object_or_404
-from accounts.models import UserProfile, StudentProfile, CoachProfile ,ReceptionistProfile,AdministrativeProfile,AccountantProfile
+from django.shortcuts import render, redirect, get_object_or_404
+from accounts.models import UserProfile, StudentProfile, CoachProfile, ReceptionistProfile, AdministrativeProfile, \
+    AccountantProfile
 from django.contrib.auth.models import User
-from .forms import StudentProfileForm, ArticleModelForm, ServicesModelForm, ServicesClassificationModelForm, ProductsModelForm, ProductsClassificationModelForm,ReceptionistProfileForm,ProductShipmentForm,AdministratorProfileForm,AccountantProfileForm
-from accounts.forms import ReceptionistSignupForm,AdministratorSignupForm
-from students.models import Blog, ServicesModel, ServicesClassificationModel, ProductsModel, ProductsClassificationModel, ProductsImage, ServicesImage,Order,OrderItem,ServiceOrderModel,OrderCancellation
+from .forms import StudentProfileForm, ArticleModelForm, ServicesModelForm, ServicesClassificationModelForm, \
+    ProductsModelForm, ProductsClassificationModelForm, ReceptionistProfileForm, ProductShipmentForm, \
+    AdministratorProfileForm, AccountantProfileForm
+from accounts.forms import ReceptionistSignupForm, AdministratorSignupForm
+from students.models import Blog, ServicesModel, ServicesClassificationModel, ProductsModel, \
+    ProductsClassificationModel, ProductsImage, ServicesImage, Order, OrderItem, ServiceOrderModel, OrderCancellation
 from django.utils import timezone
 # Create your views here.
 from django.contrib import messages  # ✅ Fix missing import
@@ -18,11 +22,11 @@ from .utils import send_notification  # ✅ Import notification function
 from django.contrib.auth.decorators import login_required  # ✅ Fix missing import
 from django.db.models import Avg
 from club_dashboard.models import Review  # ✅ Import Review model from students app
-from .models import SalonAppointment,ProductShipment,DashboardSettings
+from .models import SalonAppointment, ProductShipment, DashboardSettings
 from django.shortcuts import render
 from django.db.models import Sum, F, FloatField, Case, When, IntegerField, Value
 from django.db.models.functions import Cast
-from .models import ProductsModel ,ProductImg
+from .models import ProductsModel, ProductImg
 from django.utils import timezone
 from django.contrib import messages
 from .forms import ProductsModelForm
@@ -34,13 +38,13 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 from .forms import ServicesModelForm
 from datetime import datetime, timedelta
-from django.db import models , transaction
+from django.db import models, transaction
 from receptionist_dashboard.models import BookingService
 from django.template.loader import render_to_string
 import json
 from django.http import HttpResponseForbidden
 from django.urls import reverse
-from accounts.models import UserProfile,DirectorProfile
+from accounts.models import UserProfile, DirectorProfile
 from .forms import DirectorProfileForm
 from django.utils import translation
 from receptionist_dashboard.models import SalonBooking
@@ -48,9 +52,12 @@ import openpyxl
 from openpyxl.styles import Font, Alignment
 from django.http import HttpResponse
 from django.utils.translation import gettext as _
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import DetailView
 from django.db.models import Count
 from accounts.models import ClubsModel
 from .decorators import club_permission_required
+
 
 # Helper function to get user's club
 def get_user_club(user):
@@ -72,6 +79,7 @@ from django.db.models import ExpressionWrapper
 from django.db.models import F, ExpressionWrapper, Avg, DurationField
 from django.db.models.functions import TruncDay
 
+
 @club_permission_required('club_dashboard_index')
 @login_required
 def club_dashboard_index(request):
@@ -80,9 +88,11 @@ def club_dashboard_index(request):
 
     # ✅ Ensure the user has a valid director profile
 
-
     # ✅ Get the correct club for the director
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None) or getattr(user.userprofile.custom_role_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None) or getattr(user.userprofile.custom_role_profile, 'club',
+                                                                          None)
     club_name = club.name
 
     club_admin = user.userprofile.director_profile
@@ -140,9 +150,9 @@ def club_dashboard_index(request):
         .annotate(count=Count('id'))
     )
 
-    ticket_labels =[]
-    ticket_data =[]
-    ticket_colors =[]
+    ticket_labels = []
+    ticket_data = []
+    ticket_colors = []
     for status in ticket_status_counts:
         ticket_labels.append(status['status'].capitalize())
         ticket_data.append(status['count'])
@@ -258,7 +268,6 @@ def club_dashboard_index(request):
     if previous_month_revenue > 0:
         monthly_change = ((current_month_revenue - previous_month_revenue) / previous_month_revenue) * 100
 
-
     # ✅ Get directors linked through UserProfile
     directors = UserProfile.objects.filter(account_type='6', administrator_profile__club=club)
     director_count = directors.count()
@@ -334,7 +343,6 @@ def club_dashboard_index(request):
     # You'll need to implement actual visitor tracking for this
     total_visitors = 1000  # Replace with actual visitor count if available
     conversion_rate = round((confirmed_orders.count() / total_visitors * 100), 1) if total_visitors > 0 else 0
-
 
     # Revenue sources breakdown (example values - customize based on your data)
     revenue_sources = {
@@ -540,7 +548,9 @@ def club_dashboard_index(request):
 
 from .models import LandingPageContent, LandingPageFeature, LandingPageBanner, LandingPageFAQ, NavItem
 from .forms import (LandingPageContentForm, LandingPageFeatureForm,
-                   LandingPageBannerForm, LandingPageFAQForm, NavItemForm)
+                    LandingPageBannerForm, LandingPageFAQForm, NavItemForm)
+
+
 @login_required
 def edit_landing_content(request):
     """Director dashboard view to edit landing page content"""
@@ -920,6 +930,7 @@ def update_club_contact(request, club_id):
 
     return render(request, 'accounts/profiles/Club/ViewClubProfile.html', context)
 
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -933,7 +944,8 @@ def mark_notifications_read(request):
     try:
         user = request.user
         club = getattr(user.userprofile.director_profile, 'club', None) or getattr(
-            user.userprofile.administrator_profile, 'club', None)  or getattr(user.userprofile.vendor_manager_profile,'club', None)
+            user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,
+                                                                             'club', None)
 
         if not club:
             return JsonResponse({'success': False, 'error': 'No club found'})
@@ -951,6 +963,7 @@ def mark_notifications_read(request):
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
 
 @club_permission_required('delete_review')
 @login_required
@@ -972,7 +985,7 @@ def delete_review(request, review_id):
 
 @club_permission_required('viewStudents')
 def viewStudents(request):
-    context ={}
+    context = {}
     """Displays all students in the club."""
     user = request.user
 
@@ -980,11 +993,12 @@ def viewStudents(request):
     #     messages.error(request, "Unauthorized access.")
     #     return redirect('home')
 
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
-
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     students = UserProfile.objects.filter(
-        account_type='3', 
+        account_type='3',
         student_profile__club=club
     ).select_related('user', 'student_profile')
 
@@ -998,8 +1012,7 @@ def viewStudents(request):
             student.subscription_status = "unknown"
             student.manual_status_display = "-"
     context['LANGUAGE_CODE'] = translation.get_language()
-    return render(request, 'club_dashboard/students/viewStudents.html', {'students': students,'club': club})
-
+    return render(request, 'club_dashboard/students/viewStudents.html', {'students': students, 'club': club})
 
 
 import pandas as pd
@@ -1012,13 +1025,16 @@ from django.db import transaction
 from datetime import datetime
 import io
 
+
 # Add this view for handling the import
 def import_students(request):
     """Display import students page"""
     context = {}
     user = request.user
 
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     if not club:
         messages.error(request, "No club associated with your account.")
@@ -1029,14 +1045,15 @@ def import_students(request):
     return render(request, 'club_dashboard/students/import_students.html', context)
 
 
-
 def process_import_students(request):
     """Process the uploaded Excel/CSV file"""
     if request.method != 'POST':
         return redirect('import_students')
 
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     if not club:
         messages.error(request, "No club associated with your account.")
@@ -1141,6 +1158,7 @@ def process_import_students(request):
 
     return redirect('viewStudents')
 
+
 def download_sample_template(request):
     """Download a sample Excel template for importing students"""
 
@@ -1186,8 +1204,6 @@ def download_sample_template(request):
     return response
 
 
-
-
 def export_students_excel(request):
     user = request.user
 
@@ -1195,7 +1211,9 @@ def export_students_excel(request):
     #     messages.error(request, "Unauthorized access.")
     #     return redirect('home')
 
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     students = UserProfile.objects.filter(
         account_type='3',
@@ -1242,9 +1260,14 @@ def export_students_excel(request):
     wb.save(response)
     return response
 
+
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
+
+
 @club_permission_required('addStudent')
+# views.py - Update the addStudent view
+
 def addStudent(request):
     context = {}
     user = request.user
@@ -1396,11 +1419,14 @@ def confirm_student_duplicate(request):
         'student_data': pending_data
     })
 
+
 @club_permission_required('editStudent')
 def editStudent(request, id):
     context = {}
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     student_profile = get_object_or_404(StudentProfile, id=id)
     student = get_object_or_404(User, userprofile__student_profile=student_profile)
@@ -1456,13 +1482,14 @@ def editStudent(request, id):
     })
 
 
-
 @login_required
 @club_permission_required('deleteStudent')
 def deleteStudent(request, id):
     """Deletes a student from the club."""
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     student_profile = get_object_or_404(StudentProfile, id=id)
     student = get_object_or_404(User, userprofile__student_profile=student_profile)
@@ -1478,11 +1505,15 @@ def deleteStudent(request, id):
 
 from django.db.models import Sum, Q, OuterRef, Subquery, DecimalField
 from django.db.models.functions import Coalesce
+
+
 @club_permission_required('viewCoachs')
 def viewCoachs(request):
     context = {}
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Approved coaches
     coach_userprofile = UserProfile.objects.filter(
@@ -1535,7 +1566,9 @@ def viewCoachs(request):
 def export_coaches_excel(request):
     user = request.user
 
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     coaches = UserProfile.objects.filter(
         account_type='4',
@@ -1579,6 +1612,7 @@ def export_coaches_excel(request):
     response['Content-Disposition'] = 'attachment; filename=vendors.xlsx'
     wb.save(response)
     return response
+
 
 from club_dashboard.forms import CoachProfileForm
 from django.shortcuts import render, redirect
@@ -1719,7 +1753,6 @@ def addCoach(request):
     return render(request, 'club_dashboard/coachs/addCoach.html', context)
 
 
-
 @club_permission_required('editCoach')
 @login_required
 def editCoach(request, id):
@@ -1835,7 +1868,9 @@ def deleteCoach(request, id):
     user = request.user
 
     # Get the club (either from director or administrator profile)
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     coach_profile = get_object_or_404(CoachProfile, id=id)
     coach = get_object_or_404(User, userprofile__Coach_profile=coach_profile)
@@ -1846,7 +1881,6 @@ def deleteCoach(request, id):
 
     # Delete all services created by this coach
     services_deleted = ServicesModel.objects.filter(creator=coach).delete()
-
 
     # Delete coach profile and user account
     coach_profile.delete()
@@ -1865,14 +1899,19 @@ def deleteCoach(request, id):
     )
     return redirect('viewCoachs')
 
+
 from django.shortcuts import render, redirect
 from django.utils import timezone, translation
 from .forms import ArticleModelForm
+
+
 @club_permission_required('addArticle')
 def addArticle(request):
     context = {}
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
     form = ArticleModelForm()
 
     if request.method == 'POST':
@@ -1889,14 +1928,19 @@ def addArticle(request):
     context['LANGUAGE_CODE'] = translation.get_language()
     return render(request, 'club_dashboard/blog/addArticle.html', context)
 
+
 # views.py - Updated editArticle view
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import translation
 from django.contrib import messages
+
+
 @club_permission_required('editArticle')
 def editArticle(request, id):
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Use get_object_or_404 for better error handling
     art = get_object_or_404(Blog, id=id, club=club)
@@ -1934,10 +1978,13 @@ def editArticle(request, id):
 
     return render(request, 'club_dashboard/blog/editArticle.html', context)
 
+
 @club_permission_required('viewArticles')
 def viewArticles(request):
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     arts = Blog.objects.filter(club=club)  # Only show articles from this club
 
@@ -1959,15 +2006,18 @@ def viewArticles(request):
         'total_articles': total_articles,
         'new_articles_this_month': new_articles_this_month,
         'popular_articles': popular_articles.count(),
-        'club':club,
+        'club': club,
     }
     context['LANGUAGE_CODE'] = translation.get_language()
     return render(request, 'club_dashboard/blog/viewArticless.html', context)
 
+
 @club_permission_required('deleteArticle')
 def DeleteArticle(request, id):
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     try:
         art = Blog.objects.get(id=id, club=club)
@@ -1977,13 +2027,16 @@ def DeleteArticle(request, id):
 
     return redirect('viewArticles')
 
+
 @club_permission_required('viewDirectors')
 def viewDirectors(request):
     context = {}
     user = request.user
     userprofile = getattr(user, 'userprofile', None)
 
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     if club:
         directors = UserProfile.objects.filter(
@@ -2084,9 +2137,6 @@ def viewDirectors(request):
 
 from club_dashboard.forms import VendorManagerProfileForm
 
-
-
-
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -2094,6 +2144,8 @@ from django.contrib.auth.models import User
 from django.utils import translation
 from accounts.models import UserProfile
 from .forms import CustomRoleProfileForm
+
+
 @club_permission_required('addDirector')
 def addDirector(request):
     context = {}
@@ -2299,7 +2351,9 @@ def addDirector(request):
     return render(request, 'club_dashboard/directors/addDirector.html', context)
 
 
-from accounts.models import VendorManagerProfile , CustomRoleProfile
+from accounts.models import VendorManagerProfile, CustomRoleProfile
+
+
 @club_permission_required('editDirector')
 def editDirector(request, id, role):
     context = {}
@@ -2422,6 +2476,7 @@ def editDirector(request, id, role):
         'LANGUAGE_CODE': context['LANGUAGE_CODE']
     })
 
+
 @club_permission_required('deleteDirector')
 def deleteDirector(request, id, role):
     user = request.user
@@ -2509,6 +2564,7 @@ def deleteDirector(request, id, role):
 
     return redirect('viewDirectors')
 
+
 @club_permission_required('viewClubNotifications')
 def viewClubNotifications(request):
     context = {}
@@ -2520,8 +2576,9 @@ def viewClubNotifications(request):
     #     messages.error(request, "Unauthorized access.")
     #     return redirect('home')
 
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
-
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # ✅ Fetch all notifications for the club
     notifications = Notification.objects.filter(club=club).order_by('-created_at')
@@ -2532,7 +2589,7 @@ def viewClubNotifications(request):
     return render(request, 'club_dashboard/notifications/viewClubNotifications.html', {
         'notifications': notifications,
         'unread_count': unread_count,  # ✅ Pass unread count for better UI
-        'club':club,
+        'club': club,
     })
 
 
@@ -2542,7 +2599,9 @@ def delete_notification(request, notification_id):
         try:
             notification = Notification.objects.get(id=notification_id)
             # Check if the notification belongs to the user's club
-            club = getattr(request.user.userprofile.director_profile, 'club', None) or getattr(request.user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+            club = getattr(request.user.userprofile.director_profile, 'club', None) or getattr(
+                request.user.userprofile.administrator_profile, 'club', None) or getattr(
+                user.userprofile.vendor_manager_profile, 'club', None)
             if notification.club == club:
                 notification.delete()
                 messages.success(request, "Notification deleted successfully.")
@@ -2553,10 +2612,13 @@ def delete_notification(request, notification_id):
 
     return redirect('viewClubNotifications')
 
+
 def delete_all_notifications(request):
     """Delete all notifications for the club"""
     if request.method == 'POST':
-        club = getattr(request.user.userprofile.director_profile, 'club', None) or getattr(request.user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+        club = getattr(request.user.userprofile.director_profile, 'club', None) or getattr(
+            request.user.userprofile.administrator_profile, 'club', None) or getattr(
+            user.userprofile.vendor_manager_profile, 'club', None)
         if club:
             deleted_count, _ = Notification.objects.filter(club=club).delete()
             messages.success(request, f"Deleted {deleted_count} notifications.")
@@ -2574,14 +2636,14 @@ def mark_notifications_read(request):
     # if not hasattr(user.userprofile, 'director_profile') or not user.userprofile.director_profile:
     #     return JsonResponse({'status': 'error', 'message': 'Unauthorized access'}, status=403)
 
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
-
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # ✅ Mark only unread notifications as read
     updated_count = Notification.objects.filter(club=club, is_read=False).update(is_read=True)
 
     return JsonResponse({'status': 'success', 'message': f'Marked {updated_count} notifications as read'})
-
 
 
 def reviews_list(request):
@@ -2594,8 +2656,9 @@ def reviews_list(request):
 
     try:
         # Get the club associated with the logged-in user
-        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
-
+        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(
+            user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,
+                                                                             'club', None)
 
         # Fetch all reviews for coaches in this club
         reviews = Review.objects.filter(coach__club=club).select_related(
@@ -2608,11 +2671,11 @@ def reviews_list(request):
             'reviews': reviews,
             'avg_rating': avg_rating,
             'total_reviews': reviews.count(),
-            'club':club
+            'club': club
         })
 
     except AttributeError:
-        messages.error(request, "لا يمكن العثور على النادي الخاص بك.")
+        messages.error(request, "لا يمكن العثور على المنصة الخاصة بك.")
         return redirect('club_dashboard')
 
 
@@ -2620,7 +2683,9 @@ def reviews_list(request):
 @club_permission_required('club_orders')
 def club_orders(request):
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Only show delivered, confirmed, completed, and cancelled orders to directors
     orders = Order.objects.filter(club=club).exclude(
@@ -2673,11 +2738,14 @@ def club_orders(request):
     context['LANGUAGE_CODE'] = translation.get_language()
     return render(request, 'club_dashboard/orders/club_orders.html', context)
 
+
 @login_required
 @club_permission_required('update_order_status')
 def update_order_status(request, order_id):
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     if not club:
         return JsonResponse({'status': 'error', 'message': 'Unauthorized access'}, status=403)
@@ -2704,6 +2772,7 @@ def update_order_status(request, order_id):
             return JsonResponse({'status': 'error', 'message': f'Server error: {str(e)}'}, status=500)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
 
 def handle_order_cancellation(request, order, user):
     """Handle order cancellation with detailed reasons"""
@@ -2788,6 +2857,7 @@ def handle_order_cancellation(request, order, user):
             'message': f'Error cancelling order: {str(e)}'
         }, status=500)
 
+
 def handle_regular_status_update(request, order, new_status, user):
     """Handle regular status updates (non-cancellation)"""
     try:
@@ -2831,6 +2901,7 @@ def handle_regular_status_update(request, order, new_status, user):
         print(f"Error in handle_regular_status_update: {str(e)}")
         return JsonResponse({'status': 'error', 'message': f'Server error: {str(e)}'}, status=500)
 
+
 def restore_product_stock(order):
     """Restore product stock when cancelling confirmed orders"""
     try:
@@ -2842,6 +2913,7 @@ def restore_product_stock(order):
             print(f"Restored product stock for {product.title}: {product.stock}")
     except Exception as e:
         print(f"Error restoring product stock: {str(e)}")
+
 
 def handle_service_cancellation(order):
     """Handle service-related cancellations"""
@@ -2884,7 +2956,6 @@ def handle_service_cancellation(order):
                         if (booking_service.booking and
                                 hasattr(booking_service.booking, 'appointment') and
                                 booking_service.booking.appointment.is_paid):
-
                             appointment = booking_service.booking.appointment
                             appointment.is_paid = False  # Revert payment status
                             appointment.save()
@@ -2897,13 +2968,14 @@ def handle_service_cancellation(order):
         print(f"Error in handle_service_cancellation: {str(e)}")
 
 
-
 import logging
 from django.db import transaction
 from django.utils import timezone
 from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
+
+
 def process_order_confirmation(order):
     """
     Process order confirmation - update stock and subscriptions
@@ -2944,7 +3016,8 @@ def process_order_confirmation(order):
                     # If the current subscription is still active, extend from its end date
                     # Otherwise, extend from now
                     if existing_service_order.end_datetime > timezone.now():
-                        new_end_datetime = existing_service_order.end_datetime + timezone.timedelta(days=subscription_months * 30)
+                        new_end_datetime = existing_service_order.end_datetime + timezone.timedelta(
+                            days=subscription_months * 30)
                     else:
                         new_end_datetime = timezone.now() + timezone.timedelta(days=subscription_months * 30)
 
@@ -2955,7 +3028,8 @@ def process_order_confirmation(order):
                     existing_service_order.is_complited = False  # Ensure it's still active
                     existing_service_order.save()
 
-                    logger.info(f"Extended existing subscription for service {service.title} (ID: {service.id}) until {new_end_datetime}")
+                    logger.info(
+                        f"Extended existing subscription for service {service.title} (ID: {service.id}) until {new_end_datetime}")
 
                 else:
                     # Create new service subscription
@@ -2971,7 +3045,8 @@ def process_order_confirmation(order):
                         creation_date=timezone.now()
                     )
 
-                    logger.info(f"Created new subscription for service {service.title} (ID: {service.id}) until {end_datetime}")
+                    logger.info(
+                        f"Created new subscription for service {service.title} (ID: {service.id}) until {end_datetime}")
 
                 # Handle appointment payments
                 try:
@@ -3012,7 +3087,6 @@ def process_order_confirmation(order):
             # Update order commission fields
             order.update_commission_fields()
 
-
             logger.info(f"Successfully processed order confirmation for order {order.id}")
             return True
 
@@ -3021,8 +3095,6 @@ def process_order_confirmation(order):
         import traceback
         logger.error(traceback.format_exc())
         return False
-
-
 
 
 def process_order_commissions(order):
@@ -3048,9 +3120,6 @@ def process_order_commissions(order):
 
     except Exception as e:
         logger.error(f"Error processing commissions for order {order.id}: {str(e)}")
-
-
-
 
 
 def create_cancellation_notification(order, cancellation):
@@ -3083,6 +3152,7 @@ def create_cancellation_notification(order, cancellation):
     except Exception as e:
         print(f"Error creating cancellation notification: {e}")
 
+
 def create_status_update_notification(order, new_status, order_type):
     """Create notification for regular status updates"""
     try:
@@ -3113,13 +3183,15 @@ def create_status_update_notification(order, new_status, order_type):
     except Exception as e:
         print(f"Error creating notification: {e}")
 
+
 @login_required
 def order_details_api(request, order_id):
     user = request.user
     print(f"طلب تفاصيل الطلب {order_id} بواسطة {user}")
 
     try:
-        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None)
+        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(
+            user.userprofile.administrator_profile, 'club', None)
 
         order = Order.objects.get(id=order_id, club=club)
         order_items = OrderItem.objects.filter(order=order)
@@ -3175,7 +3247,9 @@ def order_details_api(request, order_id):
 def vendor_commission_report(request):
     """Generate vendor commission report"""
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     if not club:
         return JsonResponse({'status': 'error', 'message': 'Unauthorized access'}, status=403)
@@ -3220,9 +3294,10 @@ def vendor_commission_report(request):
     return render(request, 'club_dashboard/reports/vendor_commission_report.html', context)
 
 
-
 from students.models import OrderVendorCommission
 from accountant_dashboard.models import VATSettings
+
+
 @login_required
 def order_full_details(request, order_id):
     user = request.user
@@ -3272,8 +3347,6 @@ def order_full_details(request, order_id):
                 if vendor_id in vendor_items:
                     vendor_data['items'] = vendor_items[vendor_id]['items']
 
-
-
         context = {
             'order': order,
             'order_items': order_items,
@@ -3296,13 +3369,13 @@ def order_full_details(request, order_id):
         return redirect('club_orders')
 
 
-
-
 @login_required
 def get_cancellation_details(request, order_id):
     """API endpoint to get cancellation details for an order"""
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     if not club:
         return JsonResponse({'status': 'error', 'message': 'Unauthorized access'}, status=403)
@@ -3346,7 +3419,6 @@ def club_financial_dashboard(request):
     # Date range handling
     start_date = request.GET.get('start_date', (timezone.now() - timezone.timedelta(days=30)).strftime('%Y-%m-%d'))
     end_date = request.GET.get('end_date', timezone.now().strftime('%Y-%m-%d'))
-
 
     time_period = request.GET.get('time_period', 'monthly')
 
@@ -3539,17 +3611,17 @@ def club_financial_dashboard(request):
 
     # Convert to the format needed for the template
     top_categories = [
-                         {
-                             'name': activity_type,
-                             'revenue': revenue,
-                             'sales_count': activity_counts[activity_type]
-                         }
-                         for activity_type, revenue in sorted(
+        {
+            'name': activity_type,
+            'revenue': revenue,
+            'sales_count': activity_counts[activity_type]
+        }
+        for activity_type, revenue in sorted(
             activity_revenue.items(),
             key=lambda x: x[1],
             reverse=True
         )
-                     ][:5]
+    ][:5]
 
     order_items = OrderItem.objects.filter(
         order__club=club,
@@ -3616,7 +3688,6 @@ def club_financial_dashboard(request):
                 }
 
     # Sort and limit results
-
 
     top_products = sorted(
         [v for k, v in product_sales.items()],
@@ -3743,13 +3814,13 @@ def export_financial_data(request):
     if translation.get_language() == 'ar':
         writer.writerow([
             'رقم الطلب', 'التاريخ', 'حالة الطلب', 'طريقة الدفع',
-            'إجمالي المبيعات', 'عمولة النادي', 'صافي الإيرادات',
+            'إجمالي المبيعات', 'عمولة المنصة', 'صافي الإيرادات',
             'نوع الطلب', 'عدد العناصر', 'ملاحظات'
         ])
     else:
         writer.writerow([
             'Order ID', 'Date', 'Status', 'Payment Method',
-            'Sales Gross', 'Club Commission', 'Net Revenue',
+            'Sales Gross', 'Platform Commission', 'Net Revenue',
             'Order Type', 'Item Count', 'Notes'
         ])
 
@@ -3804,6 +3875,7 @@ def export_financial_data(request):
 
     return response
 
+
 @login_required
 def view_director_profile(request):
     """View the director's profile"""
@@ -3825,6 +3897,7 @@ def view_director_profile(request):
         return render(request, 'accounts/profiles/Director/ViewDirectorProfile.html', context)
     except UserProfile.DoesNotExist:
         return HttpResponseForbidden("User profile not found")
+
 
 @login_required
 def edit_director_profile(request):
@@ -3870,6 +3943,7 @@ def edit_director_profile(request):
     except UserProfile.DoesNotExist:
         return HttpResponseForbidden("User profile not found")
 
+
 def handle_uploaded_image(image_file):
     """Convert uploaded image to base64 string"""
     if not image_file:
@@ -3895,6 +3969,7 @@ def handle_uploaded_image(image_file):
     elif file_extension == 'gif':
         return f"data:image/gif;base64,{encoded_image}"
 
+
 def toggle_dashboard_counts(request):
     """Toggle dashboard counts visibility - accessible only to staff"""
     if request.method == 'POST':
@@ -3916,6 +3991,7 @@ def toggle_dashboard_counts(request):
 
     return redirect('/admin/')
 
+
 def update_club_descriptions(request, club_id):
     club = get_object_or_404(ClubsModel, pk=club_id)
     if request.method == 'POST':
@@ -3924,6 +4000,7 @@ def update_club_descriptions(request, club_id):
         club.save()
         messages.success(request, "Descriptions updated successfully.")
     return redirect('club_dashboard_index')
+
 
 # def update_club_pricing(request, club_id):
 #     club = get_object_or_404(ClubsModel, pk=club_id)
@@ -3951,7 +4028,10 @@ def vendor_status(request, vendor_id):
     vendor = get_object_or_404(CoachProfile, id=vendor_id)
     return render(request, 'accounts/vendor_status.html', {'vendor': vendor})
 
+
 from django.contrib.auth.decorators import login_required
+
+
 @login_required
 def vendor_approval_list(request):
     """List of vendors pending approval - only for directors"""
@@ -3964,7 +4044,7 @@ def vendor_approval_list(request):
         # Get director's club
         director_profile = user_profile.director_profile
         if not director_profile or not director_profile.club:
-            messages.error(request, "لم يتم العثور على نادي مرتبط بحسابك.")
+            messages.error(request, "لم يتم العثور على منصة مرتبطة بحسابك.")
             return redirect('dashboard')
 
         # Get pending vendors for this club
@@ -3984,53 +4064,10 @@ def vendor_approval_list(request):
 
 
 from accounts.forms import VendorApprovalForm
-@login_required
-def vendor_approval_detail(request, vendor_id):
-    """Approve or reject a vendor application"""
-    try:
-        user_profile = UserProfile.objects.get(user=request.user)
-        if user_profile.account_type != '2':  # Not a director
-            messages.error(request, "غير مسموح لك بالوصول إلى هذه الصفحة.")
-            return redirect('dashboard')
-
-        director_profile = user_profile.director_profile
-        vendor = get_object_or_404(CoachProfile, id=vendor_id, club=director_profile.club)
-
-        if request.method == 'POST':
-            form = VendorApprovalForm(request.POST)
-            if form.is_valid():
-                action = form.cleaned_data['action']
-                notes = form.cleaned_data['notes']
-
-                if action == 'approve':
-                    vendor.approve(request.user, notes)
-                    messages.success(request, f"تم قبول طلب {vendor.full_name} بنجاح!")
-
-                    # Send approval email to vendor
-                    send_vendor_approval_email(vendor, approved=True)
-
-                elif action == 'reject':
-                    vendor.reject(request.user, notes)
-                    messages.success(request, f"تم رفض طلب {vendor.full_name}.")
-
-                    # Send rejection email to vendor
-                    send_vendor_approval_email(vendor, approved=False)
-
-                return redirect('vendor_approval_list')
-        else:
-            form = VendorApprovalForm()
-
-        return render(request, 'accounts/vendor_approval_detail.html', {
-            'vendor': vendor,
-            'form': form
-        })
-
-    except UserProfile.DoesNotExist:
-        messages.error(request, "ملف المستخدم غير موجود.")
-        return redirect('signin')
-
 from django.core.mail import send_mail
 from django.conf import settings
+
+
 def send_vendor_approval_email(vendor, approved=True):
     """Send email to vendor about approval/rejection"""
     try:
@@ -4038,22 +4075,22 @@ def send_vendor_approval_email(vendor, approved=True):
             subject = f"تم قبول طلبك - {vendor.business_name_en}"
             message = f"""
             مرحباً {vendor.full_name},
-            
-            تم قبول طلب تسجيلك كبائع في نادي {vendor.club.name}.
-            
+
+            تم قبول طلب تسجيلك كبائع في منصة {vendor.club.name}.
+
             سيتم إنشاء حسابك قريباً وسيتم إرسال بيانات الدخول إليك.
-            
+
             شكراً لانضمامك إلينا!
             """
         else:
             subject = f"طلب التسجيل - {vendor.business_name_en}"
             message = f"""
             مرحباً {vendor.full_name},
-            
-            نأسف لإبلاغك أنه لم يتم قبول طلب تسجيلك كبائع في نادي {vendor.club.name}.
-            
+
+            نأسف لإبلاغك أنه لم يتم قبول طلب تسجيلك كبائع في منصة {vendor.club.name}.
+
             {vendor.approval_notes if vendor.approval_notes else ''}
-            
+
             شكراً لك على اهتمامك.
             """
 
@@ -4066,6 +4103,7 @@ def send_vendor_approval_email(vendor, approved=True):
         )
     except Exception as e:
         print(f"Error sending approval email: {e}")
+
 
 @login_required
 def vendor_approval_action(request, vendor_id):
@@ -4100,9 +4138,11 @@ def vendor_approval_action(request, vendor_id):
         messages.error(request, f"An error occurred: {str(e)}")
         return redirect('vendor_approval_list')
 
+
 from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from accounts.models import CoachProfile
+
 
 class VendorApprovalDetailView(LoginRequiredMixin, DetailView):
     model = CoachProfile
@@ -4110,14 +4150,322 @@ class VendorApprovalDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'vendor'
 
     def get_queryset(self):
-        # Only show pending vendors
-        return CoachProfile.objects.filter(approval_status='pending')
+        # Only show pending vendors for the director's club
+        user = self.request.user
+        club = getattr(user.userprofile.director_profile, 'club', None) or \
+               getattr(user.userprofile.administrator_profile, 'club', None) or \
+               getattr(user.userprofile.vendor_manager_profile, 'club', None)
+
+        if club:
+            return CoachProfile.objects.filter(approval_status='pending', club=club)
+        return CoachProfile.objects.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Add any additional context you need
+        vendor = self.object
+
+        # Add comprehensive vendor information
+        context.update({
+            'vendor_files': self.get_vendor_files(vendor),
+            'vendor_branches': vendor.get_branches_display(),
+            'business_phone_numbers': vendor.business_phone_numbers or [],
+            'working_hours': vendor.working_hours or {},
+            'special_hours': vendor.special_hours or {},
+            'subcategories': vendor.subcategories.all(),
+            'activity_type': vendor.activity_type,
+            'commission_info': self.get_commission_info(vendor),
+            'LANGUAGE_CODE': translation.get_language(),
+        })
         return context
 
+    def get_vendor_files(self, vendor):
+        """Get all uploaded files from the vendor"""
+        files = {}
+
+        # Commercial registration certificate
+        if vendor.commercial_registration_certificate:
+            files['commercial_registration'] = {
+                'name': 'شهادة السجل التجاري' if translation.get_language() == 'ar' else 'Commercial Registration Certificate',
+                'data': vendor.commercial_registration_certificate,
+                'type': 'document'
+            }
+
+        # Tax certificate
+        if vendor.tax_certificate:
+            files['tax_certificate'] = {
+                'name': 'شهادة الرقم الضريبي' if translation.get_language() == 'ar' else 'Tax Certificate',
+                'data': vendor.tax_certificate,
+                'type': 'document'
+            }
+
+        # Business document
+        if vendor.business_document_file:
+            files['business_document'] = {
+                'name': f"وثيقة النشاط التجاري ({vendor.get_business_document_type_display()})" if translation.get_language() == 'ar' else f'Business Document ({vendor.get_business_document_type_display()})',
+                'data': vendor.business_document_file,
+                'type': 'document'
+            }
+
+        # Store logo
+        if vendor.store_logo_base64:
+            files['store_logo'] = {
+                'name': 'شعار المتجر' if translation.get_language() == 'ar' else 'Store Logo',
+                'data': vendor.store_logo_base64,
+                'type': 'image'
+            }
+
+        # Business photo
+        if vendor.business_photo_base64:
+            files['business_photo'] = {
+                'name': 'صورة النشاط التجاري' if translation.get_language() == 'ar' else 'Business Photo',
+                'data': vendor.business_photo_base64,
+                'type': 'image'
+            }
+
+        # Profile image
+        if vendor.profile_image_base64:
+            files['profile_image'] = {
+                'name': 'صورة الملف الشخصي' if translation.get_language() == 'ar' else 'Profile Image',
+                'data': vendor.profile_image_base64,
+                'type': 'image'
+            }
+
+        return files
+
+    def get_commission_info(self, vendor):
+        """Get commission information for the vendor"""
+        from club_dashboard.models import Commission
+
+        commission = Commission.objects.filter(
+            club=vendor.club,
+            commission_type='vendor',
+            vendor_classification=vendor.vendor_classification,
+            is_active=True
+        ).first()
+
+        return commission
+
+    def post(self, request, *args, **kwargs):
+        """Handle vendor approval actions"""
+        vendor = self.get_object()
+        action = request.POST.get('action')
+        notes = request.POST.get('notes', '')
+
+        if action == 'approve':
+            return self.approve_vendor(vendor, notes)
+        elif action == 'reject_with_feedback':
+            return self.reject_with_feedback(vendor, notes)
+        elif action == 'delete':
+            return self.delete_vendor(vendor)
+        else:
+            messages.error(request, 'Invalid action selected.')
+            return redirect('vendor_approval_detail', pk=vendor.pk)
+
+    def approve_vendor(self, vendor, notes):
+        """Approve the vendor and create user account"""
+        print("🔹 approve_vendor called")
+        print("🔹 Vendor ID:", vendor.id)
+        print("🔹 Vendor email:", vendor.email)
+        print("🔹 Notes:", notes)
+
+        try:
+            print("🔹 Entering transaction.atomic()")
+            with transaction.atomic():
+
+                # Create user account with fixed password
+                print("🔹 Creating User account...")
+                user = User.objects.create_user(
+                    username=vendor.email,
+                    email=vendor.email,
+                    password='12345678'
+                )
+                print("✅ User created:", user.id, user.username)
+
+                # Create user profile and link to existing CoachProfile
+                print("🔹 Creating UserProfile...")
+                user_profile = UserProfile.objects.create(
+                    user=user,
+                    account_type='4',  # Coach/Vendor
+                    Coach_profile=vendor  # Link to the existing CoachProfile
+                )
+                print("✅ UserProfile created:", user_profile.id)
+                print("✅ UserProfile linked to CoachProfile:", vendor.id)
+
+                # Update vendor profile
+                print("🔹 Updating vendor approval fields...")
+                vendor.approval_status = 'approved'
+                vendor.approved_at = timezone.now()
+                vendor.approved_by = self.request.user
+                vendor.approval_notes = notes
+                vendor.save()
+                print("✅ Vendor updated: approval_status =", vendor.approval_status)
+
+                # Assign commission
+                print("🔹 Assigning commission...")
+                vendor.assign_commission()
+                print("✅ Commission assigned")
+
+                # Send approval email
+                print("🔹 Sending approval email...")
+                self.send_approval_email(vendor, user)
+                print("✅ Approval email sent")
+
+                messages.success(
+                    self.request,
+                    f'Vendor {vendor.full_name} has been approved successfully!'
+                )
+
+        except Exception as e:
+            print("🔥 Error in approve_vendor:", str(e))
+            messages.error(self.request, f'Error approving vendor: {str(e)}')
+
+        print("🔹 Redirecting to vendor_approval_list")
+        return redirect('vendor_approval_list')
+
+    def reject_with_feedback(self, vendor, notes):
+        """Reject vendor but keep pending for resubmission"""
+        try:
+            # Update vendor with rejection notes but keep status as pending
+            vendor.approval_notes = notes
+            vendor.save()
+
+            # Send rejection email with edit link
+            self.send_rejection_email(vendor, notes)
+
+            messages.success(self.request,
+                             f'Rejection feedback sent to {vendor.full_name}. They can resubmit after making changes.')
+
+        except Exception as e:
+            messages.error(self.request, f'Error sending rejection feedback: {str(e)}')
+
+        return redirect('vendor_approval_list')
+
+    def delete_vendor(self, vendor):
+        """Permanently delete the vendor application"""
+        try:
+            vendor_name = vendor.full_name
+            vendor.delete()
+            messages.success(self.request, f'Vendor application for {vendor_name} has been permanently deleted.')
+
+        except Exception as e:
+            messages.error(self.request, f'Error deleting vendor: {str(e)}')
+
+        return redirect('vendor_approval_list')
+
+    def send_approval_email(self, vendor, user):
+        """Send approval email with login credentials"""
+        from django.core.mail import send_mail
+        from django.conf import settings
+
+        # The password is fixed as '12345678' as set in the approve_vendor method
+        password = '12345678'
+
+        subject = f'تم قبول طلبك كبائع في {vendor.club.name}' if translation.get_language() == 'ar' else f'Your vendor application has been approved for {vendor.club.name}'
+
+        if translation.get_language() == 'ar':
+            message = f"""
+            مرحباً {vendor.full_name},
+
+            نحن سعداء لإبلاغك أنه تم قبول طلب تسجيلك كبائع في منصة {vendor.club.name}.
+
+            بيانات تسجيل الدخول:
+            اسم المستخدم: {user.username}
+            كلمة المرور: {password}
+
+            يمكنك الآن تسجيل الدخول وبدء إضافة منتجاتك وخدماتك.
+
+            {vendor.approval_notes if vendor.approval_notes else ''}
+
+            مرحباً بك في فريقنا!
+            """
+        else:
+            message = f"""
+            Hello {vendor.full_name},
+
+            We are pleased to inform you that your vendor application for {vendor.club.name} has been approved.
+
+            Login credentials:
+            Username: {user.username}
+            Password: {password}
+
+            You can now log in and start adding your products and services.
+
+            {vendor.approval_notes if vendor.approval_notes else ''}
+
+            Welcome to our team!
+            """
+
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [vendor.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Error sending approval email: {e}")
+
+    def send_rejection_email(self, vendor, notes):
+        """Send rejection email with feedback and edit link"""
+        from django.core.mail import send_mail
+        from django.conf import settings
+        from django.urls import reverse
+
+        # Generate edit link (you'll need to create this URL)
+        edit_url = self.request.build_absolute_uri(
+            reverse('vendor_edit_application', kwargs={'vendor_id': vendor.id})
+        )
+
+        subject = f'ملاحظات على طلب التسجيل في {vendor.club.name}' if translation.get_language() == 'ar' else f'Feedback on your application for {vendor.club.name}'
+
+        if translation.get_language() == 'ar':
+            message = f"""
+            مرحباً {vendor.full_name},
+
+            شكراً لك على اهتمامك بالانضمام إلى منصة {vendor.club.name} كبائع.
+
+            بعد مراجعة طلبك، لدينا بعض الملاحظات التي نود منك تعديلها:
+
+            {notes}
+
+            يمكنك تعديل بياناتك وإعادة تقديم الطلب من خلال الرابط التالي:
+            {edit_url}
+
+            نتطلع لرؤية طلبك المحدث قريباً.
+
+            تحياتنا
+            فريق {vendor.club.name}
+            """
+        else:
+            message = f"""
+            Hello {vendor.full_name},
+
+            Thank you for your interest in joining {vendor.club.name} as a vendor.
+
+            After reviewing your application, we have some feedback that we'd like you to address:
+
+            {notes}
+
+            You can edit your information and resubmit your application using the following link:
+            {edit_url}
+
+            We look forward to seeing your updated application soon.
+
+            Best regards,
+            {vendor.club.name} Team
+            """
+
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [vendor.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Error sending rejection email: {e}")
 
 
 from django.shortcuts import render, get_object_or_404, redirect
@@ -4130,6 +4478,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import Category, SubCategory
 from .forms import CategoryForm, SubCategoryForm
+
 
 @club_permission_required('category_list')
 @login_required
@@ -4242,7 +4591,8 @@ def delete_category(request, category_id):
 
     # Check if category has subcategories
     if category.subcategories.exists():
-        messages.error(request, f'Cannot delete category "{category.name}" because it has subcategories. Please delete or move the subcategories first.')
+        messages.error(request,
+                       f'Cannot delete category "{category.name}" because it has subcategories. Please delete or move the subcategories first.')
         return redirect('category_list')
 
     if request.method == 'POST':
@@ -4314,7 +4664,8 @@ def delete_subcategory(request, subcategory_id):
         subcategory_name = subcategory.name
         category_name = subcategory.category.name
         subcategory.delete()
-        messages.success(request, f'Subcategory "{subcategory_name}" from "{category_name}" has been deleted successfully!')
+        messages.success(request,
+                         f'Subcategory "{subcategory_name}" from "{category_name}" has been deleted successfully!')
         return redirect('category_list')
 
     context = {
@@ -4381,6 +4732,7 @@ def toggle_subcategory_status(request, subcategory_id):
 
     return redirect('category_list')
 
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -4395,14 +4747,15 @@ from django.conf import settings
 from .models import ProductsModel, CoachProfile, ClubsModel, ProductImg
 from .forms import ProductApprovalForm
 
+
 @login_required
 @club_permission_required('manage_products')
 def manage_products(request):
     """View to manage all products with approval status"""
     context = {}
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None)
-
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None)
 
     # Get filter parameters
     status_filter = request.GET.get('status', 'all')
@@ -4472,7 +4825,8 @@ def pending_products(request):
     """View to show all pending products"""
     context = {}
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None)
 
     # Get search query if any
     search_query = request.GET.get('search', '')
@@ -4511,12 +4865,15 @@ def pending_products(request):
 
     return render(request, 'club_dashboard/products/pending_products.html', context)
 
+
 @login_required
 def approve_product(request, product_id):
     """Approve a product"""
     product = get_object_or_404(ProductsModel, id=product_id)
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Check permissions
     if product.club != club:
@@ -4565,12 +4922,15 @@ def approve_product(request, product_id):
 
     return redirect('manage_products')
 
+
 @login_required
 def reject_product(request, product_id):
     """Reject a product"""
     product = get_object_or_404(ProductsModel, id=product_id)
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Check permissions
     if product.club != club:
@@ -4619,12 +4979,15 @@ def reject_product(request, product_id):
 
     return redirect('manage_products')
 
+
 @login_required
 def product_detail(request, product_id):
     """View detailed information about a product"""
     product = get_object_or_404(ProductsModel, id=product_id)
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Check permissions
     if product.club != club:
@@ -4640,7 +5003,8 @@ def product_detail(request, product_id):
     context = {
         'product': product,
         'product_images': product_images,
-        'vendor_profile': product.creator.userprofile.Coach_profile if hasattr(product.creator, 'userprofile') else None,
+        'vendor_profile': product.creator.userprofile.Coach_profile if hasattr(product.creator,
+                                                                               'userprofile') else None,
         'club': club,
         'LANGUAGE_CODE': translation.get_language(),
         'order_count': order_count
@@ -4648,13 +5012,16 @@ def product_detail(request, product_id):
 
     return render(request, 'club_dashboard/products/product_detail.html', context)
 
+
 @login_required
 def bulk_approve_products(request):
     """Bulk approve multiple products"""
     if request.method == 'POST':
         product_ids = request.POST.getlist('product_ids')
         user = request.user
-        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(
+            user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,
+                                                                             'club', None)
 
         if not product_ids:
             messages.error(request, 'لم يتم تحديد أي منتجات')
@@ -4676,6 +5043,7 @@ def bulk_approve_products(request):
 
     return redirect('manage_products')
 
+
 @login_required
 def bulk_reject_products(request):
     """Bulk reject multiple products"""
@@ -4683,7 +5051,9 @@ def bulk_reject_products(request):
         product_ids = request.POST.getlist('product_ids')
         rejection_reason = request.POST.get('bulk_rejection_reason', 'تم الرفض بواسطة الإدارة')
         user = request.user
-        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(
+            user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,
+                                                                             'club', None)
 
         if not product_ids:
             messages.error(request, 'لم يتم تحديد أي منتجات')
@@ -4714,6 +5084,8 @@ def delete_product(request, product_id):
         product.delete()
         messages.success(request, 'Product deleted successfully')
         return redirect('manage_products')
+
+
 # club_dashboard/views.py
 
 from django.shortcuts import render, get_object_or_404, redirect
@@ -4729,6 +5101,8 @@ from .forms import CommissionForm
 from accounts.models import CoachProfile
 
 from accounts.models import CoachProfile
+
+
 @login_required
 @club_permission_required('commission_list')
 def commission_list(request):
@@ -4741,7 +5115,9 @@ def commission_list(request):
     user = request.user
 
     # Get the club
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Base queryset
     commissions = Commission.objects.filter(club=club)
@@ -4764,7 +5140,6 @@ def commission_list(request):
             Q(commission_rate__icontains=search)
         )
 
-
     latest_vendor_commissions = Commission.objects.filter(
         club=club,
         commission_type='vendor'
@@ -4784,11 +5159,12 @@ def commission_list(request):
     # Create choices list for the filter form
     classification_choices = [(c, c.capitalize()) for c in vendor_classifications]
 
-
     # Statistics
     stats = {
-        'total_classifications': Commission.objects.filter(club=club).values('vendor_classification').distinct().count(),
-        'total_offers': Commission.objects.filter(club=club,commission_type='time_period').distinct().count(),  # Assuming you have an Offer model
+        'total_classifications': Commission.objects.filter(club=club).values(
+            'vendor_classification').distinct().count(),
+        'total_offers': Commission.objects.filter(club=club, commission_type='time_period').distinct().count(),
+        # Assuming you have an Offer model
         'total_vendors': CoachProfile.objects.filter(club=club).count(),  # Assuming you have a Vendor model
         'active_commissions': Commission.objects.filter(club=club, is_active=True).count(),
     }
@@ -4809,9 +5185,11 @@ def commission_list(request):
 
     return render(request, 'club_dashboard/commissions/list.html', context)
 
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
+
 
 @login_required
 def commission_create(request):
@@ -4823,7 +5201,9 @@ def commission_create(request):
     print(f"DEBUG: User: {user}, Authenticated: {user.is_authenticated}")
 
     # Try getting the club
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
     print(f"DEBUG: Club determined from user profile: {club}")
 
     if request.method == 'POST':
@@ -4857,28 +5237,41 @@ def commission_create(request):
 def commission_edit(request, commission_id):
     """Edit an existing commission"""
     user = request.user
-    commission = get_object_or_404(Commission, id=commission_id, club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None))
+    commission = get_object_or_404(Commission, id=commission_id,
+                                   club=getattr(user.userprofile.director_profile, 'club', None) or getattr(
+                                       user.userprofile.administrator_profile, 'club', None) or getattr(
+                                       user.userprofile.vendor_manager_profile, 'club', None))
 
     if request.method == 'POST':
-        form = CommissionForm(request.POST, instance=commission, club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None))
+        form = CommissionForm(request.POST, instance=commission,
+                              club=getattr(user.userprofile.director_profile, 'club', None) or getattr(
+                                  user.userprofile.administrator_profile, 'club', None) or getattr(
+                                  user.userprofile.vendor_manager_profile, 'club', None))
         if form.is_valid():
             form.save()
             messages.success(request, 'تم تحديث العمولة بنجاح')
             return redirect('commission_list')
     else:
-        form = CommissionForm(instance=commission, club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None))
+        form = CommissionForm(instance=commission,
+                              club=getattr(user.userprofile.director_profile, 'club', None) or getattr(
+                                  user.userprofile.administrator_profile, 'club', None) or getattr(
+                                  user.userprofile.vendor_manager_profile, 'club', None))
 
     return render(request, 'club_dashboard/commissions/edit.html', {
         'form': form,
         'commission': commission
     })
 
+
 @login_required
 @require_http_methods(["POST"])
 def commission_delete(request, commission_id):
     """Delete a commission"""
     user = request.user
-    commission = get_object_or_404(Commission, id=commission_id, club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None))
+    commission = get_object_or_404(Commission, id=commission_id,
+                                   club=getattr(user.userprofile.director_profile, 'club', None) or getattr(
+                                       user.userprofile.administrator_profile, 'club', None) or getattr(
+                                       user.userprofile.vendor_manager_profile, 'club', None))
 
     # Check if commission is assigned to any vendors
     assigned_vendors_count = VendorCommissionAssignment.objects.filter(commission=commission).count()
@@ -4892,12 +5285,16 @@ def commission_delete(request, commission_id):
 
     return redirect('commission_list')
 
+
 @login_required
 @require_http_methods(["POST"])
 def commission_toggle_status(request, commission_id):
     """Toggle commission active/inactive status"""
     user = request.user
-    commission = get_object_or_404(Commission, id=commission_id, club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None))
+    commission = get_object_or_404(Commission, id=commission_id,
+                                   club=getattr(user.userprofile.director_profile, 'club', None) or getattr(
+                                       user.userprofile.administrator_profile, 'club', None) or getattr(
+                                       user.userprofile.vendor_manager_profile, 'club', None))
 
     commission.is_active = not commission.is_active
     commission.save()
@@ -4905,17 +5302,17 @@ def commission_toggle_status(request, commission_id):
     status_text = 'مفعلة' if commission.is_active else 'معطلة'
     messages.success(request, f'تم تغيير حالة العمولة إلى {status_text}')
 
-    return JsonResponse({
-        'success': True,
-        'is_active': commission.is_active,
-        'status_text': status_text
-    })
+    return redirect('commission_list')
+
 
 @login_required
 def commission_detail(request, commission_id):
     """View commission details and assigned vendors"""
     user = request.user
-    commission = get_object_or_404(Commission, id=commission_id, club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None))
+    commission = get_object_or_404(Commission, id=commission_id,
+                                   club=getattr(user.userprofile.director_profile, 'club', None) or getattr(
+                                       user.userprofile.administrator_profile, 'club', None) or getattr(
+                                       user.userprofile.vendor_manager_profile, 'club', None))
 
     # Get assigned vendors for vendor type commissions
     assigned_vendors = []
@@ -4926,7 +5323,8 @@ def commission_detail(request, commission_id):
 
     # Get active time period commissions (for reference)
     active_time_commissions = Commission.objects.filter(
-        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None),
+        club=getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                                 'club', None),
         commission_type='time_period',
         is_active=True,
         start_date__lte=timezone.now().date(),
@@ -4941,11 +5339,14 @@ def commission_detail(request, commission_id):
 
     return render(request, 'club_dashboard/commissions/detail.html', context)
 
+
 @login_required
 def vendor_commission_management(request):
     """Manage vendor commission assignments"""
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Get all approved vendors for the club
     vendors = CoachProfile.objects.filter(
@@ -5015,11 +5416,14 @@ def vendor_commission_management(request):
 
     return render(request, 'club_dashboard/commissions/vendor_management.html', context)
 
+
 @login_required
 def commission_analytics(request):
     """Commission analytics and reports"""
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Get unique vendor classifications for the club
     vendor_classifications = Commission.objects.filter(
@@ -5079,8 +5483,6 @@ def delete_commission(request, commission_id):
         return redirect('commission_list')
 
 
-
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -5092,7 +5494,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
-from accounts.models import  CoachProfile, ClubsModel
+from accounts.models import CoachProfile, ClubsModel
 from .forms import ServiceApprovalForm
 from students.models import ServicesModel
 
@@ -5236,15 +5638,14 @@ def pending_services(request):
     return render(request, 'club_dashboard/services/pending_services.html', context)
 
 
-
-
-
 @login_required
 def approve_service(request, service_id):
     """Approve a service"""
     service = get_object_or_404(ServicesModel, id=service_id)
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Check permissions
     if service.club != club:
@@ -5288,12 +5689,15 @@ def approve_service(request, service_id):
 
     return redirect('manage_services')
 
+
 @login_required
 def reject_service(request, service_id):
     """Reject a service"""
     service = get_object_or_404(ServicesModel, id=service_id)
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Check permissions
     if service.club != club:
@@ -5337,12 +5741,15 @@ def reject_service(request, service_id):
 
     return redirect('manage_services')
 
+
 @login_required
 def service_detail(request, service_id):
     """View detailed information about a service"""
     service = get_object_or_404(ServicesModel, id=service_id)
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Check permissions
     if service.club != club:
@@ -5353,12 +5760,14 @@ def service_detail(request, service_id):
 
     context = {
         'service': service,
-        'creator_profile': service.creator.userprofile.Coach_profile if hasattr(service.creator, 'userprofile') else None,
+        'creator_profile': service.creator.userprofile.Coach_profile if hasattr(service.creator,
+                                                                                'userprofile') else None,
         'club': club,
         'LANGUAGE_CODE': translation.get_language()
     }
 
     return render(request, 'club_dashboard/services/service_detail.html', context)
+
 
 @login_required
 def bulk_approve_services(request):
@@ -5367,7 +5776,9 @@ def bulk_approve_services(request):
         service_ids = request.POST.getlist('service_ids')
         notes = request.POST.get('bulk_notes', '')
         user = request.user
-        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(
+            user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,
+                                                                             'club', None)
 
         if not service_ids:
             messages.error(request, 'لم يتم تحديد أي خدمات')
@@ -5389,6 +5800,7 @@ def bulk_approve_services(request):
 
     return redirect('manage_services')
 
+
 @login_required
 def bulk_reject_services(request):
     """Bulk reject multiple services"""
@@ -5396,7 +5808,9 @@ def bulk_reject_services(request):
         service_ids = request.POST.getlist('service_ids')
         rejection_reason = request.POST.get('bulk_rejection_reason', 'تم الرفض بواسطة الإدارة')
         user = request.user
-        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+        club = getattr(user.userprofile.director_profile, 'club', None) or getattr(
+            user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,
+                                                                             'club', None)
 
         if not service_ids:
             messages.error(request, 'لم يتم تحديد أي خدمات')
@@ -5418,12 +5832,15 @@ def bulk_reject_services(request):
 
     return redirect('manage_services')
 
+
 @login_required
 def toggle_service_status(request, service_id):
     """Toggle service enabled/disabled status"""
     service = get_object_or_404(ServicesModel, id=service_id)
     user = request.user
-    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile, 'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+    club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     # Check permissions
     if service.club != club:
@@ -5455,6 +5872,7 @@ def delete_service(request, service_id):
         messages.success(request, 'Service deleted successfully')
         return redirect('manage_services')
 
+
 # views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -5471,7 +5889,7 @@ import json
 
 from .models import RefundDispute, RefundDisputeAttachment, RefundStatus, RefundType, DisputeType
 from students.models import Order  # Assuming Order is in students app
-from .forms import RefundDisputeForm, RefundDecisionForm , RefundAttachmentForm
+from .forms import RefundDisputeForm, RefundDecisionForm, RefundAttachmentForm
 from django.utils.translation import get_language
 
 
@@ -5643,7 +6061,6 @@ def approve_refund(request, dispute_id):
 @require_http_methods(["POST"])
 def reject_refund(request, dispute_id):
     """Reject a refund dispute"""
-
 
     dispute = get_object_or_404(RefundDispute, id=dispute_id)
 
@@ -5853,13 +6270,13 @@ def send_refund_rejection_notification(dispute):
         subject = f"Refund Request Rejected - Order #{dispute.deal.id}"
         message = f"""
         Dear {dispute.client.get_full_name()},
-        
+
         Your refund request for Order #{dispute.deal.id} has been rejected.
-        
+
         Reason: {dispute.rejection_reason}
-        
+
         If you have questions, please contact our support team.
-        
+
         Best regards,
         Club Management Team
         """
@@ -5874,9 +6291,6 @@ def send_refund_rejection_notification(dispute):
 
     except Exception as e:
         print(f"Error sending rejection notification: {e}")
-
-
-
 
 
 # API Views for AJAX calls
@@ -5934,15 +6348,16 @@ def get_vendor_from_order(order):
     except Exception:
         return None
 
+
 from django.core.exceptions import PermissionDenied
+
+
 @login_required
 def coach_details(request, coach_id):
     context = {}
     try:
         coach = CoachProfile.objects.get(id=coach_id)
         user_profile = coach.userprofile_set.first()
-
-
 
         # Format working hours for display
         working_hours_display = []
@@ -5985,11 +6400,14 @@ def coach_details(request, coach_id):
 
 
 from .forms import CustomRoleForm
+
+
 @login_required
 def add_custom_role(request):
     user = request.user
     club = getattr(user.userprofile.director_profile, 'club', None) or getattr(user.userprofile.administrator_profile,
-                                                                               'club', None) or getattr(user.userprofile.vendor_manager_profile,'club', None)
+                                                                               'club', None) or getattr(
+        user.userprofile.vendor_manager_profile, 'club', None)
 
     language_code = translation.get_language()
 
@@ -6122,10 +6540,9 @@ from django.utils import timezone, translation  # Add translation import
 from django.core.paginator import Paginator  # Add this import
 from django.db.models import Q
 from datetime import timedelta
-from coach_dashboard.models import Promotion , PromotionFeature
+from coach_dashboard.models import Promotion, PromotionFeature
 from students.models import ProductsModel, ServicesModel
 from accounts.models import UserProfile
-
 
 
 @login_required
@@ -6282,6 +6699,7 @@ def reject_promotion(request, promotion_id):
 
     return redirect('director_promotions')
 
+
 @login_required
 def view_pending_promotion(request, promotion_id):
     """View details of a pending promotion"""
@@ -6313,8 +6731,6 @@ def view_pending_promotion(request, promotion_id):
     return render(request, 'club_dashboard/promotions/view_promotion.html', context)
 
 
-
-
 @login_required
 def manage_promotion_features(request):
     """Manage promotion features and base price"""
@@ -6333,6 +6749,7 @@ def manage_promotion_features(request):
         'club': club,
     }
     return render(request, 'club_dashboard/promotions/manage_features.html', context)
+
 
 @login_required
 def save_promotion_feature(request):
@@ -6376,6 +6793,7 @@ def save_promotion_feature(request):
 
     return redirect('manage_promotion_features')
 
+
 @login_required
 def delete_promotion_feature(request, feature_id):
     """Delete a promotion feature"""
@@ -6396,7 +6814,9 @@ def delete_promotion_feature(request, feature_id):
 
     return redirect('manage_promotion_features')
 
+
 from decimal import InvalidOperation
+
 
 @login_required
 def set_promotion_base_price(request):
@@ -6423,7 +6843,6 @@ def set_promotion_base_price(request):
             messages.error(request, f"Invalid price value: {str(e)}")
 
     return redirect('manage_promotion_features')
-
 
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -6459,7 +6878,7 @@ def director_bills_review(request):
         'club': club,
         'pending_revisions': pending_revisions,
         'reviewed_revisions': reviewed_revisions,
-        'total_revisions':total_revisions,
+        'total_revisions': total_revisions,
         'LANGUAGE_CODE': translation.get_language()
     }
     return render(request, 'club_dashboard/bills/bills_review.html', context)
@@ -6475,6 +6894,7 @@ from students.models import Order, OrderItem
 from accountant_dashboard.models import BillRevision, BillRevisionComment
 from accountant_dashboard.forms import BillRevisionForm, BillRevisionCommentForm
 from collections import defaultdict
+
 
 @login_required
 def director_review_bill(request, revision_id):
@@ -6550,7 +6970,7 @@ def director_review_bill(request, revision_id):
         'form': form,
         'comment_form': comment_form,
         'comments': comments,
-        'coaches_items': dict(coaches_items), # Pass the grouped items to the template
+        'coaches_items': dict(coaches_items),  # Pass the grouped items to the template
         'LANGUAGE_CODE': translation.get_language(),
         'can_take_action': revision.status == 'accountant_reviewed'
     }
@@ -6607,3 +7027,134 @@ def manage_vat_settings(request):
     return render(request, 'club_dashboard/director/manage_vat_settings.html', context)
 
 
+def vendor_edit_application(request, vendor_id):
+    """Allow vendor to edit their application after rejection feedback"""
+
+    print("=== vendor_edit_application called ===")
+    print("vendor_id:", vendor_id)
+    print("request.method:", request.method)
+
+    try:
+        print("Trying to fetch vendor with pending status...")
+        vendor = get_object_or_404(
+            CoachProfile,
+            id=vendor_id,
+            approval_status='pending'
+        )
+        print("Vendor found:", vendor)
+
+        if request.method == 'POST':
+            print("POST request received")
+            from accounts.forms import VendorRegistrationForm
+
+            print("POST data:", request.POST)
+            print("FILES data:", request.FILES)
+
+            form = VendorRegistrationForm(
+                request.POST,
+                request.FILES,
+                instance=vendor
+            )
+
+            print("Form created, validating...")
+            if form.is_valid():
+                print("Form is valid ✅")
+
+                vendor = form.save(commit=False)
+                print("Vendor instance updated (not saved yet)")
+
+                print("Old approval_notes:", vendor.approval_notes)
+                vendor.approval_notes = ""
+                print("approval_notes cleared")
+
+                vendor.save()
+                print("Vendor saved successfully")
+
+                print("Sending resubmission notification...")
+                send_resubmission_notification(vendor)
+                print("Notification sent")
+
+                lang = translation.get_language()
+                print("Current language:", lang)
+
+                messages.success(
+                    request,
+                    'تم إعادة تقديم طلبك بنجاح. سيتم مراجعته قريباً.'
+                    if lang == 'ar'
+                    else 'Your application has been resubmitted successfully. It will be reviewed soon.'
+                )
+
+                print("Rendering success template")
+                return render(
+                    request,
+                    'accounts/vendor_resubmission_success.html',
+                    {'vendor': vendor}
+                )
+            else:
+                print("❌ Form is NOT valid")
+                print("Form errors:", form.errors)
+
+        else:
+            print("GET request received")
+            from accounts.forms import VendorRegistrationForm
+            form = VendorRegistrationForm(instance=vendor)
+            print("Form initialized with vendor instance")
+
+        context = {
+            'form': form,
+            'vendor': vendor,
+            'is_resubmission': True,
+            'rejection_notes': vendor.approval_notes,
+            'LANGUAGE_CODE': translation.get_language(),
+        }
+
+        print("Rendering edit application template")
+        return render(
+            request,
+            'accounts/vendor_edit_application.html',
+            context
+        )
+
+    except CoachProfile.DoesNotExist:
+        print("❌ CoachProfile.DoesNotExist exception")
+        messages.error(request, 'Vendor application not found or already processed.')
+        return redirect('home')
+
+    except Exception as e:
+        print("🔥 Unexpected error occurred:", str(e))
+        raise
+
+
+def send_resubmission_notification(vendor):
+    """Send notification to director about vendor resubmission"""
+    try:
+        from django.core.mail import send_mail
+        from django.conf import settings
+
+        # Get director email
+        director = vendor.club.directorprofile_set.first()
+        if director and director.user.email:
+            subject = f'إعادة تقديم طلب بائع - {vendor.full_name}' if translation.get_language() == 'ar' else f'Vendor Application Resubmitted - {vendor.full_name}'
+
+            if translation.get_language() == 'ar':
+                message = f"""
+                تم إعادة تقديم طلب البائع {vendor.full_name} بعد التعديلات المطلوبة.
+
+                يرجى مراجعة الطلب المحدث في لوحة التحكم.
+                """
+            else:
+                message = f"""
+                Vendor {vendor.full_name} has resubmitted their application after making the requested changes.
+
+                Please review the updated application in your dashboard.
+                """
+
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [director.user.email],
+                fail_silently=True,
+            )
+    except Exception as e:
+        print(f"Error sending resubmission notification: {e}")
