@@ -315,7 +315,7 @@ function showDeleteModal(roleId, roleName) {
     message.textContent = `${deleteText}`;
 
     // Set the form action
-    form.action = `/club_dashboard/custom-roles/delete/${roleId}`;
+    form.action = `/club_dashboard/custom-roles/delete/${roleId}/`;
 
     // Show the modal
     modal.classList.add('active');

@@ -6519,7 +6519,7 @@ def delete_custom_role(request, id):
     custom_role = get_object_or_404(CustomRole, id=id, club=club)
 
     # Get user count before deletion for message
-    user_count = CustomRoleProfile.objects.filter(custom_role=custom_role).count()
+    user_count = UserProfile.objects.filter(custom_role=custom_role).count()
 
     # Soft delete by setting is_active=False
     custom_role.is_active = False
