@@ -106,11 +106,6 @@
     <div class="animate-[fadeIn_0.8s_ease-out_0.3s_both] bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 max-w-3xl mx-auto border border-gray-100 dark:border-gray-700">
         <form method="post" id="commissionForm" class="space-y-8">
             {% csrf_token %}
-            
-            <!-- Hidden field for backward compatibility -->
-            <div style="display: none;">
-                {{ form.name }}
-            </div>
 
             <!-- Commission Type (disabled for editing) -->
             <div class="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white">

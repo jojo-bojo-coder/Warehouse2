@@ -343,7 +343,7 @@ class Commission(models.Model):
     )
 
     # Basic fields
-    name = models.CharField(max_length=100, verbose_name="اسم العمولة")
+    name = models.CharField(max_length=100, blank=True, null=True, verbose_name="اسم العمولة")
     name_en = models.CharField(max_length=100, blank=True, null=True, verbose_name="English Name")
     name_ar = models.CharField(max_length=100, blank=True, null=True, verbose_name="الاسم العربي")
     commission_type = models.CharField(
@@ -446,6 +446,11 @@ class Commission(models.Model):
         # Ensure at least one name is provided
         if not self.name and not self.name_ar and not self.name_en:
             raise ValidationError('يجب إدخال اسم واحد على الأقل للعمولة')
+
+        # Auto-populate the name field for backward compatibility
+        if self.name_ar or self.name_en:
+            # Use Arabic name if available, otherwise English name
+            self.name = self.name_ar or self.name_en
 
         # If no specific language names are provided, use the general name
         if self.name and not self.name_ar and not self.name_en:

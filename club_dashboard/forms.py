@@ -1205,6 +1205,11 @@ class CommissionForm(forms.ModelForm):
         if not name and not name_ar and not name_en:
             raise ValidationError('يجب إدخال اسم واحد على الأقل للعمولة')
 
+        # Auto-populate the name field for backward compatibility
+        if name_ar or name_en:
+            # Use Arabic name if available, otherwise English name
+            cleaned_data['name'] = name_ar or name_en
+        
         # If no specific language names are provided, use the general name
         if name and not name_ar and not name_en:
             cleaned_data['name_ar'] = name
