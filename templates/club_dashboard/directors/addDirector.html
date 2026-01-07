@@ -333,8 +333,8 @@ const errorMessages = {
         en: 'Please enter a valid email address'
     },
     phoneFormat: {
-        ar: 'يرجى إدخال رقم هاتف صحيح (أرقام فقط، 8-15 رقم)',
-        en: 'Please enter a valid phone number (numbers only, 8-15 digits)'
+        ar: 'يرجى إدخال رقم هاتف سعودي صحيح (مثال: 0512345678 أو +966512345678)',
+        en: 'Please enter a valid Saudi phone number (e.g., 0512345678 or +966512345678)'
     }
 };
 
@@ -439,16 +439,33 @@ document.querySelector('form')?.addEventListener('submit', function(e) {
         }
     }
 
-    // Validate phone number format (numbers only)
+    // Validate Saudi phone number
     const phoneField = form.querySelector('input[name="phone"]');
-    if (phoneField && !/^\+?[0-9]{8,15}$/.test(phoneField.value)) {
-        isValid = false;
-        phoneField.classList.add('border-red-500');
-        if (!phoneField.nextElementSibling || !phoneField.nextElementSibling.classList.contains('text-red-500')) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'text-red-500 text-sm mt-1';
-            errorDiv.textContent = getErrorMessage('phoneFormat');
-            phoneField.parentNode.insertBefore(errorDiv, phoneField.nextSibling);
+    if (phoneField && phoneField.value.trim()) {
+        // Remove all spaces and dashes
+        const phone = phoneField.value.replace(/[\s\-]/g, '');
+
+        // Saudi mobile numbers patterns:
+        // 1. 05XXXXXXXX (10 digits starting with 05)
+        // 2. +9665XXXXXXXX or 9665XXXXXXXX (with country code)
+        // 3. Landline: 01XXXXXXX, 02XXXXXXX, 03XXXXXXX, 04XXXXXXX (9 digits)
+        const patterns = [
+            /^05[0-9]{8}$/,                    // Mobile: 05XXXXXXXX
+            /^\+?9665[0-9]{8}$/,               // Mobile with country code: +9665XXXXXXXX or 9665XXXXXXXX
+            /^0[1-4][0-9]{7}$/                 // Landline: 01-04 followed by 7 digits
+        ];
+
+        const isValidSaudiPhone = patterns.some(pattern => pattern.test(phone));
+
+        if (!isValidSaudiPhone) {
+            isValid = false;
+            phoneField.classList.add('border-red-500');
+            if (!phoneField.nextElementSibling || !phoneField.nextElementSibling.classList.contains('text-red-500')) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-red-500 text-sm mt-1';
+                errorDiv.textContent = getErrorMessage('phoneFormat');
+                phoneField.parentNode.insertBefore(errorDiv, phoneField.nextSibling);
+            }
         }
     }
 
