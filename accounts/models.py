@@ -335,6 +335,9 @@ class CoachProfile(models.Model):
         help_text="التخصصات الفرعية التي يعمل بها البائع"
     )
 
+    main_latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    main_longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+
     # Commercial Registration Number (10 digits)
     commercial_registration_number = models.CharField(
         max_length=10,
@@ -549,8 +552,7 @@ class CoachProfile(models.Model):
         return f"{self.full_name} - {self.business_name_ar or self.business_name_en} - {self.activity_type.name if self.activity_type else 'No Activity'}"
 
     def clean(self):
-        """Validate that the city belongs to the selected region"""
-        from .fields import REGIONS_AND_CITIES  # Import your regions data
+        """Validate the coach profile"""
 
         super().clean()
 
@@ -561,15 +563,23 @@ class CoachProfile(models.Model):
                     f"المدينة {self.city} غير موجودة في المنطقة {self.region}"
                 )
 
+        # Only validate branches if this is an UPDATE (pk exists)
+        # Skip validation on CREATE because branches are set after form validation
+        if not self.pk:
+            return
+
+        # Branch validation for updates
         if self.number_of_branches > 1 and not self.branches:
             raise ValidationError(
                 "يجب إضافة معلومات الفروع عندما يكون عدد الفروع أكثر من واحد"
             )
 
-        if self.branches and len(self.branches) != self.number_of_branches:
-            raise ValidationError(
-                f"عدد الفروع المضافة ({len(self.branches)}) لا يتطابق مع العدد المحدد ({self.number_of_branches})"
-            )
+        if self.branches:
+            expected_branches = self.number_of_branches - 1  # Subtract main branch
+            if len(self.branches) != expected_branches:
+                raise ValidationError(
+                    f"عدد الفروع المضافة ({len(self.branches)}) لا يتطابق مع العدد المتوقع ({expected_branches})"
+                )
 
     def get_branches_display(self):
         """Get formatted branch information"""

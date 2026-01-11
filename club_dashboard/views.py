@@ -1691,6 +1691,20 @@ def addCoach(request):
             coach_profile.approved_at = timezone.now()
             print("Coach profile prepared (not yet saved)")
 
+            # Handle profile image
+            profile_image_base64 = request.POST.get('profile_image_base64')
+            if profile_image_base64:
+                coach_profile.profile_image_base64 = profile_image_base64
+                print(f"Profile image stored (length: {len(profile_image_base64)} chars)")
+
+            # Handle location coordinates
+            main_latitude = request.POST.get('main_latitude')
+            main_longitude = request.POST.get('main_longitude')
+
+            if main_latitude and main_longitude:
+                coach_profile.main_latitude = main_latitude
+                coach_profile.main_longitude = main_longitude
+
             # Handle branches data
             number_of_branches = form.cleaned_data.get('number_of_branches', 1)
             print(f"Number of branches: {number_of_branches}")
