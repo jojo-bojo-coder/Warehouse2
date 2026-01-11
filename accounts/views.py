@@ -786,12 +786,62 @@ def vendor_signup_step2(request):
             step2_data = form.cleaned_data.copy()
             print("📌 Cleaned data:", step2_data)
 
-            # Store activity_type as ID (already a string from ChoiceField)
-            # No need to convert since it's already the ID as string
+            # Store activity_type as ID
             step2_data['activity_type_id'] = step2_data['activity_type']
-
-            # Remove the original field to avoid confusion
             del step2_data['activity_type']
+
+            # Handle branches data
+            branches_data = request.POST.get('branches_data')
+            number_of_branches = step2_data.get('number_of_branches', 1)
+
+            if number_of_branches > 1 and branches_data:
+                try:
+                    import json
+                    branches = json.loads(branches_data)
+
+                    # Validate branches data
+                    if len(branches) == number_of_branches:
+                        # Clean up branches data - remove showMap property and ensure all required fields
+                        cleaned_branches = []
+                        for branch in branches:
+                            cleaned_branch = {
+                                'name': branch.get('name', '').strip(),
+                                'city': branch.get('city', '').strip(),
+                                'district': branch.get('district', '').strip(),
+                                'street': branch.get('street', '').strip(),
+                            }
+                            # Add coordinates if they exist
+                            if branch.get('latitude') and branch.get('longitude'):
+                                cleaned_branch['latitude'] = branch.get('latitude')
+                                cleaned_branch['longitude'] = branch.get('longitude')
+
+                            cleaned_branches.append(cleaned_branch)
+
+                        step2_data['branches'] = cleaned_branches
+                        print("✅ Branches data saved:", cleaned_branches)
+                    else:
+                        messages.error(request,
+                                       f'عدد الفروع المدخلة ({len(branches)}) لا يتطابق مع العدد المحدد ({number_of_branches})')
+                        context = {
+                            'form': form,
+                            'step': 2,
+                            'total_steps': 4,
+                            'step_title': 'معلومات النشاط',
+                            'progress_percentage': 50
+                        }
+                        return render(request, 'accounts/vendor_signup/step2.html', context)
+
+                except json.JSONDecodeError as e:
+                    print(f"❌ JSON decode error: {e}")
+                    messages.error(request, 'خطأ في بيانات الفروع')
+                    context = {
+                        'form': form,
+                        'step': 2,
+                        'total_steps': 4,
+                        'step_title': 'معلومات النشاط',
+                        'progress_percentage': 50
+                    }
+                    return render(request, 'accounts/vendor_signup/step2.html', context)
 
             request.session['vendor_signup_data']['step2'] = step2_data
             request.session.modified = True
@@ -809,7 +859,6 @@ def vendor_signup_step2(request):
     }
 
     print("📌 Rendering step2.html with context:", context)
-
     return render(request, 'accounts/vendor_signup/step2.html', context)
 
 
@@ -926,7 +975,10 @@ def create_vendor_from_session(request, step4_form):
     from club_dashboard.models import Category
     activity_type = Category.objects.get(id=step2_data['activity_type_id'])
 
-    # Create vendor profile with correct field names
+    # Prepare branches data if exists
+    branches = step2_data.get('branches', [])
+
+    # Create vendor profile
     vendor_profile = CoachProfile.objects.create(
         # Step 1 data
         full_name=step1_data['full_name'],
@@ -939,6 +991,7 @@ def create_vendor_from_session(request, step4_form):
         activity_type=activity_type,
         number_of_branches=step2_data['number_of_branches'],
         description=step2_data['description'],
+        branches=branches,  # Save branches data
 
         # Step 3 data
         region=step3_data['region'],
@@ -949,14 +1002,14 @@ def create_vendor_from_session(request, step4_form):
         commercial_registration_number=step3_data['commercial_registration_number'],
         tax_number=step3_data.get('tax_number', ''),
 
-        # Step 4 data (files) - use correct field names from CoachProfile model
-        business_document_file=business_document_base64,  # Changed from business_document_base64
-        commercial_registration_certificate=commercial_cert_base64,  # Changed from commercial_registration_certificate_base64
-        tax_certificate=tax_cert_base64,  # Changed from tax_certificate_base64
+        # Step 4 data (files)
+        business_document_file=business_document_base64,
+        commercial_registration_certificate=commercial_cert_base64,
+        tax_certificate=tax_cert_base64,
         store_logo_base64=store_logo_base64,
 
-        # Default values - approval_status instead of is_approved
-        approval_status='pending',  # Changed from is_approved=False
+        # Default values
+        approval_status='pending',
         created_at=timezone.now()
     )
 
